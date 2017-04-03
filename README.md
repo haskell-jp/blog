@@ -1,7 +1,7 @@
 
 # Blog for [Haskell-jp](https://haskell.jp)
 
-[![Build Status](https://secure.travis-ci.org/haskell-jp/blog.svg)](http://travis-ci.org/arow-oss/blog)
+[![Build Status](https://secure.travis-ci.org/haskell-jp/blog.svg)](http://travis-ci.org/haskell-jp/blog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is the blog for [Haskell-jp](https://haskell.jp).  It is built with

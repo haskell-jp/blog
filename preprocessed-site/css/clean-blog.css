@@ -175,6 +175,26 @@ hr.small {
   font-weight: 300;
   margin: 10px 0 0;
 }
+.intro-header .site-heading .subheading,
+.intro-header .post-heading .subheading,
+.intro-header .post-heading .meta {
+  text-shadow:
+    0 1px 1px #000,
+    1px 0 1px #000,
+    -1px 0 1px #000,
+    0 -1px 1px #000;
+}
+.intro-header .site-heading h1,
+.intro-header .post-heading h1 {
+  text-shadow:
+    0 1px 2px #000,
+    1px 0 2px #000,
+    -1px 0 2px #000,
+    0 -1px 2px #000;
+}
+.navbar-brand img:hover {
+  cursor: pointer;
+}
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading h1,
   .intro-header .page-heading h1 {
