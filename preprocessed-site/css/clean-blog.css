@@ -416,3 +416,8 @@ img::-moz-selection {
 body {
   webkit-tap-highlight-color: #0085a1;
 }
+
+.ascii {
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+}
