@@ -6,30 +6,27 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="$title$">
+    <meta name="description" content="Haskell-jp Blog">
     <meta name="author" content="Haskell-jp">
 
-    $if(draft)$
-    <meta name="robots" content="noindex">
-    <meta name="robots" content="noarchive">
-    $endif$
+    
 
-    <title>$title$</title>
+    <title>Haskell-jp Blog</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link href="./css/bootstrap.css" rel="stylesheet">
     <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
 
     <!-- Pandoc syntax highlighting CSS -->
-    <link href="/css/syntax.css" rel="stylesheet">
+    <link href="./css/syntax.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="/css/clean-blog.css" rel="stylesheet">
+    <link href="./css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -63,7 +60,7 @@
                         <a href="https://haskell.jp">Home</a>
                     </li>
                     <li>
-                        <a href="/">Blog</a>
+                        <a href="./">Blog</a>
                     </li>
                     <!-- <li> -->
                     <!--     <a href="/post.html">Sample Post</a> -->
@@ -79,13 +76,13 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="intro-header" style="background-image: url('$headingBackgroundImage$')">
+    <header class="intro-header" style="background-image: url('./img/home-bg.jpg')">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                  <div class="$headingDivClass$">
-                    <h1>$heading$</h1>
-                    $subHeadingContent$
+                  <div class="site-heading">
+                    <h1>Haskell-jp Blog</h1>
+                    <hr class="small"> <span class="subheading">日本Haskellユーザグループ公式ブログ</span>
                   </div>
                 </div>
             </div>
@@ -93,7 +90,29 @@
     </header>
 
     <!-- Main Content -->
-    $body$
+    <div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            
+  
+  
+
+  
+  
+
+
+            <!-- Pager -->
+            <!-- For the time being, we won't use a pager.  If we get a lot of -->
+            <!-- posts, we should probably use a pager. -->
+            <!-- <ul class="pager"> -->
+            <!--     <li class="next"> -->
+            <!--         <a href="#">Older Posts &rarr;</a> -->
+            <!--     </li> -->
+            <!-- </ul> -->
+        </div>
+    </div>
+</div>
+
 
     <hr>
 
@@ -135,13 +154,13 @@
     </footer>
 
     <!-- jQuery -->
-    <script src="/js/jquery.js"></script>
+    <script src="./js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
 
     <!-- Custom Theme JavaScript -->
-    <script src="/js/clean-blog.js"></script>
+    <script src="./js/clean-blog.js"></script>
 
 </body>
 

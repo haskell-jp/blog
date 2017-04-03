@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Haskell-jp Blog -- Dockerを使ってHaskellアプリをHerokuにデプロイする">
+    <meta name="author" content="Haskell-jp">
+
+    
+    <meta name="robots" content="noindex">
+    <meta name="robots" content="noarchive">
+    
+
+    <title>Haskell-jp Blog -- Dockerを使ってHaskellアプリをHerokuにデプロイする</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+								<a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../img/logo.svg"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="https://haskell.jp">Home</a>
+                    </li>
+                    <li>
+                        <a href="../">Blog</a>
+                    </li>
+                    <!-- <li> -->
+                    <!--     <a href="/post.html">Sample Post</a> -->
+                    <!-- </li> -->
+                    <!-- <li> -->
+                    <!--     <a href="/contact.html">Contact</a> -->
+                    <!-- </li> -->
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../img/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  <div class="post-heading">
+                    <h1>HaskellアプリをHerokuにデプロイする新しい方法</h1>
+                    <h2 class="subheading">Dockerを使って便利にデプロイしよう！</h2><span class="meta">Posted by <a href="https://arow.info">Kadzuya Okamoto</a></span>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>HerokuがDockerをサポートするようになって、Haskell製のウェブアプリケーションをHeroku上で公開するのがずいぶんと楽になりました。 この記事では、Servantで作ったアプリケーションを、Dockerの力を借りてHerokuにデプロイする方法について、具体的なプログラムを使って順を追って説明します。</p>
+<h2 id="本記事について">本記事について</h2>
+<p>この記事は、<a href="https://arow.info/blog/posts/2017-03-30-servant-on-heroku.html">Releasing a Haskell Web App on Heroku with Docker</a>としてHaskell-jpオフィシャルスポンサーである<a href="http://arow.info/">株式会社ARoW</a>公式ブログに公開されている英語の記事を、許可を得て日本語に翻訳したものです<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>。</p>
+<h2 id="はじめに">はじめに</h2>
+<p>今回、実際にHerokuにデプロイして試せるように、<a href="https://github.com/cdepillabout/servant-on-heroku">サンプルアプリ</a>を用意しました。 この記事の最初の章では、このサンプルアプリをローカル環境で動かす方法について述べます。 第2章では、同じくローカル環境において、Dockerを使って動かす方法について触れます。 第3章で、ついにHerokuにこのサンプルアプリをデプロイする方法についてお伝えします。</p>
+<p>もし、ローカル環境で動かしてみないで、いきなりHerokuにデプロイしたい方は、第3章から読んでいただいても問題ありません。</p>
+<h2 id="dockerを-使わずに-サンプルアプリを実行してみる">Dockerを <strong>使わずに</strong> サンプルアプリを実行してみる</h2>
+<p>今回用意したサンプルアプリは、APIを2つだけ提供する、とても単純なものです。</p>
+<ul>
+<li>かんたんなコメントのようなものを送信するためのAPI</li>
+<li>これまでに送信された全コメントを表示するためのAPI</li>
+</ul>
+<p>このサンプルアプリは、コメントを保存するのにPostgreSQLを利用しています。</p>
+<p>では、まずはDockerやHerokuをつかわないで、実際にローカルな環境でこのアプリをビルドして実行する手順を追っていきましょう。</p>
+<h3 id="ローカル環境でサンプルアプリをビルドする">ローカル環境でサンプルアプリをビルドする</h3>
+<p>まず最初に、サンプルアプリを公開しているgithubレポジトリをcloneして、アプリをビルドしてみましょう。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">git</span> clone https://github.com/cdepillabout/servant-on-heroku
+$ <span class="bu">cd</span> servant-on-heroku/
+$ <span class="ex">stack</span> setup  # このアプリが使っているバージョンのGHCをインストールします
+$ <span class="ex">stack</span> build  # 依存パッケージをインストールし、ビルドします</code></pre></div>
+<p>もしかしたら、PostgreSQLのライブラリが入っていなくて、ビルドに失敗してしまうかもしれません。</p>
+<p>もしArch Linuxを使っているのであれば、以下のコマンドで必要なライブラリをインストールできます。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">sudo</span> pacman -Ss postgresql-libs</code></pre></div>
+<p>Ubuntuユーザの方は、以下のコマンドです。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">sudo</span> apt-get install libpq-dev</code></pre></div>
+<p>上記以外のプラットフォームでは別のコマンドを使うことになると思います。</p>
+<p>では、PostgreSQLの必要なライブラリを入れたところで、<code>stack build</code>をもう一度試してみましょう。今度はうまくいくはずです。</p>
+<p>さぁ、アプリの実行をしてみましょう。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</code></pre></div>
+<p>わーお！ 以下のエラーが出ちゃいますね…</p>
+<pre><code>servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused
+        Is the server running on host &quot;localhost&quot; (::1) and accepting
+        TCP/IP connections on port 5432?
+        could not connect to server: Connection refused
+        Is the server running on host &quot;localhost&quot; (127.0.0.1) and accepting
+        TCP/IP connections on port 5432?
+)</code></pre>
+<p>サンプルアプリがPostgreSQLに接続しようとして失敗しています。 このアプリは、コメントをPostgreSQLに保存しているので、PostgreSQLがローカルな環境で動いていないといけません。</p>
+<h3 id="postgresqlのセットアップ">PostgreSQLのセットアップ</h3>
+<p>OSやディストリビューションによって、PostgreSQLのインストール方法はまちまちです。 実際にお使いのプラットフォームが提供しているドキュメントにしたがって、PostgreSQLのインストールを行ってください。</p>
+<p>たとえば、Arch Linuxの場合は<a href="https://wiki.archlinux.org/index.php/PostgreSQL#Installing_PostgreSQL">このドキュメント</a>です。 Ubuntuなら<a href="https://help.ubuntu.com/community/PostgreSQL#Installation">ここ</a>にドキュメントがあります。</p>
+<p>さて、PostgreSQLをインストールして、動いているのが確認できたら、もう一度アプリを起動してみましょう。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</code></pre></div>
+<p>わーお… またもやエラーです…</p>
+<pre><code>servant-on-heroku-api: libpq: failed (FATAL:  role &quot;mydbuser&quot; does not exist
+)</code></pre>
+<p>どうやら、このサンプルアプリ用に、PostgreSQLのユーザとデータベースを用意しないといけないようですね。 実際にサンプルアプリのソースコード(<code>src/Lib.hs</code>)を見てみると、<code>DATABASE_URL</code>という環境変数の値を見てPostgreSQLサーバに接続しているのがわかります。</p>
+<p><code>DATABASE_URL</code>環境変数が指定されていない場合は、以下のデフォルト値が使われます。</p>
+<pre><code>postgres://mydbuser:mydbpass@localhost:5432/mydb</code></pre>
+<p><code>mydbuser</code>というユーザ名で、<code>mydbpass</code>というパスワードを使って<code>mydb</code>という名前のデータベースにアクセスしようとしているということですね。 では、実際にこのユーザとデータベースをPostgreSQLで作成してみましょう。 次のコマンドはArch Linuxでしか動かないかもしれません。 もし動かないようであれば、お使いのプラットフォームが提供するドキュメントを参照してください。</p>
+<p>最初に、<code>mydbuser</code>という名前のユーザを、<code>mydbpass</code>というパスワードで作成しましょう。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">sudo</span> -u postgres -- psql --command <span class="st">&quot;CREATE ROLE mydbuser NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN ENCRYPTED PASSWORD 'mydbpass'&quot;</span></code></pre></div>
+<p>次に<code>mydb</code>という名前のデータベースを作成します。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">sudo</span> -u postgres -- createdb mydb</code></pre></div>
+<p><code>mydbuser</code>が<code>mydb</code>データベースにアクセスできるようにするのも忘れちゃいけませんね。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">sudo</span> -u postgres -- psql --command <span class="st">&quot;GRANT ALL PRIVILEGES ON DATABASE mydb TO mydbuser&quot;</span></code></pre></div>
+<p>ここで、PostgreSQLの再起動をしておいた方が無難でしょう。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">sudo</span> systemctl restart postgresql</code></pre></div>
+<p>これで、実際に<code>mydb</code>データベースに、<code>mydbuser</code>としてログインすることができるようになったはずです。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">psql</span> -U mydbuser -d mydb -h 127.0.0.1</code></pre></div>
+<h3 id="apiを実際にたたいてみる">APIを実際にたたいてみる</h3>
+<p>では、PostgreSQLのセットアップが無事終了したところで、次のコマンドでアプリケーションを立ち上げてみましょう。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">stack</span> exec -- servant-on-heroku-api
+<span class="ex">running</span> servant-on-heroku on port 8080...</code></pre></div>
+<p>無事に立ち上がったら、コメントを送ってみましょう。 アプリが立ち上がった状態で、別のターミナルなどを開いて次のコマンドを打ってみてください。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">curl</span> --request POST \
+    --header <span class="st">'Content-Type: application/json'</span> \
+    --data <span class="st">'{&quot;author&quot;: &quot;DG&quot;, &quot;text&quot;: &quot;Pretty good&quot;}'</span> \
+    <span class="st">'http://localhost:8080/add-comment'</span>
+<span class="kw">{</span> <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Pretty good&quot;</span>, <span class="st">&quot;author&quot;</span>: <span class="st">&quot;DG&quot;</span> <span class="kw">}</span></code></pre></div>
+<p>では、全コメントを取得してみます。</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">curl</span> --request GET \
+    --header <span class="st">'Content-Type: application/json'</span> \
+    <span class="st">'http://localhost:8080/get-comments'</span>
+[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Pretty good&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;DG&quot;</span>} ]</code></pre></div>
+<p>いいですね！ DG (Dennis Gosnell)さんが「めちゃめちゃ元気やで！」と言っています。 ローカル環境でアプリを動かすことができたので、次はDockerを使ってみましょう！</p>
+<h2 id="running-the-application-locally-with-docker">Running the application locally WITH Docker</h2>
+<p><a href="https://www.docker.com/">Docker</a> is used to build and run the application inside a container. The following section assumes basic familiarity with Docker.</p>
+<h3 id="installing-docker">Installing Docker</h3>
+<p>Docker is installed differently on different platforms. Check your platform documentation for more advice. For instance, here are the instructions for installing on <a href="https://wiki.archlinux.org/index.php/Docker#Installation">Arch Linux</a> and <a href="https://docs.docker.com/engine/installation/linux/ubuntu/">Ubuntu</a>.</p>
+<p>After installing Docker, make sure it is running with the following command:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">docker</span> info</code></pre></div>
+<h3 id="building-with-docker">Building with Docker</h3>
+<p>We will build the application inside of Docker and create a docker image for the application.</p>
+<p>Use <code>docker build</code> to build the application:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">docker</span> build -t servant-on-heroku .</code></pre></div>
+<p>This uses the <a href="https://github.com/cdepillabout/servant-on-heroku/blob/master/Dockerfile"><code>Dockerfile</code></a> in the current directory to build the application. The <code>Dockerfile</code> lists all the steps to build the application and create a reusable image.</p>
+<p>If you take a look at the <code>Dockerfile</code>, you can see that it is performing the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>Install required packages with <code>apt-get</code>.</li>
+<li>Install <code>stack</code>.</li>
+<li>Install GHC using <code>stack</code> based on the application’s <code>stack.yaml</code> file.</li>
+<li>Install Haskell dependencies for the application using the application’s <code>.cabal</code> file.</li>
+<li>Building the application with <code>stack</code>.</li>
+<li>Create a non-root user to use to run the application.</li>
+<li>Run the application.</li>
+</ol>
+<p><code>docker build</code> can take up to one hour to finish creating the <code>servant-on-heroku</code> image.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
+<h3 id="testing-the-api-with-docker">Testing the API with Docker</h3>
+<p>Once <code>docker build</code> finishes, <code>docker images</code> can be used to list all local images:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">docker</span> images
+<span class="ex">REPOSITORY</span>           TAG       IMAGE ID       CREATED         SIZE
+<span class="ex">servant-on-heroku</span>    latest    ff591d372461   30 seconds ago  3.92 GB
+<span class="ex">...</span></code></pre></div>
+<p>You can see the <code>servant-on-heroku</code> image that was just created.</p>
+<p>Let’s try running the <code>servant-on-heroku</code> image. This will run the application in Docker:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">docker</span> run --interactive --tty --rm servant-on-heroku</code></pre></div>
+<p>Oh no! It looks like the PostgreSQL problem is back:</p>
+<pre><code>servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused
+        Is the server running on host &quot;localhost&quot; (::1) and accepting
+        TCP/IP connections on port 5432?
+could not connect to server: Connection refused
+        Is the server running on host &quot;localhost&quot; (127.0.0.1) and accepting
+        TCP/IP connections on port 5432?
+)</code></pre>
+<p>What’s happening here? Well, since the <code>servant-on-heroku</code> container is running as a Docker container, by default it can’t see our local network. It can’t see that PostgreSQL is running on <code>localhost:5432</code>.</p>
+<p>Here’s a small trick we can use. When running the <code>servant-on-heroku</code> container, we can tell Docker to just let the container use our local network interface. That way, it can see PostgreSQL:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">docker</span> run --interactive --tty --rm --network host servant-on-heroku
+<span class="ex">running</span> servant-on-heroku on port 8080...</code></pre></div>
+<p>With the <code>servant-on-heroku</code> container running, let’s try the <code>curl</code> commands from the previous section. Posting a comment:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">curl</span> --request POST \
+    --header <span class="st">'Content-Type: application/json'</span> \
+    --data <span class="st">'{&quot;author&quot;: &quot;EK&quot;, &quot;text&quot;: &quot;Not enough CT&quot;}'</span> \
+    <span class="st">'http://localhost:8080/add-comment'</span>
+<span class="kw">{</span> <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Not enough CT&quot;</span>, <span class="st">&quot;author&quot;</span>: <span class="st">&quot;EK&quot;</span> <span class="kw">}</span></code></pre></div>
+<p>Getting the comments:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">curl</span> --request GET \
+    --header <span class="st">'Content-Type: application/json'</span> \
+    <span class="st">'http://localhost:8080/get-comments'</span>
+[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Pretty good&quot;</span>,<span class="st">&quot;author&quot;</span>: <span class="st">&quot;DG&quot;</span>},{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Not enough CT&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;EK&quot;</span>}]</code></pre></div>
+<p>By the way, in order to open a shell and inspect the image by hand, the following command can be used:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">docker</span> run --interactive --tty --rm --network host servant-on-heroku /bin/bash</code></pre></div>
+<p>Now that we are confident our application works in Docker, it’s time for Heroku.</p>
+<h2 id="heroku">Heroku</h2>
+<p>Once we have the application building and running successfully in Docker, it’s easy to move to Heroku. The first step is creating a Heroku account.</p>
+<h3 id="creating-an-account">Creating an Account</h3>
+<p>Go <a href="https://signup.heroku.com">here</a> to sign up for a Heroku account. If you already have a Heroku account, you can skip this step.</p>
+<p>We will deploy out application using Heroku’s “Free” tier, so you don’t need to worry about registering a credit card.</p>
+<p>The majority of the instructions in this section are condensed from Heroku’s <a href="https://devcenter.heroku.com/articles/container-registry-and-runtime">own documentation</a> on integrating with Docker. Check out their documentation is anything is unclear.</p>
+<h3 id="install-the-heroku-cli-application">Install the Heroku CLI Application</h3>
+<p>Heroku provides a CLI application to make it easy to work with their service. This is similar to <a href="https://aws.amazon.com/cli">AWS’s CLI</a> or <a href="https://github.com/digitalocean/doctl">Digital Ocean’s CLI</a>.</p>
+<p>On Arch Linux, Heroku’s CLI application can be installed with the following command:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">yaourt</span> -S heroku-toolbelt</code></pre></div>
+<p>This installs the <code>heroku</code> binary to the system.</p>
+<p>Instructions for other platforms can be found on <a href="https://devcenter.heroku.com/articles/heroku-cli">Heroku’s site</a>.</p>
+<p>Once the CLI application has been downloaded, it can be used to login and authenticate with Heroku’s API:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> login</code></pre></div>
+<p>You will be asked for the username and password of the account you just created.</p>
+<h3 id="create-an-application-on-heroku">Create an Application on Heroku</h3>
+<p>The first step of releasing our Servant API to Heroku is to create a Heroku Application.</p>
+<p>The following command will create a new Heroku application called <code>servant-on-heroku</code>. You may need to use a different name for your own application:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> apps:create servant-on-heroku</code></pre></div>
+<p>The following command lists information about the application just created (although it won’t be too interesting yet):</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> apps:info servant-on-heroku
+=== <span class="ex">servant-on-heroku</span>
+<span class="ex">Auto</span> Cert Mgmt: false
+<span class="ex">Dynos</span>:
+<span class="ex">Git</span> URL:        https://git.heroku.com/servant-on-heroku.git
+<span class="ex">Owner</span>:          me@gmail.com
+<span class="ex">Region</span>:         us
+<span class="ex">Repo</span> Size:      0 B
+<span class="ex">Slug</span> Size:      0 B
+<span class="ex">Stack</span>:          cedar-14
+<span class="ex">Web</span> URL:        https://servant-on-heroku.herokuapp.com/</code></pre></div>
+<p>Make sure to take note of the <code>Web URL</code>. It will come in handy later.</p>
+<h3 id="install-heroku-docker-plugin">Install Heroku Docker Plugin</h3>
+<p>The Heroku CLI application has a plugin architecture. This allows the user to install plugins that can be used to access different parts of Heroku’s API.</p>
+<p>There is a plugin for using Heroku’s <a href="https://devcenter.heroku.com/articles/container-registry-and-runtime">Docker Container Registry</a>.</p>
+<p>The following command can be used to install the plugin:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> plugins:install heroku-container-registry</code></pre></div>
+<p>After installing the plugin, the following command can be used to make sure it works:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> container
+<span class="ex">4.1.1</span></code></pre></div>
+<p>It should return the version string for the plugin.</p>
+<p>In order to actually use the plugin, the following command can be used to login to Heroku’s container registry.</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> container:login</code></pre></div>
+<p>This adds login information for Heroku’s container registry to the file <code>~/.docker/config.json</code>:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">cat</span> ~/.docker/config.json
+<span class="kw">{</span>
+  <span class="st">&quot;auths&quot;</span>: <span class="kw">{</span>
+    <span class="st">&quot;registry.heroku.com&quot;</span>: <span class="kw">{</span>
+      <span class="st">&quot;auth&quot;</span>: <span class="st">&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=&quot;</span>
+    <span class="kw">}</span>
+  <span class="kw">}</span>
+<span class="kw">}</span></code></pre></div>
+<h3 id="get-the-application-running-on-heroku">Get the Application Running on Heroku</h3>
+<p>In order to get the application actually running on Heroku, the following command is used:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> container:push web</code></pre></div>
+<p>This builds a Docker image for the application based on the <code>Dockerfile</code> in the current directory. Internally, <code>docker build</code> is used to do this. If the image was already built in the previous step (when running <code>docker build</code> from the command line), then this <code>heroku container:push</code> command will just use the previously built image. The image is sent to Docker’s Container Registry.</p>
+<p>Now let’s check <code>heroku apps:info</code> again:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> apps:info servant-on-heroku
+=== <span class="ex">servant-on-heroku</span>
+<span class="ex">Auto</span> Cert Mgmt: false
+<span class="ex">Dynos</span>:
+<span class="ex">Git</span> URL:        https://git.heroku.com/servant-on-heroku.git
+<span class="ex">Owner</span>:          me@gmail.com
+<span class="ex">Region</span>:         us
+<span class="ex">Repo</span> Size:      0 B
+<span class="ex">Slug</span> Size:      0 B
+<span class="ex">Stack</span>:          cedar-14
+<span class="ex">Web</span> URL:        https://servant-on-heroku.herokuapp.com/</code></pre></div>
+<p>Hmm, that’s not right. See where it says <code>Dynos:</code>? A “dyno” is Heroku-lingo for a server that runs the web application. This line means that there aren’t any servers running the application.</p>
+<p>In order to fix this, the <code>heroku ps:scale</code> command can be used to spin up one dyno to run the application:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> ps:scale web=1</code></pre></div>
+<p>This creates one “web” dyno, which will run the Servant API.<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></p>
+<p>Now run the following command to make sure the dyno is actually running:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> ps
+<span class="ex">Free</span> dyno hours quota remaining this month: 549h 2m (99%)
+<span class="ex">For</span> more information on dyno sleeping and how to upgrade, see:
+<span class="ex">https</span>://devcenter.heroku.com/articles/dyno-sleeping
+
+=== <span class="ex">web</span> (Free)<span class="bu">:</span> /bin/sh -c /opt/servant-on-heroku/bin/servant-on-heroku-api (1)
+<span class="ex">web.1</span>: starting 2017/03/22 19:05:04 +0900 (~ 8s ago)</code></pre></div>
+<p>The output is somewhat noisy, but you can tell that there is now one web dyno running.</p>
+<p>Now that the application is running, the following command can be used to access the application’s <code>Web URL</code> with curl. (The application <code>Web URL</code> can be found in the output of <code>heroku apps:info</code>.)</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">curl</span> --request POST \
+    --header <span class="st">'Content-Type: application/json'</span> \
+    --data <span class="st">'{&quot;author&quot;: &quot;MS&quot;, &quot;text&quot;: &quot;Gotta make it professional&quot;}'</span> \
+    <span class="st">'https://servant-on-heroku.herokuapp.com/add-comment'</span></code></pre></div>
+<p>That’s strange, there appears to be another error. Let’s see how to investigate application errors on Heroku.</p>
+<h3 id="debugging-application-errors">Debugging Application Errors</h3>
+<p>Heroku has a really nice log system. The application’s <code>stdout</code> and <code>stderr</code> logs can be inspected with the following command:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> logs
+<span class="ex">2017-03-22T10</span>:05:49 heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span>
+<span class="ex">2017-03-22T10</span>:05:52 app[web.1]: servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused
+<span class="ex">2017-03-22T10</span>:05:52 app[web.1]:    Is the server running on host <span class="st">&quot;localhost&quot;</span> (127.0.0.1) <span class="ex">and</span> accepting
+<span class="ex">2017-03-22T10</span>:05:52 app[web.1]:    TCP/IP connections on port 5432?
+<span class="ex">2017-03-22T10</span>:05:52 app[web.1]: )
+<span class="ex">2017-03-22T10</span>:05:52 heroku[web.1]: State changed from starting to crashed</code></pre></div>
+<p>Oh no! It’s the same error that has been plaguing us this whole time. Why is it occurring again?</p>
+<p>Well, it’s because we haven’t setup a PostgreSQL database on Heroku!</p>
+<h3 id="postgresql-on-heroku">PostgreSQL on Heroku</h3>
+<p>Heroku has <a href="https://devcenter.heroku.com/articles/heroku-postgresql">nice support</a> for PostgreSQL. Heroku provides a PostgreSQL database that can be used free-of-charge.</p>
+<p>The following command can be used enable the PostgreSQL database add-on for the application:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> addons:create heroku-postgresql:hobby-dev</code></pre></div>
+<p>This enables the <code>heroku-postgresql</code> add-on in the <code>hobby-dev</code> tier (which is free).</p>
+<p>After enabling it, the following command can be used to make sure the PostgreSQL database has been successfully created:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> addons:info heroku-postgresql
+=== <span class="ex">postgresql-tetrahedral-44549</span>
+<span class="ex">Attachments</span>:  servant-on-heroku::DATABASE
+<span class="ex">Installed</span> at: Wed Mar 22 2017 19:22:14 GMT+0900 (JST)
+<span class="ex">Owning</span> app:   servant-on-heroku
+<span class="ex">Plan</span>:         heroku-postgresql:hobby-dev
+<span class="ex">Price</span>:        free
+<span class="ex">State</span>:        created</code></pre></div>
+<p>The database info can be checked with the <code>pg:info</code> command:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> pg:info
+=== <span class="ex">DATABASE_URL</span>
+<span class="ex">Plan</span>:        Hobby-dev
+<span class="ex">Status</span>:      Available
+<span class="ex">Connections</span>: 0/20
+<span class="ex">PG</span> Version:  9.6.1
+<span class="ex">Created</span>:     2017-03-22 10:22 UTC
+<span class="ex">Data</span> Size:   7.2 MB
+<span class="ex">Tables</span>:      1
+<span class="ex">Rows</span>:        0/10000 (In compliance)
+<span class="ex">Fork</span>/Follow: <span class="ex">Unsupported</span>
+<span class="ex">Rollback</span>:    Unsupported
+<span class="ex">Add-on</span>:      postgresql-tetrahedral-44549</code></pre></div>
+<h3 id="restart-the-app">Restart the App</h3>
+<p>Now that the PostgreSQL database is up and running, let’s try restarting the application:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> ps:restart</code></pre></div>
+<p>Let’s take a look at the application logs again:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> logs
+<span class="ex">2017-03-22T10</span>:22:15 heroku[web.1]: State changed from crashed to starting
+<span class="ex">2017-03-22T10</span>:22:54 heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span>
+<span class="ex">2017-03-22T10</span>:22:56 app[web.1]: Migrating: CREATe TABLE <span class="st">&quot;comment&quot;</span>(<span class="st">&quot;id&quot;</span> SERIAL8  PRIMARY KEY UNIQUE,<span class="st">&quot;author&quot;</span> VARCHAR NOT NULL,<span class="st">&quot;text&quot;</span> VARCHAR NOT NULL)
+<span class="ex">2017-03-22T10</span>:22:57 heroku[web.1]: State changed from starting to up</code></pre></div>
+<p>Looks like it worked this time! Finally!</p>
+<p>Let’s try accessing the app using <code>curl</code> again:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">curl</span> --request POST \
+    --header <span class="st">'Content-Type: application/json'</span> \
+    --data <span class="st">'{&quot;author&quot;: &quot;SPJ&quot;, &quot;text&quot;: &quot;Avoid heroku-at-all-costs&quot;}'</span> \
+    <span class="st">'https://servant-on-heroku.herokuapp.com/add-comment'</span>
+{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Avoid heroku-at-all-costs&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;SPJ&quot;</span>}</code></pre></div>
+<p>And once more:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">curl</span> --request GET \
+    --header <span class="st">'Content-Type: application/json'</span> \
+    <span class="st">'https://servant-on-heroku.herokuapp.com/get-comments'</span>
+[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Avoid heroku-at-all-costs&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;SPJ&quot;</span>}]</code></pre></div>
+<p>Success! Looks like everything is working well!</p>
+<h3 id="how-does-the-app-on-heroku-know-how-to-connect-to-the-database">How does the app on Heroku know how to connect to the database?</h3>
+<p>You may be wondering how the application running on Heroku knows how to connect to the database. Well, Heroku has configuration variables that it passes to the application as environment variables.</p>
+<p>These configuration variables can be inspected with the following command:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> config
+=== <span class="ex">servant-on-heroku</span> Config Vars
+<span class="ex">DATABASE_URL</span>: postgres://someusername:somepassword@ec2-12-12-234-123.compute-1.amazonaws.com:5432/databasename</code></pre></div>
+<p>Setting up the PostgreSQL database creates a configuration variable called <code>DATABASE_URL</code>. Heroku passes this configuration variable to the application on startup as an environment variable. As discussed in a previous section, the application uses <code>DATABASE_URL</code> to connect to the correct database<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
+<p>Heroku’s <code>DATABASE_URL</code> can also be used to connect to the database on the command line:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">psql</span> <span class="st">&quot;</span><span class="va">$(</span><span class="ex">heroku</span> config:get DATABASE_URL<span class="va">)</span><span class="st">&quot;</span>
+<span class="ex">psql</span> (9.6.1)
+<span class="ex">SSL</span> connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)
+
+<span class="va">databasename=</span><span class="op">&gt;</span> <span class="kw">select</span> <span class="ex">*</span> from comment<span class="kw">;</span>
+ <span class="fu">id</span> <span class="kw">|</span> <span class="ex">author</span> <span class="kw">|</span>           <span class="ex">text</span>
+<span class="ex">----</span><span class="kw">|</span><span class="ex">--------</span><span class="kw">|</span><span class="ex">---------------------------</span>
+  <span class="ex">1</span> <span class="kw">|</span> <span class="ex">SPJ</span>    <span class="kw">|</span> <span class="ex">Avoid</span> Heroku at all costs
+<span class="kw">(</span><span class="ex">1</span> row<span class="kw">)</span></code></pre></div>
+<h3 id="future-normal-releases">Future (Normal) Releases</h3>
+<p>Performing future releases of the application is extremely easy. Just run the following command:</p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> container:push web</code></pre></div>
+<p>This rebuilds the docker image for the application and pushes it to Heroku’s container repository. It then restarts the dynos so they are running with the new code for the application.</p>
+<h2 id="future-work">Future Work</h2>
+<p>This application works pretty well, but there are a couple places for improvements. The lowest hanging fruit would probably be the <code>Dockerfile</code>. Here are a couple ideas that would make the <code>Dockerfile</code> a little better:</p>
+<ul>
+<li>Use a slimmer image as the base image for the <code>Dockerfile</code>. Right now it is using <a href="https://hub.docker.com/r/heroku/heroku/">Heroku’s images</a>, but I don’t think there is any reason that something like <a href="https://hub.docker.com/_/alpine/">Alpine Linux</a> couldn’t be used.</li>
+<li>Base the image on something with <code>stack</code>, GHC, and popular Haskell libraries already installed. This would greatly reduce the time it takes to do the very initial <code>docker build</code>.</li>
+<li>At the very end of the <code>Dockerfile</code>, remove <code>stack</code>, GHC, and all Haskell libraries. This would hopefully make the docker image a little smaller. It would take less bandwidth to send the image to Heroku’s container repository.</li>
+</ul>
+<p>It would also be nice to use something like <code>docker-compose</code> to setup the PostgreSQL database using Docker when running locally.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>As long as you have Docker running on your local machine (and maybe PostgreSQL for testing), it’s pretty easy to get your Haskell code on Heroku. Heroku’s free plan is nice for testing application ideas and showing them to others. It may not work for any sort of business application, but as a proof-of-concept, it’s great!</p>
+<p>If you decide your proof-of-concept works well and you want to release it, it’s easy to add a credit card to Heroku and start running on their cheapest paid tier. It is a very easy upgrade path.</p>
+<h2 id="脚注">脚注</h2>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>僕が自分で許可しました。<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>These seven steps are slightly complicated. Ideally, it should be possible to install GHC, install all the application dependencies, and build the application in just one command. However, I have separated it into multiple commands to take advantage of Docker’s caching ability. When re-running <code>docker build</code>, only commands where the input has changed will be re-run.</p>
+<p>For example, if you change the <code>servant-on-heroku.cabal</code> file and re-run <code>docker build</code>, it will rebuild the image from (4), starting with installing dependencies from the application’s <code>.cabal</code> file. <code>docker build</code> does not have to re-run (1), (2), or (3). It uses cached versions of the image.</p>
+<p>This means that if all you change is the application source code under <code>src/</code> and re-run <code>docker build</code>, all <code>docker build</code> has to do is re-run (5), (6), and (7). It doesn’t have to install GHC or the application’s Haskell dependencies. This reduces a large part of the build-time. Future builds will take just a few minutes, instead of one hour.<a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>There are <a href="https://devcenter.heroku.com/articles/dynos#dyno-configurations">multiple kinds</a> of dynos. However, it’s not something that we need to worry about for our simple web API.<a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p>Heroku also makes use of the <code>PORT</code> environment variable for telling your application which port to listen on.<a href="#fnref4">↩</a></p></li>
+</ol>
+</div>
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/haskell-jp">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="copyright text-muted">Copyright Haskell-jp 2017</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../js/clean-blog.js"></script>
+
+</body>
+
+</html>
