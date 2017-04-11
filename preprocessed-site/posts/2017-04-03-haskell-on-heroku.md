@@ -9,11 +9,11 @@ draft: true
 ---
 
 HerokuがDockerをサポートするようになって、Haskell製のウェブアプリケーションをHeroku上で公開するのがずいぶんと楽になりました。
-この記事では、Servantで作ったアプリケーションを、Dockerの力を借りてHerokuにデプロイする方法について、具体的なプログラムを使って順を追って説明します。
+この記事では、Servant(HaskellのWebフレームワークの1つ)で作ったアプリケーションを、Dockerの力を借りてHerokuにデプロイする方法について、具体的なプログラムを使って順を追って説明します。
 
 ## 本記事について
 
-この記事は、[Releasing a Haskell Web App on Heroku with Docker](https://arow.info/blog/posts/2017-03-30-servant-on-heroku.html)としてHaskell-jpオフィシャルスポンサーである[株式会社ARoW](http://arow.info/)公式ブログに公開されている英語の記事を、許可を得て日本語に翻訳したものです[^me]。
+この記事は、[Releasing a Haskell Web App on Heroku with Docker](https://arow.info/blog/posts/2017-03-30-servant-on-heroku.html)としてHaskell-jpオフィシャルスポンサーである[株式会社ARoW](http://arow.info/)公式ブログに公開されている英語の記事を、許可を得て日本版にローカライズしたものです[^me]。
 
 ## はじめに
 
@@ -22,7 +22,7 @@ HerokuがDockerをサポートするようになって、Haskell製のウェブ�
 第2章では、同じくローカル環境において、Dockerを使って動かす方法について触れます。
 第3章で、ついにHerokuにこのサンプルアプリをデプロイする方法についてお伝えします。
 
-もし、ローカル環境で動かしてみないで、いきなりHerokuにデプロイしたい方は、第3章から読んでいただいても問題ありません。
+もし、ローカル環境で動かしてみたりしないで、いきなりHerokuにデプロイしたい方は、第3章から読んでいただいても問題ありません。
 
 ## Dockerを **使わずに** サンプルアプリを実行してみる
 
@@ -179,7 +179,7 @@ $ curl --request GET \
 [{"text":"Pretty good","author":"DG"} ]
 ```
 
-いいですね！ DG (Dennis Gosnell)さんが「めちゃめちゃ元気やで！」と言っています。
+いいですね！ DG (Dennis Gosnell / 原著者)さんが「チョベリグ！」と言っています。
 ローカル環境でアプリを動かすことができたので、次はDockerを使ってみましょう！
 
 ## Running the application locally WITH Docker
@@ -719,5 +719,5 @@ tier.  It is a very easy upgrade path.
     of dynos. However, it's not something that we need to worry about for our
     simple web API.
 
-[^me]: 僕が自分で許可しました。
+[^me]: 僕が自分で許可しました。また、翻訳ではなくローカライズなので、原文の逐語訳ではなく、日本語話者にとって理解しやすいように一部加筆修正してあります。
 
