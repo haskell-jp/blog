@@ -2,9 +2,9 @@
 title: Haskell-jp Blog -- Dockerを使ってHaskellアプリをHerokuにデプロイする
 headingBackgroundImage: ../img/post-bg.jpg
 headingDivClass: post-heading
-heading: HaskellアプリをHerokuにデプロイする新しい方法
-subHeading: Dockerを使って便利にデプロイしよう！
-postedBy: <a href="https://arow.info">Kadzuya Okamoto</a>
+heading: HaskellアプリをHerokuにデプロイするナウい方法
+subHeading: Dockerを使ってコンパイル時間に制限されないデプロイ
+postedBy: <a href="https://arow.info#arowM">Kadzuya Okamoto</a>
 draft: true
 ---
 
