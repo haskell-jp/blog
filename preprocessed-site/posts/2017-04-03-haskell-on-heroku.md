@@ -8,7 +8,7 @@ postedBy: <a href="https://arow.info#arowM">Kadzuya Okamoto</a>
 draft: true
 ---
 
-HerokuがDockerをサポートするようになって、Haskell製のウェブアプリケーションをHeroku上で公開するのがずいぶんと楽になりました。
+Herokuが[Docker](https://www.docker.com/)をサポートするようになって、Haskell製のウェブアプリケーションをHeroku上で公開するのがずいぶんと楽になりました。
 この記事では、Servant(HaskellのWebフレームワークの1つ)で作ったアプリケーションを、Dockerの力を借りてHerokuにデプロイする方法について、具体的なプログラムを使って順を追って説明します。
 
 ## 本記事について
@@ -182,58 +182,52 @@ $ curl --request GET \
 いいですね！ DG (Dennis Gosnell / 原著者)さんが「チョベリグ！」と言っています。
 ローカル環境でアプリを動かすことができたので、次はDockerを使ってみましょう！
 
-## Running the application locally WITH Docker
+## 今度は**Dockerをつかって**アプリを動かしてみよう！
 
-[Docker](https://www.docker.com/) is used to build and run the application inside a container. The
-following section assumes basic familiarity with Docker.
+[Docker](https://www.docker.com/)はコンテナ技術を用いていて、これを使うと仮想環境下でアプリをビルドしたり実際に動かしたりすることができます。
+以降では、読者のみなさまがある程度Dockerについて知っている前提で進めていきますが、たぶんそんなによく知らなくても「まぁそんなもんなんだろう」と思いながら読んでいただければ差し支えないと思います。
+実際、日本語ローカライズ版を作ってる僕だって、そんなにDockerに詳しいわけではありません。
 
-### Installing Docker
+### Dockerをインストールする
 
-Docker is installed differently on different platforms. Check your platform
-documentation for more advice. For instance, here are the instructions for
-installing on [Arch Linux](https://wiki.archlinux.org/index.php/Docker#Installation)
-and [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/).
+Dockerのインストール方法は環境によってまちまちなので、ご自身の環境に合わせて信用できるドキュメントを参照してください。
+[Arch Linuxの場合](https://wiki.archlinux.org/index.php/Docker#Installation)や[Ubuntuの場合](https://docs.docker.com/engine/installation/linux/ubuntu/)はリンク先を読めばなんとかなると思います。
 
-After installing Docker, make sure it is running with the following command:
+Dockerのインストールが終わったら、以下のコマンドを実行してDockerがちゃんと動いているか確認してみてください。
 
 ```sh
 $ docker info
 ```
 
-### Building with Docker
+### Dockerを使ってビルドする
 
-We will build the application inside of Docker and create a docker image for the
-application.
+では、実際にDockerを使ってサンプルアプリをビルドし、そのアプリを動かすためのDockerイメージを作成します。
 
-Use `docker build` to build the application:
+アプリケーションをビルドするには、`docker build`コマンドを使います。
 
 ```sh
 $ docker build -t servant-on-heroku .
 ```
 
-This uses the [`Dockerfile`](https://github.com/cdepillabout/servant-on-heroku/blob/master/Dockerfile)
-in the current directory to build the application. The `Dockerfile` lists all
-the steps to build the application and create a reusable image.
+このコマンドを実行すると、実行したディレクトリ内に存在する[`Dockerfile`](https://github.com/cdepillabout/servant-on-heroku/blob/master/Dockerfile)という名前のファイルにしたがってアプリをビルドしてくれます。
+この`Dockerfile`には、アプリをビルドするための具体的な作業がすべて記述されており、その手続きにしたがってDockerがまったく別の環境でもDockerさえあればアプリを実行できる「イメージ」を作成します。
 
-If you take a look at the `Dockerfile`, you can see that it is performing the
-following steps:
+ためしに、このサンプルアプリに含まれる`Dockerfile`の中身を見てみましょう。
+どうやら、以下の各処理を実行するようになっているようです。
 
-1.  Install required packages with `apt-get`.
-2.  Install `stack`.
-3.  Install GHC using `stack` based on the application's `stack.yaml` file.
-4.  Install Haskell dependencies for the application using the application's
-    `.cabal` file.
-5.  Building the application with `stack`.
-6.  Create a non-root user to use to run the application.
-7.  Run the application.
+1. `apt-get`コマンドを使って、依存パッケージをインストール
+2. `stack`をインストール
+3. `stack.yaml`を見て、実際に必要なバージョンのGHCを`stack`を使ってインストールする
+4. `*.cabal`ファイルの記述にしたがって、アプリが使っているHaskellパッケージをインストールする
+5. `stack`を使って実際にアプリをビルドする
+6. rootユーザでアプリを実行したくないので、root権限をもつ別のユーザを作成しておく
+7. 実際にアプリを実行する
 
-`docker build` can take up to one hour to finish creating the
-`servant-on-heroku` image.[^1]
+前述した`docker build`コマンドを実行して`servant-on-heroku`という名前のイメージを作成するのには、1時間近くかかるので[^1]、その間にご飯を食べたり録画しておいたアニメを2本見れます。
 
-### Testing the API with Docker
+### DockerをつかってAPIをテストする
 
-Once `docker build` finishes, `docker images` can be used to list all local
-images:
+`docker build`が終われば、`docker images`でローカル環境に存在する全イメージを一覧にして表示できます。
 
 ```sh
 $ docker images
@@ -242,16 +236,15 @@ servant-on-heroku    latest    ff591d372461   30 seconds ago  3.92 GB
 ...
 ```
 
-You can see the `servant-on-heroku` image that was just created.
+さきほど作成した`servant-on-heroku`のイメージが作成されているのがわかりますね？
 
-Let's try running the `servant-on-heroku` image. This will run the application
-in Docker:
+では、`servant-on-heroku`のイメージを走らせてみましょう。次のコマンドを実行すれば、Docker内でこのサンプルアプリが動くはずです。
 
 ```sh
 $ docker run --interactive --tty --rm servant-on-heroku
 ```
 
-Oh no!  It looks like the PostgreSQL problem is back:
+あぁ... またPostgreSQLの例の問題が出てしまったみたいですね...
 
 ```
 servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused
@@ -263,21 +256,21 @@ could not connect to server: Connection refused
 )
 ```
 
-What's happening here? Well, since the `servant-on-heroku` container is running
-as a Docker container, by default it can't see our local network. It can't see
-that PostgreSQL is running on `localhost:5432`.
+これはどういうことでしょうか。
+`servant-on-heroku`コンテナはDockerコンテナとして動いているため、初期設定では我々のローカル環境が見えず、もちろんローカル環境にセットアップして`localhost:5432`で動いているPostgreSQLも見えないのです。
 
-Here's a small trick we can use. When running the `servant-on-heroku` container,
-we can tell Docker to just let the container use our local network interface.
-That way, it can see PostgreSQL:
+では、ちょっとしたワザを使ってこの問題を解決してみましょう。
+`servant-on-heroku`コンテナを動かしている時に、Dockerに我々のローカル環境のネットワークインタフェースを使うように指示することができます。
 
 ```sh
 $ docker run --interactive --tty --rm --network host servant-on-heroku
 running servant-on-heroku on port 8080...
 ```
 
-With the `servant-on-heroku` container running, let's try the `curl` commands
-from the previous section.  Posting a comment:
+ほら、こうすれば、確かにDockerコンテナからPostgreSQLにアクセスできているようです。
+
+`servant-on-heroku`コンテナが動いている状態で別のシェルを立ち上げて、前の章でやったように`curl`コマンドでAPIが動いているか確かめてみましょう。
+まずはコメントの投稿です。
 
 ```sh
 $ curl --request POST \
@@ -287,7 +280,7 @@ $ curl --request POST \
 { "text": "Not enough CT", "author": "EK" }
 ```
 
-Getting the comments:
+今度はコメントの取得をしてみます。
 
 ```sh
 $ curl --request GET \
@@ -296,14 +289,15 @@ $ curl --request GET \
 [{"text":"Pretty good","author": "DG"},{"text":"Not enough CT","author":"EK"}]
 ```
 
-By the way, in order to open a shell and inspect the image by hand, the
-following command can be used:
+この通り、無事にEK (Edward Kmett / Haskell界のすごい人)さんが「圏論を、圏論をもっとくれぇええええい！」と言っているコメントが追加されました。
+
+ちなみに、Docker内でシェルを開いて、手動でDockerイメージをいじりながらいろいろ確かめてみるには、次のコメントのようにすればOKです。
 
 ```sh
 $ docker run --interactive --tty --rm --network host servant-on-heroku /bin/bash
 ```
 
-Now that we are confident our application works in Docker, it's time for Heroku.
+では、Docker上でアプリがちゃんと動いたことを確認したところで、ようやくHerokuの出番です。
 
 ## Heroku
 
