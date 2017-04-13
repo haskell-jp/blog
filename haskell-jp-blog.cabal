@@ -12,5 +12,16 @@ executable site
                   , containers >= 0.5
                   , data-default >= 0.5
                   , hakyll
+                  , pandoc-types
   ghc-options:      -threaded -Wall
   default-language: Haskell2010
+
+test-suite site-doctest
+  type:                exitcode-stdio-1.0
+  main-is:             DocTest.hs
+  hs-source-dirs:      test
+  build-depends:       base
+                     , doctest
+                     , Glob
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N

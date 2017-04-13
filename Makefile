@@ -83,6 +83,9 @@ site: $(SITE_PROG_PATH)
 	@# good idea.
 	stack exec -- site rebuild
 
+test:
+	stack test
+
 # Run a test webserver on http://0.0.0.0:8000 serving up the content of our
 # blog.  If the content changes, it is automatically rebuilt.
 watch: $(SITE_PROG_PATH)
