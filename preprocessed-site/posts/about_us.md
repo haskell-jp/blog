@@ -6,7 +6,6 @@ heading: Haskellと日本Haskellユーザーグループについて
 postedBy: Haskell-jp
 draft: true
 date: April 23, 2017
-lang: ja
 tags: Haskell-jp
 ...
 ---
