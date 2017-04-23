@@ -45,7 +45,7 @@ Haskell-jpはHaskellを普及させる（多くの人に使ってもらう）た
 - Haskellに関するイベント情報
 - 英語など外国語で書かれたHaskell情報の翻訳
 - Haskellに対する熱い思い
-- MasutodonクローンをHaskellで作ってみたよ、とか！
+- MastodonクローンをHaskellで作ってみたよ、とか！
 - その他、Haskellに関することならなんでも！
 
 応募していただける場合、[こちらのリポジトリー](https://github.com/haskell-jp/blog)にPull Requestを送ってください。  
