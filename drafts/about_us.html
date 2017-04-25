@@ -6,22 +6,25 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Haskell-jp Blog">
+    <meta name="description" content="Haskellと日本Haskellユーザーグループについて">
     <meta name="author" content="Haskell-jp">
 
     
+    <meta name="robots" content="noindex">
+    <meta name="robots" content="noarchive">
+    
 
-    <title>Haskell-jp Blog</title>
+    <title>Haskellと日本Haskellユーザーグループについて</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="./css/bootstrap.css" rel="stylesheet">
+    <link href="../css/bootstrap.css" rel="stylesheet">
     <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
 
     <!-- Pandoc syntax highlighting CSS -->
-    <link href="./css/syntax.css" rel="stylesheet">
+    <link href="../css/syntax.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="./css/clean-blog.css" rel="stylesheet">
+    <link href="../css/clean-blog.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -60,7 +63,7 @@
                         <a href="https://haskell.jp">Home</a>
                     </li>
                     <li>
-                        <a href="./">Blog</a>
+                        <a href="../">Blog</a>
                     </li>
                     <!-- <li> -->
                     <!--     <a href="/post.html">Sample Post</a> -->
@@ -76,13 +79,13 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="intro-header" style="background-image: url('./img/home-bg.jpg')">
+    <header class="intro-header" style="background-image: url('../img/post-bg.jpg')">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                  <div class="site-heading">
-                    <h1>Haskell-jp Blog</h1>
-                    <hr class="small"> <span class="subheading">日本Haskellユーザグループ公式ブログ</span>
+                  <div class="post-heading">
+                    <h1>Haskellと日本Haskellユーザーグループについて</h1>
+                    <h2 class="subheading"></h2><span class="meta">Posted by Haskell-jp</span>
                   </div>
                 </div>
             </div>
@@ -90,31 +93,51 @@
     </header>
 
     <!-- Main Content -->
+    <article>
     <div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-  
-  
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<h1 id="haskellについて"><span class="ascii">Haskell</span>について</h1>
+<p><span class="ascii">Haskell</span>は、関数型プログラミングの<strong>強力な</strong>サポートと、厳密かつ柔軟な静的型付けを特徴としたプログラミング言語です。<br />
+そうした特徴によって<span class="ascii">Haskell</span>は、バグが少なく、堅牢でメンテナビリティーの高いソフトウェア作りをサポートします。</p>
+<p>加えて、下記のような際立った機能を備えています。</p>
+<ul>
+<li>型によってプログラムの副作用を管理できる仕組み <span class="ascii">(</span>再代入不可能な変数、<code>IO</code>をはじめとする状態系モナド）</li>
+<li>モナドの言語仕様レベルでのサポート <span class="ascii">(</span><code>do</code>記法<span class="ascii">)</span></li>
+<li>型推論や型クラスといった、型の厳密さとプログラムの書きやすさを両立させる仕組み</li>
+<li>デフォルトでの非正格評価</li>
+<li>中置演算子の自由な定義</li>
+</ul>
+<!-- TODO
+## 企業における採用実績
 
-  
-  
-
-  
-  
-
-
-            <!-- Pager -->
-            <!-- For the time being, we won't use a pager.  If we get a lot of -->
-            <!-- posts, we should probably use a pager. -->
-            <!-- <ul class="pager"> -->
-            <!--     <li class="next"> -->
-            <!--         <a href="#">Older Posts &rarr;</a> -->
-            <!--     </li> -->
-            <!-- </ul> -->
+-->
+<h1 id="haskell-jpこと日本haskellユーザーグループについて"><span class="ascii">Haskell-jp</span>こと日本<span class="ascii">Haskell</span>ユーザーグループについて</h1>
+<!-- なるべく随時更新したいなぁ -->
+<p>日本<span class="ascii">Haskell</span>ユーザーグループは、日本におけるプログラミング言語<span class="ascii">Haskell</span>の普及活動と、<span class="ascii">Haskell</span>を利用する人々のサポートを行うグループです。<br />
+日本における代表的な<span class="ascii">Haskell</span>ユーザーグループとなることを目指します。<br />
+「日本<span class="ascii">Haskell</span>ユーザーグループ」ではやや長いので、「<span class="ascii">Haskell-jp</span>」という愛称を設定しました。</p>
+<p>現在は主に次のような活動を行っています。</p>
+<ul>
+<li><span class="ascii">Haskell</span>の利用を支援する情報や、<span class="ascii">Haskell</span>に関するニュースの日本語への翻訳。</li>
+<li>日本語での<span class="ascii">Haskell</span>についての情報発信。
+<ul>
+<li><a href="https://github.com/haskell-jp/recipe-collection"><span class="ascii">Haskell</span> レシピ集</a></li>
+<li><a href="https://haskell.jp/blog"><span class="ascii">Haskell-jp Blog</span></a></li>
+<li><a href="https://wiki.haskell.jp"><span class="ascii">Haskell-jp Wiki</span></a></li>
+</ul></li>
+<li><a href="https://haskell-jp.slack.com">公式<span class="ascii">Slack</span>チーム</a>を通じた<span class="ascii">Haskell</span>ユーザーのサポート・コミュニティ拡大の支援。</li>
+<li><a href="https://haskell-jp.connpass.com">定期的な勉強会やイベント</a>の開催を通じた、ユーザー同士の交流の活性化。
+<ul>
+<li><span class="ascii">Haskell-jp</span> もくもく会<span class="ascii">:</span> 趣味や仕事で書いてるプログラムの続きを書く、最近気になるあのライブラリを使ってみる、<span class="ascii">0</span>から勉強してみる、など、<span class="ascii">Haskell</span>に関する作業をもくもくとやったり、希望者で<span class="ascii">LT</span>を行ったりするゆるい会です。<a href="https://haskellmokumoku.connpass.com"><span class="ascii">Haskell</span>もくもく会</a>を前身としています。</li>
+</ul></li>
+</ul>
+            </div>
         </div>
     </div>
-</div>
+</article>
+
 
 
     <hr>
@@ -157,13 +180,13 @@
     </footer>
 
     <!-- jQuery -->
-    <script src="./js/jquery.js"></script>
+    <script src="../js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="./js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
 
     <!-- Custom Theme JavaScript -->
-    <script src="./js/clean-blog.js"></script>
+    <script src="../js/clean-blog.js"></script>
 
 </body>
 
