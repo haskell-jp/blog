@@ -1,10 +1,12 @@
 ---
-title: Haskell-jp Blog -- Dockerを使ってHaskellアプリをHerokuにデプロイする
+title: Dockerを使ってHaskellアプリをHerokuにデプロイする
 headingBackgroundImage: ../img/post-bg.jpg
 headingDivClass: post-heading
 heading: HaskellアプリをHerokuにデプロイするナウい方法
 subHeading: Dockerを使ってコンパイル時間に制限されないデプロイ
 postedBy: <a href="https://arow.info#arowM">Kadzuya Okamoto</a>
+date: April 23, 2017
+tags: Localize, Heroku
 draft: true
 ---
 
