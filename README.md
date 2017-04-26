@@ -1,6 +1,8 @@
 
 # Blog for [Haskell-jp](https://haskell.jp)
 
+[日本語版README](./README-ja.md)
+
 [![Build Status](https://secure.travis-ci.org/haskell-jp/blog.svg)](http://travis-ci.org/haskell-jp/blog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
