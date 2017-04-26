@@ -1,6 +1,8 @@
 
 # Blog for [Haskell-jp](https://haskell.jp)
 
+[日本語版README](./README-ja.md)
+
 [![Build Status](https://secure.travis-ci.org/haskell-jp/blog.svg)](http://travis-ci.org/haskell-jp/blog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -56,3 +58,4 @@ branch.  This is kind of hacky, but it seems to mostly work.
 A sample post is in `posts/2017-03-25-sample-post.markdown`.
 Providing an option `draft: true`, the post is published as draft, which is listed in `/drafts` page.
 This feature is mainly used for the purpose of asking review to someone.
+Usually, it is better choice to ask someone to review as a Pull Request, without `draft: true` option.
