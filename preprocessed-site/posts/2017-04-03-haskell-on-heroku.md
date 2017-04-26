@@ -315,7 +315,7 @@ Docker上でビルドと実行ができていさえすれば、Herokuにデプ�
 Herokuの[アカウント作成ページ](https://signup.heroku.com)でアカウントを作成してください。
 もちろん、すでにアカウントを持っているのであればあえて別のアカウントを作りなおす必要はないですよ！
 
-今回はHerokuの無料枠を使ってアプリをデプロイするので、クレジットカードの登録は必要です。
+今回はHerokuの無料枠を使ってアプリをデプロイするので、クレジットカードの登録は必要ないです。
 こわくないですね！
 
 ここで説明する内容は、ほとんどHerokuの[公式ドキュメント](https://devcenter.heroku.com/articles/container-registry-and-runtime)を参照しているので、なにかわからないところがあったらそちらをチェックしてみてください。
@@ -400,7 +400,7 @@ $ heroku container
 $ heroku container:login
 ```
 
-このコマンドによって、Container Registryのログイン情報が、~/.docker/config.json`というファイルに追加されます。
+このコマンドによって、Container Registryのログイン情報が、`~/.docker/config.json`というファイルに追加されます。
 
 ```sh
 $ cat ~/.docker/config.json
