@@ -400,7 +400,7 @@ $ heroku container
 $ heroku container:login
 ```
 
-このコマンドによって、Container Registryのログイン情報が、~/.docker/config.json`というファイルに追加されます。
+このコマンドによって、Container Registryのログイン情報が、`~/.docker/config.json`というファイルに追加されます。
 
 ```sh
 $ cat ~/.docker/config.json
