@@ -14,7 +14,7 @@
     <meta name="robots" content="noarchive">
     $endif$
 
-    <title>$title$</title>
+    <title>$title$ - Haskell-jp</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/css/bootstrap.css" rel="stylesheet">
@@ -25,6 +25,9 @@
 
     <!-- Custom CSS -->
     <link href="/css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="/css/style.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -53,7 +56,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-								<a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../img/logo.svg"></a>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../img/logo.svg"></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -65,12 +68,6 @@
                     <li>
                         <a href="/">Blog</a>
                     </li>
-                    <!-- <li> -->
-                    <!--     <a href="/post.html">Sample Post</a> -->
-                    <!-- </li> -->
-                    <!-- <li> -->
-                    <!--     <a href="/contact.html">Contact</a> -->
-                    <!-- </li> -->
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -84,7 +81,7 @@
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                   <div class="$headingDivClass$">
-                    <h1>$heading$</h1>
+                    <h1>$title$</h1>
                     $subHeadingContent$
                   </div>
                 </div>
@@ -104,23 +101,7 @@
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <ul class="list-inline text-center">
                         <li>
-                            <a href="#">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/haskell-jp">
+                            <a href="https://github.com/haskell-jp/blog">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-circle fa-stack-2x"></i>
                                     <i class="fa fa-github fa-stack-1x fa-inverse"></i>
@@ -128,7 +109,8 @@
                             </a>
                         </li>
                     </ul>
-                    <p class="copyright text-muted">Copyright Haskell-jp 2017</p>
+                    <p class="copyright text-muted">&copy; Haskell-jp 2017</p>
+                    <small class="text-muted notice-ga">当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。</small>
                 </div>
             </div>
         </div>

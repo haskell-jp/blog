@@ -4,11 +4,13 @@ $for(posts)$
     <div class="post-preview">
         <a href="$url$">
             <h2 class="post-title">
-                $heading$
+                $title$
             </h2>
+            $if(subHeading)$
             <h3 class="post-subtitle">
                 $subHeading$
             </h3>
+            $endif$
         </a>
         <p class="post-meta">Posted by $postedBy$ on $date$</p>
     </div>

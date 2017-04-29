@@ -1,0 +1,21 @@
+---
+title: 記事のタイトル
+headingBackgroundImage: ../img/post-bg.jpg
+headingDivClass: post-heading
+subHeading: （副題が必要な場合はこちらを）
+postedBy: <a href="">（あなたの名前。このようにHTMLタグを含めることもできます。）</a>
+date: April 29, 2017 # 公開日。仮でよいので埋めてください。
+draft: true # この行は原則として削除してください。
+...
+---
+
+Haskell-jpなので基本的に日本語の記事を公開しましょう。
+
+## マークダウンを使えます
+
+マークダウンを使えるので、脚注なども[^1]このようにいれられます。
+
+## 脚注
+
+[^1]: ただの脚注です。
+    テスト以外の何物でもありません。
