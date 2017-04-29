@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Haskell-jp Blog -- Sample post">
+    <meta name="description" content="記事のタイトル">
     <meta name="author" content="Haskell-jp">
 
     
@@ -14,7 +14,7 @@
     <meta name="robots" content="noarchive">
     
 
-    <title>Haskell-jp Blog -- Sample post</title>
+    <title>記事のタイトル - Haskell-jp</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../css/bootstrap.css" rel="stylesheet">
@@ -25,6 +25,9 @@
 
     <!-- Custom CSS -->
     <link href="../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../css/style.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -53,7 +56,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-								<a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../img/logo.svg"></a>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../img/logo.svg"></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -65,12 +68,6 @@
                     <li>
                         <a href="../">Blog</a>
                     </li>
-                    <!-- <li> -->
-                    <!--     <a href="/post.html">Sample Post</a> -->
-                    <!-- </li> -->
-                    <!-- <li> -->
-                    <!--     <a href="/contact.html">Contact</a> -->
-                    <!-- </li> -->
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -84,8 +81,8 @@
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                   <div class="post-heading">
-                    <h1>Sample post</h1>
-                    <h2 class="subheading">This is a sample page.</h2><span class="meta">Posted by <a href="https://arow.info">Kadzuya Okamoto</a></span>
+                    <h1>記事のタイトル</h1>
+                    <h2 class="subheading">（副題が必要な場合はこちらを）</h2><span class="meta">Posted by <a href>（あなたの名前。このようにHTMLタグを含めることもできます。）</a></span>
                   </div>
                 </div>
             </div>
@@ -97,9 +94,10 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <p><span class="ascii">Haskell-jp</span>なので基本的に日本語の記事を公開することになるでしょう。</p>
+              <hr />
+<p><span class="ascii">Haskell-jp</span>なので基本的に日本語の記事を公開しましょう。</p>
 <h2 id="マークダウンを使えます">マークダウンを使えます</h2>
-<p>マークダウンを使えるので、脚注なども<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>このようにいれられます。</p>
+<p><a href="http://sky-y.github.io/site-pandoc-jp/users-guide/#pandocs-markdown"><span class="ascii">Pandoc</span>のマークダウン</a>を使えるので、脚注なども<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>このようにいれられます。</p>
 <h2 id="脚注">脚注</h2>
 <div class="footnotes">
 <hr />
@@ -123,23 +121,7 @@
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <ul class="list-inline text-center">
                         <li>
-                            <a href="#">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/haskell-jp">
+                            <a href="https://github.com/haskell-jp/blog">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-circle fa-stack-2x"></i>
                                     <i class="fa fa-github fa-stack-1x fa-inverse"></i>
@@ -147,7 +129,8 @@
                             </a>
                         </li>
                     </ul>
-                    <p class="copyright text-muted">Copyright Haskell-jp 2017</p>
+                    <p class="copyright text-muted">&copy; Haskell-jp 2017</p>
+                    <small class="text-muted notice-ga">当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。</small>
                 </div>
             </div>
         </div>
@@ -162,6 +145,15 @@
     <!-- Custom Theme JavaScript -->
     <script src="../js/clean-blog.js"></script>
 
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
 </body>
 
 </html>

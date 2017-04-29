@@ -10,21 +10,21 @@
     <meta name="author" content="Haskell-jp">
 
     
-    <meta name="robots" content="noindex">
-    <meta name="robots" content="noarchive">
-    
 
-    <title>Dockerを使ってHaskellアプリをHerokuにデプロイする</title>
+    <title>Dockerを使ってHaskellアプリをHerokuにデプロイする - Haskell-jp</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../../css/bootstrap.css" rel="stylesheet">
     <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
 
     <!-- Pandoc syntax highlighting CSS -->
-    <link href="../css/syntax.css" rel="stylesheet">
+    <link href="../../css/syntax.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="../css/clean-blog.css" rel="stylesheet">
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -53,7 +53,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-								<a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../img/logo.svg"></a>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../../img/logo.svg"></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -63,14 +63,8 @@
                         <a href="https://haskell.jp">Home</a>
                     </li>
                     <li>
-                        <a href="../">Blog</a>
+                        <a href="../../">Blog</a>
                     </li>
-                    <!-- <li> -->
-                    <!--     <a href="/post.html">Sample Post</a> -->
-                    <!-- </li> -->
-                    <!-- <li> -->
-                    <!--     <a href="/contact.html">Contact</a> -->
-                    <!-- </li> -->
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -79,13 +73,13 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="intro-header" style="background-image: url('../img/post-bg.jpg')">
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg')">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                   <div class="post-heading">
-                    <h1>HaskellアプリをHerokuにデプロイするナウい方法</h1>
-                    <h2 class="subheading">Dockerを使ってコンパイル時間に制限されないデプロイ</h2><span class="meta">Posted by <a href="https://arow.info#arowM">Kadzuya Okamoto</a></span>
+                    <h1>Dockerを使ってHaskellアプリをHerokuにデプロイする</h1>
+                    <h2 class="subheading">コンパイル時間に制限されないデプロイ方法</h2><span class="meta">Posted by <a href="https://arow.info#arowM">Kadzuya Okamoto</a></span>
                   </div>
                 </div>
             </div>
@@ -97,7 +91,8 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <p>これまで、<span class="ascii">Haskell</span>のコードを<span class="ascii">Heroku</span>で実行しようとすると、コンパイルが<span class="ascii">Heroku</span>の制約時間内に終わらず、面倒なハックが必要でつらい状態でした。 でも、<span class="ascii">Heroku</span>が<a href="https://www.docker.com/"><span class="ascii">Docker</span></a>をサポートするようになった今なら、<span class="ascii">Haskell</span>製のウェブアプリケーションを<span class="ascii">Heroku</span>上で公開するのはずっと簡単です。 この記事では、<span class="ascii">Servant(Haskell</span>の<span class="ascii">Web</span>フレームワークの<span class="ascii">1</span>つ<span class="ascii">)</span>で作ったアプリケーションを、<span class="ascii">Docker</span>の力を借りて<span class="ascii">Heroku</span>にデプロイする方法について、具体的なプログラムを使って順を追って説明していきます。</p>
+              <hr />
+<p>これまで、<span class="ascii">Haskell</span>のコードを<span class="ascii">Heroku</span>で実行しようとすると、コンパイルが<span class="ascii">Heroku</span>の制約時間内に終わらず、面倒なハックが必要でつらい状態でした。 でも、<span class="ascii">Heroku</span>が<a href="https://www.docker.com/"><span class="ascii">Docker</span></a>をサポートするようになった今なら、<span class="ascii">Haskell</span>製のウェブアプリケーションを<span class="ascii">Heroku</span>上で公開するのはずっと簡単です。 この記事では、<span class="ascii">Servant(Haskell</span>の<span class="ascii">Web</span>フレームワークの<span class="ascii">1</span>つ<span class="ascii">)</span>で作ったアプリケーションを、<span class="ascii">Docker</span>の力を借りて<span class="ascii">Heroku</span>にデプロイする方法について、具体的なプログラムを使って順を追って説明していきます。</p>
 <h2 id="本記事について">本記事について</h2>
 <p>この記事は、<a href="https://arow.info/blog/posts/2017-03-30-servant-on-heroku.html"><span class="ascii">Releasing a Haskell Web App on Heroku with Docker</span></a>として<span class="ascii">Haskell-jp</span>オフィシャルスポンサーである<a href="http://arow.info/">株式会社<span class="ascii">ARoW</span></a>公式ブログに公開されている英語の記事を、許可を得て日本版にローカライズしたものです<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>。</p>
 <h2 id="はじめに">はじめに</h2>
@@ -237,7 +232,7 @@ could not connect to server: Connection refused
 <p><span class="ascii">Docker</span>上でビルドと実行ができていさえすれば、<span class="ascii">Heroku</span>にデプロイするのは難しくありません。 まず最初に<span class="ascii">Heroku</span>のアカウントを作りましょう。</p>
 <h3 id="herokuアカウントを作成する"><span class="ascii">Heroku</span>アカウントを作成する</h3>
 <p><span class="ascii">Heroku</span>の<a href="https://signup.heroku.com">アカウント作成ページ</a>でアカウントを作成してください。 もちろん、すでにアカウントを持っているのであればあえて別のアカウントを作りなおす必要はないですよ！</p>
-<p>今回は<span class="ascii">Heroku</span>の無料枠を使ってアプリをデプロイするので、クレジットカードの登録は必要です。 こわくないですね！</p>
+<p>今回は<span class="ascii">Heroku</span>の無料枠を使ってアプリをデプロイするので、クレジットカードの登録は必要ないです。 こわくないですね！</p>
 <p>ここで説明する内容は、ほとんど<span class="ascii">Heroku</span>の<a href="https://devcenter.heroku.com/articles/container-registry-and-runtime">公式ドキュメント</a>を参照しているので、なにかわからないところがあったらそちらをチェックしてみてください。</p>
 <h3 id="herokuのコマンドラインプログラムをインストールする"><span class="ascii">Heroku</span>のコマンドラインプログラムをインストールする</h3>
 <p><span class="ascii">Heroku</span>は<span class="ascii">CLI</span>で操作するためのコマンドを用意してくれているので、これを使って便利に<span class="ascii">Heroku</span>を使い倒せます。 ちょうど、<a href="https://aws.amazon.com/cli"><span class="ascii">AWS</span>の<span class="ascii">CLI</span></a>とか、<a href="https://github.com/digitalocean/doctl"><span class="ascii">Digital Ocean</span>の<span class="ascii">CLI</span></a>プログラムと同じような感じです。</p>
@@ -276,7 +271,7 @@ could not connect to server: Connection refused
 <p>きっと、このプラグインのバージョンナンバーが表示されたはずです。</p>
 <p>実際にプラグインを使うためには、以下のコマンドで<span class="ascii">Heroku Container Registry</span>にログインする必要があります。</p>
 <div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="ex">heroku</span> container:login</code></pre></div>
-<p>このコマンドによって、<span class="ascii">Container Registry</span>のログイン情報が、<span class="ascii">~/.docker/config.json`</span>というファイルに追加されます。</p>
+<p>このコマンドによって、<span class="ascii">Container Registry</span>のログイン情報が、<code>~/.docker/config.json</code>というファイルに追加されます。</p>
 <div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">cat</span> ~/.docker/config.json
 <span class="kw">{</span>
   <span class="st">&quot;auths&quot;</span>: <span class="kw">{</span>
@@ -445,23 +440,7 @@ could not connect to server: Connection refused
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <ul class="list-inline text-center">
                         <li>
-                            <a href="#">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/haskell-jp">
+                            <a href="https://github.com/haskell-jp/blog">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-circle fa-stack-2x"></i>
                                     <i class="fa fa-github fa-stack-1x fa-inverse"></i>
@@ -469,21 +448,31 @@ could not connect to server: Connection refused
                             </a>
                         </li>
                     </ul>
-                    <p class="copyright text-muted">Copyright Haskell-jp 2017</p>
+                    <p class="copyright text-muted">&copy; Haskell-jp 2017</p>
+                    <small class="text-muted notice-ga">当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。</small>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- jQuery -->
-    <script src="../js/jquery.js"></script>
+    <script src="../../js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="../js/bootstrap.min.js"></script>
+    <script src="../../js/bootstrap.min.js"></script>
 
     <!-- Custom Theme JavaScript -->
-    <script src="../js/clean-blog.js"></script>
+    <script src="../../js/clean-blog.js"></script>
 
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
 </body>
 
 </html>
