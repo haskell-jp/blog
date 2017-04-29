@@ -13,7 +13,7 @@ Haskell-jpなので基本的に日本語の記事を公開しましょう。
 
 ## マークダウンを使えます
 
-マークダウンを使えるので、脚注なども[^1]このようにいれられます。
+[Pandocのマークダウン](http://sky-y.github.io/site-pandoc-jp/users-guide/#pandocs-markdown)を使えるので、脚注なども[^1]このようにいれられます。
 
 ## 脚注
 

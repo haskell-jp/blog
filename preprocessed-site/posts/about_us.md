@@ -4,8 +4,7 @@ headingBackgroundImage: ../img/post-bg.jpg
 headingDivClass: post-heading
 heading: Haskellと日本Haskellユーザーグループについて
 postedBy: Haskell-jp
-draft: true
-date: April 23, 2017
+date: April 30, 2017
 tags: Haskell-jp
 ...
 ---

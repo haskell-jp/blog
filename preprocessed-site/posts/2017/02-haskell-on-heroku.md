@@ -1,12 +1,13 @@
 ---
 title: Dockerを使ってHaskellアプリをHerokuにデプロイする
-headingBackgroundImage: ../img/post-bg.jpg
+headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 heading: Dockerを使ってHaskellアプリをHerokuにデプロイする
 subHeading: コンパイル時間に制限されないデプロイ方法
 postedBy: <a href="https://arow.info#arowM">Kadzuya Okamoto</a>
-date: April 27, 2017
+date: April 30, 2017
 tags: Localize, Heroku
+...
 ---
 
 これまで、HaskellのコードをHerokuで実行しようとすると、コンパイルがHerokuの制約時間内に終わらず、面倒なハックが必要でつらい状態でした。

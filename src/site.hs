@@ -61,7 +61,7 @@ main = hakyllWith hakyllConfig $ do
     match "index.html" $ do
         route idRoute
         compile $ do
-            posts <- recentFirst =<< loadAll "posts/*"
+            posts <- recentFirst =<< loadAll "posts/**"
             -- Instead of just (return posts) here, I might want to take
             -- each post Item and add a field about whether or not it is
             -- the last Item.  Then, in templates/post-list.html, I can
@@ -78,7 +78,7 @@ main = hakyllWith hakyllConfig $ do
             applyDefaultTemplate indexCtx indexWithContext
 
     -- blog posts
-    match "posts/*" $ do
+    match "posts/**" $ do
         route postsAndDraftsRoutes
         compile $ do
             let subHeadingCtx =
