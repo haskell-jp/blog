@@ -5,8 +5,7 @@ headingDivClass: post-heading
 subHeading: もくもく会を添えて
 postedBy: Haskell-jp
 tags: Haskell-jp
-date: April 23, 2017
-draft: true
+date: April 30, 2017
 ...
 ---
 
