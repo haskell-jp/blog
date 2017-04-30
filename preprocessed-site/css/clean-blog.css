@@ -417,7 +417,12 @@ body {
   webkit-tap-highlight-color: #0085a1;
 }
 
-.ascii, code {
+code {
   margin-left: 0.25em;
   margin-right: 0.25em;
+}
+
+.ascii:before,
+.ascii:after {
+  content: " ";
 }
