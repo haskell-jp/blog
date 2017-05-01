@@ -1,1 +1,0 @@
-start gvim.exe preprocessed-site\css\clean-blog.css preprocessed-site\posts\about_us.md preprocessed-site\templates\default.html preprocessed-site\posts\template.md src\site.hs preprocessed-site\css\syntax.css preprocessed-site\index.html preprocessed-site\templates\post-list.html preprocessed-site\posts\2017-04-03-haskell-on-heroku.md  -c :EnableAutoSaveOpeningFilesBat
