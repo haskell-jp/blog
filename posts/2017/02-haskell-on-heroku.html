@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="ja">
 
-<head>
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Dockerを使ってHaskellアプリをHerokuにデプロイする">
     <meta name="author" content="Haskell-jp">
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="Dockerを使ってHaskellアプリをHerokuにデプロイする - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2017/02-haskell-on-heroku.html" />
+    <meta property="og:image" content="https://haskell.jp/img/logo-black-frame.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---これまで、HaskellのコードをHerokuで実行しようとすると、コンパイルがHerokuの制約時間内に終わらず、面倒なハックが必要でつらい状態でした。でも、Herokuが[Docker](https://www.docker.com/)をサポートするようになった今なら、Haskell製のウェブアプリケーションをHeroku上で公開するのはずっと簡単です。この記事では、Servant(Ha" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
 
     
 
