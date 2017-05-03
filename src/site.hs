@@ -12,11 +12,11 @@ import Data.Maybe (fromMaybe)
 import Data.Typeable (Typeable)
 import Hakyll
        (Compiler, Configuration(..), Context, Identifier, Item, Routes,
-        applyAsTemplate, compile, composeRoutes, compressCssCompiler,
+        applyAsTemplate, boolField, compile, composeRoutes, compressCssCompiler,
         copyFileCompiler, dateField, defaultContext,
-        defaultHakyllReaderOptions, defaultHakyllWriterOptions, field,
+        defaultHakyllReaderOptions, defaultHakyllWriterOptions, escapeHtml, field,
         getMetadataField, getResourceBody, gsubRoute, hakyllWith, idRoute,
-        itemIdentifier, listField, loadAll, loadAndApplyTemplate,
+        itemBody, itemIdentifier, listField, loadAll, loadAndApplyTemplate,
         lookupString, match, metadataRoute, pandocCompilerWithTransform,
         recentFirst, relativizeUrls, route, setExtension, templateCompiler)
 import Text.Pandoc.Definition (Inline(Space, Span, Str), Pandoc)
@@ -81,7 +81,9 @@ main = hakyllWith hakyllConfig $ do
     match "posts/**" $ do
         route postsAndDraftsRoutes
         compile $ do
-            let subHeadingCtx =
+            let postsCtx =
+                    field "description" createOpenGraphDescription `mappend`
+                    boolField "article" (const True) `mappend`
                     field "subHeadingContent" createSubHeadingContentForPost `mappend`
                     postCtx
             pandocOut <-
@@ -89,8 +91,8 @@ main = hakyllWith hakyllConfig $ do
                   defaultHakyllReaderOptions
                   defaultHakyllWriterOptions
                   addSpaceAroundAsciiPandoc
-            postTemplateOut <- loadAndApplyTemplate postTemplate subHeadingCtx pandocOut
-            applyDefaultTemplate subHeadingCtx postTemplateOut
+            postTemplateOut <- loadAndApplyTemplate postTemplate postsCtx pandocOut
+            applyDefaultTemplate postsCtx postTemplateOut
 
 -- | For posts, add a @date@ field to the default context.
 postCtx :: Context String
@@ -113,6 +115,12 @@ defaultTemplate = "templates/default.html"
 -- \<article\> wrapper for the post body.
 postTemplate :: Identifier
 postTemplate = "templates/post.html"
+
+-- | Create the description for open graph protocol using body string.
+createOpenGraphDescription :: Item a -> Compiler String
+createOpenGraphDescription _ = convert . itemBody <$> getResourceBody
+  where
+    convert = take 200 . escapeHtml . concat . lines
 
 -- | Create the HTML tags for the subheading and "Posted by" lines for
 -- a blog post.
