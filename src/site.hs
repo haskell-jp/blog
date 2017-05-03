@@ -14,9 +14,9 @@ import Hakyll
        (Compiler, Configuration(..), Context, Identifier, Item, Routes,
         applyAsTemplate, boolField, compile, composeRoutes, compressCssCompiler,
         copyFileCompiler, dateField, defaultContext,
-        defaultHakyllReaderOptions, defaultHakyllWriterOptions, field,
+        defaultHakyllReaderOptions, defaultHakyllWriterOptions, escapeHtml, field,
         getMetadataField, getResourceBody, gsubRoute, hakyllWith, idRoute,
-        itemIdentifier, listField, loadAll, loadAndApplyTemplate,
+        itemBody, itemIdentifier, listField, loadAll, loadAndApplyTemplate,
         lookupString, match, metadataRoute, pandocCompilerWithTransform,
         recentFirst, relativizeUrls, route, setExtension, templateCompiler)
 import Text.Pandoc.Definition (Inline(Space, Span, Str), Pandoc)
@@ -82,6 +82,7 @@ main = hakyllWith hakyllConfig $ do
         route postsAndDraftsRoutes
         compile $ do
             let postsCtx =
+                    field "description" createOpenGraphDescription `mappend`
                     boolField "article" (const True) `mappend`
                     field "subHeadingContent" createSubHeadingContentForPost `mappend`
                     postCtx
@@ -114,6 +115,14 @@ defaultTemplate = "templates/default.html"
 -- \<article\> wrapper for the post body.
 postTemplate :: Identifier
 postTemplate = "templates/post.html"
+
+-- | Create the description for open graph protocol using body string.
+createOpenGraphDescription :: Item a -> Compiler String
+createOpenGraphDescription _ = do
+    body <- itemBody <$> getResourceBody
+    return (convert body)
+      where
+        convert = take 200 . escapeHtml . concat . lines
 
 -- | Create the HTML tags for the subheading and "Posted by" lines for
 -- a blog post.
