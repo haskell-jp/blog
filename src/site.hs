@@ -12,7 +12,7 @@ import Data.Maybe (fromMaybe)
 import Data.Typeable (Typeable)
 import Hakyll
        (Compiler, Configuration(..), Context, Identifier, Item, Routes,
-        applyAsTemplate, compile, composeRoutes, compressCssCompiler,
+        applyAsTemplate, boolField, compile, composeRoutes, compressCssCompiler,
         copyFileCompiler, dateField, defaultContext,
         defaultHakyllReaderOptions, defaultHakyllWriterOptions, field,
         getMetadataField, getResourceBody, gsubRoute, hakyllWith, idRoute,
@@ -81,7 +81,8 @@ main = hakyllWith hakyllConfig $ do
     match "posts/**" $ do
         route postsAndDraftsRoutes
         compile $ do
-            let subHeadingCtx =
+            let postsCtx =
+                    boolField "article" (const True) `mappend`
                     field "subHeadingContent" createSubHeadingContentForPost `mappend`
                     postCtx
             pandocOut <-
@@ -89,8 +90,8 @@ main = hakyllWith hakyllConfig $ do
                   defaultHakyllReaderOptions
                   defaultHakyllWriterOptions
                   addSpaceAroundAsciiPandoc
-            postTemplateOut <- loadAndApplyTemplate postTemplate subHeadingCtx pandocOut
-            applyDefaultTemplate subHeadingCtx postTemplateOut
+            postTemplateOut <- loadAndApplyTemplate postTemplate postsCtx pandocOut
+            applyDefaultTemplate postsCtx postTemplateOut
 
 -- | For posts, add a @date@ field to the default context.
 postCtx :: Context String
