@@ -1,5 +1,5 @@
 ---
-title: 日本Haskellユーザーグループ発足・Slackチーム解放のお知らせ
+title: 日本Haskellユーザーグループ発足・Slackチーム開放のお知らせ
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: もくもく会を添えて
@@ -13,9 +13,9 @@ date: April 30, 2017
 この度、日本におけるHaskellの普及を目指して、ユーザーグループを立ち上げることといたしました。  
 詳しいことは「[日本Haskellユーザーグループについて](../about_us.html)」をご覧いただくとして、立ち上げにともない、3点発表です！
 
-# その1 公式Slackチームの解放
+# その1 公式Slackチームの開放
 
-Haskell-jp立ち上げ前、有志による議論に使用していたSlackチームを解放します！  
+Haskell-jp立ち上げ前、有志による議論に使用していたSlackチームを開放します！  
 下記から登録してください！
 
 <https://join-haskell-jp-slack.herokuapp.com/>
