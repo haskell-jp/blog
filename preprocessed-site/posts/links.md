@@ -18,6 +18,8 @@ date: May 28, 2017
 <li id="the.igreque.info" class="hash-target"><a href="http://the.igreque.info">igreque : Info</a> by Yuji Yamamoto</li>
 <li id="fumieval.hatenablog.com" class="hash-target"><a href="http://fumieval.hatenablog.com">モナドとわたしとコモナド</a> by Fumiaki Kinoshita</li>
 <li id="lotz84.github.io" class="hash-target"><a href="https://lotz84.github.io">flip map</a> by lotz</li>
+<li id="syocy.hatenablog.com" class="hash-target"><a href="http://syocy.hatenablog.com/">syocy’s diary</a></li>
+<li id="hiratara.hatenadiary.jp" class="hash-target"><a href="http://hiratara.hatenadiary.jp/">北海道苫小牧市出身のPGが書くブログ</a> by hiratara</li>
 </ul>
 
 # この一覧への登録方法 {#howToGetSupport}
