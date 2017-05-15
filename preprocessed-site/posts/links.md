@@ -10,7 +10,7 @@ date: May 28, 2017
 
 [このほかにも、Haskell-jp Wikiにもリンク集があります！](https://wiki.haskell.jp/Links)
 
-# Haskell-jpが応援する個人のWebサイト一覧
+# Haskell-jpが応援するWebサイト一覧
 
 この一覧への[登録方法は下記](#howToGetSupport)をご覧ください。
 
