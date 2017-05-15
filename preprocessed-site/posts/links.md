@@ -22,6 +22,7 @@ date: May 28, 2017
 <li id="hiratara.hatenadiary.jp" class="hash-target"><a href="http://hiratara.hatenadiary.jp/">北海道苫小牧市出身のPGが書くブログ</a> by hiratara</li>
 <li id="matsubara0507.github.io" class="hash-target"><a href="https://matsubara0507.github.io/">ひげメモ</a> by matsubara0507</li>
 <li id="kakkun61.hatenablog.com/archive/category/Haskell" class="hash-target"><a href="http://kakkun61.hatenablog.com/archive/category/Haskell">趣味はデバッグ……</a> by 岡本和樹</li>
+<li id="khibino.github.io/haskell-relational-record" class="hash-target"><a href="http://khibino.github.io/haskell-relational-record/">Haskell Relational Record project page</a> by khibino, yuga, kazu-yamamoto</li>
 </ul>
 
 # この一覧への登録方法 {#howToGetSupport}
