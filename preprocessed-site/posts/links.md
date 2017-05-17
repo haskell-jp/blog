@@ -8,7 +8,7 @@ date: May 28, 2017
 ...
 ---
 
-[このほかにも、Haskell-jp Wikiにもリンク集があります！](https://wiki.haskell.jp/Links)
+[このほかに、Haskell-jp Wikiにもリンク集があります！](https://wiki.haskell.jp/Links)
 
 # Haskell-jpが応援するWebサイト一覧
 
@@ -31,7 +31,7 @@ date: May 28, 2017
 
 # この一覧への登録方法 {#howToGetSupport}
 
-登録条件: 広くプログラミング言語Haskellに関連したことが書いてあるWebサイトであること。
+登録条件: 広い意味でプログラミング言語Haskellに関連したことが書いてあるWebサイトであること。
 
 1. [こちらのリポジトリーでIssueを作成](https://github.com/haskell-jp/blog/issues/new?title=相互リンク作成依頼：（一行目にあなたのWebサイトの名前）&body=（一行目にあなたのWebサイトのURLを書いてください。）%0D%0A%0D%0A運営者の氏名（ハンドルネーム可）: （必須ではありません）%0D%0A%0D%0A（何かあればここに一言コメントをこちらに。）)してください。
 1. 担当者が承認すると同時に、必要なHTMLのスニペットを提示するので、それをあなたのサイトに張り付けてください！
