@@ -2,7 +2,7 @@
 title: 相互リンク集
 headingBackgroundImage: ../img/post-bg.jpg
 headingDivClass: post-heading
-subHeading: Haskell-jpが応援する個人のWebサイト一覧
+subHeading: Haskell-jpが応援するWebサイト一覧
 postedBy: Haskell-jp
 date: May 28, 2017
 ...
