@@ -26,14 +26,14 @@ date: May 28, 2017
 <li id="matsubara0507.github.io" class="hash-target"><a href="https://matsubara0507.github.io/">ひげメモ</a> by matsubara0507</li>
 <li id="syocy.hatenablog.com" class="hash-target"><a href="http://syocy.hatenablog.com/">syocy’s diary</a></li>
 <li id="the.igreque.info" class="hash-target"><a href="http://the.igreque.info">igreque : Info</a> by Yuji Yamamoto</li>
-<li id="www.sampou.org" class="hash-target"><a href="http:/www.sampou.org">{算法|算譜}.ORG</a> by Nobuo Yamashita (@nobsun)</li>
+<li id="www.sampou.org" class="hash-target"><a href="http://www.sampou.org">{算法|算譜}.ORG</a> by Nobuo Yamashita (@nobsun)</li>
 </ul>
 
 # この一覧への登録方法 {#howToGetSupport}
 
 登録条件: 広い意味でプログラミング言語Haskellに関連したことが書いてあるWebサイトであること。
 
-1. [こちらのリポジトリーでIssueを作成](https://github.com/haskell-jp/blog/issues/new?title=相互リンク作成依頼：（一行目にあなたのWebサイトの名前）&body=（一行目にあなたのWebサイトのURLを書いてください。）%0D%0A%0D%0A運営者の氏名（ハンドルネーム可）: （必須ではありません）%0D%0A%0D%0A（何かあればここに一言コメントをこちらに。）)してください。
+1. [こちらのリポジトリーでIssueを作成](https://github.com/haskell-jp/blog/issues/new?title=相互リンク作成依頼：（あなたのWebサイトの名前）&body=（一行目にあなたのWebサイトのURLを書いてください。）%0D%0A%0D%0A運営者の氏名（ハンドルネーム可）: （必須ではありません）%0D%0A%0D%0A（何かあればここに一言コメントをこちらに。）)してください。
 1. 担当者が承認すると同時に、必要なHTMLのスニペットを提示するので、それをあなたのサイトに張り付けてください！
     - バナーの画像はSVGなので、大きさは適当にいじっていただいてかまいません！ただ、あまりにも小さくしたり、アスペクト比を変えるのはやめていただきたいですが...。
 1. 以上！
@@ -42,9 +42,11 @@ date: May 28, 2017
 
 TODO: 承認を自動化するツールを作る。
 
-1. 対象のWebサイトを承認する場合は、`(siteId)`と書かれた箇所を「追加するWebサイトのURLからスキーム(`http://`や`https://`の部分)を取り除いたもの」で置き換え、作成されたIssueにコメントしましょう。
+1. 対象のWebサイトを承認する場合は、承認する旨を伝えるとともに、下記のスニペットをコピペして、`(siteId)`と書かれた箇所を「追加するWebサイトのURLからスキーム(`http://`や`https://`の部分)を取り除いたもの」で置き換え、対象のWebサイトに貼り付けてもらうようIssueのコメントで依頼しましょう。
     ```html
-    <a href="https://haskell.jp/blog/posts/links.html#(siteId)"><img width="234" src="https://haskell.jp/img/supported-by-haskell-jp.svg" alt="Supported By Haskell-jp."></a>
+        ```html
+        <a href="https://haskell.jp/blog/posts/links.html#(siteId)"><img width="234" src="https://haskell.jp/img/supported-by-haskell-jp.svg" alt="Supported By Haskell-jp."></a>
+        ```
     ```
 1. 続いて、下記のmarkdownのスニペットにおける`(siteId)`の部分を、先ほどの「追加するWebサイトのURLからスキームを取り除いたもの」で置き換え、[このページを編集](https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/links.md)し、追加しましょう。
 
