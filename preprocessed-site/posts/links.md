@@ -4,7 +4,7 @@ headingBackgroundImage: ../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: Haskell-jpが応援するWebサイト一覧
 postedBy: Haskell-jp
-date: May 28, 2017
+date: May 18, 2017
 ...
 ---
 
