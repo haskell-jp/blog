@@ -16,10 +16,10 @@ date: May 30, 2017
 
 # SlackArchiveって？
 
-[こちらのTechCrunchの記事](http://jp.techcrunch.com/2015/12/01/20151130slackarchive-gives-you-public-chat-archive-for-free/)のとおりですが、Slackでの発言を（Slackの無料枠の1万件を超えて）保存し、Slackチームに所属していない人が閲覧したり、Googleなどで検索できるようにしてくれるサービスです。  
+[こちらのTechCrunchの記事](http://jp.techcrunch.com/2015/12/01/20151130slackarchive-gives-you-public-chat-archive-for-free/)のとおりですが、Slackでの発言を（Slackの無料枠の1万件を超えて）保存し、Slackチームに所属していない人が閲覧したり、Googleなどで検索できるようにしてくれたりするサービスです。  
 我々のように、ベターメーリングリストとしてSlackチームを活用しているチームにぴったりですね！  
 
 # と、いうわけで
 
-残念ながら現状無料プランなので今後の発言のみですが、今後は我々の情報共有が、貴重な資産としてネットの海に残されるようになるはずです。  
+残念ながら現状SlackArchiveの無料プランを利用しているので、SlackArchive使用開始後の発言のみですが、今後は我々の情報共有が、貴重な資産としてネットの海に残されるようになるはずです。  
 今後もネチケットを守って楽しいHaskell-jpライフを！ :bow:
