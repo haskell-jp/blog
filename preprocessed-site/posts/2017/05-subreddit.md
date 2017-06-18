@@ -44,4 +44,4 @@ Slackはもともとの日本における人気の高さも手伝い、Haskell-j
 - 前項にかかわらず、Slackに慣れているから、Slackのemoji reactionのほうが楽しいから、といった場合はSlackをご利用ください。
 - ちなみに、もちろんteratailやStackOverflowでの質問もよいでしょう。本日から、Slackの[questions-feedチャンネル](https://haskell-jp.slack.com/messages/C5UPKRGRE/convo/C4M4TT8JJ-1497217764.308002/)に質問が流れるようになりました！
 
-以上、一昨日の提案から半ば独断による朝令暮改となってしまいましたが、今後も[Slackチーム](https://join-haskell-jp-slack.herokuapp.com/)、[Reddit](https://www.reddit.com/r/haskell_jp/)ともどもよろしくお願いします！
+以上、今後も[Slackチーム](https://join-haskell-jp-slack.herokuapp.com/)、[Reddit](https://www.reddit.com/r/haskell_jp/)ともどもよろしくお願いします！
