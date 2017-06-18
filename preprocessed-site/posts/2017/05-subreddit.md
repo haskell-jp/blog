@@ -16,11 +16,10 @@ date: June 18, 2017
 
 詳しい使い方などについては「[Redditの歩き方](https://chikawatanabe.com/2014/11/17/reddit-2/)」というウェブサイトが参考になります。
 
-今回、我々Haskell-jpでは、dfordivamさんの提案を受け、Reddit上でHaskellについて日本語で投稿したりコメントできるスペース、[Haskell-jp公式subreddit](https://www.reddit.com/r/haskell_jp/)を作成いたしました！  
+今回、我々Haskell-jpでは、dfordivamさんの提案を受け、Reddit上でHaskellについて日本語で投稿したりコメントできるスペース、[r/haskell\_jp](https://www.reddit.com/r/haskell_jp/)を作成いたしました！  
 
 ![r/haskell\_jp](/img/subreddit-haskell_jp.png)
 
-[r/haskell\_jp](https://www.reddit.com/r/haskell_jp/)にあります！  
 今後はSlackよりもこちらに、Haskellに関するお悩み相談や、見つけた(パッケージ|ブログ記事|アプリケーション)を共有していただけると幸いです。
 
 ## 作った動機
