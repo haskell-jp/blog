@@ -25,7 +25,7 @@ date: June 18, 2017
 
 ## 作った動機
 
-[SlackArchiveのこの辺り](https://haskell-jp.slackarchive.io/general/page-2)からさかのぼって、**dfordivam**さんという方の発言を探していただけるとわかるのですが、RedditはSlackよりもオープンで、人気が高く、より議論に向いたプラットフォームです。  
+[SlackArchiveのこの辺り](https://haskell-jp.slackarchive.io/general/page-2)からさかのぼって、**dfordivam**さんという方の発言を探していただけるとわかるのですが、RedditはSlackよりも**オープンで、人気が高く、より議論に向いた**プラットフォームです。  
 当然SlackArchiveよりGoogle検索にも引っかかりやすいので、質問やお悩み相談とその回答、見つけたWebサイトの共有などは、Redditを利用したほうがアクセスしてもらいやすいだろう、と考えたためです。
 
 ## 今後について: Slackとの使い分けは？
