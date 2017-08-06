@@ -44,7 +44,7 @@ $ mkdir ghc821
 ## 4. configします
 
 tarを展開したトップディレクトリにcdで移動します。
-さらに、prefixオプションで、上記のインストール先のディレクトリを指定します。
+さらに、`--prefix`オプションで、GHCのインストール先のディレクトリを指定します。
 
 ```sh
 $ cd ghc-8.2.1
@@ -58,14 +58,23 @@ tarを展開したトップディレクトリで、makeコマンドを実行し�
 $ make install
 ```
 
-これで、上記のディレクトリの `bin/`下に、`ghc`, `ghci`, `runghc` などが格納されています。  
+これで、`--prefix` オプションで指定したディレクトリの `bin/`下に、`ghc`, `ghci`, `runghc` などがインストールされます。  
 なお、インストール後は、tarで展開した側のディレクトリ以下は削除して構いません。
 
 ## 6. 遊ぶ
 
-`bin/`下の、`ghc`, `ghci`, `runghc` などで遊べます。
-ghc8.2.1のカラフルなエラーメッセージや、compact-regionなど、新機能を手軽に楽しめます、enjoy! :smiley:
+`bin/`ディレクトリ下の、`ghc`, `ghci`, `runghc` などで遊べます。 例えば、以下のようにしてghciを起動できます。
 
+```
+$ ghc821/bin/ghci
+GHCi, version 8.2.1: http://www.haskell.org/ghc/  :? for help
+Prelude> 1+2
+3
+```
+
+ghc8.2.1のカラフルなエラーメッセージや、compact-regionなど、新機能を手軽に楽しめます、enjoy! :)
+
+もちろん、環境変数PATHにインストール先のディレクトリを追加しておけば、デフォルトでこのGHCを使用できます。
 
 
 補足
