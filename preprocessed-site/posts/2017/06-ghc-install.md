@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 postedBy: takenbu.hs
 tags: Haskell-jp
-date: Aug 7, 2017
+date: August 7, 2017
 ...
 ---
 
