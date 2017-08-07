@@ -4,21 +4,18 @@ headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 postedBy: takenbu.hs
 tags: Haskell-jp
-date: Aug 7, 2017
+date: August 7, 2017
 ...
 ---
 
-はじめに
-========
+# はじめに
 
 素(単独)のGHCのバイナリをローカルディレクトリにインストールする方法について簡単に紹介します。  
 GHCの新リリースが出た場合などに、stack や haskell-platform 経由ではなく、手軽にインストールして遊べます。
 以下、Linux系での手順です。 ユーザー権限で行えます。
 
 
-インストール方法
-================
-
+# インストール方法
 
 ## 1. リリース物をdownloadします
 
@@ -77,8 +74,7 @@ ghc8.2.1のカラフルなエラーメッセージや、compact-regionなど、�
 もちろん、環境変数PATHにインストール先のディレクトリを追加しておけば、デフォルトでこのGHCを使用できます。
 
 
-補足
-====
+# 補足
 
 ## 補足1
 
