@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GHCのTyped Holes機能で、式中の部分の型を推論させる">
+    <meta name="author" content="Haskell-jp">
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="GHCのTyped Holes機能で、式中の部分の型を推論させる - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2017/07-TypedHoles.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-black-frame.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---最近はあまり話題になってないかもしれませんが、 `Typed holes` 機能についての紹介です。ghc7.8くらいの頃に導入された機能で、ソースコードの式の中に `_` か `_` で始まる識別名を書くと、その部分の型を推論してくれます。### 使い方例えば、```Haskellmain = print $ 1.0 + _```のようなコードを書いて、 `runghc`や`ghci`や`" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>GHCのTyped Holes機能で、式中の部分の型を推論させる - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../../img/logo.svg"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="https://haskell.jp">Home</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  <div class="post-heading">
+                    <h1>GHCのTyped Holes機能で、式中の部分の型を推論させる</h1>
+                    <h2 class="subheading"></h2><span class="meta">Posted by takenbu.hs</span>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>最近はあまり話題になってないかもしれませんが、 <code>Typed holes</code> 機能についての紹介です。</p>
+<p><span class="ascii">ghc7.8</span>くらいの頃に導入された機能で、ソースコードの式の中に <code>_</code> か <code>_</code> で始まる識別名を書くと、その部分の型を推論してくれます。</p>
+<h3 id="使い方">使い方</h3>
+<p>例えば、</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">main <span class="fu">=</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _</code></pre></div>
+<p>のようなコードを書いて、 <code>runghc</code>や<code>ghci</code>や<code>ghc</code>で実行すると、 <code>_</code> 部の型をエラーメッセージで教えてくれます。</p>
+<h3 id="エラーメッセージの表示例">エラーメッセージの表示例</h3>
+<p>例えば、以下のようにエラーメッセージが表示されます。 以下の例では、<code>_</code>部が、<code>Double</code>型であることを示しています。</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> runghc test1<span class="fu">.</span>hs 
+
+test1<span class="fu">.</span>hs<span class="fu">:</span><span class="dv">3</span><span class="fu">:</span><span class="dv">22</span><span class="fu">:</span> error<span class="fu">:</span>
+    • <span class="dt">Found</span> hole<span class="fu">:</span><span class="ot"> _ ::</span> <span class="dt">Double</span>
+    • <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="fu">+</span>)’, namely ‘_’
+      <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="fu">$</span>)’, namely ‘<span class="fl">1.0</span> <span class="fu">+</span> _’
+      <span class="dt">In</span> the expression<span class="fu">:</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _
+    • <span class="dt">Relevant</span> bindings include<span class="ot"> main ::</span> <span class="dt">IO</span> () (bound at test1<span class="fu">.</span>hs<span class="fu">:</span><span class="dv">3</span><span class="fu">:</span><span class="dv">1</span>)
+  <span class="fu">|</span>
+<span class="dv">3</span> <span class="fu">|</span> main <span class="fu">=</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _
+  <span class="fu">|</span>                      <span class="fu">^</span></code></pre></div>
+<h3 id="補足1">補足<span class="ascii">1</span></h3>
+<p><code>_</code> の替りに、 <code>_hoge</code> のように名前付けしても構いません。</p>
+<p><span class="ascii">ghci</span> で、 <code>:t</code> で型を調べるのと同じように気軽に使えます。　（最近は<span class="ascii">IDE</span>がサポートしていて、明示的には使わなかったりするかもしれません。）</p>
+<h3 id="補足2">補足<span class="ascii">2</span></h3>
+<p>詳細情報は以下にあります。 <span class="ascii">* https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes</span></p>
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="copyright text-muted">&copy; Haskell-jp 2017</p>
+                    <small class="text-muted notice-ga">当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
