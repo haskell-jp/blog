@@ -52,5 +52,5 @@ ghci で、 `:t` で型を調べるのと同じように気軽に使えます。
 ### 補足2
 
 詳細情報は以下にあります。
- * https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes
+ * <https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes>
 
