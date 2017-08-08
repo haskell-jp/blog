@@ -3,7 +3,6 @@ title: GHCのTyped Holes機能で、式中の部分の型を推論させる
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 postedBy: takenbu.hs
-tags: Haskell-jp
 date: August 8, 2017
 ...
 ---
