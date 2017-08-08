@@ -3,7 +3,6 @@ title: 素のGHCをローカルディレクトリにインストールする方�
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 postedBy: takenbu.hs
-tags: Haskell-jp
 date: August 8, 2017
 ...
 ---
