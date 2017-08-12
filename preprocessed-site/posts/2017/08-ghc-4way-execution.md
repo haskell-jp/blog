@@ -191,7 +191,7 @@ $ ghc -e ':t foldl'
 foldl :: Foldable t => (b -> a -> b) -> b -> t a -> b
 ```
 
-GHC8.2以降であれば、型を分かりやすく表示する`:t +d`コマンドも使えます。（詳細は[こちら](https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d%20%E2%9F%A8expression%E2%9F%A9)）
+GHC8.2以降であれば、上の例のような一般化された型での表示ではなく、デフォルトの型を考慮してシンプルに表示する`:t +d`コマンドも使えます。（詳細は[こちら](https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d%20%E2%9F%A8expression%E2%9F%A9)）
 ```
 $ ghc -e ':t +d foldl'
 foldl :: (b -> a -> b) -> b -> [a] -> b
@@ -279,6 +279,12 @@ abc
 ```
 $ ghc -e "sin (pi/2)"
 1.0
+```
+
+数学関数とリスト内包表記の併用も便利です。
+```
+$ ghc -e "[sin (n * pi/8) | n <- [0..4]]"
+[0.0,0.3826834323650898,0.7071067811865475,0.9238795325112867,1.0]
 ```
 
 リスト的な処理は、やはり簡単です。
