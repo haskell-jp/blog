@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GHCの４つの実行方法">
+    <meta name="author" content="Haskell-jp">
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="GHCの４つの実行方法 - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2017/08-ghc-4way-execution.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-black-frame.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---## はじめにHaskell用コンパイラであるGHCには、以下のように４種類の実行方法があります。* コンパイル実行 : `ghc`* スクリプト的実行 : `runghc` (or `runhaskell`)* 対話的実行 : `ghci`* ワンライナー的実行 : `ghc -e`以下、それぞれについて簡単に紹介します。  なお、本記事では、stack経由ではなく、素のGHCを使う場合に" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>GHCの４つの実行方法 - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../../img/logo.svg"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="https://haskell.jp">Home</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  <div class="post-heading">
+                    <h1>GHCの４つの実行方法</h1>
+                    <h2 class="subheading">コンパイル実行、スクリプト的実行、対話的実行、ワンライナー的実行</h2><span class="meta">Posted by takenbu.hs</span>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<h2 id="はじめに">はじめに</h2>
+<p><span class="ascii">Haskell</span>用コンパイラである<span class="ascii">GHC</span>には、以下のように４種類の実行方法があります。</p>
+<ul>
+<li>コンパイル実行 <span class="ascii">:</span> <code>ghc</code></li>
+<li>スクリプト的実行 <span class="ascii">:</span> <code>runghc</code> <span class="ascii">(or</span> <code>runhaskell</code><span class="ascii">)</span></li>
+<li>対話的実行 <span class="ascii">:</span> <code>ghci</code></li>
+<li>ワンライナー的実行 <span class="ascii">:</span> <code>ghc -e</code></li>
+</ul>
+<p>以下、それぞれについて簡単に紹介します。<br />
+なお、本記事では、<span class="ascii">stack</span>経由ではなく、素の<span class="ascii">GHC</span>を使う場合について説明しています。</p>
+<h2 id="コンパイル実行">コンパイル実行</h2>
+<p><span class="ascii">Haskell</span>のソースファイルから、実行ファイルを生成（コンパイル）する方法です。生成された実行ファイルは、ユーザーが明示的に起動することにより実行されます。</p>
+<p>例えばソースファイルが以下の場合に、</p>
+<pre><code>$ cat prog.hs 
+
+main = print $ 1 + 2</code></pre>
+<p>以下の様に、<code>ghc</code>コマンドを使ってコンパイルを実行できます。</p>
+<pre><code>$ ghc prog.hs 
+[1 of 1] Compiling Main             ( prog.hs, prog.o )
+Linking prog ...</code></pre>
+<p>これにより、実行ファイル（<span class="ascii">prog</span>）と中間ファイル（<span class="ascii">prog.hi, prog.o</span>）が生成されます。</p>
+<pre><code>$ ls
+prog   prog.hi  prog.hs  prog.o</code></pre>
+<p>生成された実行ファイル（<span class="ascii">prog</span>）は、ユーザーが明示的に指定して起動します。</p>
+<pre><code>$ ./prog 
+3</code></pre>
+<p><code>ghc</code>のコンパイル方法についての詳しい説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using.html">こちら</a>や<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/flags.html">こちら</a>にあります。<br />
+なお、<span class="ascii">stack</span>を使用する場合は、<code>ghc</code>コマンドではなく、<code>stack ghc</code>コマンドによりコンパイルを実行できます。</p>
+<h2 id="スクリプト的実行">スクリプト的実行</h2>
+<p><span class="ascii">Haskell</span>のソースファイルから、実行ファイルを一時的に生成（コンパイル）し、その実行ファイルを起動する方法です。つまり、スクリプト的な実行方法です。<br />
+例えば以下の様に、<code>runghc</code>コマンド<span class="ascii">(</span>または別名である<code>runhaskell</code>コマンド<span class="ascii">)</span>により実行できます。</p>
+<pre><code>$ runghc prog.hs 
+3</code></pre>
+<p><code>runghc</code>の使用方法についての詳しい説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runghc.html">こちら</a>にあります。<br />
+なお、<span class="ascii">stack</span>を使用する場合は、<code>runghc</code>コマンドではなく、<code>stack runghc</code>コマンドにより実行できます。</p>
+<h2 id="対話的実行">対話的実行</h2>
+<p><span class="ascii">Haskell</span>のソースを対話的に入力する実行方法です。いわゆる、<span class="ascii">REPL</span>（<span class="ascii">read-eval-print-loop</span>）と呼ばれるものです。<br />
+例えば以下の様に、<code>ghci</code>コマンドにより実行できます。</p>
+<pre><code>$ ghci
+GHCi, version 8.2.1: http://www.haskell.org/ghc/  :? for help
+
+Prelude&gt; 1+2
+3
+
+Prelude&gt; :q
+Leaving GHCi.</code></pre>
+<p><code>ghci</code>の使用方法についての詳しい説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html">こちら</a>にあります。<br />
+なお、<span class="ascii">stack</span>を使用する場合は、<code>ghci</code>コマンドではなく、<code>stack ghci</code>コマンドにより実行できます。</p>
+<h2 id="ワンライナー的実行">ワンライナー的実行</h2>
+<p>コマンドライン上で、<span class="ascii">Haskell</span>の「式」を直接入力する実行方法です。１つの式だけを指定できます。<br />
+例えば以下の様に、<code>-e</code>オプション付きの<code>ghc -e</code>コマンドにより実行できます。</p>
+<pre><code>$ ghc -e &quot;1+2&quot;
+3</code></pre>
+<p><code>ghc -e</code>の使用方法についての説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using.html#expression-evaluation-mode">こちら</a>にあります。<br />
+なお、<span class="ascii">stack</span>を使用する場合は、<code>ghc -e</code>コマンドではなく、<code>stack ghc -- -e</code>コマンドにより実行できます。</p>
+<h2 id="おまけ">おまけ</h2>
+<p>以下は、<code>ghc -e</code>による実行例です。<br />
+少し特殊かもしれない記法も記載していますので、以下は気軽に読み飛ばしてください。</p>
+<p>例えば、このようにして数列を手軽に生成できます。</p>
+<pre><code>$ ghc -e '[1..10]'
+[1,2,3,4,5,6,7,8,9,10]</code></pre>
+<p>リスト内包表記も使えます。</p>
+<pre><code>$ ghc -e '[x^2 | x &lt;- [1..10]]'
+[1,4,9,16,25,36,49,64,81,100]</code></pre>
+<p>１行毎に出力することもできます。</p>
+<pre><code>$ ghc -e 'mapM_ print [1..3]'
+1
+2
+3</code></pre>
+<p>入力系の関数も使えます。</p>
+<pre><code>$ ghc -e 'getLine'
+ABC
+&quot;ABC&quot;</code></pre>
+<p>入力だけでなく出力系の関数も使えます。</p>
+<pre><code>$ ghc -e 'getLine &gt;&gt;= putStrLn'
+ABC
+ABC</code></pre>
+<p><span class="ascii">do</span>記法も使えます。</p>
+<pre><code>$ ghc -e 'do {x &lt;- getLine; putStrLn x}'
+ABC
+ABC</code></pre>
+<p>入出力のフィルタコマンドも表現できます。</p>
+<pre><code>$ ghc -e 'interact $ unlines . map (&quot;hello &quot; ++) . lines'
+John
+hello John
+Mike
+hello Mike</code></pre>
+<p>ペア形式のデータも簡単に生成できます。</p>
+<pre><code>$ ghc -e &quot;zip [1..3] ['A'..]&quot;
+[(1,'A'),(2,'B'),(3,'C')]</code></pre>
+<p>組み合わせのデータも簡単に生成できます。</p>
+<pre><code>$ ghc -e &quot;(,) &lt;$&gt; [1..3] &lt;*&gt; ['A'..'C']&quot;
+[(1,'A'),(1,'B'),(1,'C'),(2,'A'),(2,'B'),(2,'C'),(3,'A'),(3,'B'),(3,'C')]</code></pre>
+<p>組み合わせを連結したデータでも生成できます。</p>
+<pre><code>$ ghc -e '(++) &lt;$&gt; [&quot;R&quot;, &quot;G&quot;, &quot;B&quot;] &lt;*&gt; map show [0..3]'
+[&quot;R0&quot;,&quot;R1&quot;,&quot;R2&quot;,&quot;R3&quot;,&quot;G0&quot;,&quot;G1&quot;,&quot;G2&quot;,&quot;G3&quot;,&quot;B0&quot;,&quot;B1&quot;,&quot;B2&quot;,&quot;B3&quot;]</code></pre>
+<p>ちょっと込み入ったデータも生成できます。</p>
+<pre><code>$ ghc -e '(\x y -&gt; x ++ &quot;-&quot; ++ y) &lt;$&gt; [&quot;2016&quot;, &quot;2017&quot;, &quot;2018&quot;] &lt;*&gt; [&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;]'
+[&quot;2016-Jan&quot;,&quot;2016-Feb&quot;,&quot;2016-Mar&quot;,&quot;2017-Jan&quot;,&quot;2017-Feb&quot;,&quot;2017-Mar&quot;,&quot;2018-Jan&quot;,&quot;2018-Feb&quot;,&quot;2018-Mar&quot;]</code></pre>
+<p>実は <span class="ascii">ghc -e</span>コマンドでは、<span class="ascii">ghci</span>のコマンドも使えます。 ですので、型を調べる<code>:t</code><span class="ascii">(:type)</span>コマンドを使って型の情報を表示させることもできます。</p>
+<pre><code>$ ghc -e ':t foldl'
+foldl :: Foldable t =&gt; (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b</code></pre>
+<p><span class="ascii">GHC8.2</span>以降であれば、上の例のような一般化された型での表示ではなく、デフォルトの型を考慮してシンプルに表示する<code>:t +d</code>コマンドも使えます。（詳細は<a href="https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d%20%E2%9F%A8expression%E2%9F%A9">こちら</a>）</p>
+<pre><code>$ ghc -e ':t +d foldl'
+foldl :: (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; b</code></pre>
+<p>名前の情報を表示する<code>:i</code><span class="ascii">(:info)</span>コマンドも使えます。</p>
+<pre><code>$ ghc -e ':i foldl'
+class Foldable (t :: * -&gt; *) where
+  ...
+  foldl :: (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+  ...
+  	-- Defined in ‘Data.Foldable’</code></pre>
+<p>カインド（種）を表示する<code>:k</code><span class="ascii">(:kind)</span>コマンドも使えます。</p>
+<pre><code>$ ghc -e ':k Maybe'
+Maybe :: * -&gt; *</code></pre>
+<p><span class="ascii">Bash</span>などのシェル環境であれば、シェル変数を使った準クォートも使えます！</p>
+<pre><code>$ NUM=5
+$ ghc -e &quot;[1..$NUM]&quot;
+[1,2,3,4,5]</code></pre>
+<p>シェル側から簡単にデータを渡せます。</p>
+<pre><code>$ X1=&quot;[1..3]&quot;
+$ X2=&quot;['A'..'C']&quot;
+$ ghc -e &quot;zip $X1 $X2&quot;
+[(1,'A'),(2,'B'),(3,'C')]</code></pre>
+<p><span class="ascii">interact</span>関数でなく、<span class="ascii">getContents</span>関数でも入力できます。</p>
+<pre><code>$ cat test.dat    # data file for example
+1
+2
+3
+
+$ cat test.dat | ghc -e &quot;lines &lt;$&gt; getContents&quot;
+[&quot;1&quot;,&quot;2&quot;,&quot;3&quot;]</code></pre>
+<p>入力列に対する累算も容易です。</p>
+<pre><code>$ cat test.dat | ghc -e &quot;(sum . map read .lines) &lt;$&gt; getContents&quot;
+6</code></pre>
+<p>少し記述が長いですが、数値データとして処理させることも出来ます。</p>
+<pre><code>$ cat test.dat | ghc -e 'interact $ unlines . map (show . (*2) . (read::String -&gt; Int)) . lines'
+2
+4
+6</code></pre>
+<p><span class="ascii">let</span>式も使えます。</p>
+<pre><code>$ ghc -e &quot;let x = 1; y = 2 in x+y&quot;
+3</code></pre>
+<p>階層指定により特定モジュールの関数を指定することも出来ます。</p>
+<pre><code>$ ghc -e 'Text.Printf.printf &quot;%s %d\n&quot; &quot;abc&quot; 1'
+abc 1</code></pre>
+<p><code>.ghci</code>ファイルをカレントディレクトリかホームディレクトリに配置しておけば、実行前に読み込めます。</p>
+<pre><code>$ cat .ghci
+import Text.Printf
+
+$ ghc -e 'printf &quot;%s %d\n&quot; &quot;abc&quot; 1'
+abc</code></pre>
+<p>数学関数も使えます。</p>
+<pre><code>$ ghc -e &quot;sin (pi/2)&quot;
+1.0</code></pre>
+<p>数学関数とリスト内包表記の併用も便利です。</p>
+<pre><code>$ ghc -e &quot;[sin (n * pi/8) | n &lt;- [0..4]]&quot;
+[0.0,0.3826834323650898,0.7071067811865475,0.9238795325112867,1.0]</code></pre>
+<p>リスト的な処理は、やはり簡単です。</p>
+<pre><code>$ ghc -e 'replicate 5 &quot;hello&quot;'
+[&quot;hello&quot;,&quot;hello&quot;,&quot;hello&quot;,&quot;hello&quot;,&quot;hello&quot;]</code></pre>
+<p>以上です、<span class="ascii">enjoy</span>！</p>
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="copyright text-muted">&copy; Haskell-jp 2017</p>
+                    <small class="text-muted notice-ga">当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
