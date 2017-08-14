@@ -6,23 +6,23 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="GHCのTyped Holes機能で、式中の部分の型を推論させる">
+    <meta name="description" content="GHCのユーザーズガイドへのリンク集">
     <meta name="author" content="Haskell-jp">
 
     <!-- OGP Settings -->
-    <meta property="og:title" content="GHCのTyped Holes機能で、式中の部分の型を推論させる - Haskell-jp" />
+    <meta property="og:title" content="GHCのユーザーズガイドへのリンク集 - Haskell-jp" />
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="/posts/2017/07-TypedHoles.html" />
+    <meta property="og:url" content="/posts/2017/09-ghc-users-guide.html" />
     <meta property="og:image" content="https://haskell.jp/blog/img/logo-black-frame.png" />
     <meta property="og:site_name" content="Haskell-jp Blog" />
-    <meta property="og:description" content="---最近はあまり話題になってないかもしれませんが、 `Typed holes` 機能についての紹介です。ghc7.8くらいの頃に導入された機能で、ソースコードの式の中に `_` か `_` で始まる識別名を書くと、その部分の型を推論してくれます。### 使い方例えば、```Haskellmain = print $ 1.0 + _```のようなコードを書いて、 `runghc`や`ghci`や`" />
+    <meta property="og:description" content="---## はじめにHaskell用コンパイラであるGHCのユーザーズガイド（マニュアル）の在り処について紹介します。また、GHCのユーザーズガイドはボリュームが多いため、頻繁に調べる項目を見つけやすいように、いくつかの章や節の在り処を簡単に紹介します。## ユーザーズガイドの在り処GHCの最新版のユーザーズガイド（英語版）は以下にあります。* [`Glasgow Haskell Compiler" />
 
     <!-- Twitter Card Settings -->
     <meta name="twitter:card" content="summary" />
 
     
 
-    <title>GHCのTyped Holes機能で、式中の部分の型を推論させる - Haskell-jp</title>
+    <title>GHCのユーザーズガイドへのリンク集 - Haskell-jp</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../../css/bootstrap.css" rel="stylesheet">
@@ -89,8 +89,8 @@
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                   <div class="post-heading">
-                    <h1>GHCのTyped Holes機能で、式中の部分の型を推論させる</h1>
-                    <h2 class="subheading"></h2><span class="meta">Posted by takenbu.hs</span>
+                    <h1>GHCのユーザーズガイドへのリンク集</h1>
+                    <h2 class="subheading">コンパイル時オプション、実行時オプション、対話コマンド、言語拡張など</h2><span class="meta">Posted by takenbu.hs</span>
                   </div>
                 </div>
             </div>
@@ -103,32 +103,44 @@
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<p>最近はあまり話題になってないかもしれませんが、 <code>Typed holes</code> 機能についての紹介です。</p>
-<p><span class="ascii">ghc7.8</span>くらいの頃に導入された機能で、ソースコードの式の中に <code>_</code> か <code>_</code> で始まる識別名を書くと、その部分の型を推論してくれます。</p>
-<h3 id="使い方">使い方</h3>
-<p>例えば、</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">main <span class="fu">=</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _</code></pre></div>
-<p>のようなコードを書いて、 <code>runghc</code>や<code>ghci</code>や<code>ghc</code>で実行すると、 <code>_</code> 部の型をエラーメッセージで教えてくれます。</p>
-<h3 id="エラーメッセージの表示例">エラーメッセージの表示例</h3>
-<p>例えば、以下のようにエラーメッセージが表示されます。 以下の例では、<code>_</code>部が、<code>Double</code>型であることを示しています。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> runghc test1<span class="fu">.</span>hs 
-
-test1<span class="fu">.</span>hs<span class="fu">:</span><span class="dv">3</span><span class="fu">:</span><span class="dv">22</span><span class="fu">:</span> error<span class="fu">:</span>
-    • <span class="dt">Found</span> hole<span class="fu">:</span><span class="ot"> _ ::</span> <span class="dt">Double</span>
-    • <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="fu">+</span>)’, namely ‘_’
-      <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="fu">$</span>)’, namely ‘<span class="fl">1.0</span> <span class="fu">+</span> _’
-      <span class="dt">In</span> the expression<span class="fu">:</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _
-    • <span class="dt">Relevant</span> bindings include<span class="ot"> main ::</span> <span class="dt">IO</span> () (bound at test1<span class="fu">.</span>hs<span class="fu">:</span><span class="dv">3</span><span class="fu">:</span><span class="dv">1</span>)
-  <span class="fu">|</span>
-<span class="dv">3</span> <span class="fu">|</span> main <span class="fu">=</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _
-  <span class="fu">|</span>                      <span class="fu">^</span></code></pre></div>
-<h3 id="補足1">補足<span class="ascii">1</span></h3>
-<p><code>_</code> の替りに、 <code>_hoge</code> のように名前付けしても構いません。</p>
-<p><span class="ascii">ghci</span> で、 <code>:t</code> で型を調べるのと同じように気軽に使えます。　（最近は<span class="ascii">IDE</span>がサポートしていて、明示的には使わなかったりするかもしれません。）</p>
-<h3 id="補足2">補足<span class="ascii">2</span></h3>
-<p>詳細情報は以下にあります。</p>
+<h2 id="はじめに">はじめに</h2>
+<p><span class="ascii">Haskell</span>用コンパイラである<span class="ascii">GHC</span>のユーザーズガイド（マニュアル）の在り処について紹介します。 また、<span class="ascii">GHC</span>のユーザーズガイドはボリュームが多いため、頻繁に調べる項目を見つけやすいように、いくつかの章や節の在り処を簡単に紹介します。</p>
+<h2 id="ユーザーズガイドの在り処">ユーザーズガイドの在り処</h2>
+<p><span class="ascii">GHC</span>の最新版のユーザーズガイド（英語版）は以下にあります。</p>
 <ul>
-<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes"><span class="ascii">https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes</span></a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/"><code>Glasgow Haskell Compiler User's Guide: Web版</code></a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/users_guide.pdf"><code>Glasgow Haskell Compiler User's Guide: PDF版</code></a></li>
+</ul>
+<p>なお、素晴らしい日本語翻訳版が以下にあります。</p>
+<ul>
+<li><a href="https://ghcguide.haskell.jp/users_guide/index.html"><span class="ascii">GHC 8.0</span></a> <span class="ascii">(nobsun</span>さん訳<span class="ascii">;</span> 翻訳中<span class="ascii">)</span></li>
+<li><a href="http://www.kotha.net/ghcguide_ja/7.8.2/"><span class="ascii">GHC 7.8</span></a> <span class="ascii">(kotha</span>さん訳<span class="ascii">)</span></li>
+</ul>
+<h2 id="ユーザーズガイド内でよく調べる項目の在り処">ユーザーズガイド内で、よく調べる項目の在り処</h2>
+<p><span class="ascii">GHC</span>のユーザーズガイドはボリュームが多いため、頻繁に調べる項目を見つけやすいように、いくつかの章や節を以下に紹介します。</p>
+<ul>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/flags.html"><span class="ascii">GHC</span>のコンパイル時オプション（フラグ）一覧</a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html#setting-rts-options"><span class="ascii">GHC</span>の実行時オプション（フラグ）</a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html#profiling"><span class="ascii">GHC</span>のプロファイラのオプション</a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-commands"><span class="ascii">GHCi</span>のコマンド</a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runghc.html#runghc-flags"><span class="ascii">runghc</span>のフラグ</a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#language-options"><span class="ascii">GHC</span>の言語拡張</a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#pragmas"><span class="ascii">GHC</span>のプラグマ</a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/packages.html#using-packages"><span class="ascii">ghc-pkg</span>のコマンド（オプション）</a></li>
+</ul>
+<h2 id="補足">補足１</h2>
+<h3 id="ユーザーズガイド内の検索について">ユーザーズガイド内の検索について</h3>
+<p>ユーザーズガイドの<span class="ascii">Web</span>画面右側の“<span class="ascii">Quick search</span>”の検索ボックスにより、ユーザーズガイド内の検索が可能です。</p>
+<h3 id="ユーザーズガイドのソースの在り処について">ユーザーズガイドのソースの在り処について</h3>
+<ul>
+<li>ユーザーズガイドのソースは、<a href="https://github.com/ghc/ghc/tree/master/docs/users_guide">こちら</a>にあります。</li>
+<li>ユーザーズガイドの記述方法やビルド方法についての説明は、<a href="https://ghc.haskell.org/trac/ghc/wiki/Commentary/UserManual">こちら</a>にあります。</li>
+</ul>
+<h2 id="補足-1">補足２</h2>
+<p>参考までに、<span class="ascii">GHC</span>ではなく、<span class="ascii">Haskell</span>言語仕様の方も以下に紹介します。</p>
+<ul>
+<li><a href="https://www.haskell.org/onlinereport/haskell2010/"><span class="ascii">Haskell 2010 Language Report; Web</span>版</a></li>
+<li><a href="https://www.haskell.org/definition/haskell2010.pdf"><span class="ascii">Haskell 2010 Language Report; PDF</span>版</a></li>
 </ul>
             </div>
         </div>
