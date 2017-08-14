@@ -1,5 +1,5 @@
 ---
-title: GHCのユーザーズガイド
+title: GHCのユーザーズガイドへのリンク集
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: コンパイル時オプション、実行時オプション、対話コマンド、言語拡張など
