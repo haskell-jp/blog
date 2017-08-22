@@ -410,4 +410,5 @@ BiTaggedData :: forall k (tag2 :: k) (tag1 :: k). BiTagged tag1 tag2
 * [GHC 8.0.2 Users Guide](https://downloads.haskell.org/~ghc/8.0.2/docs/html/users_guide/): 主な種に関する参考資料としてとGHC拡張についての資料として参考にしました。
     - [10.11 Kind polymorphism and Type-in-Type](https://downloads.haskell.org/~ghc/8.0.2/docs/html/users_guide/glasgow_exts.html#kind-polymorphism-and-type-in-type): GHCにおいての種推論などの、種に関することが総括してあります。
     - [10.15.4 Explicitly-kinded quantification](https://downloads.haskell.org/~ghc/8.0.2/docs/html/users_guide/glasgow_exts.html#explicitly-kinded-quantification): `KindSignatures`拡張の概要が書かれています。
+* [What I Wish I Knew When Learning Haskell - Promotion](http://dev.stephendiehl.com/hask/#promotion): 簡単にですが幾つか種に関する話題がまとまっています。あんまり参考にしていませんが、リンクとして置いておきます。
 * [GHC Wiki - Commentary/Compiler/Kinds](https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/Kinds): この記事のストーリーを決める際に参照しました。続編では、このページを元にしたもう少し踏み込んだトピックも扱う予定です。
