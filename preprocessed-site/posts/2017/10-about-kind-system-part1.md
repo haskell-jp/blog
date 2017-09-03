@@ -185,6 +185,7 @@ Int + Bool :: *
 >>> :kind Int -> Bool
 Int -> Bool :: *
 ```
+**追記**: GHC 8.2.1では、`:kind (->)`の表示結果が、`TYPE q -> TYPE r -> *`というものに変更されたようです。この表記に関しては、[続編][part2-link]の方で解説します。今は、`* -> * -> *`と大体同等のものであると思ってもらって構わないので、以降では`(->) :: * -> * -> *`であるとして話を進めていきます。宜しくお願いします。
 
 `(->)`は二つの型を取り、データ型を返します。そのデータ型とは関数型です。例えば、`Int -> Maybe Bool`(関数表記では`(->) Int (Maybe Bool)`)は`Int`型の値を受け取り`Maybe Bool`型の値を返す関数の型を表しているのでしたね。関数型コンストラクタは二つの引数の種を`*`に制限しています。なので、`Maybe -> Int`といったような型注釈は書けません。これは、型コンストラクタが値を持たないことに反しません。
 
@@ -400,6 +401,8 @@ BiTaggedData :: forall k (tag2 :: k) (tag1 :: k). BiTagged tag1 tag2
 
 続編[^information-part2]では、`*`の他の幾つかの種と、種とは別の型の分類についての紹介などを踏まえた、幾つかの種に関連する話題について、話したいと思います。
 
+**追記**: [続編][part2-link]を書きました。続きが気になる方は、読んでみてください。
+
 [^information-part2]: 多分9月中に出す。きっとね！ 続きが気になる人は、期待しないで待っててください。
 
 ## 参考文献
@@ -412,3 +415,5 @@ BiTaggedData :: forall k (tag2 :: k) (tag1 :: k). BiTagged tag1 tag2
     - [10.15.4 Explicitly-kinded quantification](https://downloads.haskell.org/~ghc/8.0.2/docs/html/users_guide/glasgow_exts.html#explicitly-kinded-quantification): `KindSignatures`拡張の概要が書かれています。
 * [What I Wish I Knew When Learning Haskell - Promotion](http://dev.stephendiehl.com/hask/#promotion): 簡単にですが幾つか種に関する話題がまとまっています。あんまり参考にしていませんが、リンクとして置いておきます。
 * [GHC Wiki - Commentary/Compiler/Kinds](https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/Kinds): この記事のストーリーを決める際に参照しました。続編では、このページを元にしたもう少し踏み込んだトピックも扱う予定です。
+
+[part2-link]: 12-about-kind-system-part2.html
