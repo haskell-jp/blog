@@ -38,7 +38,7 @@ main = hakyllWith hakyllConfig $ do
     match "templates/*" $ compile templateCompiler
 
     -- images
-    match "img/*" $ do
+    match "img/**" $ do
         route idRoute
         compile copyFileCompiler
 
