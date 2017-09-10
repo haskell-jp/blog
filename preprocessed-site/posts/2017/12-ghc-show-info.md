@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: 対話操作による出力、コンパイル時出力、実行時出力
 postedBy: takenbu.hs
-date: September 17, 2017
+date: September 10, 2017
 ...
 ---
 
