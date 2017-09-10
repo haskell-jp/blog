@@ -310,7 +310,7 @@ f2 a b <span class="fu">=</span> a <span class="fu">+</span> b</code></pre></div
 <h3 id="正格性情報の出力">正格性情報の出力</h3>
 <p>コンパイル時に得られる正格性についての情報を出力することが出来ます。<br />
 例えば、以下の単純なソースの場合について例を示します。<br />
-少し恣意的な例ですが、関数<span class="ascii">f3</span>の第１引数は正格（かつ関数内で使用されている）、第<span class="ascii">2</span>引数は非性格（かつ関数内で使用されている）、第<span class="ascii">3</span>引数は非性格（かつ関数内で使用されていない）という場合の例です。</p>
+少し恣意的な例ですが、関数<span class="ascii">f3</span>の第１引数は正格（かつ関数内で使用されている）、第<span class="ascii">2</span>引数は非正格（かつ関数内で使用されている）、第<span class="ascii">3</span>引数は非正格（かつ関数内で使用されていない）という場合の例です。</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Func3.hs 
 
 <span class="kw">module</span> <span class="dt">Func3</span> <span class="kw">where</span>
@@ -333,8 +333,8 @@ Func3.f3<span class="fu">:</span> <span class="fu">&lt;</span><span class="dt">S
 <span class="dt">Func3</span><span class="fu">.$</span>trModule<span class="fu">:</span> m
 Func3.f3<span class="fu">:</span> <span class="fu">&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dt">A</span><span class="fu">&gt;</span>m</code></pre></div>
 <p>上の例によると、第１引数は、<code>&lt;S(S),1*U(1*U)&gt;</code>の部分により表されています。 ここでの<code>S(S)</code>は、引数が正格<span class="ascii">(Strict)</span>であることを示しています。 <code>1*U(1*U)</code>は、引数が関数内で使用<span class="ascii">(Use)</span>されていることを示しています。<br />
-第<span class="ascii">2</span>引数は、<code>&lt;L,1*U(U)&gt;</code>の部分により表されています。 <code>L</code>は引数が非性格（<span class="ascii">non-strict</span>）であることを示しています。 <code>1*U(U)</code>は、引数が関数内で使用<span class="ascii">(Use)</span>されていることを示しています。<br />
-第<span class="ascii">3</span>引数は、<code>&lt;L,A&gt;</code>の部分により表されています。 <code>L</code>は引数が非性格（<span class="ascii">non-strict</span>）であることを示しています。 <code>A</code>は、引数が関数内で不使用（<span class="ascii">Absence</span>）であることを示しています。</p>
+第<span class="ascii">2</span>引数は、<code>&lt;L,1*U(U)&gt;</code>の部分により表されています。 <code>L</code>は引数が非正格（<span class="ascii">non-strict</span>）であることを示しています。 <code>1*U(U)</code>は、引数が関数内で使用<span class="ascii">(Use)</span>されていることを示しています。<br />
+第<span class="ascii">3</span>引数は、<code>&lt;L,A&gt;</code>の部分により表されています。 <code>L</code>は引数が非正格（<span class="ascii">non-strict</span>）であることを示しています。 <code>A</code>は、引数が関数内で不使用（<span class="ascii">Absence</span>）であることを示しています。</p>
 <p>正格性解析については、<a href="https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/Demand">こちら</a>も参考になります。</p>
 <h3 id="その他コンパイル時のいろいろなオプション">その他、コンパイル時のいろいろなオプション</h3>
 <p>他にも、コンパイル時に様々な情報を出力させることが出来ます。</p>
@@ -614,10 +614,10 @@ f1 <span class="fu">=</span> f2 <span class="fu">+</span> <span class="dv">1</sp
 f2 <span class="fu">=</span> f3 <span class="fu">+</span> <span class="dv">1</span>
 
 f3 <span class="fu">=</span> <span class="dv">1</span> <span class="ot">`div`</span> <span class="dv">0</span></code></pre></div>
-<p>プロファイルを取るためには、以下の様にまず、コンパイル時に、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts"><code>-rtsopts</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>オプションを指定します。<br />
+<p>スタックトレースを取るためには、以下の様にまず、コンパイル時に、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts"><code>-rtsopts</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>オプションを指定します。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts"><code>-rtsopts</code></a>は、実行オブジェクトの実行時に、<span class="ascii">GHC</span>のランタイムシステム<span class="ascii">(RTS)</span>用の引数を使用可能にするオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a>は、プロファイル用のコードを埋め込むためのオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>は、プロファイルを取得する対象を自動で設定するオプションです。</p>
 <pre><code>$ ghc -rtsopts -prof -fprof-auto Prog6.hs</code></pre>
-<p>実行時の空間プロファイルを出力するには、実行オブジェクトの起動時に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html#setting-rts-options-on-the-command-line"><code>+RTS</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--xc"><code>-xc</code></a>オプションを指定します。 （<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--xc"><code>-xc</code></a>がスタックトレース出力のためのオプションです。）</p>
+<p>実行時におけるエラー時のスタックトレースを出力するには、実行オブジェクトの起動時に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html#setting-rts-options-on-the-command-line"><code>+RTS</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--xc"><code>-xc</code></a>オプションを指定します。 （<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--xc"><code>-xc</code></a>がスタックトレース出力のためのオプションです。）</p>
 <pre><code>$ ./Prog6 +RTS -xc</code></pre>
 <p>これにより、エラー時のスタックトレース情報が、次の様に出力されます。</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">***</span> <span class="dt">Exception</span> (reporting due to <span class="fu">+</span><span class="dt">RTS</span> <span class="fu">-</span>xc)<span class="fu">:</span> (<span class="dt">THUNK_STATIC</span>), stack trace<span class="fu">:</span> 
