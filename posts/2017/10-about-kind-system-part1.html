@@ -101,7 +101,7 @@
     <article>
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
 <p><span class="ascii">Haskell</span>には種<span class="ascii">(kind)</span>という仕組みがあります。大雑把に言ってしまえば、「型の型」を実現する仕組みです。この仕組みについて、あまり情報が出回っていないようなので、解説記事を残しておこうと思います。</p>
 <p>この記事は、<a href="http://lambdaconf.us/downloads/documents/lambdaconf_slfp.pdf"><span class="ascii">Ladder of Functional Programming</span></a> <span class="ascii">(</span><a href="http://qiita.com/lotz/items/0d68c8440d1f362d0c32">日本語訳</a><span class="ascii">)</span>の<strong><span class="ascii">FIRE LUBLINE(ADVANCED BEGINNER)</span></strong>を対象に、種の仕組みとそれに付随する<span class="ascii">GHC</span>言語拡張やパッケージを紹介するものです。</p>
@@ -223,6 +223,7 @@ id<span class="ot"> ::</span> (<span class="ot">-&gt;</span>) a<span class="ot">
 (<span class="ot">-&gt;</span>) <span class="dt">Int</span> <span class="dt">Bool</span><span class="ot"> ::</span> <span class="fu">*</span>
 <span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
 <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span><span class="ot"> ::</span> <span class="fu">*</span></code></pre></div>
+<p><strong>追記</strong><span class="ascii">: GHC 8.2.1</span>では、<code>:kind (-&gt;)</code>の表示結果が、<code>TYPE q -&gt; TYPE r -&gt; *</code>というものに変更されたようです。この表記に関しては、<a href="12-about-kind-system-part2.html">続編</a>の方で解説します。今は、<code>* -&gt; * -&gt; *</code>と大体同等のものであると思ってもらって構わないので、以降では<code>(-&gt;) :: * -&gt; * -&gt; *</code>であるとして話を進めていきます。宜しくお願いします。</p>
 <p><code>(-&gt;)</code>は二つの型を取り、データ型を返します。そのデータ型とは関数型です。例えば、<code>Int -&gt; Maybe Bool</code><span class="ascii">(</span>関数表記では<code>(-&gt;) Int (Maybe Bool)</code><span class="ascii">)</span>は<code>Int</code>型の値を受け取り<code>Maybe Bool</code>型の値を返す関数の型を表しているのでしたね。関数型コンストラクタは二つの引数の種を<code>*</code>に制限しています。なので、<code>Maybe -&gt; Int</code>といったような型注釈は書けません。これは、型コンストラクタが値を持たないことに反しません。</p>
 <p>さて、次のようなデータ宣言を考えてみましょう<span class="ascii">:</span></p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Id</span> a <span class="fu">=</span> <span class="dt">Id</span> a
@@ -342,6 +343,7 @@ g _   <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
 <h2 id="まとめ">まとめ</h2>
 <p>今回は、種の基本概念と、種に関連する<span class="ascii">GHC</span>拡張を紹介しました。</p>
 <p>続編<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>では、<code>*</code>の他の幾つかの種と、種とは別の型の分類についての紹介などを踏まえた、幾つかの種に関連する話題について、話したいと思います。</p>
+<p><strong>追記</strong><span class="ascii">:</span> <a href="12-about-kind-system-part2.html">続編</a>を書きました。続きが気になる方は、読んでみてください。</p>
 <h2 id="参考文献">参考文献</h2>
 <ul>
 <li><a href="https://www.haskell.org/onlinereport/haskell2010/haskell.html"><span class="ascii">Haskell2010 Language Report</span></a><span class="ascii">: Haskell2010</span>の仕様書です。主に標準の仕組みを紹介する際に参照しました。
