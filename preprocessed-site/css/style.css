@@ -23,3 +23,20 @@
   border: 1px solid #cccccc;
   padding: 6px 13px;
 }
+
+p.social-buttons-label {
+  margin: 0px;
+  font-size: smaller;
+  font-family: sans-serif;
+  line-height: 2.0;
+}
+
+ul.social-buttons {
+  list-style: none;
+  vertical-align: middle;
+  padding: 5px;
+}
+ul.social-buttons li {
+  display: inline-block;
+  vertical-align: middle;
+}
