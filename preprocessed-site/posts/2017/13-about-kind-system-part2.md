@@ -114,7 +114,7 @@ SimpleClass :: * -> Constraint
 | `*` | データ型 | データ宣言(`data C a = ...`) |
 | `Constraint` | 型制約 | 型クラス宣言(`class C a where ...`) |
 
-両者はそれぞれ特別な意味を与えられています。実際、データ型が値を持ち[^notice-data-type]それによって型注釈が書けるように、型制約は`=>`という特別に型制約を計算するような、型上の構文を持っています。ですが、逆に言えば特別なのはそれだけで、それ以外に両者の違いはありません。例えば、`Proxy`型は種多相化されているので、型制約や型制約コンストラクタ(型クラス)を渡すこともできます:
+両者はそれぞれ特別な意味を与えられています。実際、データ型が値を持ち[^notice-data-type]、それによって型注釈が書けるように、型制約は`=>`という特別に型制約を計算するような型上の構文を持っています。ですが、逆に言えば特別なのはそれだけで、それ以外に両者の違いはありません。例えば、`Proxy`型は種多相化されているので、型制約や型制約コンストラクタ(型クラス)を渡すこともできます:
 ```haskell
 >>> import Data.Proxy
 >>> :kind Proxy
@@ -604,7 +604,35 @@ CallStack (from HasCallStack):
 CallStack (from HasCallStack):
   error, called at <interactive>:8:4 in interactive:Ghci2
 ```
-`Array# a`はヒープ上に本体があり、それを指し示すポインタで表現されます。ただしこのポインタは、サンクを指し示すことはありません。つまりかならず実データを指し示すことになり、ボトムを値に持つことはないのです。ボトムについての形式的な議論は、領域理論という分野でされています。もし、**lifted/unlifted**についての理論的な背景が知りたいなら、領域理論や表示的意味論について学習してみると良いでしょう[^reference-for-domain-theory]。
+`Array# a`はヒープ上に本体があり、それを指し示すポインタで表現されます。ただしこのポインタは、サンクを指し示すことはありません。つまりかならず実データを指し示すことになり、ボトムを値に持つことはないのです。
+
+ところで、今までは引数がunliftedな型である場合の話をしてきましたが、返り値がunliftedな型になっている場合はどう見ることができるのでしょう？例えば、次のような関数を考えてみてください:
+```haskell
+{-# LANGUAGE MagicHash #-}
+
+import GHC.Exts
+
+infLoop :: Int# -> Int#
+infLoop i = infLoop (i +# 1#)
+```
+`(+#) :: Int# -> Int# -> Int#`は、GHCで用意されている`Int#`専用の加算演算子です。この関数は問題なく定義することができますが、実行すると無限ループを起こします。つまり`infLoop 1# :: Int#`というような式はボトムを表しているように見えます。unliftedな型は、ボトムを持たないはずでは無かったのでしょうか？ 注意して欲しいのは、`infLoop 1#`という式は、それ単体ではHaskellでは単なる表記に過ぎないということです。この式は、なんらかのトップレベル関数や定数の一部になっているはずです。関数はliftedな型の値です(関数型は、`a -> b :: *`であることを思い出してください！)。関数はコンパイルされ、ランタイムによって実行されます。つまり、最終的に実行時に意味を持つのは、トップレベルの関数であり、それはliftedな型で表現されるということです。また、Haskellではunlifted型のトップレベル定数の宣言は許されていません。以下のコードはコンパイルエラーになります:
+```haskell
+{-# LANGUAGE MagicHash #-}
+
+import GHC.Exts
+
+-- 許可されていない
+unliftedConstant :: Int#
+unliftedConstant = 1#
+```
+これにより、トップレベルの関数や定数は、全てliftedな型を持つことになります。もし、内部でunliftedな式が無限ループや例外を吐くなら、それはその式を含んだトップレベルのliftedな関数や定数が、ボトムを表すサンクを持つことになるということです。これは、unliftedの考え方を逸脱しません。
+
+* トップレベルの関数や定数はサンクを持つliftedな値に翻訳され、
+* unliftedな型を持つ引数は、受け取る前に正格に評価され、サンクを持たない値となった後関数に渡されます。
+
+このような解釈によって、Haskellでのlifted/unliftedの枠組みは保たれます。
+
+ボトムについての形式的な議論は、領域理論という分野でされています。もし、**lifted/unlifted**についての理論的な背景が知りたいなら、領域理論や表示的意味論について学習してみると良いでしょう[^reference-for-domain-theory]。
 
 [^reference-for-domain-theory]: あなたがもし領域理論について興味があるならば、[Domain Theory](http://www.cs.bham.ac.uk/~axj/pub/papers/handy1.pdf)を読んでみるのがよいでしょう。この文献は、領域理論に必要な順序理論の知識から、領域理論の基本的な概念を解説してくれている文献です。もし、理論自体に興味がなく、この理論がどのような問題解決を目指しているかだけを知りたいなら、Originsだけでも読むと良いでしょう。
 
@@ -881,5 +909,6 @@ unliftedデータ型は、unliftedな型を定義できるようにするよう�
 * その他の参考文献:
     - [Giving Haskell a Promotion](http://dreixel.net/research/pdf/ghp.pdf): `DataKinds`拡張の提唱論文です。`DataKinds`について紹介する時、参考にしました。
     - [Levity Polymorphism (extended version)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/levity-1.pdf): 軽率多相の提唱論文です。軽率多相について紹介する時、参考にしました。
+    - [Unboxed values a non-strict as first class citizens in functional language](https://link.springer.com/content/pdf/10.1007%2F3540543961_30.pdf): 非ボックス型の提唱論文です。unliftedな型の意味を紹介する場合に、参考にしました。
 
 [part1-link]: 10-about-kind-system-part1.html
