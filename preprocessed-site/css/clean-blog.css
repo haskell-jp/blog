@@ -421,6 +421,9 @@ code {
   margin-left: 0.25em;
   margin-right: 0.25em;
 }
+pre code {
+  margin: 0;
+}
 
 .ascii:before,
 .ascii:after {
