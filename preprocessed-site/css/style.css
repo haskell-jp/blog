@@ -23,3 +23,13 @@
   border: 1px solid #cccccc;
   padding: 6px 13px;
 }
+
+ul.social-buttons {
+  list-style: none;
+  vertical-align: middle;
+  padding: 5px;
+}
+ul.social-buttons li {
+  display: inline-block;
+  vertical-align: middle;
+}
