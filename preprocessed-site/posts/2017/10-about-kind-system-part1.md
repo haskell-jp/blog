@@ -416,4 +416,4 @@ BiTaggedData :: forall k (tag2 :: k) (tag1 :: k). BiTagged tag1 tag2
 * [What I Wish I Knew When Learning Haskell - Promotion](http://dev.stephendiehl.com/hask/#promotion): 簡単にですが幾つか種に関する話題がまとまっています。あんまり参考にしていませんが、リンクとして置いておきます。
 * [GHC Wiki - Commentary/Compiler/Kinds](https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/Kinds): この記事のストーリーを決める際に参照しました。続編では、このページを元にしたもう少し踏み込んだトピックも扱う予定です。
 
-[part2-link]: 12-about-kind-system-part2.html
+[part2-link]: 13-about-kind-system-part2.html
