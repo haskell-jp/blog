@@ -129,7 +129,7 @@
 <p>なお、特に断らない限り、対象として<span class="ascii">GHC8</span>系を設定しています。<code>stack</code>を使ってる方は<code>resolver</code>を<span class="ascii">LTS Haskell 8</span>以降に設定しておくことを推奨します。</p>
 <h2 id="基本的な種の仕組み">基本的な種の仕組み</h2>
 <h3 id="種に慣れる">種に慣れる</h3>
-<p>私たちは良き<span class="ascii">Haskller</span>なので、トップレベルの関数には以下のように型注釈をつけます<span class="ascii">:</span></p>
+<p>私たちは良き<span class="ascii">Haskeller</span>なので、トップレベルの関数には以下のように型注釈をつけます<span class="ascii">:</span></p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">increment ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
 increment n <span class="fu">=</span> n <span class="fu">+</span> <span class="dv">1</span></code></pre></div>
 <p>この<code>increment</code>という関数は、<code>Int</code>型の値を受け取って、<span class="ascii">1</span>を加算した<code>Int</code>型の値を返します。なので、型システムによってそのような型として検証されます<span class="ascii">:</span></p>
