@@ -52,6 +52,7 @@ Haskell-jpはHaskellを普及させる（多くの人に使ってもらう）た
 応募していただける場合、[こちらのリポジトリー](https://github.com/haskell-jp/blog)にPull Requestを送ってください。  
 `preprocessed-site/posts`というディレクトリー以下に新しいmarkdownファイルを追加していただく形になります。  
 [こちらの記事のテンプレート](https://github.com/haskell-jp/blog/blob/master/preprocessed-site/posts/template.md)も参考にしてください。  
-なにか気になる点があれば[Slackチーム](https://haskell-jp.slack.com/)の#blogチャンネルまでお気軽にどうぞ！
+なにか気になる点があれば[Slackチームの#haskell-jp-blogチャンネル](https://haskell-jp.slack.com/messages/C52C84YF3/)までお気軽にどうぞ！  
+（2017年9月30日修正: チャンネル名を実態に合わせて修正しました）
 
 早速最初の記事として、@arowmさんに「[Dockerを使ってHaskellアプリをHerokuにデプロイする](02-haskell-on-heroku.html)」という記事をいただきました！ありがとうございます！
