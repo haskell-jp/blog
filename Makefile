@@ -53,7 +53,13 @@ deploy: site
 	# Copy the generated site to the temp directory.
 	cp -r generated-site /tmp/haskell-jp-blog-deploy/
 	# Checkout the gh-pages branch.
-	git checkout gh-pages
+ifdef GITHUB_TOKEN
+	git remote set-url origin "https://${GITHUB_TOKEN}@github.com/haskell-jp/blog.git"
+	git fetch origin gh-pages
+	git checkout -b gh-pages FETCH_HEAD
+else
+	git checkout -t origin/gh-pages
+endif
 	# Remove the pages for the current site.
 	git rm -r -f --ignore-unmatch *
 	git status
@@ -67,13 +73,11 @@ deploy: site
 	git status
 	# Do the commit and push.
 	git commit -m "Release $(GIT_HASH) on `date`."
-ifdef GITHUB_TOKEN
-	git push -f "https://${GITHUB_TOKEN}@github.com/haskell-jp/blog.git" gh-pages
-else
 	git push -f origin gh-pages
-endif
 	# Go back to master.
+ifndef GITHUB_TOKEN
 	git checkout master
+endif
 	rm -rf /tmp/haskell-jp-blog-deploy
 
 # Alias for deploy.
