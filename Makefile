@@ -67,7 +67,11 @@ deploy: site
 	git status
 	# Do the commit and push.
 	git commit -m "Release $(GIT_HASH) on `date`."
-	git push origin gh-pages
+ifdef GITHUB_TOKEN
+	git push -f "https://${GITHUB_TOKEN}@github.com/haskell-jp/blog.git" gh-pages
+else
+	git push -f origin gh-pages
+endif
 	# Go back to master.
 	git checkout master
 	rm -rf /tmp/haskell-jp-blog-deploy

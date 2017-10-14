@@ -55,4 +55,6 @@ script:
   set -ex
   time travis_wait 30 stack --no-terminal test --bench --no-run-benchmarks --haddock --no-haddock-deps
   time stack exec -- site build
+  # -e オプションをつけることで、GITHUB_TOKEN環境変数をmakeに渡す
+  [ "$TRAVIS_BRANCH" == master ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && make -e deploy
   set +ex
