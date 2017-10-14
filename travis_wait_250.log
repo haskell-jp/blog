@@ -1,0 +1,19 @@
+haskell-jp-blog-0.1.0.0: configure (exe + test)
+Configuring haskell-jp-blog-0.1.0.0...
+haskell-jp-blog-0.1.0.0: build (exe + test)
+Preprocessing executable 'site' for haskell-jp-blog-0.1.0.0...
+[1 of 1] Compiling Main             ( src/site.hs, .stack-work/dist/x86_64-linux/Cabal-1.24.2.0/build/site/site-tmp/Main.o )
+Linking .stack-work/dist/x86_64-linux/Cabal-1.24.2.0/build/site/site ...
+Preprocessing test suite 'site-doctest' for haskell-jp-blog-0.1.0.0...
+[1 of 1] Compiling Main             ( test/DocTest.hs, .stack-work/dist/x86_64-linux/Cabal-1.24.2.0/build/site-doctest/site-doctest-tmp/Main.o )
+Linking .stack-work/dist/x86_64-linux/Cabal-1.24.2.0/build/site-doctest/site-doctest ...
+haskell-jp-blog-0.1.0.0: copy/register
+Installing executable(s) in
+/home/travis/build/haskell-jp/blog/.stack-work/install/x86_64-linux/lts-8.5/8.0.2/bin
+haskell-jp-blog-0.1.0.0: test (suite: site-doctest)
+
+Examples: 19  Tried: 19  Errors: 0  Failures: 0
+
+Completed 2 action(s).
+Haddock index for snapshot packages already up to date at:
+/home/travis/.stack/snapshots/x86_64-linux/lts-8.5/8.0.2/doc/index.html
