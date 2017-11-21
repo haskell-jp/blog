@@ -1,0 +1,32 @@
+general:
+  artifacts:
+    - "generated-site/"
+_cache_and_artifacts: &_cache_and_artifacts
+  cache_directories:
+    - "~/.stack/"
+    - ".stack-work/"
+
+dependencies:
+  override:
+    - stack setup
+    - stack install --only-dependencies
+  <<: *_cache_and_artifacts
+
+compile:
+  override:
+    - stack build --pedantic
+    - stack exec -- site build
+    - cp -r generated-site $CIRCLE_ARTIFACTS
+  <<: *_cache_and_artifacts
+
+test:
+  override:
+    - stack test --pedantic
+  <<: *_cache_and_artifacts
+
+deployment:
+  production:
+    branch: master
+    commands:
+      # -e オプションをつけることで、GITHUB_TOKEN環境変数をmakeに渡す
+      make -e deploy
