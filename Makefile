@@ -72,7 +72,7 @@ endif
 	git add -A .
 	git status
 	# Do the commit and push.
-	git commit -m "Release $(GIT_HASH) on `date`."
+	git commit -m "Release $(GIT_HASH) on `date` [ci skip]."
 	git push -f origin gh-pages
 	# Go back to master.
 ifndef GITHUB_TOKEN
