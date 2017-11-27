@@ -27,4 +27,6 @@ date: November 27, 2017
 以上を踏まえた、Haskell-jp Blogの投稿手順については、[README](https://github.com/haskell-jp/blog#readme)をご覧ください。  
 基本的に投稿する人は、**Markdownで記事を書いて、Pull requestを送るだけ**です！
 
-それでは、[Haskell Advent Calendar 2017](https://qiita.com/advent-calendar/2017/haskell)（と[その2](https://qiita.com/advent-calendar/2017/haskell2)、[その3](https://qiita.com/advent-calendar/2017/haskell3)）の記事を始め、これからもHaskell-jp Blogをよろしくお願いします！ hask(\_ \_)eller
+それでは、これからもHaskell-jp Blogをよろしくお願いします！ hask(\_ \_)eller  
+Blogでは、[Haskell Advent Calendar 2017](https://qiita.com/advent-calendar/2017/haskell)（と[その2](https://qiita.com/advent-calendar/2017/haskell2)、[その3](https://qiita.com/advent-calendar/2017/haskell3)）の記事を特に精力的に募集しています。  
+ぜひこの機会にHaskell-jp Blogに記事を投稿してみませんか？
