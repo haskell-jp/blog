@@ -3,6 +3,10 @@
   margin-top: 1em;
 }
 
+span.meta {
+  margin: 1em;
+}
+
 .hash-target {
   margin-bottom: 1em;
 }
@@ -32,4 +36,19 @@ ul.social-buttons {
 ul.social-buttons li {
   display: inline-block;
   vertical-align: middle;
+}
+
+#post-navigation {
+  display: flex;
+  align-items: center;
+}
+
+#post-navigation div {
+  display: flex;
+  align-items: center;
+}
+
+#post-navigation a {
+  color: #313537;
+  font-size: smaller;
 }

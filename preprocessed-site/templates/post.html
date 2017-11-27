@@ -26,6 +26,23 @@
               $body$
             </div>
         </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                $if(nextPostUrl)$
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="$nextPostUrl$">$nextPostTitle$</a>
+                $endif$
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                $if(prevPostUrl)$
+                <a href="$prevPostUrl$" style="margin-left: auto;">$prevPostTitle$</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                $endif$
+            </div>
+        </div>
     </div>
 </article>
 
