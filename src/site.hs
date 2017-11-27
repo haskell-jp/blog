@@ -4,6 +4,8 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+import Control.Applicative (empty)
+import Control.Monad (filterM)
 import Data.Char (isLatin1)
 import Data.Data (Data)
 import Data.Default (def)
@@ -11,14 +13,6 @@ import Data.List.NonEmpty (NonEmpty((:|)), groupBy, toList)
 import Data.Maybe (fromMaybe)
 import Data.Typeable (Typeable)
 import Hakyll
-       (Compiler, Configuration(..), Context, Identifier, Item, Routes,
-        applyAsTemplate, boolField, compile, composeRoutes, compressCssCompiler,
-        copyFileCompiler, dateField, defaultContext,
-        defaultHakyllReaderOptions, defaultHakyllWriterOptions, escapeHtml, field,
-        getMetadataField, getResourceBody, gsubRoute, hakyllWith, idRoute,
-        itemBody, itemIdentifier, listField, loadAll, loadAndApplyTemplate,
-        lookupString, match, metadataRoute, pandocCompilerWithTransform,
-        recentFirst, relativizeUrls, route, setExtension, templateCompiler)
 import Text.Pandoc.Definition (Inline(Space, Span, Str), Pandoc)
 import Text.Pandoc.Generic (bottomUp)
 
@@ -81,10 +75,18 @@ main = hakyllWith hakyllConfig $ do
     match "posts/**" $ do
         route postsAndDraftsRoutes
         compile $ do
+            let relatedPostCtx = prevPostCtx `mappend` nextPostCtx
+                lookupUrl ident = maybe empty (pure . toUrl) =<< getRoute ident
+                lookupTitle ident = maybe empty pure =<< getMetadataField ident "title"
+                prevPostCtx = field "prevPostUrl" (getPrevPostField lookupUrl) `mappend`
+                              field "prevPostTitle" (getPrevPostField lookupTitle)
+                nextPostCtx = field "nextPostUrl" (getNextPostField lookupUrl) `mappend`
+                              field "nextPostTitle" (getNextPostField lookupTitle)
             let postsCtx =
                     field "description" createOpenGraphDescription `mappend`
                     boolField "article" (const True) `mappend`
                     field "subHeadingContent" createSubHeadingContentForPost `mappend`
+                    relatedPostCtx `mappend`
                     postCtx
             pandocOut <-
                 pandocCompilerWithTransform
@@ -129,13 +131,42 @@ createOpenGraphDescription _ = convert . itemBody <$> getResourceBody
 createSubHeadingContentForPost :: Item a -> Compiler String
 createSubHeadingContentForPost item = do
     let ident = itemIdentifier item
-    maybeSubHeading <- getMetadataField ident "subHeading"
-    maybePostedBy <- getMetadataField ident "postedBy"
-    let subHeading = fromMaybe "" maybeSubHeading
-        subHeadingHtml = "<h2 class=\"subheading\">" ++ subHeading ++ "</h2>"
-        postedBy = fromMaybe "" maybePostedBy
-        postedByHtml = "<span class=\"meta\">Posted by " ++ postedBy ++ "</span>"
-    return $ subHeadingHtml ++ postedByHtml
+    subHeading <- fromMaybe "" <$> getMetadataField ident "subHeading"
+    postedBy   <- getMetadataField' ident "postedBy"
+    date       <- getMetadataField' ident "date"
+    mtags      <- getMetadataField ident "tags"
+    let subHeadingHtml = "<h2 class=\"subheading\">" ++ subHeading ++ "</h2>"
+        postedByHtml = "<span class=\"meta\">Posted by " ++ postedBy ++ " on " ++ date ++  "</span>"
+        tagsHtml = maybe "" (\tags -> "<span class=\"meta\">Tags: " ++ tags ++ "</span>") mtags
+    return $ subHeadingHtml ++ postedByHtml ++ tagsHtml
+
+isDraftPost :: MonadMetadata m => Identifier -> m Bool
+isDraftPost ident = do
+    isDraft <- fromMaybe "false" <$> getMetadataField ident "draft"
+    return $ isDraft == "true"
+
+postItemIdentifiers :: MonadMetadata m => m [Identifier]
+postItemIdentifiers = do
+    idents <- getMatches "posts/**"
+    idents' <- filterM (fmap not . isDraftPost) idents
+    sortRecentFirst idents'
+
+lookupPostField :: ([Identifier] -> Maybe Identifier) -> (Identifier -> Compiler a) -> Compiler a
+lookupPostField lookupIdent lookupField = do
+    itemIdents <- postItemIdentifiers
+    let mtargetIdent = lookupIdent itemIdents
+
+    maybe empty lookupField mtargetIdent
+
+getPrevPostField :: (Identifier -> Compiler b) -> Item a -> Compiler b
+getPrevPostField lookupField item = do
+    let ident = itemIdentifier item
+    lookupPostField (\itemIdents -> lookup ident $ zip itemIdents (tail itemIdents)) lookupField
+
+getNextPostField :: (Identifier -> Compiler b) -> Item a -> Compiler b
+getNextPostField lookupField item = do
+    let ident = itemIdentifier item
+    lookupPostField (\itemIdents -> lookup ident $ zip (tail itemIdents) itemIdents) lookupField
 
 -- | If posts have a "draft" metadata, then this changes their output
 -- location from "posts/" to "drafts/".
