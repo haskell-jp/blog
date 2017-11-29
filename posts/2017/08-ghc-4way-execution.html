@@ -226,7 +226,7 @@ hello Mike</code></pre>
 <p>実は <span class="ascii">ghc -e</span>コマンドでは、<span class="ascii">ghci</span>のコマンドも使えます。 ですので、型を調べる<code>:t</code><span class="ascii">(:type)</span>コマンドを使って型の情報を表示させることもできます。</p>
 <pre><code>$ ghc -e ':t foldl'
 foldl :: Foldable t =&gt; (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b</code></pre>
-<p><span class="ascii">GHC8.2</span>以降であれば、上の例のような一般化された型での表示ではなく、デフォルトの型を考慮してシンプルに表示する<code>:t +d</code>コマンドも使えます。（詳細は<a href="https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d%20%E2%9F%A8expression%E2%9F%A9">こちら</a>）</p>
+<p><span class="ascii">GHC8.2</span>以降であれば、上の例のような一般化された型での表示ではなく、デフォルトの型を考慮してシンプルに表示する<code>:t +d</code>コマンドも使えます。（詳細は<a href="https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d">こちら</a>）</p>
 <pre><code>$ ghc -e ':t +d foldl'
 foldl :: (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; b</code></pre>
 <p>名前の情報を表示する<code>:i</code><span class="ascii">(:info)</span>コマンドも使えます。</p>
