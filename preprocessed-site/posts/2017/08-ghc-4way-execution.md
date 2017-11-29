@@ -191,7 +191,7 @@ $ ghc -e ':t foldl'
 foldl :: Foldable t => (b -> a -> b) -> b -> t a -> b
 ```
 
-GHC8.2以降であれば、上の例のような一般化された型での表示ではなく、デフォルトの型を考慮してシンプルに表示する`:t +d`コマンドも使えます。（詳細は[こちら](https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d%20%E2%9F%A8expression%E2%9F%A9)）
+GHC8.2以降であれば、上の例のような一般化された型での表示ではなく、デフォルトの型を考慮してシンプルに表示する`:t +d`コマンドも使えます。（詳細は[こちら](https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d)）
 ```
 $ ghc -e ':t +d foldl'
 foldl :: (b -> a -> b) -> b -> [a] -> b

@@ -920,7 +920,7 @@ Happy Hacking!
 
 
 [ghci_t]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type
-[ghci_t_+d]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d%20%E2%9F%A8expression%E2%9F%A9
+[ghci_t_+d]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d
 [ghci_t_+v]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+v
 [ghci_k]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:kind
 [ghci_i]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:info
@@ -946,7 +946,7 @@ Happy Hacking!
 [cmp_-v]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using.html?highlight=#ghc-flag--v
 
 
-[cmp_-rtsopts]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts
+[cmp_-rtsopts]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts[=%E2%9F%A8none|some|all%E2%9F%A9]
 [cmp_-prof]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof
 [cmp_-fprof-auto]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto
 [cmp_-fhpc]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fhpc
