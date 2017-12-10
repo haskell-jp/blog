@@ -2,7 +2,7 @@
 title: GHCのTyped Holes機能で、式中の部分の型を推論させる
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
-postedBy: takenbu.hs
+author: takenbu.hs
 date: August 8, 2017
 ...
 ---

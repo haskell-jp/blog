@@ -4,6 +4,7 @@ headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 heading: Dockerを使ってHaskellアプリをHerokuにデプロイする
 subHeading: コンパイル時間に制限されないデプロイ方法
+author: Kadzuya Okamoto
 postedBy: <a href="https://arow.info#arowM">Kadzuya Okamoto</a>
 date: April 30, 2017
 tags: Localize, Heroku

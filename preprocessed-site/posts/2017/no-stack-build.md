@@ -3,7 +3,7 @@ title: Haskell-jp Blogへの投稿が簡単になりました！
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: Advent Calendarの記事の投稿も募集しております！
-postedBy: Haskell-jp
+author: Haskell-jp
 tags: Haskell-jp, CircleCI, Travis CI
 date: November 27, 2017
 ...

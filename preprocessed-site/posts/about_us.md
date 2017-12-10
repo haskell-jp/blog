@@ -3,7 +3,7 @@ title: Haskellと日本Haskellユーザーグループについて
 headingBackgroundImage: ../img/post-bg.jpg
 headingDivClass: post-heading
 heading: Haskellと日本Haskellユーザーグループについて
-postedBy: Haskell-jp
+author: Haskell-jp
 date: April 30, 2017
 tags: Haskell-jp
 ...

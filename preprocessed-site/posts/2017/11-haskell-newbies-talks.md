@@ -3,6 +3,7 @@ title: Haskell-jp現在の活動・目的総ざらい
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: Haskell入門者LT会での発表内容の再共有です
+author: Yuji Yamamoto
 postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
 date: August 30, 2017
 ...

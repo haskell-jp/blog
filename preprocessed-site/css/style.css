@@ -1,6 +1,10 @@
-.notice-ga {
+.notice {
   font-size: 70%;
-  margin-top: 1em;
+  margin-top: 0.5em;
+}
+
+span.author {
+  margin-right: 1em;
 }
 
 span.meta {
