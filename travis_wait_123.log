@@ -1,3 +1,4 @@
+Building all executables for `haskell-jp-blog' once. After a successful build of all of them, only specified executables will be rebuilt.
 haskell-jp-blog-0.1.0.0: configure (exe + test)
 Configuring haskell-jp-blog-0.1.0.0...
 haskell-jp-blog-0.1.0.0: build (exe + test)
@@ -14,6 +15,7 @@ haskell-jp-blog-0.1.0.0: test (suite: site-doctest)
 
 Examples: 19  Tried: 19  Errors: 0  Failures: 0
 
+haskell-jp-blog-0.1.0.0: Test suite site-doctest passed
 Completed 2 action(s).
-Haddock index for snapshot packages already up to date at:
+Updating Haddock index for snapshot packages in
 /home/travis/.stack/snapshots/x86_64-linux/lts-8.5/8.0.2/doc/index.html
