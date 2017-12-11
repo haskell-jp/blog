@@ -3,7 +3,7 @@ title: 日本Haskellユーザーグループ発足・Slackチーム開放のお�
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: もくもく会を添えて
-postedBy: Haskell-jp
+author: Haskell-jp
 tags: Haskell-jp
 date: April 30, 2017
 ...

@@ -3,7 +3,7 @@ title: Haskell-jp 公式subreddit作成のお知らせ
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: 今後は質問や議論はr/haskell_jpで行うのを推奨します。
-postedBy: Haskell-jp
+author: Haskell-jp
 tags: Haskell-jp
 date: June 18, 2017
 ...

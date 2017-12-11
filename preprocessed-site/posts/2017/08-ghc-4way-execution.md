@@ -3,7 +3,7 @@ title: GHCの４つの実行方法
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: コンパイル実行、スクリプト的実行、対話的実行、ワンライナー的実行
-postedBy: takenbu.hs
+author: takenbu.hs
 date: August 13, 2017
 ...
 ---

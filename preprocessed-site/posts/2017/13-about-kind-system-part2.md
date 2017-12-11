@@ -3,7 +3,7 @@ title: Haskellの種(kind)について (Part 2)
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: 種の仕組みとそれに付随する言語拡張について
-postedBy: mizunashi-mana
+author: mizunashi-mana
 date: September 18, 2017
 ...
 ---
