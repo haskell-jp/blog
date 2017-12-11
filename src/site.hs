@@ -4,7 +4,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-import Control.Applicative (empty, (<|>))
+import Control.Applicative (empty)
 import Control.Monad (filterM)
 import Data.Char (isLatin1)
 import Data.Data (Data)
@@ -132,12 +132,12 @@ createSubHeadingContentForPost :: Item a -> Compiler String
 createSubHeadingContentForPost item = do
     let ident = itemIdentifier item
     subHeading    <- fromMaybe "" <$> getMetadataField ident "subHeading"
-    maybeAuthor   <- getMetadataField ident "author"
+    author        <- getMetadataField' ident "author"
     maybePostedBy <- getMetadataField ident "postedBy"
     date          <- getMetadataField' ident "date"
     mtags         <- getMetadataField ident "tags"
     let subHeadingHtml = "<h2 class=\"subheading\">" ++ subHeading ++ "</h2>"
-        postedBy = fromMaybe "" (maybePostedBy <|> maybeAuthor)
+        postedBy = fromMaybe author maybePostedBy
         postedByHtml = "<span class=\"meta\">Posted by " ++ postedBy ++ " on " ++ date ++  "</span>"
         tagsHtml = maybe "" (\tags -> "<span class=\"meta\">Tags: " ++ tags ++ "</span>") mtags
     return $ subHeadingHtml ++ postedByHtml ++ tagsHtml
