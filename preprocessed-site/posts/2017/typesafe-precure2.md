@@ -13,7 +13,7 @@ tags:
 このエントリーは[Haskell Advent Calendar 2017](https://qiita.com/advent-calendar/2017/haskell) 24日目の記事兼[プリキュア Advent Calendar 2017](https://adventar.org/calendars/2118) 24日目の記事です。  
 毎度の手口ですが、二つのAdvent Calendarに同時に投稿しています。
 
-HaskellとプリキュアのAdvent Calendarということで、去年に引き続き「[タイプセーフプリキュア！]」(https://github.com/igrep/typesafe-precure/)について、開発する上で見つかった問題と、その解決方法について紹介します [^found-problem]。  
+HaskellとプリキュアのAdvent Calendarということで、去年に引き続き「[タイプセーフプリキュア！](https://github.com/igrep/typesafe-precure/)」について、開発する上で見つかった問題と、その解決方法について紹介します [^found-problem]。  
 なお、「タイプセーフプリキュア！」そのものの日本語の紹介については、[私の去年のHaskell Advent Calendarの記事](https://qiita.com/igrep/items/5496fa405fae00b5a737)や[同じく去年のプリキュア Advent Calendarの記事](http://the.igreque.info/posts/2016/06-type-safe-precure.html)をご覧ください。
 
 [^found-problem]: 実際には「タイプセーフプリキュアそのものを開発する上で見つかった問題」というよりタイプセーフプリキュアの開発をすることで問題解決の実験をしている、といった方が正しいのは内緒。
@@ -21,7 +21,7 @@ HaskellとプリキュアのAdvent Calendarということで、去年に引き�
 # 問題提起
 
 例えば、あなたはたくさんの仲間と、たくさんのサブコマンドがあるCLIアプリを作っていたとします。  
-コードの規約上、サブコマンド一つにつき一つのモジュールで、決まった関数(Haskellであれば`[String] -> IO ()`みたいな型の関数でしょうか)を定義するものとします。  
+コードの規約上、サブコマンド一つにつき一つのモジュールで、決まった関数<small>（Haskellであれば`[String] -> IO ()`みたいな型の関数でしょうか）</small>を定義するものとします。  
 そうした場合、必ずどこかのモジュールで、各モジュールで定義したサブコマンドを表す関数を列挙する必要があるでしょう。  
 その場合、次のような問題が生じることがあります。
 
@@ -29,7 +29,7 @@ HaskellとプリキュアのAdvent Calendarということで、去年に引き�
 - 複数の開発者がそれぞれのブランチで、新たに作成したサブコマンドを列挙しているモジュールに追加すると、マージする際にコンフリクトがしばしば発生する。
 
 また、DRY原則を徹底するならば「サブコマンドの名前を、サブコマンド自身の定義と列挙しているモジュールとで繰り返さない」というアイディアに基づき、こうした関数の列挙を避ける、という考え方もあるでしょう。  
-そのように作ることで、**モジュールに関わる情報（どのような定義で、どのように使用されるのか）をなるべくモジュールのファイルのみに集約**させることができ、モジュールに関する情報が分散してしまうのを軽減することができます。
+そのように作ることで、**モジュールに関わる情報<small>（どのような定義で、どのように使用されるのか）</small>をなるべくモジュールのファイルのみに集約**させることができ、モジュールに関する情報が分散してしまうのを軽減することができます。
 
 つまり、今回実現したいことは、複数のファイルに散らばった特定の関数やデータ型の定義を、自動で一カ所にまとめて再利用する、ということです。  
 この記事で何度も使うことになるので「**定義を自動でまとめる問題**」と呼ぶことにします。  
@@ -40,10 +40,9 @@ HaskellとプリキュアのAdvent Calendarということで、去年に引き�
 こうした処理をHaskell以外のプログラミング言語で行う場合、例えば下記のような機能を使うことになるでしょう。  
 参考のために、私がこれまでに出会ったものを紹介します。
 
-{#typesafe-precure2_case-ruby}
-## Rubyでの場合
+## Rubyでの場合 {#typesafe-precure2_case-ruby}
 
-前職時代、私は実際にこの「定義を自動でまとめる問題」に出くわしたのですが、Rubyを使っていたため、下記のように[Module#included](https://docs.ruby-lang.org/ja/2.4.0/method/Module/i/included.html)という、対象のモジュールを`include`（モジュールが提供する機能の継承）したときに呼ばれる、特別なメタプログラミング用のメソッドを使って解決しておりました。
+前職時代、私は実際にこの「定義を自動でまとめる問題」に出くわしたのですが、Rubyを使っていたため、下記のように[Module#included](https://docs.ruby-lang.org/ja/2.4.0/method/Module/i/included.html)という、対象のモジュールを`include`<small>（モジュールが提供する機能の継承）</small>したときに呼ばれる、特別なメタプログラミング用のメソッドを使って解決しておりました。
 
 ```ruby
 module ListedAsSubCommand
@@ -102,10 +101,11 @@ ListedAsSubCommand.listed #=> [SubCommandA, SubCommandB, ...]
 Javaで「定義を自動でまとめる問題」を解決する場合も、Rubyと同様に、何らかの形でメタプログラミング用の仕組みを利用することになるかと思います。  
 とりわけ、Javaにおいては、この問題の解決に特化しているライブラリーの機能が存在している点が興味深いでしょう。Springの「コンポーネントスキャン」です。
 
-SpringをはじめとするDIフレームワークでは、各クラスにおいて依存するオブジェクト（の、インターフェース）を宣言した際、必ず何らかの形で、「どのインターフェースにどのオブジェクトを紐付けるか」を宣言することになります。いわゆるApplication Contextを書いたXMLであったり、`@Configuration`アノテーションが着いたクラスがそれに当たります。  
-結果、モジュール（実際にはJavaなのでクラス）に関する情報、すなわちどのクラスのどのフィールドに、どのオブジェクトを注入するか、といった情報はすべてモジュールのファイルとは独立して管理することになり、DRYではなくなってしまいます。 まさに「定義を自動でまとめる問題」の典型と言えますね。
+SpringをはじめとするDIフレームワークでは、各クラスにおいて依存するオブジェクト<small>（の、インターフェース）</small>を宣言した際、必ず何らかの形で、「どのインターフェースにどのオブジェクトを紐付けるか」を宣言することになります。いわゆるApplication Contextを書いたXMLであったり、`@Configuration`アノテーションが着いたクラスがそれに当たります。  
+結果、モジュール<small>（実際にはJavaなのでクラス）</small>に関する情報、すなわちどのクラスのどのフィールドに、どのオブジェクトを注入するか、といった情報はすべてモジュールのファイルとは独立して管理することになり、DRYではなくなってしまいます。 まさに「定義を自動でまとめる問題」の典型と言えますね。
 
-それに対してSpringの「コンポーネントスキャン」では、下記のように設定することで、「どのインターフェースにどのオブジェクトを紐付けるか」といった情報を、すべて自動で設定してしまうことができます（コンポーネントスキャンを`@Configuration`アノテーションが着いたJavaのクラスで設定する場合）。
+それに対してSpringの「コンポーネントスキャン」では、下記のように設定することで、「どのインターフェースにどのオブジェクトを紐付けるか」といった情報を、すべて自動で設定してしまうことができます。  
+下記はコンポーネントスキャンを`@Configuration`アノテーションが着いたJavaのクラスで設定した場合のサンプルコードです。
 
 ```java
 @Configuration
@@ -116,7 +116,7 @@ public class AppConfig {
 
 `@Configuration`アノテーションを付与したJavaのクラスに、更に`@ComponentScan`というアノテーションを付与すると、Springは、`@ComponentScan`アノテーションの引数として渡した名前空間以下に存在する、すべての`@Component`というアノテーションが着いたクラスのオブジェクトを、自動的にほかの`@Component`が着いたクラスのフィールドとして設定できるようにします[^autowired]。
 
-[^autowired]: もう少し正確に言うと、自動的に設定したいフィールド（あるいはコンストラクターの引数）に、`@Autowired`というアノテーションが必要ですが、今回の話では本質的ではないので割愛しています。
+[^autowired]: もう少し正確に言うと、自動的に設定したいフィールド（あるいはコンストラクターの引数）に`@Autowired`というアノテーションが必要ですが、今回の話では本質的ではないので割愛しています。
 
 ```java
 @Component
@@ -128,8 +128,7 @@ public class SomeComponent {
 このようにコンポーネントスキャンを使うことで、`@ComponentScan`されたクラスのオブジェクトは自動で依存するオブジェクトとして紐付けられるようになります。  
 従来`foo-context.xml`みたいな名前のファイルに、どのオブジェクトのどのフィールドにどのオブジェクトを紐付けるか、といった情報を一つ一つ書いていたのを、ほとんど書かなくて済むようになりました。
 
-{#typesafe-precure2_requirement}
-# 解決に必要なもの
+# 解決に必要なもの {#typesafe-precure2_requirement}
 
 さて、私が経験した二つの言語における「定義を自動でまとめる問題」の解決方法を見てきたところで、この問題を解決するのに共通して必要なことを列挙しましょう。
 
@@ -175,13 +174,12 @@ JavaのSpringのコンポーネントスキャンの場合、まさしく`@Compo
 
 これらの印が着いたファイルを読む場合、この「印」を手がかりにして、コードベースを検索したり定義ジャンプしたり、Springの場合はインターネットを検索したりすることで、「印」の役割を知り、そのファイルがどう使われるのか調べることができるのです。
 
-{#typesafe-precure2_warnings}
-# 注意点
+# 注意点 {#typesafe-precure2_warnings}
 
 いよいよ次の節で「定義を自動でまとめる問題」をHaskellで解決した例を紹介いたしますが、その前にこの問題を解決することによって生じる、副作用について強調しておきましょう。
 私の観測範囲内でですが、今までこの問題に対応した例を見たことがないのは、そうした副作用による悪影響が大きいと感じている人が多数派だからなのかも知れません。
 
-それは、前節でも触れましたが、「自動でまとめられるファイル」がどのように使用されるか理解しにくくなる、ということです。  
+それは、前節でも触れましたが、「『「自動でまとめられるファイル』がどのように使用されるか理解しにくくなる」ということです。  
 この問題は、確かに「『まとめたい定義（モジュールや関数、型など）』が書かれたファイルに、なんらかの印をつける」ことである程度緩和可能な問題ではありますが、それでも強く意識するべきでしょう。  
 「自動でまとめられるファイル」を初めて読んだ人が、`include ListedAsSubCommand`や`@Component`という印に気づければよいのですが、そうでない場合、使用箇所を求めてコードベースをさまようことになってしまいます。  
 事前に「印」の存在を知らせておくに越したことはありません。
@@ -201,7 +199,7 @@ JavaのSpringのコンポーネントスキャンの場合、まさしく`@Compo
 
 # Haskellでの解決事例 - 「タイプセーフプリキュア！」におけるcure-index.jsonの実装
 
-「[タイプセーフプリキュア！（パッケージとしての名前はtypesafe-precure）](https://github.com/igrep/typesafe-precure/)」では、最近の更新により、コンパイル時に「[cure-index.json](https://github.com/igrep/typesafe-precure/blob/master/gen/cure-index.json)」と、「[pretty-cure-index.json](https://github.com/igrep/typesafe-precure/blob/master/gen/pretty-cure-index.json)」いうファイルを生成するようになりました。  
+「[タイプセーフプリキュア！](https://github.com/igrep/typesafe-precure/)」<small>（パッケージとしての名前は[typesafe-precure](https://hackage.haskell.org/package/typesafe-precure)なので、以下「typesafe-precure」と呼びます）</small>では、最近の更新により、コンパイル時に「[cure-index.json](https://github.com/igrep/typesafe-precure/blob/master/gen/cure-index.json)」と、「[pretty-cure-index.json](https://github.com/igrep/typesafe-precure/blob/master/gen/pretty-cure-index.json)」いうファイルを生成するようになりました。  
 次のような内容のファイルです。
 
 ```json
@@ -242,7 +240,7 @@ JavaのSpringのコンポーネントスキャンの場合、まさしく`@Compo
 
 これは、変身アイテムからプリキュア、プリキュアに変身する前の女の子、それから浄化技や変身時の台詞まで、typesafe-precureで定義されているあらゆる情報をまとめたJSONです。  
 まさしく、プリキュアの定義を自動でまとめた「インデックス」となっております [^index]。  
-ただし、残念ながら現時点では「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、cure-index.jsonには記録されていません（理由は後で説明します）。
+ただし、残念ながら現時点では「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、cure-index.jsonには記録されていません<small>（理由は後で説明します）</small>。
 
 [^index]: もちろん、数年前流行ったあのライトノベルのパロディーではありません。
 
@@ -262,10 +260,9 @@ $ curl -sL https://github.com/igrep/typesafe-precure/raw/master/gen/pretty-cure-
 ```
 
 さて、このcure-index.json、繰り返しになりますが、typesafe-precureで定義されている、すべてのプリキュアの情報をまとめたJSONとなっております。  
-[ライブラリーとしてのtypesafe-precure](https://hackage.haskell.org/package/typesafe-precure)ではこれらの情報は一つ一つがHaskellの型として定義[^detail-typesafe-precure]されており、cure-index.jsonは、それらの情報をコンパイル時に「自動でまとめる」ことで作成されます。決して、JSONからHaskellの型を作っているわけではありません。  
-それを実現するために使用した、Haskellで「定義を自動でまとめる」方法を紹介しましょう。
-
-[^detail-typesafe-precure]: 詳細は冒頭にも挙げましたが、[私の去年のHaskell Advent Calendarの記事](https://qiita.com/igrep/items/5496fa405fae00b5a737)や[同年のプリキュア Advent Calendarの記事](http://the.igreque.info/posts/2016/06-type-safe-precure.html)をご覧ください。
+ライブラリーとしてのtypesafe-precureでは、これらの情報は一つ一つがHaskellの型として定義[^detail-typesafe-precure]されており、cure-index.jsonは、それらの情報をコンパイル時に「自動でまとめる」ことで作成されます。決して、JSONからHaskellの型を作っているわけではありません。  
+詳細は冒頭にも挙げましたが、[私の去年のHaskell Advent Calendarの記事](https://qiita.com/igrep/items/5496fa405fae00b5a737)や[同年のプリキュア Advent Calendarの記事](http://the.igreque.info/posts/2016/06-type-safe-precure.html)をご覧ください。  
+ここではそれを実現するために使用した、Haskellで「定義を自動でまとめる」方法を紹介しましょう。
 
 ## 使用したGHCについて
 
@@ -275,7 +272,7 @@ typesafe-precureは現在(ver. 0.5.0.1)の時点において、通常GHC 8.0.2�
 特にCIでの確認はしていませんが、GHC 7.10でもビルドできるはずです。  
 従って、使用しているtemplate-haskellパッケージは[2.10.0.0](https://hackage.haskell.org/package/template-haskell-2.10.0.0)から[2.11.1.0](https://hackage.haskell.org/package/template-haskell-2.11.1.0)となっています。
 
-この記事で紹介する機能は、GHC（と、GHCに標準添付されるtemplate-haskellパッケージ）のバージョンによって、大きく変わる場合があります。  
+この記事で紹介する機能は、GHC<small>（と、GHCに標準添付されるtemplate-haskellパッケージ）</small>のバージョンによって、大きく変わる場合があります。  
 今回は「できない」としたことも、将来のGHCではできるようになっている（あるいは運悪くその逆もある）かもしれません。  
 あらかじめご了承ください。
 
@@ -284,10 +281,8 @@ typesafe-precureは現在(ver. 0.5.0.1)の時点において、通常GHC 8.0.2�
 ## ANNで「まとめたい型」が書かれたモジュールに「印」を着ける
 
 まず、「『まとめたい定義（モジュールや関数、型など）』が書かれたファイルに、なんらかの印をつける」方法を考えましょう。  
-実はHaskell(GHC)にもアノテーションが（Javaのアノテーションと使い勝手は異なりますが）あります。  
-`ANN`という[GHCのプラグマ](https://www.haskell.org/onlinereport/haskell2010/haskellch12.html#x19-18800012)（`{-# ... #-}` という形式で表される、特別なコメント）を使用すると、下記のように、モジュールや型、名前が付いた値に対して、アノテーションを加えることができます[^ann-sample]。
-
-[^ann-sample]: 例は[アンッ!!!アンッ!!!! - Qiita](https://qiita.com/philopon/items/85210cc8f23ae04ba6ec)から拝借しました。
+実はHaskell(GHC)にもアノテーションがあります<small>（Javaのアノテーションと使い勝手が異なりますが）</small>。  
+`ANN`という[GHCのプラグマ](https://www.haskell.org/onlinereport/haskell2010/haskellch12.html#x19-18800012)（`{-# ... #-}` という形式で表される、特別なコメント）を使用すると、下記のように、モジュールや型、名前が付いた値に対して、アノテーションを加えることができます<small>（例は[アンッ!!!アンッ!!!! - Qiita](https://qiita.com/philopon/items/85210cc8f23ae04ba6ec)から拝借しました）</small>。
 
 ```haskell
 module Foo where
@@ -303,7 +298,7 @@ foo = Foo
 {-# ANN foo (3 + 2 * 6 :: Int) #-} -- 値に対する注釈。注釈の中で計算する事も可能
 ```
 
-上記の通り、GHCの`ANN`は、Javaのアノテーションと異なり、アノテーション専用のインターフェースを作って引数を補足情報として渡す、というような形式ではありません（そもそもHaskellにはインターフェースなんてありませんしね）。  
+上記の通り、GHCの`ANN`は、Javaのアノテーションと異なり、アノテーション専用のインターフェースを作って引数を補足情報として渡す、というような形式ではありません<small>（そもそもHaskellにはインターフェースなんてありませんしね）</small>。  
 `Data`型クラスのインスタンスである型の値であれば、なんでもアノテーションとして設定できます。
 
 その`Data`型クラスのインスタンスですが、`base`パッケージに含まれている多くの型に加え、`DeriveDataTypeable`というGHCの言語拡張を使えば、オリジナルの型も簡単にそのインスタンスにすることができます。
@@ -323,15 +318,15 @@ data SomeOriginalType =
 
 さてtypesafe-precureでは、この`Data`型クラスと`ANN`プラグマを利用した次のようなアプローチで、各モジュールに対し、プリキュアやプリキュアに関する情報を「印」として付与しました。
 
-1. [`ACME.PreCure.Index.Types`](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Index/Types.hs)というモジュールに、型の名前やインスタンスの定義を表したり、それをJSONに変換したりするのに使う、中間データのための型を作る。
+1. [`ACME.PreCure.Index.Types`](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Index/Types.hs)というモジュールに、型の名前やインスタンスの定義を自動生成したり、それをJSONに変換したりするのに使う、中間データのための型を作る。
 
     ```haskell
     data Girl =
       Girl { girlId :: String, girlNameEn :: String, girlNameJa :: String }
         deriving (Eq, Show, Data)
     ```
-    - この、各種中間データ用の型を`Data`型クラスのインスタンスとすることで、「まとめたい定義」が含まれたモジュールに、その中間データ用の値を`ANN`プラグマで付与できるようにする
-1. 名前が`ACME.PreCure.Textbook.*.Profiles`という形式のモジュール[^textbook]（[「キラキラ☆プリキュアアラモード」での例](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Profiles.hs)）で、中間データの値（つまり各プリキュアや変身アイテムなどについての情報）を定義する。
+    - この、各種中間データ用の型を`Data`型クラスのインスタンスとすることで、「まとめたい定義」が含まれたモジュールに、その中間データ用の値を`ANN`プラグマで付与できるようにする。
+1. 名前が`ACME.PreCure.Textbook.*.Profiles`という形式のモジュール[^textbook]<small>（[「キラキラ☆プリキュアアラモード」での例](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Profiles.hs)）</small>で、中間データの値<small>（つまり各プリキュアや変身アイテムなどについての情報）</small>を定義する。
 
     ```haskell
     girls :: [Girl]
@@ -344,7 +339,7 @@ data SomeOriginalType =
       , mkGirl "Ciel Kirahoshi" "キラ星 シエル"
       ]
     ```
-1. `ACME.PreCure.Textbook.*.Profiles`で定義した中間データを、`ACME.PreCure.Textbook.KirakiraALaMode.Types`という形式のモジュールに対して`ANN`プラグマで付与する（[「キラキラ☆プリキュアアラモード」での例](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Types.hs)）。
+<small>1. `ACME.PreCure.Textbook.*.Profiles`で定義した中間データを、`ACME.PreCure.Textbook.KirakiraALaMode.Types`という形式のモジュールに対して`ANN`プラグマで付与する（同じく[「キラキラ☆プリキュアアラモード」での例](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Types.hs)）</small>。
 
     ```haskell
     module ACME.PreCure.Textbook.KirakiraALaMode.Types where
@@ -398,12 +393,11 @@ $(declareGirls girls)
 その結果、中間データの値は必ず名前をつけて使い回さないといけなくなるのです。
 
 そして、`ANN`やTemplate Haskellにおいて値に名前をつけて使い回す場合、「Stage Restriction」というやっかいな制限が顔を出してきます。  
-これは、「`ANN`で値を付与する式や、トップレベルの宣言などを生成するTemplate Haskellのコードでは、**ほかのモジュールから`import`された名前しか**参照できない」できない、という制限です[^stage-restriction]。  
-これがあるために、中間データの値を含めた名前（上記のコードの場合`girl`）は、`ANN`やTemplate Haskellで参照するモジュールとは一旦別のモジュールとして定義して、`import`して再利用するしかありません。  
+これは、「`ANN`で値を付与する式や、トップレベルの宣言などを生成するTemplate Haskellのコードでは、**ほかのモジュールから`import`された名前しか**参照できない」という制限です<small>（詳しくは「[できる！Template Haskell (完)](http://haskell.g.hatena.ne.jp/mr_konn/20111218/1324220725)」をご覧ください）</small>。  
+これがあるために、中間データの値を含めた名前（上記のコードの場合`girl`）は、`ANN`やTemplate Haskellで参照するモジュールとは一旦別のモジュールとして定義して、`import`して再利用するしかありません。
+
 本来、「定義を自動でまとめる問題」に対応する目的の中には「モジュールに関わる情報（どのような定義で、どのように使用されるのか）をなるべくモジュールのファイルのみに集約させる」というものがありましたが、外部のファイルに書くボイラープレートが増えてしまい、この観点ではイマイチな実装になってしまいました。  
 この点については、後の節でよりよい方法を検討しましょう。
-
-[^stage-restriction]: 詳しくは「[できる！Template Haskell (完)](http://haskell.g.hatena.ne.jp/mr_konn/20111218/1324220725)」をご覧ください。
 
 ## autoexporterで「まとめたい型」が書かれているモジュールが、どのディレクトリー以下にあるか設定する
 
@@ -422,7 +416,7 @@ $(declareGirls girls)
 本節の見出しでネタバレしてしまっていますが、[`autoexporter`](https://hackage.haskell.org/package/autoexporter)というプログラムと、[GHCのカスタムプリプロセッサーのためのオプション](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html#ghc-flag--F)を使います。
 
 autoexporterは、ドキュメントに書いてあるとおり、GHCのカスタムプリプロセッサーのためのオプション(`-F -pgmF`)、さらには[`OPTIONS_GHC`プラグマ](https://downloads.haskell.org/~ghc/7.0.3/docs/html/users_guide/pragmas.html#options-pragma)組み合わせて、次のように使うことを想定して作られています。  
-以下は、[typesafe-precureの、`ACME/PreCure/Textbook.hs`というファイル](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook.hs)からの抜粋です。
+以下は、[typesafe-precureの`ACME/PreCure/Textbook.hs`というファイル](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook.hs)からの抜粋です。
 
 ```haskell
 {-# OPTIONS_GHC -F -pgmF autoexporter #-}
@@ -431,7 +425,7 @@ autoexporterは、ドキュメントに書いてあるとおり、GHCのカス�
 と、いっても1行だけですが😅
 
 一つずつ解説しましょう。  
-まず`OPTIONS_GHC`プラグマですが、文字通りこれは`ghc`コマンドに渡すオプションを、ファイル単位で指定するためのものです（すべてのオプションをファイル単位で切り替えられるわけではありません）。  
+まず`OPTIONS_GHC`プラグマですが、文字通りこれは`ghc`コマンドに渡すオプションを、ファイル単位で指定するためのものです<small>（もちろんすべてのオプションをファイル単位で指定できるわけではありません）</small>。  
 つまり、上記の場合`-F -pgmF autoexporter`というオプションが、`ACME/PreCure/Textbook.hs`というファイルでのみ有効になります。
 
 続いて`-F`オプションですが、これは「カスタムプリプロセッサー」という機能を有効にするためのものです。  
@@ -439,17 +433,15 @@ autoexporterは、ドキュメントに書いてあるとおり、GHCのカス�
 具体的には、`-pgmF`オプションで指定したプログラムに、
 
 1. 変換前のファイル名、
-1. 変換前のソースコードを含むファイルの名前（恐らく、一時ディレクトリーにコピーした、変換前のファイル名とは異なる名前と思われます）、
-1. 変換後のソースコードを書き込むファイル名（これも一時ディレクトリーにあるファイル名なのでしょう）、
+1. 変換前のソースコードを含むファイルの名前<small>（恐らく、一時ディレクトリーにコピーした、変換前のファイル名とは異なる名前と思われます）</small>、
+1. 変換後のソースコードを書き込むファイル名<small>（これも一時ディレクトリーにあるファイル名なのでしょう）</small>、
 
 という3つのコマンドライン引数を渡して、`-pgmF`オプションで指定したプログラムを実行します。  
 `-pgmF`で指定したプログラムが、3つめの引数として渡した名前のファイルに変換後のソースコードを書き込むことで、`-F`を有効にしたファイルを、変換後のソースコードでそっくりそのまま差し替えます。  
 結果、`-pgmF`オプションで指定したプログラムは、自由に任意のHaskellのソースを生成できるようになります。まさにソースコードの自動生成にぴったりな機能と言えるでしょう。
 
-ちなみにこの機能、[`hspec-discover`](https://hackage.haskell.org/package/hspec-discover)などのパッケージでも使用されています。テストコードを複数のファイルに分けて書く場合はほぼ必ず使われるものなので、みなさんも「おまじない」として使用したことがあるでしょう[^googlability]。  
+ちなみにこの機能、[`hspec-discover`](https://hackage.haskell.org/package/hspec-discover)などのパッケージでも使用されています。テストコードを複数のファイルに分けて書く場合はほぼ必ず使われるものなので、みなさんも「おまじない」として使用したことがあるでしょう<small>（`-F -pgmF`なんて文字列、ググラビリティーも低いですしね。）</small>。  
 そういえばこれもテストコードの「定義を自動でまとめる問題」を解決したものでしたね！
-
-[^googlability]: `-F -pgmF`なんで文字列、ググラビリティーも低いですしね。
 
 話がそれましたが、`autoexporter`はこのカスタムプリプロセッサーを利用することで、次のようなソースコードを自動生成します。  
 `autoexporter`のドキュメントにも同じことが書かれていますが、ここでも`ACME/PreCure/Textbook.hs`を例に説明しましょう。
@@ -532,11 +524,11 @@ typesafe-precureを作り始める以前、私はRubyで「定義を自動でま
 
 しかし、残念ながらその方法は、少なくとも単純にTemplate Haskellを使うだけでは不可能であるとすぐ気づきました。  
 なぜなら、[Template Haskellのライブラリーが提供する`reifyInstances`という関数](https://hackage.haskell.org/package/template-haskell-2.12.0.0/docs/Language-Haskell-TH.html#v:reifyInstances)は、インスタンス宣言を取り出したい型を、自前で持ってきて引数として渡さなければならないからです。  
-したがって、Rubyでやっていたように、型クラスのインスタンスを自動でリストアップする、といったことはできません（もちろん、Rubyでやった時も完全に自動ではなく、`include`したクラスが自分でグローバルなリストに追加していたわけですが）。  
+したがって、Rubyでやっていたように、型クラスのインスタンスを自動でリストアップする、といったことはできません<small>（もちろん、Rubyでやった時も完全に自動ではなく、`include`したクラスが自分でグローバルなリストに追加していたわけですが）</small>。  
 それならば、自前で`import`しているモジュールから定義されている型を収集することはできないだろうか、と思って、指定したモジュールで定義されている型を取り出すAPIを探ってみましたが、それも見つかりませんでした。  
 最もそれらしいことができそうな[`reifyModule`という関数](https://hackage.haskell.org/package/template-haskell-2.12.0.0/docs/Language-Haskell-TH.html#v:reifyModule)が返す[`ModuleInfo`](https://hackage.haskell.org/package/template-haskell-2.12.0.0/docs/Language-Haskell-TH.html#t:ModuleInfo)も、保持しているのはあくまでも`import`している別のモジュールだけであり、いくらreifyしてもモジュールの**中で**定義されている型の情報はとれないのです。
 
-やむなく、私はtypesafe-precureの構造を改め、現在のような、JSONとして書き出すデータ構造から型と型クラスのインスタンスを自動で定義するような実装にすることとしました。  
+やむなく、私はtypesafe-precureの構造を改め、現在のような、JSONとして書き出すデータ構造を元に型と型クラスのインスタンスを自動で定義するような実装にすることとしました。  
 この変更は依然として続いています。具体的には、今年新しく追加された「キラキラ☆プリキュアアラモード」に登場するプリキュア以外は、まだ従来の構造のままで、中間データの値は定義されていません。  
 「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、cure-index.jsonに記録されていないのはそのためです。
 
@@ -551,20 +543,19 @@ typesafe-precureには技術的なネタが尽きませんね。
 ## モジュールが持っている特定の名前の関数・型を処理する
 
 その方法は、先の節でも紹介した[`hspec-discover`](https://hackage.haskell.org/package/hspec-discover)でも実際に行われている方法です。  
-`hspec-discover`は、GHCのカスタムプリプロセッサーを利用して実行することで、テストが書かれたディレクトリーから`Spec`という名前で終わるすべてのモジュールの、`spec`という名前のテストを自動でまとめて、それらをすべて実行する`Spec.hs`を、自動で生成します。  
+`hspec-discover`は、GHCのカスタムプリプロセッサーを利用して実行することで、テストが書かれたディレクトリーから`Spec`という名前で終わるすべてのテスト用モジュールを自動でまとめて、それらをすべて実行する`Spec.hs`を、自動で生成します。  
 `hspec-discover`の場合、`ANN`のようなアノテーションは一切使用せず、モジュールの名前やモジュールがエクスポートする名前に規約を設けることで「定義をまとめる対象」を検出しています。  
 このように、`ANN`のような特別な「印」を着けずに純粋に名前だけで「定義をまとめる対象」を決めることもできます。  
 実績もあり、同じような方法をとることは非常に簡単そうです。
 
 しかし、個人的には[注意点](#typesafe-precure2_warnings)の節でも述べたとおり、「定義をまとめる」対象であることを表す「印」は、「定義をまとめる」対象のファイルの中にあった方が、わかりやすくていいと思います。  
-確かに`hspec-discover`のように、公開されていて広く使用されているものであれば、使用したプロジェクトのコードを初めて読む人でも、すぐに理解できる場合が多いでしょう。  
-「何がまとめられるのか」も比較的直感的ですしね。  
+確かに`hspec-discover`のように、公開されていて広く使用されているものであれば、使用したプロジェクトのコードを初めて読む人でも、すぐに理解できる場合が多いでしょう。「何がまとめられるのか」も比較的直感的ですしね。  
 とはいえ、私が想定している、例えばアプリケーションのプラグインみたいな、もう少しローカルなコードベースである場合、「印」はより「印」らしいものであった方が、手がかりとして気づきやすいのではないかと思います。  
 
-😕初めて「まとめられる」コードを含むファイルを目にしてどのように使用されるのか分からず戸惑う
-⬇️
-🤔`{-# ANN MarkedAsFoo #-}`という見慣れないコメントを見つけて、それでコードベースを検索してみる（プラグマは多くのsyntax highlighterで普通のコメントより目立って見えるはずです）
-⬇️
+😕初めて「まとめられる」コードを含むファイルを目にして、どのように使用されるのか分からず戸惑う  
+⬇️  
+🤔`{-# ANN MarkedAsFoo #-}`という見慣れないコメントを見つけて、それでコードベースを検索してみる<small>（プラグマは多くのsyntax highlighterで普通のコメントより目立って見えるはずです）</small>  
+⬇️  
 💡`MarkedAsFoo`が着いたモジュールを実際に収集してまとめているコードを見つけて、理解する
 
 という流れで「定義を自動でまとめる」機構の存在に気づくのではないでしょうか。
