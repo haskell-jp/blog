@@ -197,7 +197,7 @@ JavaのSpringのコンポーネントスキャンの場合、まさしく`@Compo
 以上の通り、結局のところ、「定義を自動でまとめる」よう設定するか、単純にまとめたい定義を手で列挙するかどうかは、そうしたトレードオフを考慮しつつ落ち着いて考えるのを推奨します。  
 これから紹介する方法を採用する際も、ここであげた注意点については忘れないでください。
 
-# Haskellでの解決事例 - 「タイプセーフプリキュア！」におけるcure-index.jsonの実装
+# Haskellでの解決事例 - 「タイプセーフプリキュア！」における`cure-index.json`の実装
 
 「[タイプセーフプリキュア！](https://github.com/igrep/typesafe-precure/)」<small>（パッケージとしての名前は[typesafe-precure](https://hackage.haskell.org/package/typesafe-precure)なので、以下「typesafe-precure」と呼びます）</small>では、最近の更新により、コンパイル時に「[cure-index.json](https://github.com/igrep/typesafe-precure/blob/master/gen/cure-index.json)」と、「[pretty-cure-index.json](https://github.com/igrep/typesafe-precure/blob/master/gen/pretty-cure-index.json)」いうファイルを生成するようになりました。  
 次のような内容のファイルです。
@@ -240,11 +240,11 @@ JavaのSpringのコンポーネントスキャンの場合、まさしく`@Compo
 
 これは、変身アイテムからプリキュア、プリキュアに変身する前の女の子、それから浄化技や変身時の台詞まで、typesafe-precureで定義されているあらゆる情報をまとめたJSONです。  
 まさしく、プリキュアの定義を自動でまとめた「インデックス」となっております [^index]。  
-ただし、残念ながら現時点では「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、cure-index.jsonには記録されていません<small>（理由は後で説明します）</small>。
+ただし、残念ながら現時点では「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、`cure-index.json`には記録されていません<small>（理由は後で説明します）</small>。
 
 [^index]: もちろん、数年前流行ったあのライトノベルのパロディーではありません。
 
-名前の通り、pretty-cure-index.jsonにはcure-index.jsonをプリティープリントしたJSONが記録されています。  
+名前の通り、pretty-`cure-index.json`には`cure-index.json`をプリティープリントしたJSONが記録されています。  
 下記のように`curl`して確かめてみましょう。  
 
 ```bash
@@ -259,8 +259,8 @@ $ curl -sL https://github.com/igrep/typesafe-precure/raw/master/gen/pretty-cure-
 ...
 ```
 
-さて、このcure-index.json、繰り返しになりますが、typesafe-precureで定義されている、すべてのプリキュアの情報をまとめたJSONとなっております。  
-ライブラリーとしてのtypesafe-precureでは、これらの情報は一つ一つがHaskellの型として定義[^detail-typesafe-precure]されており、cure-index.jsonは、それらの情報をコンパイル時に「自動でまとめる」ことで作成されます。決して、JSONからHaskellの型を作っているわけではありません。  
+さて、この`cure-index.json`、繰り返しになりますが、typesafe-precureで定義されている、すべてのプリキュアの情報をまとめたJSONとなっております。  
+ライブラリーとしてのtypesafe-precureでは、これらの情報は一つ一つがHaskellの型として定義[^detail-typesafe-precure]されており、`cure-index.json`は、それらの情報をコンパイル時に「自動でまとめる」ことで作成されます。決して、JSONからHaskellの型を作っているわけではありません。  
 詳細は冒頭にも挙げましたが、[私の去年のHaskell Advent Calendarの記事](https://qiita.com/igrep/items/5496fa405fae00b5a737)や[同年のプリキュア Advent Calendarの記事](http://the.igreque.info/posts/2016/06-type-safe-precure.html)をご覧ください。  
 ここではそれを実現するために使用した、Haskellで「定義を自動でまとめる」方法を紹介しましょう。
 
@@ -467,9 +467,9 @@ import ACME.PreCure.Textbook.KirakiraALaMode
 紹介が長くなりましたが、typesafe-precureではこの`autoexporter`を次のように使うことで、「まとめたい型（プリキュアや変身アイテムなどの情報）」が書かれているモジュールを集めています。
 
 1. 前述の`ACME.PreCure.Textbook`モジュールで`autoexporter`を使うことで、`ACME.PreCure.Textbook`以下にある、「まとめたい型（プリキュアや変身アイテムなどの情報）」が書かれているモジュールをすべて自動的に再エクスポートする。
-1. [`ACME.PreCure.Index`](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Index.hs)モジュールが`ACME.PreCure.Textbook`モジュールを`import`することで、実際にcure-index.jsonなどの書き出しを行う`ACME.PreCure.Index`モジュールが、`ACME.PreCure.Textbook`が再エクスポートしたすべてのモジュールを利用できるようになる。
+1. [`ACME.PreCure.Index`](https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Index.hs)モジュールが`ACME.PreCure.Textbook`モジュールを`import`することで、実際に`cure-index.json`などの書き出しを行う`ACME.PreCure.Index`モジュールが、`ACME.PreCure.Textbook`が再エクスポートしたすべてのモジュールを利用できるようになる。
 
-実際のところ`OPTIONS_GHC -F`をもっとうまく使えば、`ACME.PreCure.Textbook`以下にあるモジュールを自動ですべて`import`するモジュールと、それを利用してcure-index.jsonなどの書き出しを行うモジュールを、分けずに一つのモジュールで済ますこともできたでしょう。  
+実際のところ`OPTIONS_GHC -F`をもっとうまく使えば、`ACME.PreCure.Textbook`以下にあるモジュールを自動ですべて`import`するモジュールと、それを利用して`cure-index.json`などの書き出しを行うモジュールを、分けずに一つのモジュールで済ますこともできたでしょう。  
 今回は敢えて`autoexporter`を再利用することで、`ACME.PreCure.Textbook`以下にあるモジュールをすべて回収する処理を書かずに任せることにしました。  
 この件については後ほど再検討しましょう。
 
@@ -488,9 +488,9 @@ import ACME.PreCure.Textbook.KirakiraALaMode
 つまり、`ACME.PreCure.Index`におけるTemplate Haskellのコードで繰り返し使う便利な関数は、`ACME.PreCure.Index`とは別のモジュールで定義して、`import`して使わなければならないのです。  
 `ACME.PreCure.Index.Lib`モジュールは、その制限を回避するためのモジュールです。
 
-ともあれこうして、typesafe-precureでは`ACME.PreCure.Index`モジュールをコンパイルする度に、各モジュールに定義されたすべてのプリキュアに関する情報を集めて、[genディレクトリー](https://github.com/igrep/typesafe-precure/tree/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/gen)にあるcure-index.jsonやpretty-cure-index.jsonというファイルに書き出すことができました。  
+ともあれこうして、typesafe-precureでは`ACME.PreCure.Index`モジュールをコンパイルする度に、各モジュールに定義されたすべてのプリキュアに関する情報を集めて、[genディレクトリー](https://github.com/igrep/typesafe-precure/tree/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/gen)にある`cure-index.json`や`pretty-cure-index.json`というファイルに書き出すことができました。  
 「定義を自動でまとめる問題」、これにて一件落着です！🎉  
-なお、自動生成されるファイルをGitで管理することはなるべく避けた方がよいことですが、cure-index.jsonの配布を簡単に行うため方策として用いることにしています。
+なお、自動生成されるファイルをGitで管理することはなるべく避けた方がよいことですが、`cure-index.json`の配布を簡単に行うため方策として用いることにしています。
 
 # うまくいかなかった方法 （+ 来年の「タイプセーフプリキュア！」についてちょっとだけ）
 
@@ -518,7 +518,7 @@ instance Purification CurePeach CureStickPeachRod where
     ]
 ```
 
-今回作ったcure-index.jsonを最初に思いついたとき、「型クラスから各型のインスタンス宣言を自動で収集して、そこからcure-index.jsonを作れないだろうか」と、漠然と考えていました。  
+今回作った`cure-index.json`を最初に思いついたとき、「型クラスから各型のインスタンス宣言を自動で収集して、そこから`cure-index.json`を作れないだろうか」と、漠然と考えていました。  
 typesafe-precureを作り始める以前、私はRubyで「定義を自動でまとめる問題」に対応した際、[Rubyでの場合](#typesafe-precure2_case-ruby)の節で紹介したような方法を用いていたため、「Haskellにおける、Rubyで言うところのmixi-inされるモジュールは型クラスだ」なんて類推をしていたからかも知れません。  
 いずれにしても、そんな方法で実現できれば、既存のtypesafe-precureのモジュールの構造をそのまま使ってcure-indexが作れるので、大変都合がよかったのです。
 
@@ -530,7 +530,7 @@ typesafe-precureを作り始める以前、私はRubyで「定義を自動でま
 
 やむなく、私はtypesafe-precureの構造を改め、現在のような、JSONとして書き出すデータ構造を元に型と型クラスのインスタンスを自動で定義するような実装にすることとしました。  
 この変更は依然として続いています。具体的には、今年新しく追加された「キラキラ☆プリキュアアラモード」に登場するプリキュア以外は、まだ従来の構造のままで、中間データの値は定義されていません。  
-「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、cure-index.jsonに記録されていないのはそのためです。
+「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、`cure-index.json`に記録されていないのはそのためです。
 
 来年のプリキュアハッカソンやプリキュアAdvent Calendarでは、[haskell-src-exts](https://hackage.haskell.org/package/haskell-src-exts)という、HaskellでHaskellのソースコードをパースするライブラリーを使って、この大きな移行プロジェクトに取り組むことになるかと思います。  
 typesafe-precureには技術的なネタが尽きませんね。
