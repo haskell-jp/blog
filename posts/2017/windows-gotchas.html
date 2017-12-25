@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="WindowsでHaskellを扱う時によく遭遇するエラーと対処法">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="WindowsでHaskellを扱う時によく遭遇するエラーと対処法 - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2017/windows-gotchas.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-black-frame.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---この記事は、[Haskell (その4) Advent Calendar 2017](https://qiita.com/advent-calendar/2017/haskell4)14日目の記事です。  枠が空いていたので埋めるために登録しました。  長くかかった割には実験自体は失敗気味な、[昨日のこちらの記事](https://haskell.jp/blog/posts/2017/typ" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>WindowsでHaskellを扱う時によく遭遇するエラーと対処法 - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../../img/logo.svg"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="https://haskell.jp">Home</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  <div class="post-heading">
+                    <h1>WindowsでHaskellを扱う時によく遭遇するエラーと対処法</h1>
+                    <h2 class="subheading">雑なまとめ</h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on December 25, 2017</span>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>この記事は、<a href="https://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017</span></a><span class="ascii">14</span>日目の記事です。<br />
+枠が空いていたので埋めるために登録しました。<br />
+長くかかった割には実験自体は失敗気味な、<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">昨日のこちらの記事</a>よりは有用な情報じゃないかと思います。<br />
+ほかの言語でもありそうな話ですしね。</p>
+<p>すごく簡潔にまとめるとこの間の下記のツイートに収まるのですが、もう少し丁寧に補足するために書きます。</p>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+学んだことをまとめると<br><span class="ascii">- Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう<br><span class="ascii">- Permission Denied</span>と言われたらビルドし直そう<br><span class="ascii">-</span> 日本語のパスが混ざらないよう気をつけよう<br><span class="ascii">- C</span>のライブラリーはものによる<br>ですか。多分 <a href="https://twitter.com/hashtag/haskell?src=hash&amp;ref_src=twsrc%5Etfw"><span class="ascii">#haskell</span></a> 以外でも有益な話。
+</p>
+— <span class="ascii">Yuji Yamamoto:</span> 山本悠滋 <span class="ascii">(</span><span class="citation"><span class="ascii">@igrep</span></span><span class="ascii">)</span> <a href="https://twitter.com/igrep/status/938056578934042626?ref_src=twsrc%5Etfw"><span class="ascii">2017</span>年<span class="ascii">12</span>月<span class="ascii">5</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="invalid-characterと言われたらchcp-65001しよう"><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</h1>
+<p>恐らく一番高確率で遭遇する <span class="ascii">&amp;</span> 知らないと回避できないのがこれ。<br />
+あ、ほらまた<span class="ascii">hakyll</span>でビルドしたら起きた！</p>
+<pre><code>&gt; stack exec -- site rebuild
+...
+  [ERROR] preprocessed-site\posts/2017/01-first.md: hGetContents: invalid argument (invalid byte sequence)</code></pre>
+<p><span class="ascii">GHC</span>がファイルを読み書きする時に使う<a href="https://www.stackage.org/haddock/lts-10.0/base-4.10.1.0/System-IO.html#t:Handle"><code>Handle</code></a>というオブジェクトには、文字コードの情報が含まれています。</p>
+<p>これは<span class="ascii">Ruby</span>の<a href="https://docs.ruby-lang.org/ja/latest/class/IO.html"><code>IO</code></a>や<span class="ascii">Perl</span>のファイルハンドラーにあるような仕組みと大体似ていて、<code>Handle</code>といったデータの「入り口」を表すオブジェクトに文字コードを紐付けることで、外から入ってくる文字列の文字コードを確実に内部の統一された文字コードに変換する変換できるようにしてくれます。<br />
+<span class="ascii">Haskell</span>の<code>Char</code>型の場合は<span class="ascii">UTF-32</span>（この場合その言い方でよかったっけ？）のはずです。</p>
+<p>この<code>Handle</code>に紐付ける文字コード、当然のごとくデフォルトでは<span class="ascii">OS</span>のロケール設定に従って設定されるようになってまして、日本語版の<span class="ascii">Windows</span>ではそう、<span class="ascii">Windows-31J</span>（またの名を<span class="ascii">CP932</span>）ですね。<br />
+でも今はもうすぐ<span class="ascii">2018</span>年。あなたが「メモ帳」でプログラムを書く人でもない限り、新しく作るファイルの大半は<span class="ascii">UTF-8</span>でしょう。<br />
+<span class="ascii">UTF-8</span>と<span class="ascii">Windows-31J</span>は全然違う体系の文字コードなので、<span class="ascii">UTF-8</span>なファイルを<span class="ascii">Windows-31J</span>のファイルとして読もうとしてもうまくいかないわけです。<br />
+冒頭にあげた<code>invalid byte sequence</code>というエラーはまさにそうした場合に起こるエラーです。<br />
+ファイルの読み書きだけでなく標準入出力でもしばしば発生するので覚えておいてください。</p>
+<h2 id="対策">対策</h2>
+<h3 id="ユーザーとして出くわした場合">ユーザーとして出くわした場合</h3>
+<p>多くの場合、このエラーは以下のコマンドをあらかじめ実行しておけば回避できます。</p>
+<pre><code>&gt; chcp 65001
+&gt; stack exec -- site rebuild
+... 動くはず！</code></pre>
+<p>これは、現在開いているコマンドプロンプトで一時的に文字コードを切り替えるコマンドです。<br />
+<code>65001</code>という数字が<span class="ascii">UTF-8</span>を指しているようです。<br />
+もとに戻したい場合は<code>chcp 932</code>と実行しましょう。</p>
+<pre><code>&gt; chcp 932</code></pre>
+<p>どうやら「<span class="ascii">CP932</span>」の「<span class="ascii">932</span>」はここで出てくる「<span class="ascii">932</span>」と同じものを指しているようですね！</p>
+<p>どういう仕様なのか分かりませんが、このコマンド、<span class="ascii">MSYS2</span>の<span class="ascii">bash</span>でも使用できます。<br />
+ただし<code>chcp</code>コマンドは<code>C:\Windows\System32\</code>という、<span class="ascii">MSYS2</span>ユーザーにとってはあまり<code>PATH</code>に入れたくない場所に入っています。<br />
+このディレクトリーには、<code>find.exe</code>など、<span class="ascii">Unix</span>な方が好んで使うコマンドと同じ名前の非互換なコマンドがゴロゴロ転がっているのです！</p>
+<p>なので私は<span class="ascii">MSYS2</span>を使う時は<code>C:\Windows\System32\</code>は<code>PATH</code>から抜いています。<br />
+私と同じような方は下記のようにフルパスで実行しましょう。</p>
+<pre><code>/c/Windows/System32/chcp.com 932</code></pre>
+<h3 id="それでもダメな場合あるいはライブラリーや開発者として出くわした場合">それでもダメな場合、あるいはライブラリーや開発者として出くわした場合</h3>
+<p>残念ながら、<code>chcp 65001</code>してもこのエラーが消えないことはあります<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>。<br />
+私の推測なんですが、どうも<code>chcp 65001</code>は<code>chcp 65001</code>したコマンドプロンプト（とか<span class="ascii">bash</span>）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。</p>
+<p>そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。<br />
+バグ報告する場合は、「<code>chcp 932</code>してから実行してみて」とお願いすると、バグ報告を受けた開発者も再現しやすくて助かるかも知れません（残念ながら私はやったことがありません）。<br />
+自分で直す場合、いろいろ方法はありますが、対象の<code>Handle</code>オブジェクトの文字コードを変えることで対処するのが、一番直接的で確実でしょう。</p>
+<p>この問題は<code>Handle</code>に設定された文字コードと実際にやりとりされる文字列の文字コードに食い違いが発生しているため起こるものなのですから、適切な文字コードに変えてしまえばいいのです。<br />
+状況にもよりますがエラーが起きた<code>Handle</code>が普通の<span class="ascii">UTF-8</span>なファイルを読み書きするものである場合、下記のようにすれば、問題は回避できるはずです。</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">System.IO</span> (hSetEncoding)
+<span class="kw">import </span><span class="dt">GHC.IO.Encoding</span> (utf8)
+
+hSetEncoding handle utf8</code></pre></div>
+<p>それから、<a href="https://github.com/haskell/haddock/pull/566">実際に私が<span class="ascii">haddock</span>のバグを直した時</a>を例に標準出力（または標準エラー出力）でこのエラーが発生した時の対応も紹介しておきます。<br />
+コードだけ貼り付けると、下記のようにすれば少なくともエラーが起こらないようにすることはできます（<a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">このコミット</a>とほぼ同じ内容です）。</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE CPP #-}</span>
+
+<span class="kw">import </span><span class="dt">System.IO</span> (hSetEncoding, stdout)
+
+<span class="ot">#if defined(mingw32_HOST_OS)</span>
+<span class="kw">import </span><span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)
+<span class="kw">import </span><span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))
+<span class="ot">#endif</span>
+
+<span class="fu">...</span>
+
+<span class="ot">#if defined(mingw32_HOST_OS)</span>
+  liftIO <span class="fu">$</span> hSetEncoding stdout <span class="fu">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span>
+<span class="ot">#endif</span></code></pre></div>
+<p><span class="ascii">Windows</span>でしか使用できないモジュールを<code>import</code>している関係上、<span class="ascii">CPP</span>のマクロが混ざって読みにくいですが、重要な部分だけ切り出すと、</p>
+<pre><code>hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure</code></pre>
+<p>とすればよいのです。</p>
+<p>一つ一つ解説しましょう。<br />
+まず<code>hSetEncoding</code>は先ほども触れたとおり指定した<code>Handle</code>の文字コードを変更する関数です。<br />
+そして<code>stdout</code>は名前の通り標準出力を表す<code>Handle</code>です。<br />
+最後の<code>mkLocaleEncoding TransliterateCodingFailure</code>ですが、これは<span class="ascii">Windows</span>で設定された文字コード（この場合<code>chcp</code>された文字コードと同じ）に対して、「もし（<span class="ascii">Unicode</span>から、あるいは<span class="ascii">Unicode</span>に）変換できない文字があった場合、エラーにせず、それっぽい文字に変換する」という設定にすることができます。</p>
+<p>結果、<code>chcp 932</code>な状態で<span class="ascii">GHC</span>のエラーメッセージにも使われる</p>
+<pre><code>↓この文字
+• No instance for (Transformation Nagisa CardCommune_Mepple)
+↑</code></pre>
+<p>が、</p>
+<pre><code>? No instance for (Transformation Nagisa CardCommune_Mepple)</code></pre>
+<p>のように、クエスチョンマークに変換されるようになります。そう、<span class="ascii">Windows</span>で<span class="ascii">GHC</span>をお使いの方は一度は目にした「<span class="ascii">?</span>」ではないでしょうか😅<br />
+つまり<span class="ascii">GHC</span>はデフォルトで<code>mkLocaleEncoding TransliterateCodingFailure</code>しているものと推測されます。<br />
+いずれにせよ、エラーが起きないだけマシですね。</p>
+<p>更に補足すると、<span class="ascii">GHC</span>の文字コードについてより詳しい情報は、<a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html"><span class="ascii">GHC.IO.Encoding</span>のドキュメント</a>をご覧ください。</p>
+<h1 id="permission-deniedと言われたらビルドし直そう"><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</h1>
+<p>雑なまとめと言いつつ最初の一つ目が長くなってしまいましたが、ここからは簡単に言います。<br />
+<span class="ascii">Windows</span>で<code>stack build</code>なり<code>ghc</code>なり<code>elm-make</code>なりとにかくいろいろ動かしていると、「<span class="ascii">Permission Denied</span>」と言ったエラー（あるいはこれと似たようなメッセージのエラー）に出遭います。<br />
+正直に言って私は原因はサッパリ分かってないのですが、このエラーは大抵の場合何度も同じコマンドを実行すれば再現しませんでした。<br />
+一度や二度ではめげず、繰り返すのがポイントです 😅<br />
+問題が起きているディレクトリーをウィルス対策ソフトのスキャン対象から外してみるとか、<span class="ascii">Dropbox</span>の同期を一時的に止めてみる、といったこともやってみるといいかもしれません。</p>
+<p>あ、あと、「<span class="ascii">Directory not empty</span>」みたいなのもあったかな。これは同類のはずです。</p>
+<h1 id="cのライブラリーは-まぁ頑張れ"><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</h1>
+<p><span class="ascii">Pure Haskell</span>なライブラリーであれば大体<span class="ascii">OK</span>なんですが、残念ながら<span class="ascii">C</span>のライブラリー（<code>lib***</code>みたいな名前でよく<span class="ascii">OS</span>のパッケージマネージャーに登録されているやつですね）に依存したライブラリーは、<span class="ascii">Windows</span>でインストールするのは結構トラブることが多いです。<br />
+まぁ、これは<span class="ascii">Haskell</span>に限った話ではないでしょう。</p>
+<p>対応方法は私が知る限り完全にケースバイケースなので、ここでは知っている対応例をいくつか挙げておきましょう。</p>
+<ul>
+<li><span class="ascii">HDBC-sqlite3:</span>
+<ul>
+<li><a href="https://qiita.com/igrep/items/d947ab871eb5b20b57e4"><span class="ascii">Windows</span>版<span class="ascii">stack</span>でも<span class="ascii">HDBC-sqlite3</span>をビルドする <span class="ascii">- Qiita</span></a></li>
+<li><a href="http://hiratara.hatenadiary.jp/entry/2017/01/29/110100"><span class="ascii">MSYS2</span>で<span class="ascii">HDBC-sqlite3</span>をコンパイル <span class="ascii">-</span> 北海道苫小牧市出身の初老<span class="ascii">PG</span>が書くブログ</a></li>
+</ul></li>
+<li><a href="https://teratail.com/questions/102462"><span class="ascii">Haskell - Haskell</span>にて<span class="ascii">stack</span>で<span class="ascii">iconv</span>パッケージを利用する方法【<span class="ascii">Windows</span>環境】<span class="ascii">(102462)</span>｜<span class="ascii">teratail</span></a></li>
+</ul>
+<p>以上です！<br />
+それでは<span class="ascii">2018</span>年も<span class="ascii">Haskell on Windows 10</span>で<span class="ascii">Happy Hacking!! WSL</span>なんて知らないぜ！🏁🏁🏁</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>敢えて脚注に書きますが、<a href="http://eta-lang.org/"><span class="ascii">Eta</span></a>のコンパイラーをビルドしている時（のはず）、<code>chcp 65001</code>でもダメで<code>chcp 20127</code>ならうまくいったことがあります。<br />
+<code>chcp 20127</code>は<span class="ascii">US-ASCII</span>に切り替えるためのコマンドですが、やっぱり<span class="ascii">Eta</span>の開発者の手元（？）ではそうなっているからなのでしょうか…？<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2017/typesafe-precure2.html" style="margin-left: auto;">タイプセーフプリキュア！を支える技術 その2</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2017</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
