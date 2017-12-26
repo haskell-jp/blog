@@ -502,7 +502,7 @@ girls <span class="fu">=</span>
     , <span class="st">&quot;プリキュア！ラブサンシャイン・フレッシュ！&quot;</span>
     ]</code></pre></div>
 <p>今回作った<code>cure-index.json</code>を最初に思いついたとき、「型クラスから各型のインスタンス宣言を自動で収集して、そこから<code>cure-index.json</code>を作れないだろうか」と、漠然と考えていました。<br />
-<span class="ascii">typesafe-precure</span>を作り始める以前、私は<span class="ascii">Ruby</span>で「定義を自動でまとめる問題」に対応した際、<a href="#typesafe-precure2_case-ruby"><span class="ascii">Ruby</span>での場合</a>の節で紹介したような方法を用いていたため、「<span class="ascii">Haskell</span>における、<span class="ascii">Ruby</span>で言うところの<span class="ascii">mixi-in</span>されるモジュールは型クラスだ」なんて類推をしていたからかも知れません。<br />
+<span class="ascii">typesafe-precure</span>を作り始める以前、私は<span class="ascii">Ruby</span>で「定義を自動でまとめる問題」に対応した際、<a href="#typesafe-precure2_case-ruby"><span class="ascii">Ruby</span>での場合</a>の節で紹介したような方法を用いていたため、「<span class="ascii">Haskell</span>における、<span class="ascii">Ruby</span>で言うところの<span class="ascii">mix-in</span>されるモジュールは型クラスだ」なんて類推をしていたからかも知れません。<br />
 いずれにしても、そんな方法で実現できれば、既存の<span class="ascii">typesafe-precure</span>のモジュールの構造をそのまま使って<span class="ascii">cure-index</span>が作れるので、大変都合がよかったのです。</p>
 <p>しかし、残念ながらその方法は、少なくとも単純に<span class="ascii">Template Haskell</span>を使うだけでは不可能であるとすぐ気づきました。<br />
 なぜなら、<a href="https://hackage.haskell.org/package/template-haskell-2.12.0.0/docs/Language-Haskell-TH.html#v:reifyInstances"><span class="ascii">Template Haskell</span>のライブラリーが提供する<code>reifyInstances</code>という関数</a>は、インスタンス宣言を取り出したい型を、自前で持ってきて引数として渡さなければならないからです。<br />
