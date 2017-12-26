@@ -519,7 +519,7 @@ instance Purification CurePeach CureStickPeachRod where
 ```
 
 今回作った`cure-index.json`を最初に思いついたとき、「型クラスから各型のインスタンス宣言を自動で収集して、そこから`cure-index.json`を作れないだろうか」と、漠然と考えていました。  
-typesafe-precureを作り始める以前、私はRubyで「定義を自動でまとめる問題」に対応した際、[Rubyでの場合](#typesafe-precure2_case-ruby)の節で紹介したような方法を用いていたため、「Haskellにおける、Rubyで言うところのmixi-inされるモジュールは型クラスだ」なんて類推をしていたからかも知れません。  
+typesafe-precureを作り始める以前、私はRubyで「定義を自動でまとめる問題」に対応した際、[Rubyでの場合](#typesafe-precure2_case-ruby)の節で紹介したような方法を用いていたため、「Haskellにおける、Rubyで言うところのmix-inされるモジュールは型クラスだ」なんて類推をしていたからかも知れません。  
 いずれにしても、そんな方法で実現できれば、既存のtypesafe-precureのモジュールの構造をそのまま使ってcure-indexが作れるので、大変都合がよかったのです。
 
 しかし、残念ながらその方法は、少なくとも単純にTemplate Haskellを使うだけでは不可能であるとすぐ気づきました。  
