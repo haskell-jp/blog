@@ -1,7 +1,7 @@
 general:
   artifacts:
     - "generated-site/"
-_cache_and_artifacts: &_cache_and_artifacts
+_cache: &_cache
   cache_directories:
     - "~/.stack/"
     - ".stack-work/"
@@ -10,19 +10,18 @@ dependencies:
   override:
     - stack setup
     - stack install --only-dependencies
-  <<: *_cache_and_artifacts
+  <<: *_cache
 
 compile:
   override:
     - stack build --pedantic
     - stack exec -- site build
-    - cp -r generated-site $CIRCLE_ARTIFACTS
-  <<: *_cache_and_artifacts
+  <<: *_cache
 
 test:
   override:
     - stack test --pedantic
-  <<: *_cache_and_artifacts
+  <<: *_cache
 
 deployment:
   production:
