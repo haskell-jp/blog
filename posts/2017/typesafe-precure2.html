@@ -197,7 +197,7 @@
 <h2 id="javaでの場合"><span class="ascii">Java</span>での場合</h2>
 <p><span class="ascii">Java</span>で「定義を自動でまとめる問題」を解決する場合も、<span class="ascii">Ruby</span>と同様に、何らかの形でメタプログラミング用の仕組みを利用することになるかと思います。<br />
 とりわけ、<span class="ascii">Java</span>においては、この問題の解決に特化しているライブラリーの機能が存在している点が興味深いでしょう。<span class="ascii">Spring</span>の「コンポーネントスキャン」です。</p>
-<p><span class="ascii">Spring</span>をはじめとする<span class="ascii">DI</span>フレームワークでは、各クラスにおいて依存するオブジェクト<small>（の、インターフェース）</small>を宣言した際、必ず何らかの形で、「どのインターフェースにどのオブジェクトを紐付けるか」を宣言することになります。いわゆる<span class="ascii">Application Context</span>を書いた<span class="ascii">XML</span>であったり、<code>@Configuration</code>アノテーションが着いたクラスがそれに当たります。<br />
+<p><span class="ascii">Spring</span>をはじめとする<span class="ascii">DI</span>フレームワークでは、各クラスにおいて依存するオブジェクト<small>（正確にはそのインターフェース）</small>を宣言した際、必ず何らかの形で、「どのインターフェースにどのオブジェクトを紐付けるか」を宣言することになります。いわゆる<span class="ascii">Application Context</span>を書いた<span class="ascii">XML</span>であったり、<code>@Configuration</code>アノテーションが着いたクラスがそれに当たります。<br />
 結果、モジュール<small>（実際には<span class="ascii">Java</span>なのでクラス）</small>に関する情報、すなわちどのクラスのどのフィールドに、どのオブジェクトを注入するか、といった情報はすべてモジュールのファイルとは独立して管理することになり、<span class="ascii">DRY</span>ではなくなってしまいます。 まさに「定義を自動でまとめる問題」の典型と言えますね。</p>
 <p>それに対して<span class="ascii">Spring</span>の「コンポーネントスキャン」では、下記のように設定することで、「どのインターフェースにどのオブジェクトを紐付けるか」といった情報を、すべて自動で設定してしまうことができます。<br />
 下記はコンポーネントスキャンを<code>@Configuration</code>アノテーションが着いた<span class="ascii">Java</span>のクラスで設定した場合のサンプルコードです。</p>
