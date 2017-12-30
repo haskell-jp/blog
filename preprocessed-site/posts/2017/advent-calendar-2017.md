@@ -19,6 +19,8 @@ tags: Links
 [Qiita](https://qiita.com/advent-calendar/2017/calendars) と [ADVENTAR](https://adventar.org/calendars?year=2017)  のアドベントカレンダーで投稿された、Haskell に関する記事を集めてみました。
 かなり雑ですが機械的に集めたので、それなりに拾えてると思いますが、もし「この記事が無いよ」とか、逆に 「Haskell ちゃうやんこの記事」ってのがあったら PR でも送ってください。
 
+ちなみに「[Elm Advent Calendar 2017 まとめ](https://scrapbox.io/miyamoen/Elm_Advent_Calendar_2017_%E3%81%BE%E3%81%A8%E3%82%81)」という記事が面白かったので、その Haskell 版オマージュ(パクリ)です。
+
 ## Haskell Advent Calendar
 
 Qiita の方では4つもできましたね。
