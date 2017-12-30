@@ -5,7 +5,7 @@ headingDivClass: post-heading
 subHeading: 2017 年の AdC に投稿された Haskell 記事のリンク集
 author: MATSUBARA Nobutada
 postedBy: <a href="https://matsubara0507.github.io/">MATSUBARA Nobutada(@matsubara0507)</a>
-date: 12
+date: December 31, 2017
 tags: Links
 ...
 ---
