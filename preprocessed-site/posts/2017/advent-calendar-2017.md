@@ -298,6 +298,9 @@ Qiita の方では4つもできましたね。
 **[巡回セールスマン問題を遺伝的アルゴリズムとデータ構造を使ってHaskellで解く！ - Qiita](https://qiita.com/v97ug/items/d6dd50a2b6b84a9e4d41)**  
  by v97ug on [Haskell  (その3) Advent Calendar 2017 - Qiita](http://qiita.com/advent-calendar/2017/haskell3) 12/15
 
+**[いつからHaskellの5行クイックソートが遅いと錯覚していた？ - Qiita](https://qiita.com/as_capabl/items/39e55e7a035dea4dc93a)**  
+ by as_capabl on [Haskell  (その3) Advent Calendar 2017 - Qiita](http://qiita.com/advent-calendar/2017/haskell3) 12/20
+
 **[キューの効率的な実装 または私は如何にしてHaskellを止めてF#を愛するようになったか - Qiita](https://qiita.com/rst76/items/a7dd81b522a09d1b9986)**  
  by rst76 on [Haskell (その2) Advent Calendar 2017 - Qiita](http://qiita.com/advent-calendar/2017/haskell2) 12/21
 
@@ -329,6 +332,9 @@ Qiita の方では4つもできましたね。
 
 **[量子コンピューターにはモナドがよく似合う - Qiita](https://qiita.com/kyamaz/items/67ec5c7d39e62c1de91d)**  
  by kyamaz on [Haskell (その2) Advent Calendar 2017 - Qiita](http://qiita.com/advent-calendar/2017/haskell2) 12/17
+
+**[Haskellと層 - Qiita](https://qiita.com/makoraru/items/ab891a60d4dfe4bbf649)**  
+ by makoraru on [Haskell (その2) Advent Calendar 2017 - Qiita](http://qiita.com/advent-calendar/2017/haskell2) 12/20
 
 **[Haskell上で有限体を使って遊ぶ - Qiita](https://qiita.com/NaOHaq/items/ba490cc1e1ab890cb399)**  
  by NaOHaq on [Haskell (その4) Advent Calendar 2017 - Qiita](http://qiita.com/advent-calendar/2017/haskell4) 12/22
