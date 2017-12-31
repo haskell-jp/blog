@@ -2,7 +2,7 @@
 title: Haskell Advent Calendar 2017 まとめ
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
-subHeading: 2017年の AdC に投稿された Haskell 記事のリンク集
+subHeading: 2017年のAdCに投稿されたHaskell記事のリンク集
 author: MATSUBARA Nobutada
 postedBy: <a href="https://matsubara0507.github.io/">MATSUBARA Nobutada(@matsubara0507)</a>
 date: December 31, 2017
@@ -16,14 +16,14 @@ tags: Links
 25日を過ぎてから余ってた日付に登録しただけですよ。
 
 
-[Qiita](https://qiita.com/advent-calendar/2017/calendars) と [ADVENTAR](https://adventar.org/calendars?year=2017)  のアドベントカレンダーで投稿された、Haskell に関する記事を集めてみました。
-かなり雑ですが機械的に集めたので、それなりに拾えてると思いますが、もし「この記事が無いよ」とか、逆に 「Haskell ちゃうやんこの記事」ってのがあったら PR でも送ってください。
+[Qiita](https://qiita.com/advent-calendar/2017/calendars)と[ADVENTAR](https://adventar.org/calendars?year=2017)のアドベントカレンダーで投稿された、Haskellに関する記事を集めてみました。
+いちおう機械的に集めたので、それなりに拾えてると思いますが、もし「この記事が無いよ」とか、逆に「Haskellちゃうやんこの記事」ってのがあったら、[ここから編集して](https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md)PRでも送ってください。
 
-ちなみに「[Elm Advent Calendar 2017 まとめ](https://scrapbox.io/miyamoen/Elm_Advent_Calendar_2017_%E3%81%BE%E3%81%A8%E3%82%81)」という記事が面白かったので、その Haskell 版オマージュ(パクリ)です。
+ちなみに「[Elm Advent Calendar 2017 まとめ](https://scrapbox.io/miyamoen/Elm_Advent_Calendar_2017_%E3%81%BE%E3%81%A8%E3%82%81)」という記事が面白かったので、そのHaskell版オマージュ(パクリ)です。
 
 ## Haskell Advent Calendar
 
-Qiita の方では4つもできましたね。
+Qiitaの方では4つもできましたね。
 
 - [Haskell Advent Calendar 2017 - Qiita](https://qiita.com/advent-calendar/2017/haskell)
 - [Haskell (その2) Advent Calendar 2017 - Qiita](https://qiita.com/advent-calendar/2017/haskell2)
@@ -36,13 +36,13 @@ Qiita の方では4つもできましたね。
 
 - [Haskell (その5) Advent Calendar 2017 - Qiita](https://qiita.com/advent-calendar/2017/haskell5)
 
-上記のカレンダーの記事以外も含めて、全部で102記事もありました。
+上記のカレンダーの記事以外も含めて、全部で104記事もありました。
 みんなすごいですね。
 
 ## 記事を集めた
 
-超雑にスクレイパーを書いて Qiita と ADVENTAR のカレンダーをスクレイピングしてきました。
-プログラムは以下のリポジトリにあります(もちろん Haskell で作ったよ)。
+超雑にスクレイパーを書いてQiitaとADVENTARのカレンダーをスクレイピングしてきました。
+プログラムは以下のリポジトリにあります(もちろんHaskellで作ったよ)。
 
 - [matsubara0507/advent-calendar - GitHub](https://github.com/matsubara0507/haskell-advent-calendar)
 
@@ -54,7 +54,7 @@ Qiita の方では4つもできましたね。
 分類は温もりのある手作業でやってます。
 自然言語処理系が出来れば機械的に分類できたかもしれませんが...
 
-分類違くね？というモノがあれば PR でも送ってください。
+分類違くね？というモノがあれば、[ここから編集して](https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md)PRでも送ってください。
 
 それでは良いお年を。
 
