@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Haskell Advent Calendar 2017 まとめ">
+    
+      <meta name="author" content="MATSUBARA Nobutada">
+    
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="Haskell Advent Calendar 2017 まとめ - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2017/advent-calendar-2017.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-black-frame.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---これは [Haskell Advent Calendar その4](https://qiita.com/advent-calendar/2017/haskell4) の12日目の記事です。なんで12日目の記事で「まとめ」をやっているのかって？25日を過ぎてから余ってた日付に登録しただけですよ。[Qiita](https://qiita.com/advent-calendar/2017/cal" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>Haskell Advent Calendar 2017 まとめ - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../../img/logo.svg"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="https://haskell.jp">Home</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  <div class="post-heading">
+                    <h1>Haskell Advent Calendar 2017 まとめ</h1>
+                    <h2 class="subheading">2017年のAdCに投稿されたHaskell記事のリンク集</h2><span class="meta">Posted by <a href="https://matsubara0507.github.io/">MATSUBARA Nobutada(@matsubara0507)</a> on December 31, 2017</span><span class="meta">Tags: Links</span>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>これは <a href="https://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell Advent Calendar</span> その<span class="ascii">4</span></a> の<span class="ascii">12</span>日目の記事です。</p>
+<p>なんで<span class="ascii">12</span>日目の記事で「まとめ」をやっているのかって？ <span class="ascii">25</span>日を過ぎてから余ってた日付に登録しただけですよ。</p>
+<p><a href="https://qiita.com/advent-calendar/2017/calendars"><span class="ascii">Qiita</span></a>と<a href="https://adventar.org/calendars?year=2017"><span class="ascii">ADVENTAR</span></a>のアドベントカレンダーで投稿された、<span class="ascii">Haskell</span>に関する記事を集めてみました。 いちおう機械的に集めたので、それなりに拾えてると思いますが、もし「この記事が無いよ」とか、逆に「<span class="ascii">Haskell</span>ちゃうやんこの記事」ってのがあったら、<a href="https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md">ここから編集して</a><span class="ascii">PR</span>でも送ってください。</p>
+<p>ちなみに「<a href="https://scrapbox.io/miyamoen/Elm_Advent_Calendar_2017_%E3%81%BE%E3%81%A8%E3%82%81"><span class="ascii">Elm Advent Calendar 2017</span> まとめ</a>」という記事が面白かったので、その<span class="ascii">Haskell</span>版オマージュ<span class="ascii">(</span>パクリ<span class="ascii">)</span>です。</p>
+<h2 id="haskell-advent-calendar"><span class="ascii">Haskell Advent Calendar</span></h2>
+<p><span class="ascii">Qiita</span>の方では<span class="ascii">4</span>つもできましたね。</p>
+<ul>
+<li><a href="https://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a></li>
+<li><a href="https://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a></li>
+<li><a href="https://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a></li>
+<li><a href="https://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a></li>
+</ul>
+<p>まぁしかし、残念ながらどのカレンダーも埋まってないため<a href="https://qiita.com/advent-calendar/2017/ranking/subscriptions">ランキング</a>圏外となってしまいましたが<span class="ascii">(</span>笑<span class="ascii">)</span></p>
+<p>加えて何故か、<span class="ascii">25</span>日が過ぎてからその<span class="ascii">5</span>のカレンダーができるという、なかなか面白い事案が発生しました。</p>
+<ul>
+<li><a href="https://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a></li>
+</ul>
+<p>上記のカレンダーの記事以外も含めて、全部で<span class="ascii">104</span>記事もありました。 みんなすごいですね。</p>
+<h2 id="記事を集めた">記事を集めた</h2>
+<p>超雑にスクレイパーを書いて<span class="ascii">Qiita</span>と<span class="ascii">ADVENTAR</span>のカレンダーをスクレイピングしてきました。 プログラムは以下のリポジトリにあります<span class="ascii">(</span>もちろん<span class="ascii">Haskell</span>で作ったよ<span class="ascii">)</span>。</p>
+<ul>
+<li><a href="https://github.com/matsubara0507/haskell-advent-calendar"><span class="ascii">matsubara0507/advent-calendar - GitHub</span></a></li>
+</ul>
+<p>カレンダーのタイトルか、記事のタイトルに「<span class="ascii">Haskell</span>」って単語が入っているやつだけ集めてます。 このプログラムの解説っぽい記事はそのうち自分のとこの記事として挙げる気がする<span class="ascii">(</span>たぶん<span class="ascii">)</span>。</p>
+<h2 id="記事たち">記事たち</h2>
+<p>分類は温もりのある手作業でやってます。 自然言語処理系が出来れば機械的に分類できたかもしれませんが…</p>
+<p>分類違くね？というモノがあれば、<a href="https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md">ここから編集して</a><span class="ascii">PR</span>でも送ってください。</p>
+<p>それでは良いお年を。</p>
+<h3 id="ポエム">ポエム</h3>
+<p><strong><a href="http://kakkun61.hatenablog.com/entry/2017/12/25/%E3%81%AA%E3%81%9C_Haskell_%E3%81%8C%E5%A5%BD%E3%81%8D%E3%81%AA%E3%81%AE%E3%81%8B">なぜ <span class="ascii">Haskell</span> が好きなのか <span class="ascii">-</span> 趣味はデバッグ……</a></strong><br />
+<span class="ascii">by kakkun61 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
+<p><strong><a href="https://qiita.com/Mizunashi_Mana/items/e82214dfae2765c6839a"><span class="ascii">Haskell</span>副作用ポエム <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by Mizunashi_Mana on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
+<p><strong><a href="https://qiita.com/ababup1192/items/b15cdace30b7fef3338c"><span class="ascii">Haskell</span>を勉強して感動したこと・難しいと思ってること <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by ababup1192 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
+<h3 id="入門してみた">入門してみた</h3>
+<p><strong><a href="https://gist.github.com/sys9kdr/2484ed09f5cb7ea86beae8f5222d9a3c"><span class="ascii">Haskell</span>入門しようとして環境構築で失敗。 <span class="ascii">· GitHub</span></a></strong><br />
+<span class="ascii">by sys9kdr on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
+<p><strong><a href="https://qiita.com/lagenorhynque/items/f8b14ff70a26cfd27976"><span class="ascii">Clojurian</span>が<span class="ascii">Haskell</span>で<span class="ascii">Web API</span>開発に入門してみた <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by lagenorhynque on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
+<p><strong><a href="https://qiita.com/hitsujisanmeme/items/e14972cfd349c1149d58">美術の人が考える <span class="ascii">Haskell - Qiita</span></a></strong><br />
+<span class="ascii">by hitsujisanmeme on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
+<p><strong><a href="https://qiita.com/brackss1/items/9f9466f160391dc53bba"><span class="ascii">Haskell</span>入門者がライブラリを触っちゃう<span class="ascii">!? - Qiita</span></a></strong><br />
+<span class="ascii">by brackss1 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
+<p><strong><a href="https://qiita.com/ryosukue/items/cf14d817a7067dfd2094"><span class="ascii">Ubuntu</span>、<span class="ascii">Haskell</span>で<span class="ascii">web</span>アプリ手始め <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by ryosukue on</span> <a href="http://qiita.com/advent-calendar/2017/nuco"><span class="ascii">Nuco Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
+<p><strong><a href="https://qiita.com/3nan/items/b89b7383ddb2bac5dda1"><span class="ascii">Haskell</span>をちょこっと紹介（フィボナッチ数列を書いてみる） <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by 3nan on</span> <a href="http://qiita.com/advent-calendar/2017/tecotec"><span class="ascii">TECOTEC Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
+<h3 id="ノウハウ">ノウハウ</h3>
+<p><strong><a href="https://www.ncaq.net/2017/12/02/00/00/00/">私の<span class="ascii">Haskell</span>コーディングスタイルガイド<span class="ascii">,</span>改行出来るポイントを紹介 <span class="ascii">- ncaq</span></a></strong><br />
+<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
+<p><strong><a href="https://www.ncaq.net/2017/12/03/00/00/00/">ゲーム販売<span class="ascii">web</span>アプリケーション<span class="ascii">SYAKERAKE</span>を支える技術<span class="ascii">,Haskell</span>と<span class="ascii">Yesod</span>で作られています <span class="ascii">- ncaq</span></a></strong><br />
+<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
+<p><strong><a href="https://www.ncaq.net/2017/12/04/00/00/00/"><span class="ascii">Stackage Server</span>のちょっとした便利な使い方<span class="ascii">,Hoogle</span>をブラウザのカスタム検索エンジンに追加しましょう<span class="ascii">,</span>よく使うパッケージをブックマークする時は<span class="ascii">PackageR</span>の<span class="ascii">URL</span>にしましょう <span class="ascii">- ncaq</span></a></strong><br />
+<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
+<p><strong><a href="http://d.hatena.ne.jp/kazu-yamamoto/20171212/1513050147"><span class="ascii">go</span>な関数</a></strong><br />
+<span class="ascii">by kazu_yamamoto on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
+<p><strong><a href="http://fumieval.hatenablog.com/entry/2017/12/19/203500"><span class="ascii">Haskell</span>の<span class="ascii">ABC(Haskell Advent Calendar 6th) -</span> モナドとわたしとコモナド</a></strong><br />
+<span class="ascii">by fumieval on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
+<p><strong><a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html"><span class="ascii">Windows</span>で<span class="ascii">Haskell</span>を扱う時によく遭遇するエラーと対処法 <span class="ascii">- Haskell-jp</span></a></strong><br />
+<span class="ascii">by igrep on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
+<h3 id="解説">解説</h3>
+<p><strong><a href="http://syocy.hatenablog.com/entry/a-tour-of-go-in-haskell"><span class="ascii">A Tour of Go in Haskell</span>を作ったのと、<span class="ascii">Go</span>と<span class="ascii">Haskell</span>の比較 <span class="ascii">- syocy</span>’<span class="ascii">s diary</span></a></strong><br />
+<span class="ascii">by syocy on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
+<p><strong><a href="https://qiita.com/cyclone_t/items/8443ed5d4a77f87b1f1b"><span class="ascii">Servant</span>のハンドラに<span class="ascii">ReaderT</span>を適用する <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by cyclone_t on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
+<p><strong><a href="https://qiita.com/wgag/items/11a6e667011d530832e8">スーパーモナドについて <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by wgag on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/10</span></p>
+<p><strong><a href="https://tech.recruit-mp.co.jp/dev-tools/post-13981/"><span class="ascii">CircleCI2.0</span>で<span class="ascii">Haskell</span>のテストを実行する – <span class="ascii">PSYENCE:MEDIA</span></a></strong><br />
+<span class="ascii">by yukiasai on</span> <a href="http://adventar.org/calendars/2360"><span class="ascii">RECRUIT MARKETING PARTNERS Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/13</span></p>
+<p><strong><a href="https://qiita.com/yukiasai/items/248294a871d40c0dcef6"><span class="ascii">Dokku</span>環境を構築して<span class="ascii">Haskell</span>のアプリケーションをデプロイする <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by yukiasai on</span> <a href="http://adventar.org/calendars/2324"><span class="ascii">Recruit Engineers Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/07</span></p>
+<h3 id="周辺ツールについて">周辺ツールについて</h3>
+<p><strong><a href="https://qiita.com/usamik26/items/672ed3c4451402bfc275"><span class="ascii">Haskell Stack</span> とは何をするツールなのか <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by usamik26 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
+<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-20-stack-ls-command.html"><span class="ascii">stack ls</span> コマンドが追加されます</a></strong><br />
+<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/08</span></p>
+<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-24-stack163.html"><span class="ascii">stack v1.6.3</span> がリリースされました。</a></strong><br />
+<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
+<p><strong><a href="https://qiita.com/ogata-k/items/23d70250ec42359b6bb5"><span class="ascii">Haskell</span>や周辺ツールについてのリンク集 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by ogata-k on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
+<p><strong><a href="https://qiita.com/ogata-k/items/2b21326b2b7351bfc28c"><span class="ascii">Haskell</span>の<span class="ascii">stack</span>によるプロジェクトについて <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by ogata-k on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
+<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-27-haddock-grid-table.html"><span class="ascii">haddock</span> に <span class="ascii">Grid Table</span> 記法が追加されました</a></strong><br />
+<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
+<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-23-stack161.html">カスタムスナップショットの紹介</a></strong><br />
+<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
+<p><strong><a href="https://myuon.github.io/posts/haskell-project-setup/"><span class="ascii">Haskell</span>プロジェクトを始めるにあたって <span class="ascii">- The curse of</span> λ</a></strong><br />
+<span class="ascii">by myuon_myon on</span> <a href="http://qiita.com/advent-calendar/2017/myuon_myon_cs">一人<span class="ascii">Computer Science Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
+<h3 id="ライブラリ紹介">ライブラリ紹介</h3>
+<p><strong><a href="https://qiita.com/jabaraster/items/e8ebbe6d25b535947aba"><span class="ascii">servant+persistent</span>を利用する <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by jabaraster on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
+<p><strong><a href="https://qiita.com/makoraru/items/596729de09d6aeb81e5a"><span class="ascii">Yampa</span>で<span class="ascii">Functional Reactive</span>な認知行動療法ボット <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by makoraru on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
+<p><strong><a href="https://nnwww.github.io/blog/post/haskell_ml/"><span class="ascii">Haskell</span>で機械学習を実装しようと思った過去の自分へ</a></strong><br />
+<span class="ascii">by _Nnwww on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
+<p><strong><a href="https://qiita.com/cyclone_t/items/52ad44cfbb4603e123f3"><span class="ascii">Haskell</span>・<span class="ascii">Servant+Persistent/Esqueleto</span>で作る実用<span class="ascii">WebAPI (1) Servant</span>の基本 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by cyclone_t on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
+<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-09-extensible-effects-step-by-step.html"><span class="ascii">Extensible Effects</span> ステップ・バイ・ステップ</a></strong><br />
+<span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
+<p><strong><a href="https://qiita.com/Mizunashi_Mana/items/115855bf2af9b9970198"><span class="ascii">Haskell</span>のパーサライブラリまとめ <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by Mizunashi_Mana on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
+<p><strong><a href="https://www.zaneli.com/blog/20171213"><span class="ascii">Haskell</span>入門者<span class="ascii">LT</span>会で自作ライブラリ<span class="ascii">network-voicetext</span>の話をしてきた <span class="ascii">|</span> ザネリは列車を見送った</a></strong><br />
+<span class="ascii">by zaneli@github on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
+<p><strong><a href="https://qiita.com/satosystems/items/32bf104a041c8cc13809"><span class="ascii">Haskell</span> と <span class="ascii">SQLite - Qiita</span></a></strong><br />
+<span class="ascii">by satosystems on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
+<p><strong><a href="https://qiita.com/masahiro_sakai/items/6a989d5b898a08f17821">部分構造の共有を観測する<span class="ascii">data-reify - Qiita</span></a></strong><br />
+<span class="ascii">by masahiro_sakai on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
+<h3 id="作ってみた">作ってみた</h3>
+<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-13-elm-and-haskell-for-elmer.html"><span class="ascii">Elm</span> と <span class="ascii">Haskell</span> で作る <span class="ascii">ToDo</span> アプリ</a></strong><br />
+<span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/elm"><span class="ascii">Elm Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
+<p><strong><a href="http://abc10946.hatenablog.com/entry/2017/12/18/014203"><span class="ascii">Haskell</span>に入門して<span class="ascii">1</span>年位経ったのでライフゲームを作ってみた話 <span class="ascii">- abc10946</span>の日記</a></strong><br />
+<span class="ascii">by ABC10946 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
+<p><strong><a href="http://d.hatena.ne.jp/wvogel00/20171222/1513924995">仕事で<span class="ascii">Haskell</span>を使いたいなら外堀から</a></strong><br />
+<span class="ascii">by hxf_vogel on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
+<p><strong><a href="http://blog.nakaji.me/slack-api-bloodhound-servant/"><span class="ascii">slack-api + bloodhound + servant</span> で<span class="ascii">bot+</span>αを作る</a></strong><br />
+<span class="ascii">by nakaji-dayo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
+<p><strong><a href="http://secret-garden.hatenablog.com/entry/2017/12/16/000000">【<span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017</span>】<span class="ascii">Vim</span> から <span class="ascii">Hoogle</span> の検索が出来るプラグインをつくった【<span class="ascii">16</span>日目】 <span class="ascii">- Secret Garden(Instrumental)</span></a></strong><br />
+<span class="ascii">by pink_bangbi on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
+<p><strong><a href="https://qiita.com/rounddelta/items/807866bdaa81c3057ac0">お天気<span class="ascii">Bot</span> で理解する <span class="ascii">Haskell</span> の便利パッケージ <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/25</span></p>
+<p><strong><a href="https://qiita.com/arowM/items/e59442120ad3c1071c57"><span class="ascii">Haskell ochintin-daicho</span> で年末調整プログラミング <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by arowM on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
+<p><strong><a href="https://qiita.com/lotz/items/1aa6cf18aa193f40c647">作って学ぶ<span class="ascii">Bitcoin</span>！ゼロから作る<span class="ascii">SPV</span>ウォレット <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by lotz on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
+<p><strong><a href="http://tune.hateblo.jp/entry/2017/12/27/031803">優秀な秘書を雇いました<span class="ascii">!!! - Creatable a =&gt; a -&gt; IO b</span></a></strong><br />
+<span class="ascii">by tokiwoousaka@github on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
+<p><strong><a href="https://qiita.com/satosystems/items/c1c0feef87345a9df69d"><span class="ascii">Haskell</span> における遅延ファイル読み込みとリソースリーク <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by satosystems on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
+<p><strong><a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">タイプセーフプリキュア！を支える技術 その<span class="ascii">2 - Haskell-jp</span></a></strong><br />
+<span class="ascii">by igrep on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/24</span></p>
+<p><strong><a href="https://www.ncaq.net/2017/12/19/00/00/00/"><span class="ascii">Haskell</span>による<span class="ascii">web</span>スクレイピングの方法を<span class="ascii">dic-nico-intersection-pixiv</span>を例に書く <span class="ascii">- ncaq</span></a></strong><br />
+<span class="ascii">by</span> エヌユル <span class="ascii">on</span> <a href="http://adventar.org/calendars/2105"><span class="ascii">Web</span>スクレイピング <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/19</span></p>
+<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-02-re-adventar-slack-bot-part1.html"><span class="ascii">Re:</span> ゼロから作る <span class="ascii">ADVENTAR</span> の <span class="ascii">Slack Bot (Haskell</span> 編<span class="ascii">)</span></a></strong><br />
+<span class="ascii">by</span> ひげ <span class="ascii">on</span> <a href="http://adventar.org/calendars/2300">群馬大学電子計算機研究会 <span class="ascii">IGGG Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/02</span></p>
+<h3 id="処理系">処理系</h3>
+<p><strong><a href="http://ilyaletre.hatenablog.com/entry/2017/12/10/195016"><span class="ascii">GHC</span>の中間言語<span class="ascii">Core</span>への脱糖を覗き見る <span class="ascii">- Hash</span> λ <span class="ascii">Bye</span></a></strong><br />
+<span class="ascii">by ilyaletre on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
+<p><strong><a href="http://fujiy.hatenablog.com/entry/type-inference-1"><span class="ascii">Haskell</span>の型システムを書く<span class="ascii">(1) -</span> 純粋技術メモ</a></strong><br />
+<span class="ascii">by fujiy on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
+<p><strong><a href="https://qiita.com/takoeight0821/items/9a1c3eb5b0f292026596"><span class="ascii">GHC</span>での中置演算子のパース <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by takoeight0821 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
+<p><strong><a href="https://uhideyuki.sakura.ne.jp/studs/index.cgi/ja/HindleyMilnerInHaskell">型システムを学ぼう！</a></strong><br />
+<span class="ascii">by unnohideyuki on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
+<h3 id="言語機能">言語機能</h3>
+<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-12-backpack-memo.html"><span class="ascii">Haskell Backpack</span> 覚え書き</a></strong><br />
+<span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
+<p><strong><a href="https://qiita.com/aiya000/items/b802531c58c161cd245f">にこ、希と一緒に学ぶ<span class="ascii">Haskell</span>（番外）「あまり知られていない<span class="ascii">GHC</span>拡張の紹介」 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by aiya000 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
+<p><strong><a href="https://qiita.com/ruicc/items/e2879c44eba77b1e7170"><span class="ascii">Levity polymorphism</span>について軽く <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by ruicc on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
+<p><strong><a href="https://qiita.com/ryoppy/items/7156d587da2e6ae7e605"><span class="ascii">Kind</span>について <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by ryoppy on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
+<p><strong><a href="http://khibino.hatenadiary.jp/entry/2017/12/18/081814"><span class="ascii">OverloadedLabels</span> と <span class="ascii">Haskell Relational Record - khibino blog</span></a></strong><br />
+<span class="ascii">by khibino on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
+<p><strong><a href="https://qiita.com/thimura/items/0d289c231f9aceac61dc"><span class="ascii">GHC 8.2</span> 以前で <span class="ascii">FFI</span> を使う際に注意すること <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by thimura on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
+<h3 id="型">型</h3>
+<p><strong><a href="https://qiita.com/junjihashimoto@github/items/31f245f5e0138e5fac7e">依存型の紹介と応用としての<span class="ascii">Clash</span>の紹介 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by junjihashimoto@github on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
+<p><strong><a href="https://qiita.com/aiya000/items/81e8424c8a3ee23586a6">ことり、穂乃果と一緒に学ぶ<span class="ascii">Haskell</span>（入門）その<span class="ascii">6</span>「高階データ型」 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by aiya000 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/24</span></p>
+<p><strong><a href="https://qiita.com/mod_poppo/items/50ad2c0ee66171cc1ee9">型を実行時に作る：怖くないリフレクション <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by mod_poppo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
+<p><strong><a href="https://qiita.com/HirotoShioi/items/5474119ba3682448c109"><span class="ascii">Haskell</span>における型クラス制約の役割 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by HirotoShioi on</span> <a href="http://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
+<h3 id="base"><span class="ascii">Base</span></h3>
+<p><strong><a href="https://www.ncaq.net/2017/12/01/00/00/01/"><span class="ascii">Haskell</span>の<span class="ascii">State</span>の必要性が<span class="ascii">,</span>プログラミング言語の処理系を書いた時にわかったので<span class="ascii">,State</span>の良さを語ります <span class="ascii">- ncaq</span></a></strong><br />
+<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
+<p><strong><a href="https://qiita.com/grainrigi/items/f45b586b4013ffc3814e"><span class="ascii">Haskell - $</span>の仕組みを覗いてみよう <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by grainrigi on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/08</span></p>
+<p><strong><a href="https://blog.b123400.net/functor/"><span class="ascii">Mapping things</span></a></strong><br />
+<span class="ascii">by b123400 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/10</span></p>
+<p><strong><a href="https://qiita.com/elipmoc101/items/4590210c9946ee2fd4c5"><span class="ascii">Maybe</span>自作から学ぶ<span class="ascii">Haskell</span>！ <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by elipmoc101 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
+<p><strong><a href="https://keiorogiken.wordpress.com/2017/12/24/list%E3%81%A7%E9%81%8A%E3%81%B6/"><span class="ascii">List</span>で遊ぶ <span class="ascii">|</span> 慶應義塾大学ロボット技術研究会</a></strong><br />
+<span class="ascii">by mt_caret on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
+<p><strong><a href="https://qiita.com/Lugendre/items/6b4a8c8a9c85fcdcb292"><span class="ascii">Arrow</span>を理解する <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by Lugendre on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/08</span></p>
+<h3 id="アルゴリズムとデータ構造">アルゴリズムとデータ構造</h3>
+<p><strong><a href="https://qiita.com/ryohji/items/d8bdba1648978c308cdd">探索問題を <span class="ascii">Haskell</span> で解く <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by ryohji on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
+<p><strong><a href="https://qiita.com/v97ug/items/d6dd50a2b6b84a9e4d41">巡回セールスマン問題を遺伝的アルゴリズムとデータ構造を使って<span class="ascii">Haskell</span>で解く！ <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by v97ug on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
+<p><strong><a href="https://qiita.com/as_capabl/items/39e55e7a035dea4dc93a">いつから<span class="ascii">Haskell</span>の<span class="ascii">5</span>行クイックソートが遅いと錯覚していた？ <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by as_capabl on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
+<p><strong><a href="https://qiita.com/rst76/items/a7dd81b522a09d1b9986">キューの効率的な実装 または私は如何にして<span class="ascii">Haskell</span>を止めて<span class="ascii">F#</span>を愛するようになったか <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by rst76 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
+<p><strong><a href="http://autotaker.hatenablog.com/entry/2017/12/21/125153">永続リアルタイムキューの<span class="ascii">Haskell</span>実装と計算量解析 <span class="ascii">- autotaker</span>’<span class="ascii">s blog</span></a></strong><br />
+<span class="ascii">by autotaker1984 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
+<p><strong><a href="https://qiita.com/Aruneko/items/dee20161358e7c39e27a"><span class="ascii">Zipper</span>に挑む <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by Aruneko on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
+<p><strong><a href="https://qiita.com/nobsun/items/27fe53516cbb90ba02e2"><span class="ascii">Tree:</span> 親子関係の付け替え <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by nobsun on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
+<p><strong><a href="http://zodi-g12.hatenablog.com/entry/2017/12/06/133951">コラッツの問題を<span class="ascii">Haskell</span>で書いてみた <span class="ascii">- Zodiac</span>の黙示録</a></strong><br />
+<span class="ascii">by zodi_G12 on</span> <a href="http://adventar.org/calendars/2377"><span class="ascii">IQ</span>が<span class="ascii">1 Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/06</span></p>
+<h3 id="数学科学">数学・科学</h3>
+<p><strong><a href="https://qiita.com/tezca686/items/855236ccdda584ee8ebb"><span class="ascii">[Haskell]</span> とびだせ！<span class="ascii">Hask</span>圏 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by tezca686 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
+<p><strong><a href="https://qiita.com/makoraru/items/768089b2aab1dde47593">区間代数と無限小と無限大 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by makoraru on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
+<p><strong><a href="https://qiita.com/as_capabl/items/2031fe28e577e77dc269">しりとりの圏の回答、または定理証明<span class="ascii">Haskell</span>を少しだけ <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by as_capabl on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
+<p><strong><a href="https://qiita.com/hiratara/items/6265b5d4791144bee33b">しりとりの圏の実装<span class="ascii">(</span>未完<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by hiratara on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
+<p><strong><a href="https://qiita.com/kyamaz/items/67ec5c7d39e62c1de91d">量子コンピューターにはモナドがよく似合う <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by kyamaz on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
+<p><strong><a href="https://qiita.com/makoraru/items/ab891a60d4dfe4bbf649"><span class="ascii">Haskell</span>と層 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by makoraru on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
+<p><strong><a href="https://qiita.com/NaOHaq/items/ba490cc1e1ab890cb399"><span class="ascii">Haskell</span>上で有限体を使って遊ぶ <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by NaOHaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
+<p><strong><a href="https://qiita.com/cutsea110/items/69889a99d30b627bc04a"><span class="ascii">somehow-morphisms on fixed point written in Haskell - Qiita</span></a></strong><br />
+<span class="ascii">by cutsea110 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
+<p><strong><a href="https://qiita.com/kyamaz/items/e49b07e05e871a22246c">量子プログラミングは<span class="ascii">Haskell</span>で <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by kyamaz on</span> <a href="http://qiita.com/advent-calendar/2017/quantum">量子コンピュータ <span class="ascii">Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
+<h3 id="docker"><span class="ascii">Docker</span></h3>
+<p><strong><a href="https://qiita.com/t10471/items/4afa598e1be5d6c7cc1f"><span class="ascii">Haskell</span>でも<span class="ascii">Go</span>みたいにシングルバイナリでアプリケーションをデプロイしたい <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by t10471 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
+<p><strong><a href="https://qiita.com/algas/items/fde155abbc9d8ae3f8c9"><span class="ascii">Haskell on Docker</span> で <span class="ascii">Portable CLI</span> を作ろう <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by algas on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
+<h3 id="eta"><span class="ascii">Eta</span></h3>
+<p><strong><a href="https://qiita.com/aiya000/items/881d5f7e04b1178e7764"><span class="ascii">Eta</span>で表現されるデータ型としての<span class="ascii">Java</span>クラスとその継承関係 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by aiya000 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/25</span></p>
+<p><strong><a href="https://qiita.com/aiya000/items/7dc0cb8694de0675088e"><span class="ascii">Haskell (Eta)</span> で<span class="ascii">JavaFX</span>の<span class="ascii">EDSL</span>を作る雰囲気を醸し出す <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by aiya000 on</span> <a href="http://adventar.org/calendars/2546">プロ生ちゃん <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/25</span></p>
+<h3 id="書籍紹介">書籍紹介</h3>
+<p><strong><a href="https://qiita.com/waddlaw/items/dd926462d398c4cbd019">これから <span class="ascii">Haskell</span> を学ぶ人のための書籍紹介 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
+<p><strong><a href="https://qiita.com/Aruneko/items/e72f7c6ee49159751cba"><span class="ascii">2017</span>年に「すごい<span class="ascii">Haskell</span>たのしく学ぼう」を読む <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by Aruneko on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
+<p><strong><a href="https://qiita.com/YoshikuniJujo/items/0708f108bf53a216a61a">拙書「<span class="ascii">Haskell</span> 教養としての関数型プログラミング」の紹介 <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by YoshikuniJujo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/24</span></p>
+<p><strong><a href="https://mt-caret.github.io/blog/posts/2017-12-01-book01.html"><span class="ascii">mt_caret.log -</span> 本<span class="ascii">1</span> “<span class="ascii">Haskell Programming from first principles</span>”</a></strong><br />
+<span class="ascii">by mt_caret on</span> <a href="http://adventar.org/calendars/2433">本 <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/01</span></p>
+<h3 id="翻訳記事">翻訳記事</h3>
+<p><strong><a href="https://qiita.com/Pythonissam/items/ace180b1b78876f1c190"><span class="ascii">Haskell</span> で暗号学的ハッシュを扱う <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
+<p><strong><a href="https://qiita.com/rounddelta/items/d767f36d544427a9c60d"><span class="ascii">Haskell</span> のアプリケーション向けに軽量の <span class="ascii">Docker</span>イメージ を作る <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
+<p><strong><a href="https://qiita.com/rounddelta/items/8b7d2a200a932e761fa3"><span class="ascii">Haskell</span> 初心者へのアドバイス <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
+<p><strong><a href="https://qiita.com/rounddelta/items/31b835b493abf5be3549">将来も使えるテストスイート <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
+<p><strong><a href="https://qiita.com/rounddelta/items/27c12237d9ef1c5569ba"><span class="ascii">VS Code</span> で <span class="ascii">Ghcid</span> を使う <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
+<p><strong><a href="https://qiita.com/rounddelta/items/4584f5486c1061c93f0b"><span class="ascii">HLint</span> のルールを理解する <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
+<p><strong><a href="https://qiita.com/Pythonissam/items/41f8121795f5d8954802"><span class="ascii">SPJ</span> の憂鬱 <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
+<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
+<p><strong><a href="https://qiita.com/reotasosan/items/d9fdfab10e24eabfefda"><span class="ascii">SPJ</span>と<span class="ascii">Haskell</span>のエコシステム（和訳） <span class="ascii">- Qiita</span></a></strong><br />
+<span class="ascii">by reotasosan on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
+<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-27-haskell-performance-debugging"><span class="ascii">Haskell</span> のパフォーマンスをデバッグする</a></strong><br />
+<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2017/windows-gotchas.html" style="margin-left: auto;">WindowsでHaskellを扱う時によく遭遇するエラーと対処法</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; MATSUBARA Nobutada 2017</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
