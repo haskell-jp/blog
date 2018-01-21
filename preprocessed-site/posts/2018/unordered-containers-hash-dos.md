@@ -11,8 +11,8 @@ tags: Security
 ---
 
 あらゆるソフトウェアに脆弱性は存在し得ます。  
-Haskellは高度な型システムを駆使することで、脆弱性を根本的に回避したプログラムを作ることを可能にします<small>（脆弱性を防ぐためだけのものではないですが、今日のある人は[Safe Haskell](http://www.kotha.net/ghcguide_ja/7.6.2/safe-haskell.html)についても調べてみるといいでしょう）</small>。  
-しかし、だからといって型を設計する段階で気をつけなければいけないことには変わりませんし、GHCが生成した実行ファイル、使用するライブラリーに絶対に脆弱性がないとは言えません。  
+Haskellは高度な型システムを駆使することで、脆弱性を根本的に回避したプログラムを作ることを可能にします<small>（脆弱性を防ぐためだけのものではないですが、興味のある人は[Safe Haskell](http://www.kotha.net/ghcguide_ja/7.6.2/safe-haskell.html)についても調べてみるといいでしょう）</small>。  
+しかし、だからといって型を設計する段階で脆弱性を回避できるよう気をつけなければいけないことには変わりませんし、GHCが生成した実行ファイル、使用するライブラリーに絶対に脆弱性がないとは言えません。  
 現状、Haskellはほかの著名なプログラミング言語ほど使用されていないためか、あまり脆弱性が報告されることはありません<small>（libcなど、ほかの言語の処理系も依存しているようなライブラリーの脆弱性は別として）</small>。  
 今回は、そんな中でも[unordered-containersというパッケージ](https://hackage.haskell.org/package/unordered-containers)にある、[ドキュメントにも書かれている](https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security)ため、仕様上**おそらく直ることがないであろう脆弱性**と、その回避方法について紹介します。  
 hashdos脆弱性自体は結構有名ですし、ドキュメントに書いてあることなので、ご存知の方には何を今更感があるかと思いますが、検索した限りこの問題について日本語で説明した記事が見当たらなかったので、ここで紹介します。
@@ -31,7 +31,7 @@ hashdos脆弱性自体は結構有名ですし、ドキュメントに書いて�
 
 ハッシュテーブルを使用しない代わりに、unordered-containersでは内部で[Hash array mapped trie](https://en.wikipedia.org/wiki/Hash_array_mapped_trie)という特殊な木を使っています。  
 どのような構造かは、[HAMT ~ イミュータブルで高速なハッシュマップ ~ | κeenのHappy Hacκing Blog](http://keens.github.io/slide/HAMT/)に詳しく書かれています。  
-Scalaでの実装の話ですが、基本的にはunordered-containersパッケージの`HashMap`も同じはずです。
+こちらのスライドはScalaでの実装の話ですが、基本的にはunordered-containersパッケージの`HashMap`も同じはずです。
 
 大雑把に言うと、Hash array mapped trieを使った`HashMap`では、ハッシュテーブルと同様にキーとなる値を**ハッシュ関数で一旦固定長の整数に変換する**ことで、キーが存在しているかどうかの確認を高速化しているため、containersパッケージよりも高速な処理を実現しています。
 containersパッケージの`Map`ではキーの存在を確認する際、キー全体を既存のキーと比較する必要があるため、特に長い文字列をキーとする場合は、処理が遅くなりがちだったのです。
@@ -57,7 +57,7 @@ hashdos脆弱性はこの性質を利用したDoS攻撃です。
 > There's an uncomfortable trade-off with regards to security threats posed by e.g. denial of service attacks. Always using more secure hash function, like SipHash, would provide security by default. However, those functions would make the performance of the data structures no better than that of ordered containers, which defeats the purpose of this package.
 
 要するに、「セキュリティー上問題はあるけど、SipHashのような安全なハッシュ関数を使ったらcontainersパッケージよりも速度が出なかった。それではこのパッケージの意味がない」ということです。  
-containersパッケージよりも高速な連想配列を作るためにunordered-containersパッケージを作ったのだから、それより遅くなっては意味がないのです。  
+containersパッケージよりも高速な連想配列を作るためにunordered-containersパッケージを作ったのだから、それより遅くなっては存在価値がなくなってしまうのです。  
 従って、ユーザーが任意にキーを入力できるようなプログラムでは、unordered-containersではなく、containersを使え、ということです。  
 このことはunordered-containersが使用している[hashableのドキュメント](https://hackage.haskell.org/package/hashable-1.2.6.1/docs/Data-Hashable.html#g:1)にも書かれています。ある意味ノーガード戦法ですね。
 
