@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="hashdos脆弱性とunordered-containers">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="hashdos脆弱性とunordered-containers - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2018/unordered-containers-hash-dos.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-black-frame.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---あらゆるソフトウェアに脆弱性は存在し得ます。  Haskellは高度な型システムを駆使することで、脆弱性を根本的に回避したプログラムを作ることを可能にします&lt;small&gt;（脆弱性を防ぐためだけのものではないですが、興味のある人は[Safe Haskell](http://www.kotha.net/ghcguide_ja/7.6.2/safe-haskell.html)についても" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>hashdos脆弱性とunordered-containers - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../../img/logo.svg"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="https://haskell.jp">Home</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  <div class="post-heading">
+                    <h1>hashdos脆弱性とunordered-containers</h1>
+                    <h2 class="subheading">HashMap・HashSetの利用時は注意！</h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on December 21, 2018</span><span class="meta">Tags: Security</span>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>あらゆるソフトウェアに脆弱性は存在し得ます。<br />
+<span class="ascii">Haskell</span>は高度な型システムを駆使することで、脆弱性を根本的に回避したプログラムを作ることを可能にします<small>（脆弱性を防ぐためだけのものではないですが、興味のある人は<a href="http://www.kotha.net/ghcguide_ja/7.6.2/safe-haskell.html"><span class="ascii">Safe Haskell</span></a>についても調べてみるといいでしょう）</small>。<br />
+しかし、だからといって、型を設計する段階で脆弱性を回避できるよう気をつけなければいけないことには変わりませんし、<span class="ascii">GHC</span>が生成した実行ファイル、使用するライブラリーに絶対に脆弱性がないとは言えません。<br />
+現状、<span class="ascii">Haskell</span>はほかの著名なプログラミング言語ほど使用されていないためか、あまり脆弱性が報告されることはありません<small>（<span class="ascii">libc</span>など、ほかの言語の処理系も依存しているようなライブラリーの脆弱性は別として）</small>。<br />
+今回は、そんな中でも<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>というパッケージ</a>について、<a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security">ドキュメントにも書かれている</a>ため<strong>おそらく直ることがないであろう脆弱性</strong>と、その回避方法について紹介します。<br />
+<span class="ascii">hashdos</span>脆弱性自体は結構有名ですし、ドキュメントに書いてあることなので、ご存知の方には何を今更感があるかと思いますが、検索した限りこの問題について日本語で説明した記事は見当たらなかったので、ここで紹介します。</p>
+<h1 id="そもそもunordered-containersって">そもそも<span class="ascii">unordered-containers</span>って？</h1>
+<p>脆弱性の前に<span class="ascii">unordered-containers</span>パッケージについて簡単に紹介しましょう。<br />
+<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>パッケージ</a>は、<span class="ascii">GHC</span>に標準で着いている<a href="https://hackage.haskell.org/package/containers"><span class="ascii">containers</span>パッケージ</a>よりも高速な連想配列（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html"><code>HashMap</code>型</a>）や集合（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html"><code>HashSet</code>型</a>）を提供してくれます。<br />
+<a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>ではなんと<span class="ascii">970</span>ものパッケージに依存されている</a>、超大人気汎用パッケージです。</p>
+<h2 id="どうやって高速化しているの">どうやって高速化しているの？</h2>
+<p><code>HashMap</code>という名前が示しているとおり、キーとなる値のハッシュ値を計算・利用することで高速化しています。<br />
+しかし、<span class="ascii">Java</span>言語などほかの言語によくある<code>HashMap</code>とは大きく異なり、内部ではハッシュテーブルを使用していません。<br />
+<a href="http://itpro.nikkeibp.co.jp/article/COLUMN/20091104/340002/?rt=nocnt">本物のプログラマは<span class="ascii">Haskell</span>を使う <span class="ascii">-</span> 第<span class="ascii">35</span>回　キーを使って値を参照する<span class="ascii">Map</span>型：<span class="ascii">ITpro</span></a>でも説明しているとおり、ハッシュテーブルはミュータブルな配列を内部で使用していることから、イミュータブルなデータ構造を使用して行う関数型プログラミングとは、相性が悪いのです<small>（<code>ST</code>モナドや<code>IO</code>モナドを利用した<a href="https://hackage.haskell.org/package/hashtables"><span class="ascii">hashtables</span>パッケージ</a>などを使えば、限られた範囲内でハッシュテーブルを使うこともできます）</small>。</p>
+<p>ハッシュテーブルを使用しない代わりに、<span class="ascii">unordered-containers</span>では内部で<a href="https://en.wikipedia.org/wiki/Hash_array_mapped_trie"><span class="ascii">Hash array mapped trie</span></a>という特殊な木を使っています。<br />
+どのような構造かは、<a href="http://keens.github.io/slide/HAMT/"><span class="ascii">HAMT ~</span> イミュータブルで高速なハッシュマップ <span class="ascii">~ |</span> κ<span class="ascii">een</span>の<span class="ascii">Happy Hac</span>κ<span class="ascii">ing Blog</span></a>に詳しく書かれています。<br />
+こちらのスライドは<span class="ascii">Scala</span>での実装の話ですが、基本的には<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>も同じはずです。</p>
+<p>大雑把に言うと、<span class="ascii">Hash array mapped trie</span>を使った<code>HashMap</code>では、ハッシュテーブルと同様に、キーとなる値を<strong>ハッシュ関数で一旦固定長の整数に変換する</strong>ことで、キーが存在しているかどうかの確認を高速化しています。そのため、<span class="ascii">containers</span>パッケージよりも高速な処理できるのです。<br />
+<span class="ascii">containers</span>パッケージの<code>Map</code>ではキーの存在を確認する際、キー全体を既存のキーと比較する必要があるため、特に長い文字列をキーとする場合は、処理が遅くなりがちだったのです。</p>
+<h1 id="hashdos脆弱性とは"><span class="ascii">hashdos</span>脆弱性とは？</h1>
+<p><span class="ascii">hashdos</span>脆弱性は<a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html"><span class="ascii">2011</span>年頃<span class="ascii">Ruby</span>や<span class="ascii">PHP</span>、<span class="ascii">Perl</span>など多くのプログラミング言語が影響を受けるとされた</a>、著名な脆弱性です。<br />
+ここでも簡単に仕組みを説明しましょう。</p>
+<p>前節で説明したとおり、<span class="ascii">Hash array mapped trie</span>もハッシュテーブルも、必ずキーを一旦固定長の整数に変換します。<br />
+文字列など、ハッシュ関数を適用されるキーとなる値は、当然固定長の整数よりも幅広い値を取り得るので、違う文字列同士でも、同じハッシュ値をとることがあります。<br />
+この、違う値であるはずのキーが同じハッシュ値をとってしまった状態を「ハッシュ値の衝突」と呼びます。<br />
+ハッシュ値の衝突が発生した場合、ハッシュテーブルや<span class="ascii">Hash array mapped trie</span>といったハッシュ値を利用した連想配列は、（単純な）配列やリストなど、やむを得ず逐次探索が必要なデータ構造を内部で使用しなければならなくなります。</p>
+<p><span class="ascii">hashdos</span>脆弱性はこの性質を利用した<span class="ascii">DoS</span>攻撃です。<br />
+攻撃者は、あらかじめ対象のプログラムで使っているハッシュ関数が、「必ず同じハッシュ値」を返すキー<span class="ascii">(</span>大抵文字列でしょう）を大量に用意して、それを対象のプログラムに入力として与えることで、簡単に<span class="ascii">DoS</span>攻撃を仕掛けることができるのです。<br />
+<a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html">先ほど触れた徳丸先生の記事</a>では、<span class="ascii">PHP</span>のアプリケーションに対してわずか<span class="ascii">500KB</span>の<span class="ascii">form-data</span>を送るだけで<span class="ascii">CPU</span>時間を<span class="ascii">1</span>分も消費させることができたそうですから、その威力はすさまじいものと言えるでしょう。</p>
+<h1 id="なぜ直さないのか">なぜ直さないのか？</h1>
+<p><a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security"><span class="ascii">unordered-containers</span>の<span class="ascii">Developer Guide</span></a>には、次のように書かれています。</p>
+<blockquote>
+<p><span class="ascii">There</span>’<span class="ascii">s an uncomfortable trade-off with regards to security threats posed by e.g. denial of service attacks. Always using more secure hash function, like SipHash, would provide security by default. However, those functions would make the performance of the data structures no better than that of ordered containers, which defeats the purpose of this package.</span></p>
+</blockquote>
+<p>要するに、「セキュリティー上問題はあるけど、<span class="ascii">SipHash</span>のような安全なハッシュ関数を使ったら<span class="ascii">containers</span>パッケージよりも速度が出なかった。それではこのパッケージの意味がない」ということです。<br />
+<span class="ascii">containers</span>パッケージよりも高速な連想配列を作るために<span class="ascii">unordered-containers</span>パッケージを作ったのだから、それより遅くなっては存在価値がなくなってしまうのです。<br />
+従って、ユーザーが任意にキーを入力できるようなプログラムでは、<span class="ascii">unordered-containers</span>ではなく、<span class="ascii">containers</span>を使え、ということです。<br />
+このことは<span class="ascii">unordered-containers</span>が使用している<a href="https://hackage.haskell.org/package/hashable-1.2.6.1/docs/Data-Hashable.html#g:1"><span class="ascii">hashable</span>のドキュメント</a>にも書かれています。ある意味ノーガード戦法ですね。</p>
+<h1 id="回避方法">回避方法</h1>
+<p>前節で触れたとおりですが、<strong>ユーザーが任意にキーを入力できるようなプログラム</strong>では、<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>や<code>HashSet</code>ではなく、<span class="ascii">containers</span>パッケージの<code>Map</code>や<code>Set</code>を使いましょう。<br />
+<span class="ascii">containers</span>パッケージにある<code>Map</code>や<code>Set</code>はハッシュ関数を一切使っていないので、ハッシュ値の衝突も起こらず、内部で逐次探索が必要なデータ構造を使ってもいません。<br />
+なので<span class="ascii">hashdos</span>攻撃に遭うことはないのです。</p>
+<p>ただし、実際のところ、<a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>で<span class="ascii">970</span>ものパッケージに依存されている</a><span class="ascii">unordered-containers</span>です。<br />
+その中には<span class="ascii">JSON</span>のパーサーである<span class="ascii">aeson</span>も含まれているので、もしかしたら現状回避するのは非常に困難なのかもしれません。😱<br />
+次回は、この問題について試しに攻撃用のコードを書いて速度の低下をチェックして報告する話を書くかもしれません…。😰</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2017/advent-calendar-2017.html" style="margin-left: auto;">Haskell Advent Calendar 2017 まとめ</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2017</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
