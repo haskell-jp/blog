@@ -20,7 +20,7 @@ hashdos脆弱性自体は結構有名ですし、ドキュメントに書いて�
 # そもそもunordered-containersって？
 
 脆弱性の前にunordered-containersパッケージについて簡単に紹介しましょう。  
-[unordered-containersパッケージ](https://hackage.haskell.org/package/unordered-containers)は、GHCに標準で着いている[containersパッケージ](https://hackage.haskell.org/package/containers)よりも高速な連想配列（[`HashMap`型](https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html)）や集合（[`HashSet`型](https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html)）を提供してくれます。  
+[unordered-containersパッケージ](https://hackage.haskell.org/package/unordered-containers)は、GHCに標準で付いている[containersパッケージ](https://hackage.haskell.org/package/containers)よりも高速な連想配列（[`HashMap`型](https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html)）や集合（[`HashSet`型](https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html)）を提供してくれます。  
 [StackageのLTS Haskell 10.3ではなんと970ものパッケージに依存されている](https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0)、超大人気汎用パッケージです。
 
 ## どうやって高速化しているの？
@@ -33,7 +33,7 @@ hashdos脆弱性自体は結構有名ですし、ドキュメントに書いて�
 どのような構造かは、[HAMT ~ イミュータブルで高速なハッシュマップ ~ | κeenのHappy Hacκing Blog](http://keens.github.io/slide/HAMT/)に詳しく書かれています。  
 こちらのスライドはScalaでの実装の話ですが、基本的にはunordered-containersパッケージの`HashMap`も同じはずです。
 
-大雑把に言うと、Hash array mapped trieを使った`HashMap`では、ハッシュテーブルと同様に、キーとなる値を**ハッシュ関数で一旦固定長の整数に変換する**ことで、キーが存在しているかどうかの確認を高速化しています。そのため、containersパッケージよりも高速な処理できるのです。  
+大雑把に言うと、Hash array mapped trieを使った`HashMap`では、ハッシュテーブルと同様に、キーとなる値を**ハッシュ関数で一旦固定長の整数に変換する**ことで、キーが存在しているかどうかの確認を高速化しています。そのため、containersパッケージよりも高速な処理ができるのです。  
 containersパッケージの`Map`ではキーの存在を確認する際、キー全体を既存のキーと比較する必要があるため、特に長い文字列をキーとする場合は、処理が遅くなりがちだったのです。
 
 # hashdos脆弱性とは？
