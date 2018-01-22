@@ -134,7 +134,7 @@
 <span class="ascii">hashdos</span>脆弱性自体は結構有名ですし、ドキュメントに書いてあることなので、ご存知の方には何を今更感があるかと思いますが、検索した限りこの問題について日本語で説明した記事は見当たらなかったので、ここで紹介します。</p>
 <h1 id="そもそもunordered-containersって">そもそも<span class="ascii">unordered-containers</span>って？</h1>
 <p>脆弱性の前に<span class="ascii">unordered-containers</span>パッケージについて簡単に紹介しましょう。<br />
-<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>パッケージ</a>は、<span class="ascii">GHC</span>に標準で着いている<a href="https://hackage.haskell.org/package/containers"><span class="ascii">containers</span>パッケージ</a>よりも高速な連想配列（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html"><code>HashMap</code>型</a>）や集合（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html"><code>HashSet</code>型</a>）を提供してくれます。<br />
+<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>パッケージ</a>は、<span class="ascii">GHC</span>に標準で付いている<a href="https://hackage.haskell.org/package/containers"><span class="ascii">containers</span>パッケージ</a>よりも高速な連想配列（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html"><code>HashMap</code>型</a>）や集合（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html"><code>HashSet</code>型</a>）を提供してくれます。<br />
 <a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>ではなんと<span class="ascii">970</span>ものパッケージに依存されている</a>、超大人気汎用パッケージです。</p>
 <h2 id="どうやって高速化しているの">どうやって高速化しているの？</h2>
 <p><code>HashMap</code>という名前が示しているとおり、キーとなる値のハッシュ値を計算・利用することで高速化しています。<br />
@@ -143,7 +143,7 @@
 <p>ハッシュテーブルを使用しない代わりに、<span class="ascii">unordered-containers</span>では内部で<a href="https://en.wikipedia.org/wiki/Hash_array_mapped_trie"><span class="ascii">Hash array mapped trie</span></a>という特殊な木を使っています。<br />
 どのような構造かは、<a href="http://keens.github.io/slide/HAMT/"><span class="ascii">HAMT ~</span> イミュータブルで高速なハッシュマップ <span class="ascii">~ |</span> κ<span class="ascii">een</span>の<span class="ascii">Happy Hac</span>κ<span class="ascii">ing Blog</span></a>に詳しく書かれています。<br />
 こちらのスライドは<span class="ascii">Scala</span>での実装の話ですが、基本的には<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>も同じはずです。</p>
-<p>大雑把に言うと、<span class="ascii">Hash array mapped trie</span>を使った<code>HashMap</code>では、ハッシュテーブルと同様に、キーとなる値を<strong>ハッシュ関数で一旦固定長の整数に変換する</strong>ことで、キーが存在しているかどうかの確認を高速化しています。そのため、<span class="ascii">containers</span>パッケージよりも高速な処理できるのです。<br />
+<p>大雑把に言うと、<span class="ascii">Hash array mapped trie</span>を使った<code>HashMap</code>では、ハッシュテーブルと同様に、キーとなる値を<strong>ハッシュ関数で一旦固定長の整数に変換する</strong>ことで、キーが存在しているかどうかの確認を高速化しています。そのため、<span class="ascii">containers</span>パッケージよりも高速な処理ができるのです。<br />
 <span class="ascii">containers</span>パッケージの<code>Map</code>ではキーの存在を確認する際、キー全体を既存のキーと比較する必要があるため、特に長い文字列をキーとする場合は、処理が遅くなりがちだったのです。</p>
 <h1 id="hashdos脆弱性とは"><span class="ascii">hashdos</span>脆弱性とは？</h1>
 <p><span class="ascii">hashdos</span>脆弱性は<a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html"><span class="ascii">2011</span>年頃<span class="ascii">Ruby</span>や<span class="ascii">PHP</span>、<span class="ascii">Perl</span>など多くのプログラミング言語が影響を受けるとされた</a>、著名な脆弱性です。<br />
