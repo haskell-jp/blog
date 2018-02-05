@@ -10,7 +10,6 @@ dependencies:
   override:
     - stack setup
     - stack install --only-dependencies
-    - npm install circle-github-bot
   <<: *_cache
 
 compile:
@@ -33,4 +32,13 @@ deployment:
   demo:
     branch: /.*/
     commands:
-      - ./artifact-preview.js
+      - |
+        printenv |
+        grep -E '^CIRCLE_|^HOME' |
+        jq -csR 'split("\n")
+          | map (split("=")
+            | select(.[0] != null)
+            | {(.[0]): .[1]})
+            | add' |
+        curl -H 'Content-Type:application/json' -d @- \
+          https://haskell-jp-blog-artifact.herokuapp.com/
