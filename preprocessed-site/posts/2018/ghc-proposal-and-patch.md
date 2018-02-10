@@ -60,7 +60,7 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
     * GitHub上で、[ghc-proposals](https://github.com/ghc-proposals/ghc-proposals)のリポジトリをforkする
     * forkしてきた自分のリポジトリで作業用の分岐を作る
     * proposalsディレクトリの下に、"0000-プロポーザル名.rst"のファイル名で[提案用のファイルを作る](https://github.com/ghc-proposals/ghc-proposals#how-to-start-a-new-proposal) 
-    * "Motivation"などの[必要な項目](https://github.com/ghc-proposals/ghc-proposals#what-should-a-proposal-look-like)を、[reStructuredText](http://www.sphinx-doc.org/en/stable/rest.html)の書式に従い記述する
+    * "Motivation"などの[必要な項目](https://github.com/ghc-proposals/ghc-proposals#what-should-a-proposal-look-like)を、[reStructuredText](http://docs.sphinx-users.jp/rest.html)の書式に従い記述する
 * 提案の送付
     * GitHub上で、ghc-proposalsのリポジトリに、pull requestを送る
     * 確定したpull requestのURLを、提案用のファイルの"This proposal is discussed at this pull request."の箇所に記載してから、再度commitし直す
