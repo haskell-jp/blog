@@ -58,7 +58,7 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 
 * 提案の作成
     * GitHub上で、[ghc-proposals](https://github.com/ghc-proposals/ghc-proposals)のリポジトリをforkする [(例)](https://github.com/takenobu-hs/ghc-proposals)
-    * forkしてきた自分のリポジトリで作業用の分岐を作る [(例)](https://github.com/takenobu-hs/ghc-proposals/tree/numeric-underscores)
+    * forkしてきた自分のリポジトリで作業用のブランチを作る [(例)](https://github.com/takenobu-hs/ghc-proposals/tree/numeric-underscores)
     * proposalsディレクトリの下に、"0000-プロポーザル名.rst"のファイル名で[提案用のファイルを作る](https://github.com/ghc-proposals/ghc-proposals#how-to-start-a-new-proposal) [(例)](https://github.com/takenobu-hs/ghc-proposals/blob/numeric-underscores/proposals/0000-numeric-underscores.rst)
     * "Motivation"などの[必要な項目](https://github.com/ghc-proposals/ghc-proposals#what-should-a-proposal-look-like)を、[reStructuredText](http://docs.sphinx-users.jp/rest.html)の書式に従い記述する [(例)](https://github.com/takenobu-hs/ghc-proposals/blob/numeric-underscores/proposals/0000-numeric-underscores.rst)
 * 提案の送付
@@ -135,9 +135,9 @@ GHCへの変更提案に対するコード修正は、パッチを作成して�
 * パッチの作成
     * GHCのbuild/validate用環境を[整えておく](https://ghc.haskell.org/trac/ghc/wiki/Building/Preparation)
     * GHCのリポジトリを[cloneする](https://ghc.haskell.org/trac/ghc/wiki/Building/GettingTheSources#CloningHEAD)
-    * 事前にmaster分岐上で、[buildできることを確認しておく](https://ghc.haskell.org/trac/ghc/wiki/Building/QuickStart) (master自体がfailしていることがあるため。)
-    * 事前にmaster分岐上で、[validateが正常終了することを確認しておく](https://ghc.haskell.org/trac/ghc/wiki/TestingPatches#Locally) (master自体がfailしていることがあるため。)
-    * 作業用の分岐を作り、コードを修正する
+    * 事前にmasterブランチ上で、[buildできることを確認しておく](https://ghc.haskell.org/trac/ghc/wiki/Building/QuickStart) (master自体がfailしていることがあるため。)
+    * 事前にmasterブランチ上で、[validateが正常終了することを確認しておく](https://ghc.haskell.org/trac/ghc/wiki/TestingPatches#Locally) (master自体がfailしていることがあるため。)
+    * 作業用のブランチを作り、コードを修正する
         * 修正が１つのcommitにまとまっていると、後のarcコマンドでのパッチ送付がラクです。"git merge --squash"でまとめられます。
     * [テストケースを追加する](https://ghc.haskell.org/trac/ghc/wiki/Building/RunningTests/Adding) [(例)](https://phabricator.haskell.org/D4235#change-AHneoV84zpis)
     * 必要に応じて[ユーザーガイド](https://ghc.haskell.org/trac/ghc/wiki/Commentary/UserManual)に変更機能についての説明を追加する [(例)](https://phabricator.haskell.org/D4235#change-0p_6dVtsoCP3)
@@ -153,7 +153,7 @@ GHCへの変更提案に対するコード修正は、パッチを作成して�
         * コード修正後に、修正パッチを送り直すコマンドは"arc diff"。
         * レビュー待ちの間に、masterとconflictを起こした場合は、パッチを送り直すと親切。
         * レビュー待ちの間に、masterとの差分が大きくなった場合は、"git rebase"してから送り直すのも親切。rebaseについては[ここを参照](https://ghc.haskell.org/trac/ghc/wiki/Phabricator#Workingwithmultipledependentdiffs)
-    * レビューが完了してmaster分岐に取り込まれたら、proposalsの"implemented"のフィールドに、実装済みのghcのバージョン番号を記載しておく [(例)](https://github.com/ghc-proposals/ghc-proposals/commit/1974c2a45a782461084ea596ec839638d4ff0743#diff-ffb9f607b8f1e69494a276ae9afa8268)
+    * レビューが完了してmasterブランチに取り込まれたら、proposalsの"implemented"のフィールドに、実装済みのGHCのバージョン番号を記載しておく [(例)](https://github.com/ghc-proposals/ghc-proposals/commit/1974c2a45a782461084ea596ec839638d4ff0743#diff-ffb9f607b8f1e69494a276ae9afa8268)
 
 
 ### パッチ送付の例
@@ -176,7 +176,7 @@ GHCへの変更提案に対するコード修正は、パッチを作成して�
 * わからない点は、ghc-devs MLやPhabricator上で相談するとよいでしょう。
 * Phabricator(arcコマンド)には慣れが必要かと思います。最初は影響範囲の少ない、ドキュメント修正などでPhabricatorの作業手順に慣れていくのも良いです。
 
-パッチ送付は、Phabricatorやgitの機能を用いて行うものです。操作ミスがあったところで、ghcのリポジトリ本体に直ちに反映されるわけではありません。やり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。communityのためになるcontributionは常に歓迎されています。
+パッチ送付は、Phabricatorやgitの機能を用いて行うものです。操作ミスがあったところで、GHCのリポジトリ本体に直ちに反映されるわけではありません。やり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。communityのためになるcontributionは常に歓迎されています。
 
 それでは、パッチ送付プロセスをお楽しみ！
 
