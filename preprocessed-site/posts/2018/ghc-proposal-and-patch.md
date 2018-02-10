@@ -2,7 +2,7 @@
 title: GHCへの変更提案とパッチ送付の手順例
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
-subHeading: ghc-proposals, trac ticket, phabricator, ...
+subHeading: ghc-proposals, Trac ticket, Phabricator, ...
 author: takenbu.hs
 postedBy: takenbu.hs
 date: February 12, 2018
@@ -16,8 +16,8 @@ Haskellのコンパイラの１つであるGHCは、オープンソースソフ�
 
 ここでは、GHCに新しい変更を提案し実装するための、以下の手順例を紹介します。
 
-1. [変更提案](#ch1) (githubのghc-proposals リポジトリ上にて実施)
-2. [パッチ送付](#ch2) (phabricatorのHaskell.org インスタンス上にて実施)
+1. [変更提案](#ch1) (GitHubのghc-proposals リポジトリ上にて実施)
+2. [パッチ送付](#ch2) (PhabricatorのHaskell.org インスタンス上にて実施)
 
 GHCに改善したい点があれば、誰でも変更提案が可能です。
 提案のハードルは案外高いものではありません。GHC開発では、新たなcontributionが歓迎されています。  
@@ -36,7 +36,7 @@ GHCに改善したい点があれば、誰でも変更提案が可能です。
 GHCは、コンパイラ本体やライブラリやツールチェーンなど多くの要素で構成されていますが、ここではコンパイラ本体への変更提案の手順について紹介します。
 
 GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visible)振る舞い](https://github.com/ghc-proposals/ghc-proposals#what-is-a-proposal)等を変更(追加・修正・削除など)するための提案(proposal)手順が定められています。
-事前の調整や権限などを必要とせず、Githubへのpull requestを通じて誰もが提案できます。
+事前の調整や権限などを必要とせず、GitHubへのpull requestを通じて誰もが提案できます。
 
 なお、変更提案(仕様)のプロセスと、修正パッチ送付(実装)のプロセスは、分離されています。必ずしも、変更提案者が実装まで行う必要はありません。
 
@@ -57,12 +57,12 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 提案の流れは、ざくっと以下の通りです。
 
 * 提案の作成
-    * Github上で、[ghc-proposals](https://github.com/ghc-proposals/ghc-proposals)のリポジトリをforkする
+    * GitHub上で、[ghc-proposals](https://github.com/ghc-proposals/ghc-proposals)のリポジトリをforkする
     * forkしてきた自分のリポジトリで作業用の分岐を作る
     * proposalsディレクトリの下に、"0000-プロポーザル名.rst"のファイル名で[提案用のファイルを作る](https://github.com/ghc-proposals/ghc-proposals#how-to-start-a-new-proposal) 
     * "Motivation"などの[必要な項目](https://github.com/ghc-proposals/ghc-proposals#what-should-a-proposal-look-like)を、[reStructuredText](http://www.sphinx-doc.org/en/stable/rest.html)の書式に従い記述する
 * 提案の送付
-    * Github上で、ghc-proposalsのリポジトリに、pull requestを送る
+    * GitHub上で、ghc-proposalsのリポジトリに、pull requestを送る
     * 確定したpull requestのURLを、提案用のファイルの"This proposal is discussed at this pull request."の箇所に記載してから、再度commitし直す
     * pull requestの Conversationのところに、"Rendered"という文字で提案ファイルへのリンクを貼っておく
 * 提案についての議論
@@ -72,7 +72,7 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 * 提案の判断
     * 議論が収束したら、GHC Steering Committee へ、[判断依頼](https://github.com/ghc-proposals/ghc-proposals#how-to-bring-a-proposal-before-the-committee)をかける [(例)](https://github.com/ghc-proposals/ghc-proposals/pull/76#issuecomment-339952996)
     * GHC Steering CommitteeがAccepted/Rejectedを判断する
-    * [Accepted](https://github.com/ghc-proposals/ghc-proposals/pull/76#event-1341434473)なら、tracへticketを登録する [(例)](https://ghc.haskell.org/trac/ghc/ticket/14473)
+    * [Accepted](https://github.com/ghc-proposals/ghc-proposals/pull/76#event-1341434473)なら、Tracへticketを登録する [(例)](https://ghc.haskell.org/trac/ghc/ticket/14473)
     * 次は、コード修正パッチの作成・送付フェーズへ
 
 
@@ -97,7 +97,7 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 * 英語の精度を必要以上に気にする必要はない
   日本語でしっかり考える。あとは短い文に区切って、Google翻訳にでも。
 
-提案プロセスはGithub上で行うものです。操作ミスがあったところでやり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。  
+提案プロセスはGitHub上で行うものです。操作ミスがあったところでやり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。  
 また、多くの提案はAcceptedに至らないこともあるので、結果を恥ずかしがる必要もありません。提案の結果に関わらず、提案とその議論自体が、他の開発者に新たな観点や気づき・刺激を提供できます。
 
 それでは、提案プロセスをお楽しみ！
@@ -113,7 +113,7 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 GHCへの変更提案に対するコード修正は、パッチを作成して送付することにより行われます。
 ここでは、コード開発ツールであるPhabricatorのdifferential機能を用いる、標準的なパッチ送付の手順について紹介します。
 
-なお、修正パッチはGithubのpull requestを通じても送付できますが、後のコードレビューのフェーズを考慮すると、Phabricatorを用いるこの手順が効率的です。
+なお、修正パッチはGitHubのpull requestを通じても送付できますが、後のコードレビューのフェーズを考慮すると、Phabricatorを用いるこの手順が効率的です。
 
 
 ### パッチ送付の正確な手続き
@@ -147,7 +147,7 @@ GHCへの変更提案に対するコード修正は、パッチを作成して�
     * Phabricator用のコマンドラインツール[Arcanistをインストールする](https://ghc.haskell.org/trac/ghc/wiki/Phabricator#TheCLI:Arcanist) ([arcanistツールの説明](https://secure.phabricator.com/book/phabricator/article/arcanist/))
     * [Phabricatorにパッチを送付する](https://ghc.haskell.org/trac/ghc/wiki/Phabricator#Startingoff:Fixingabugsubmittingareview) 
         * 具体的なコマンドは"arc diff HEAD~"。 最後のcommitが送信される。
-    * tracのticketの、"Differential Rev"の箇所にPhabの管理番号を書いておく [(例)](https://ghc.haskell.org/trac/ghc/ticket/14473)
+    * Tracのticketの、"Differential Rev"の箇所にPhabの管理番号を書いておく [(例)](https://ghc.haskell.org/trac/ghc/ticket/14473)
     * Phabricator上で、コードレビューしてもらう（待つ、議論する）
     * 必要に応じてコードを修正する
         * コード修正後に、修正パッチを送り直すコマンドは"arc diff"。
