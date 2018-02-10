@@ -54,25 +54,25 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 
 ### 変更提案のおおまかな流れ
 
-提案の流れは、ざくっと以下の通りです。
+[提案の流れ](https://github.com/ghc-proposals/ghc-proposals#what-is-the-timeline-of-a-proposal)は、ざくっと以下の通りです。
 
 * 提案の作成
-    * GitHub上で、[ghc-proposals](https://github.com/ghc-proposals/ghc-proposals)のリポジトリをforkする
-    * forkしてきた自分のリポジトリで作業用の分岐を作る
-    * proposalsディレクトリの下に、"0000-プロポーザル名.rst"のファイル名で[提案用のファイルを作る](https://github.com/ghc-proposals/ghc-proposals#how-to-start-a-new-proposal) 
-    * "Motivation"などの[必要な項目](https://github.com/ghc-proposals/ghc-proposals#what-should-a-proposal-look-like)を、[reStructuredText](http://docs.sphinx-users.jp/rest.html)の書式に従い記述する
+    * GitHub上で、[ghc-proposals](https://github.com/ghc-proposals/ghc-proposals)のリポジトリをforkする [(例)](https://github.com/takenobu-hs/ghc-proposals)
+    * forkしてきた自分のリポジトリで作業用の分岐を作る [(例)](https://github.com/takenobu-hs/ghc-proposals/tree/numeric-underscores)
+    * proposalsディレクトリの下に、"0000-プロポーザル名.rst"のファイル名で[提案用のファイルを作る](https://github.com/ghc-proposals/ghc-proposals#how-to-start-a-new-proposal) [(例)](https://github.com/takenobu-hs/ghc-proposals/blob/numeric-underscores/proposals/0000-numeric-underscores.rst)
+    * "Motivation"などの[必要な項目](https://github.com/ghc-proposals/ghc-proposals#what-should-a-proposal-look-like)を、[reStructuredText](http://docs.sphinx-users.jp/rest.html)の書式に従い記述する [(例)](https://github.com/takenobu-hs/ghc-proposals/blob/numeric-underscores/proposals/0000-numeric-underscores.rst)
 * 提案の送付
-    * GitHub上で、ghc-proposalsのリポジトリに、pull requestを送る
-    * 確定したpull requestのURLを、提案用のファイルの"This proposal is discussed at this pull request."の箇所に記載してから、再度commitし直す
-    * pull requestの Conversationのところに、"Rendered"という文字で提案ファイルへのリンクを貼っておく
+    * GitHub上で、ghc-proposalsのリポジトリに、pull requestを送る [(例)](https://github.com/ghc-proposals/ghc-proposals/pull/76)
+    * 確定したpull requestのURLを、提案用のファイルの"This proposal is discussed at this pull request."の箇所に記載してから、再度commitし直す [(例)](https://github.com/takenobu-hs/ghc-proposals/commit/61149ee277aadc6bd46e0ad35aeb529f02da1182#diff-1128b179eb6630a402469b59a8a7dce6)
+    * pull requestの Conversationのところに、"Rendered"という文字で提案ファイルへのリンクを貼っておく [(例)](https://github.com/ghc-proposals/ghc-proposals/pull/76#issue-261822915)
 * 提案についての議論
     * pull request上で、[議論する](https://github.com/ghc-proposals/ghc-proposals#discussion-goals) [(例)](https://github.com/ghc-proposals/ghc-proposals/pull/76)
     * フィードバックがあれば、提案ファイルを修正する
     * 議論期間を充分に(一ヶ月くらいは)設ける
 * 提案の判断
-    * 議論が収束したら、GHC Steering Committee へ、[判断依頼](https://github.com/ghc-proposals/ghc-proposals#how-to-bring-a-proposal-before-the-committee)をかける [(例)](https://github.com/ghc-proposals/ghc-proposals/pull/76#issuecomment-339952996)
-    * GHC Steering CommitteeがAccepted/Rejectedを判断する
-    * [Accepted](https://github.com/ghc-proposals/ghc-proposals/pull/76#event-1341434473)なら、Tracへticketを登録する [(例)](https://ghc.haskell.org/trac/ghc/ticket/14473)
+    * 議論が収束したら、[GHC Steering Committee](https://github.com/ghc-proposals/ghc-proposals#who-is-the-committee) へ、[判断依頼](https://github.com/ghc-proposals/ghc-proposals#how-to-bring-a-proposal-before-the-committee)をかける [(例)](https://github.com/ghc-proposals/ghc-proposals/pull/76#issuecomment-339952996)
+    * GHC Steering CommitteeがAccepted/Rejectedを判断する [(例)](https://github.com/ghc-proposals/ghc-proposals/pull/76#event-1341434473)
+    * Acceptedなら、Tracで[ticketを登録](https://ghc.haskell.org/trac/ghc/newticket?type=task)する [(例)](https://ghc.haskell.org/trac/ghc/ticket/14473)
     * 次は、コード修正パッチの作成・送付フェーズへ
 
 
@@ -145,7 +145,7 @@ GHCへの変更提案に対するコード修正は、パッチを作成して�
     * 修正コードにてvalidateが正常終了することを確認しておく(必ず行う)
 * パッチの送付
     * Phabricator用のコマンドラインツール[Arcanistをインストールする](https://ghc.haskell.org/trac/ghc/wiki/Phabricator#TheCLI:Arcanist) ([arcanistツールの説明](https://secure.phabricator.com/book/phabricator/article/arcanist/))
-    * [Phabricatorにパッチを送付する](https://ghc.haskell.org/trac/ghc/wiki/Phabricator#Startingoff:Fixingabugsubmittingareview) 
+    * [Phabricatorにパッチを送付する](https://ghc.haskell.org/trac/ghc/wiki/Phabricator#Startingoff:Fixingabugsubmittingareview) [(例)](https://phabricator.haskell.org/D4235)
         * 具体的なコマンドは"arc diff HEAD~"。 最後のcommitが送信される。
     * Tracのticketの、"Differential Rev"の箇所にPhabの管理番号を書いておく [(例)](https://ghc.haskell.org/trac/ghc/ticket/14473)
     * Phabricator上で、コードレビューしてもらう（待つ、議論する）
@@ -153,7 +153,7 @@ GHCへの変更提案に対するコード修正は、パッチを作成して�
         * コード修正後に、修正パッチを送り直すコマンドは"arc diff"。
         * レビュー待ちの間に、masterとconflictを起こした場合は、パッチを送り直すと親切。
         * レビュー待ちの間に、masterとの差分が大きくなった場合は、"git rebase"してから送り直すのも親切。rebaseについては[ここを参照](https://ghc.haskell.org/trac/ghc/wiki/Phabricator#Workingwithmultipledependentdiffs)
-    * レビューが完了してmaster分岐に取り込まれたら、proposalsの"implemented"のフィールドに、実装済みのghcのバージョン番号を記載しておく [(例)](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0009-numeric-underscores.rst)
+    * レビューが完了してmaster分岐に取り込まれたら、proposalsの"implemented"のフィールドに、実装済みのghcのバージョン番号を記載しておく [(例)](https://github.com/ghc-proposals/ghc-proposals/commit/1974c2a45a782461084ea596ec839638d4ff0743#diff-ffb9f607b8f1e69494a276ae9afa8268)
 
 
 ### パッチ送付の例
