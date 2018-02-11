@@ -5,7 +5,7 @@ headingDivClass: post-heading
 subHeading: ghc-proposals, Trac ticket, Phabricator, ...
 author: takenbu.hs
 postedBy: takenbu.hs
-date: February 12, 2018
+date: February 11, 2018
 ...
 ---
 
