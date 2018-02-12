@@ -80,7 +80,7 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 
 数値リテラルの構文を変更する場合の、具体的な変更提案の例を紹介します。
 
-* [変更提案の初版](https://github.com/takenobu-hs/ghc-proposals/blob/numeric-underscores/proposals/0000-numeric-underscores.rst) | [最終的な変更提案](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0009-numeric-underscores.rst)
+* [変更提案の初版](https://github.com/takenobu-hs/ghc-proposals/blob/0a694636560ca37d9b76e56bddc43c6bf1c9348a/proposals/0000-numeric-underscores.rst) | [最終的な変更提案](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0009-numeric-underscores.rst)
 * [議論フェーズの例](https://github.com/ghc-proposals/ghc-proposals/pull/76)
 
 その他の提案の例は以下にたくさんあります。
@@ -94,8 +94,7 @@ GHCのコンパイラ本体の開発では、[ユーザーに見える(user-visi
 * 他の良い提案が参考になります (同じ種類の提案や議論がうまく進んでいる提案などから、色々な観点を学べます。)
 * 数カ月単位で気長に根気よくやる(開発者は全員がボランティアで忙しい。)
 * 提案してよいか迷う場合は、事前に[ghc-devsのML(メーリングリスト)](https://mail.haskell.org/cgi-bin/mailman/listinfo/ghc-devs)などで相談してもよい
-* 英語の精度を必要以上に気にする必要はない
-  日本語でしっかり考える。あとは短い文に区切って、Google翻訳にでも。
+* 英語の精度を必要以上に気にする必要はない。日本語でしっかり考える。あとは短い文に区切って、Google翻訳にでも。
 
 提案プロセスはGitHub上で行うものです。操作ミスがあったところでやり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。  
 また、多くの提案はAcceptedに至らないこともあるので、結果を恥ずかしがる必要もありません。提案の結果に関わらず、提案とその議論自体が、他の開発者に新たな観点や気づき・刺激を提供できます。
