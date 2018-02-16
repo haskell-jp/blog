@@ -19,7 +19,7 @@ Haskell-jp Blogの寄稿に興味を持っていただいてありがとうご�
 
 Haskell-jp Blogでは、「Haskellについて、こんなことを知りたい！」という記事のテーマも常に募集しています！   
 すでに知りたいテーマが[こちら](https://github.com/haskell-jp/blog/issues?q=is%3Aopen+is%3Aissue+label%3A%22Topic+Request%22)に登録されていた場合、 :+1: を押して支援するのもいいでしょう！  
-詳細は[CONTRIBUTING.mdのこちらのセクション](https://github.com/haskell-jp/blog/issues?q=is%3Aopen+is%3Aissue+label%3A%22Topic+Request%22)をご覧ください。
+詳細は[CONTRIBUTING.mdのこちらのセクション](CONTRIBUTING.md#%E8%A8%98%E4%BA%8B%E3%81%AB%E3%81%97%E3%81%A6%E6%AC%B2%E3%81%97%E3%81%84%E5%86%85%E5%AE%B9%E3%82%92%E6%8F%90%E6%A1%88%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95%E3%81%A8%E6%B3%A8%E6%84%8F%E7%82%B9)をご覧ください。
 
 # 記事の内容などについて、問題を報告したい場合
 
