@@ -24,7 +24,7 @@ Haskell-jp Blogでは、設立当初よりHaskellに関する記事を幅広く�
 
 ## ネタを提案してくれる場合
 
-[このblogのリポジトリのIssue](https://github.com/haskell-jp/blog/issues/new?template=topic-request.md&labels=Topic+Request)からお願いします。
+[このBlogのリポジトリのIssue](https://github.com/haskell-jp/blog/issues/new?template=topic-request.md&labels=Topic+Request)からお願いします。
 既に提案されていたら、そのIssueに対して 👍 するといいと思います。
 
 ## 書いてもいいよって場合
