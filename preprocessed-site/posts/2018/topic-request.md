@@ -6,7 +6,7 @@ subHeading:
 author: Haskell-jp
 tags: Haskell-jp
 postedBy: Haskell-jp
-date: February 17, 2018
+date: February 18, 2018
 ...
 ---
 
