@@ -1,5 +1,7 @@
 flags: {}
 packages:
 - '.'
-extra-deps: []
-resolver: lts-8.5
+extra-deps:
+- hakyll-4.11.0.0
+- pandoc-citeproc-0.13.0.1
+resolver: lts-10.9
