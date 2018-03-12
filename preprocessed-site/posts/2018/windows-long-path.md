@@ -1,5 +1,5 @@
 ---
-title: WindowsでHaskellを扱う時によく遭遇するdoes not exist (No such file or directory)について
+title: WindowsでHaskellを扱う時によく遭遇するNo such file or directoryについて
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: 短いパスにしよう
@@ -34,16 +34,16 @@ Building test suite 'a-little-longer-name-project-test' for a-little-longer-name
 
 どういうことかと悩んでいたところ、[こんなIssue](https://github.com/commercialhaskell/stack/issues/3649)を見つけました。  
 [Snoymanの指摘](https://github.com/commercialhaskell/stack/issues/3649#issuecomment-351612621)のとおり、こちらの問題はWindowsで使えるパスの長さが原因のエラーのようです。  
-どういうこというと、[MSDNのこちらのページ](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%20\(v=vs.85\)#maxpath)でも触れていとおり、Windowsの（C言語レベルでの）各種ファイル操作用APIでは、一度に扱えるパスの長さが260文字までと決められていて、その制限にかかったためのエラーだというのです！  
+どういうことかというと、[MSDNのこちらのページ](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%20\(v=vs.85\)#maxpath)でも触れているとおり、Windowsの（C言語レベルでの）各種ファイル操作用APIでは、一度に扱えるパスの長さが260文字までと決められていて、その制限にかかったためのエラーだというのです！  
 `does not exist (No such file or directory)`なんてエラーメッセージで表されるのでわかりづらい！<small>（おそらくWindowsのエラーコードの出し方に問題があるんじゃないかと思います）</small>
 
 DOS時代から残るこの制限、完全に時代錯誤なものでしかないのですが、Windowsでパッケージマネージャーなどが自動的に作ったパスを扱っていると、しばしば出くわすことがあります。  
-stackにおいても、[こちらのIssue](https://github.com/commercialhaskell/stack/issues/3285)同じ問題が議論されていたり、[ver. 1.6.5のChangeLog](https://github.com/commercialhaskell/stack/releases/tag/v1.6.5)でも言及されていたりと、至る所で格闘している跡があります。
+stackにおいても、[こちらのIssue](https://github.com/commercialhaskell/stack/issues/3285)で同じ問題が議論されていたり、[ver. 1.6.5のChangeLog](https://github.com/commercialhaskell/stack/releases/tag/v1.6.5)でも言及されていたりと、至る所で格闘している跡があります。
 
 ## 回避方法
 
 そんな`does not exist (No such file or directory)`ですが、残念ながら私が知る限り、プロジェクトなどのパスを（`C:\`などのよりルートに近い場所に置いて）より短くする以外の回避方法はありません。  
-[haskell-ide-engineのインストール方法のページ](https://github.com/haskell/haskell-ide-engine#installation-on-windows)曰く、（新しめの）Windows 10であれば、グループポリシーを編集して、「Win32の長いパスを有効にする」を「有効」にすれば回避できるとのことですが、残念ながら手元で試した限りはうまくいきませんでした。何かやり方がまずかったのかもしれませんが。  
+[haskell-ide-engineのインストール方法のページ](https://github.com/haskell/haskell-ide-engine#installation-on-windows)曰く、（新しめの）Windows 10であれば、グループポリシーを編集して、「Win32の長いパスを有効にする」を「有効」にすれば回避できるとのことですが、残念ながら手元で試した限りうまくいきませんでした。何かやり方がまずかったのかもしれませんが。  
 いずれにしても、`stack build`コマンドなどを実行したときに問題のエラーに遭遇した場合、ビルドしたいもののパスをなんとかして短くする以上の方法はありません。  
 `C:\`直下をホームディレクトリのように使う人が今でもたくさんいるわけです。
 
@@ -57,13 +57,13 @@ stackにおいても、[こちらのIssue](https://github.com/commercialhaskell/
 残念ながらカレントディレクトリーはプロセス全体で共有される情報ですので、マルチスレッドなプログラムでは頭の痛い問題が出てきてしまいますが、一番確実に回避できる方法のはずです。  
 マルチスレッドである場合を考慮したくない場合は、次に紹介する方法を検討するとよいでしょう。
 
-### Win32 APIのユニコード版の関数に、`\\\\?\\`というプレフィックスを着けた絶対パスを渡す。
+### Win32 APIのユニコード版の関数に、`\\?\`というプレフィックスを着けた絶対パスを渡す。
 
 ここまでに出てきた、「Windowsの各種ファイル操作用API」は、すべて「Win32 API」と呼ばれるWindows固有のAPI群の一部です。  
 この「Win32 API」に含まれる関数の多くは、「ユニコード版」とそうでないものに分かれます<small>（詳細は[Conventions for Function Prototypes (Windows)](https://msdn.microsoft.com/ja-jp/library/windows/desktop/dd317766\(v=vs.85\).aspx)をご覧ください）</small>。
 
 このうち、「ユニコード版」のAPIには、この制限を緩和する専用の機能が含まれています。  
-先ほども触れた[MSDNのページ](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%20\(v=vs.85\)#maxpath)曰く、なんと`\\\\?\\`という変な文字列を絶対パスの頭に着けると、最大約32,767文字のパスまで受け付けるようになるというのです！  
+先ほども触れた[MSDNのページ](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%20\(v=vs.85\)#maxpath)曰く、なんと`\\?\`という変な文字列を絶対パスの頭に着けると、最大約32,767文字のパスまで受け付けるようになるというのです！  
 なんともアドホックな感じのする解決方法ですが、Microsoftが言うんだから間違いありません。  
 いずれにしても32,767文字という微妙な最大文字数ができてしまいますが、UTF-16での32,767文字なので、そう簡単に超えることはないでしょう。  
 いちいち絶対パスに変えて変なプレフィックスを加えないといけないという面倒くささはありますが、いちいち分割して相対パスに変換するよりは簡単なはずですし、検討する価値があるでしょう。
