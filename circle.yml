@@ -8,6 +8,7 @@ _cache: &_cache
 
 dependencies:
   override:
+    - stack upgrade
     - stack setup
     - stack install --only-dependencies
   <<: *_cache
