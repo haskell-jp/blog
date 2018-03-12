@@ -47,12 +47,12 @@ stackにおいても、[こちらのIssue](https://github.com/commercialhaskell/
 いずれにしても、`stack build`コマンドなどを実行したときに問題のエラーに遭遇した場合、ビルドしたいもののパスをなんとかして短くする以上の方法はありません。  
 `C:\`直下をホームディレクトリのように使う人が今でもたくさんいるわけです。
 
-一方、あなたが問題のエラーが発生するプログラムを**修正する**ことができる立場にある場合、次の方法で回避できるかもしれません（申し訳なくもいずれも手元では試しておりません。あしからず）。
+一方、あなたが問題のエラーが発生するプログラムを**修正する**ことができる立場にある場合、次の方法で回避できるかもしれません。
 
 ### 長いパスをより短くするために、カレントディレクトリーを変更して、相対パスを短くする。
 
 本件はあくまでも、Windowsの各種ファイル操作用APIの1回の呼び出しで渡せる長さの制限ですので、制限を超えてしまうような場合はパスを分割すればよいのです。  
-[filepathパッケージの`splitFileName`関数](https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitFileName)や[`splitPath`関数](https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitPath)を駆使してパスを分割した上で、対象のファイルの親ディレクトリーまで[directoryパッケージの`setCurrentDirectory`関数](https://hackage.haskell.org/package/directory-1.3.2.1/docs/System-Directory.html#v:setCurrentDirectory)で移動すれば、制限に引っかからないはずです。
+[filepathパッケージの`splitFileName`関数](https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitFileName)や[`splitPath`関数](https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitPath)を駆使してパスを分割した上で、対象のファイルの親ディレクトリーまで[directoryパッケージの`setCurrentDirectory`関数](https://hackage.haskell.org/package/directory-1.3.2.1/docs/System-Directory.html#v:setCurrentDirectory)で移動すれば、制限に引っかからないはずです<small>（時間の都合でこちらについては試すコードを用意しておりません。あしからず）</small>。
 
 残念ながらカレントディレクトリーはプロセス全体で共有される情報ですので、マルチスレッドなプログラムでは頭の痛い問題が出てきてしまいますが、一番確実に回避できる方法のはずです。  
 マルチスレッドである場合を考慮したくない場合は、次に紹介する方法を検討するとよいでしょう。
@@ -66,11 +66,41 @@ stackにおいても、[こちらのIssue](https://github.com/commercialhaskell/
 先ほども触れた[MSDNのページ](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%20\(v=vs.85\)#maxpath)曰く、なんと`\\?\`という変な文字列を絶対パスの頭に着けると、最大約32,767文字のパスまで受け付けるようになるというのです！  
 なんともアドホックな感じのする解決方法ですが、Microsoftが言うんだから間違いありません。  
 いずれにしても32,767文字という微妙な最大文字数ができてしまいますが、UTF-16での32,767文字なので、そう簡単に超えることはないでしょう。  
-いちいち絶対パスに変えて変なプレフィックスを加えないといけないという面倒くささはありますが、いちいち分割して相対パスに変換するよりは簡単なはずですし、検討する価値があるでしょう。
+いちいち絶対パスに変えて変なプレフィックスを加えないといけないという面倒くささはありますが、いちいち分割して相対パスに変換するよりは簡単なはずですので、検討する価値があります。
+
+この、`\\?\`機能を試す場合、下記のコードを適当なファイルに貼り付けて保存し、`stack runghc file.hs`などと実行してみてください (Thanks, @matsubara0507!)。  
+`catch`関数を使って例外を捕捉している箇所では、実際にパスが長すぎるためにエラーが発生し、`catch`されているはずです。
+
+```haskell
+import           Control.Exception (catch, IOException)
+import           Data.List        (replicate)
+import           System.Directory
+
+main :: IO ()
+main = do
+  crDir <- getCurrentDirectory
+  let
+    path1 = mconcat $ replicate 20 "abcdefgh/" -- ok
+    path2 = mconcat $ replicate 30 "abcdefgh/" -- error
+    path3 = crDir ++ "/" ++ path2 -- error
+    path4 = "\\\\?\\" ++ path3 -- ok
+
+  putStrLn $ "path1: " ++ show path1
+  createDirectoryIfMissing True path1
+
+  putStrLn $ "path2: " ++ show path2
+  createDirectoryIfMissing True path2 `catch` (\e -> putStrLn $ "  " ++ show (e :: IOException))
+
+  putStrLn $ "path3: " ++ show path3
+  createDirectoryIfMissing True path3 `catch` (\e -> putStrLn $ "  " ++ show (e :: IOException))
+
+  putStrLn $ "path4: " ++ show path4
+  createDirectoryIfMissing True path4
+```
 
 # おわりに
 
-さて、またしてもWindows固有の面倒な問題を紹介することとなってしまいましたが、俗世の喜び（主にゲーム）と簡単にインストールできるGUIに慣らされてしまった私は、今後もWindowsを使い続けるでしょう。  
+さて、またしてもWindows固有の面倒な問題を紹介することとなってしまいましたが、俗世の喜び（主にゲーム）と簡単にインストールできるGUIに慣らされてしまった私は、今後もWindowsを使い続けるつもりです。  
 いろいろ困難は尽きませんがこれからもWindowsでHappy Haskell Lifeを！🏁🏁🏁
 
 # 参考URL
