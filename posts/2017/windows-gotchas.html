@@ -137,7 +137,7 @@
 <p lang="ja" dir="ltr">
 学んだことをまとめると<br><span class="ascii">- Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう<br><span class="ascii">- Permission Denied</span>と言われたらビルドし直そう<br><span class="ascii">-</span> 日本語のパスが混ざらないよう気をつけよう<br><span class="ascii">- C</span>のライブラリーはものによる<br>ですか。多分 <a href="https://twitter.com/hashtag/haskell?src=hash&amp;ref_src=twsrc%5Etfw"><span class="ascii">#haskell</span></a> 以外でも有益な話。
 </p>
-— <span class="ascii">Yuji Yamamoto:</span> 山本悠滋 <span class="ascii">(</span><span class="citation"><span class="ascii">@igrep</span></span><span class="ascii">)</span> <a href="https://twitter.com/igrep/status/938056578934042626?ref_src=twsrc%5Etfw"><span class="ascii">2017</span>年<span class="ascii">12</span>月<span class="ascii">5</span>日</a>
+— <span class="ascii">Yuji Yamamoto:</span> 山本悠滋 <span class="ascii">(</span><span class="citation" data-cites="igrep"><span class="ascii">@igrep</span></span><span class="ascii">)</span> <a href="https://twitter.com/igrep/status/938056578934042626?ref_src=twsrc%5Etfw"><span class="ascii">2017</span>年<span class="ascii">12</span>月<span class="ascii">5</span>日</a>
 </blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <h1 id="invalid-characterと言われたらchcp-65001しよう"><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</h1>
@@ -172,33 +172,33 @@
 私と同じような方は下記のようにフルパスで実行しましょう。</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
 <h3 id="それでもダメな場合あるいはライブラリーや開発者として出くわした場合">それでもダメな場合、あるいはライブラリーや開発者として出くわした場合</h3>
-<p>残念ながら、<code>chcp 65001</code>してもこのエラーが消えないことはあります<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>。<br />
+<p>残念ながら、<code>chcp 65001</code>してもこのエラーが消えないことはあります<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
 私の推測なんですが、どうも<code>chcp 65001</code>は<code>chcp 65001</code>したコマンドプロンプト（とか<span class="ascii">bash</span>）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。</p>
 <p>そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。<br />
 バグ報告する場合は、「<code>chcp 932</code>してから実行してみて」とお願いすると、バグ報告を受けた開発者も再現しやすくて助かるかも知れません（残念ながら私はやったことがありません）。<br />
 自分で直す場合、いろいろ方法はありますが、対象の<code>Handle</code>オブジェクトの文字コードを変えることで対処するのが、一番直接的で確実でしょう。</p>
 <p>この問題は<code>Handle</code>に設定された文字コードと実際にやりとりされる文字列の文字コードに食い違いが発生しているため起こるものなのですから、適切な文字コードに変えてしまえばいいのです。<br />
 状況にもよりますがエラーが起きた<code>Handle</code>が普通の<span class="ascii">UTF-8</span>なファイルを読み書きするものである場合、下記のようにすれば、問題は回避できるはずです。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">System.IO</span> (hSetEncoding)
-<span class="kw">import </span><span class="dt">GHC.IO.Encoding</span> (utf8)
-
-hSetEncoding handle utf8</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">hSetEncoding handle utf8</a></code></pre></div>
 <p>それから、<a href="https://github.com/haskell/haddock/pull/566">実際に私が<span class="ascii">haddock</span>のバグを直した時</a>を例に標準出力（または標準エラー出力）でこのエラーが発生した時の対応も紹介しておきます。<br />
 コードだけ貼り付けると、下記のようにすれば少なくともエラーが起こらないようにすることはできます（<a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">このコミット</a>とほぼ同じ内容です）。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE CPP #-}</span>
-
-<span class="kw">import </span><span class="dt">System.IO</span> (hSetEncoding, stdout)
-
-<span class="ot">#if defined(mingw32_HOST_OS)</span>
-<span class="kw">import </span><span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)
-<span class="kw">import </span><span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))
-<span class="ot">#endif</span>
-
-<span class="fu">...</span>
-
-<span class="ot">#if defined(mingw32_HOST_OS)</span>
-  liftIO <span class="fu">$</span> hSetEncoding stdout <span class="fu">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span>
-<span class="ot">#endif</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="ot">#if defined(mingw32_HOST_OS)</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="ot">#endif</span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="fu">...</span></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="ot">#if defined(mingw32_HOST_OS)</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13">  liftIO <span class="fu">$</span> hSetEncoding stdout <span class="fu">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="ot">#endif</span></a></code></pre></div>
 <p><span class="ascii">Windows</span>でしか使用できないモジュールを<code>import</code>している関係上、<span class="ascii">CPP</span>のマクロが混ざって読みにくいですが、重要な部分だけ切り出すと、</p>
 <pre><code>hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure</code></pre>
 <p>とすればよいのです。</p>
@@ -237,13 +237,13 @@ hSetEncoding handle utf8</code></pre></div>
 </ul>
 <p>以上です！<br />
 それでは<span class="ascii">2018</span>年も<span class="ascii">Haskell on Windows 10</span>で<span class="ascii">Happy Hacking!! WSL</span>なんて知らないぜ！🏁🏁🏁</p>
-<div class="footnotes">
+<section class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p>敢えて脚注に書きますが、<a href="http://eta-lang.org/"><span class="ascii">Eta</span></a>のコンパイラーをビルドしている時（のはず）、<code>chcp 65001</code>でもダメで<code>chcp 20127</code>ならうまくいったことがあります。<br />
-<code>chcp 20127</code>は<span class="ascii">US-ASCII</span>に切り替えるためのコマンドですが、やっぱり<span class="ascii">Eta</span>の開発者の手元（？）ではそうなっているからなのでしょうか…？<a href="#fnref1">↩</a></p></li>
+<code>chcp 20127</code>は<span class="ascii">US-ASCII</span>に切り替えるためのコマンドですが、やっぱり<span class="ascii">Eta</span>の開発者の手元（？）ではそうなっているからなのでしょうか…？<a href="#fnref1" class="footnote-back">↩</a></p></li>
 </ol>
-</div>
+</section>
             </div>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">

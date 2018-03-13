@@ -166,12 +166,12 @@
 <a href="http://the.igreque.info"><span class="ascii">igreque : Info</span></a> <span class="ascii">by Yuji Yamamoto</span>
 </li>
 <li id="www.sampou.org" class="hash-target">
-<a href="http://www.sampou.org"><span class="ascii">{</span>算法<span class="ascii">|</span>算譜<span class="ascii">}.ORG</span></a> <span class="ascii">by Nobuo Yamashita (</span><span class="citation"><span class="ascii">@nobsun</span></span><span class="ascii">)</span>
+<a href="http://www.sampou.org"><span class="ascii">{</span>算法<span class="ascii">|</span>算譜<span class="ascii">}.ORG</span></a> <span class="ascii">by Nobuo Yamashita (</span><span class="citation" data-cites="nobsun"><span class="ascii">@nobsun</span></span><span class="ascii">)</span>
 </li>
 </ul>
 <h1 id="howToGetSupport">この一覧への登録方法</h1>
 <p>登録条件<span class="ascii">:</span> 広い意味でプログラミング言語<span class="ascii">Haskell</span>に関連したことが書いてある<span class="ascii">Web</span>サイトであること。</p>
-<ol style="list-style-type: decimal">
+<ol type="1">
 <li><a href="https://github.com/haskell-jp/blog/issues/new?title=相互リンク作成依頼：（あなたのWebサイトの名前）&amp;body=（一行目にあなたのWebサイトのURLを書いてください。）%0D%0A%0D%0A運営者の氏名（ハンドルネーム可）:%20（必須ではありません）%0D%0A%0D%0A（何かあればここに一言コメントをこちらに。）">こちらのリポジトリーで<span class="ascii">Issue</span>を作成</a>してください。</li>
 <li>担当者が承認すると同時に、必要な<span class="ascii">HTML</span>のスニペットを提示するので、それをあなたのサイトに張り付けてください！
 <ul>
@@ -181,13 +181,10 @@
 </ol>
 <h2 id="承認する担当者へ">承認する担当者へ</h2>
 <p><span class="ascii">TODO:</span> 承認を自動化するツールを作る。</p>
-<ol style="list-style-type: decimal">
-<li><p>対象の<span class="ascii">Web</span>サイトを承認する場合は、承認する旨を伝えるとともに、下記のスニペットをコピペして、<code>(siteId)</code>と書かれた箇所を「追加する<span class="ascii">Web</span>サイトの<span class="ascii">URL</span>からスキーム<span class="ascii">(</span><code>http://</code>や<code>https://</code>の部分<span class="ascii">)</span>を取り除いたもの」で置き換え、対象の<span class="ascii">Web</span>サイトに貼り付けてもらうよう<span class="ascii">Issue</span>のコメントで依頼しましょう。</p>
-<div class="sourceCode"><pre class="sourceCode html"><code class="sourceCode html">    ```html
-    <span class="kw">&lt;a</span><span class="ot"> href=</span><span class="st">&quot;https://haskell.jp/blog/posts/links.html#(siteId)&quot;</span><span class="kw">&gt;&lt;img</span><span class="ot"> width=</span><span class="st">&quot;234&quot;</span><span class="ot"> src=</span><span class="st">&quot;https://haskell.jp/img/supported-by-haskell-jp.svg&quot;</span><span class="ot"> alt=</span><span class="st">&quot;Supported By Haskell-jp.&quot;</span><span class="kw">&gt;&lt;/a&gt;</span>
-    ```</code></pre></div></li>
+<ol type="1">
+<li>対象の<span class="ascii">Web</span>サイトを承認する場合は、承認する旨を伝えるとともに、下記のスニペットをコピペして、<code>(siteId)</code>と書かれた箇所を「追加する<span class="ascii">Web</span>サイトの<span class="ascii">URL</span>からスキーム<span class="ascii">(</span><code>http://</code>や<code>https://</code>の部分<span class="ascii">)</span>を取り除いたもの」で置き換え、対象の<span class="ascii">Web</span>サイトに貼り付けてもらうよう<span class="ascii">Issue</span>のコメントで依頼しましょう。 <code>html</code><span class="ascii">html</span> <a href="https://haskell.jp/blog/posts/links.html#(siteId)"><img width="234" src="https://haskell.jp/img/supported-by-haskell-jp.svg" alt="Supported By Haskell-jp."></a> <code></code></li>
 <li><p>続いて、下記の<span class="ascii">markdown</span>のスニペットにおける<code>(siteId)</code>の部分を、先ほどの「追加する<span class="ascii">Web</span>サイトの<span class="ascii">URL</span>からスキームを取り除いたもの」で置き換え、<a href="https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/links.md">このページを編集</a>し、追加しましょう。</p>
-<div class="sourceCode"><pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;li</span><span class="ot"> id=</span><span class="st">&quot;(siteId)&quot;</span><span class="ot"> class=</span><span class="st">&quot;hash-target&quot;</span><span class="kw">&gt;&lt;a</span><span class="ot"> href=</span><span class="st">&quot;(WebサイトのURL)&quot;</span><span class="kw">&gt;</span>(追加するWebサイトの名前)<span class="kw">&lt;/a&gt;</span>( by 運営者の氏名があれば)<span class="kw">&lt;/li&gt;</span></code></pre></div></li>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">&lt;li</span><span class="ot"> id=</span><span class="st">&quot;(siteId)&quot;</span><span class="ot"> class=</span><span class="st">&quot;hash-target&quot;</span><span class="kw">&gt;&lt;a</span><span class="ot"> href=</span><span class="st">&quot;(WebサイトのURL)&quot;</span><span class="kw">&gt;</span>(追加するWebサイトの名前)<span class="kw">&lt;/a&gt;</span>( by 運営者の氏名があれば)<span class="kw">&lt;/li&gt;</span></a></code></pre></div></li>
 </ol>
             </div>
         </div>

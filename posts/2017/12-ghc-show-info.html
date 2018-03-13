@@ -131,7 +131,7 @@
 <h2 id="はじめに">はじめに</h2>
 <p><span class="ascii">Haskell</span>用コンパイラである<span class="ascii">GHC</span>は、驚くほど多彩な情報出力機能を標準で搭載しています。<br />
 出力できる情報は非常に沢山ありますが、ここでは、以下のいくつかの方法について簡単にまとめて紹介します。</p>
-<ol style="list-style-type: decimal">
+<ol type="1">
 <li><a href="#ch1"><span class="ascii">ghci</span>での対話操作による情報の出力方法</a></li>
 <li><a href="#ch2">コンパイル時における情報の出力方法</a></li>
 <li><a href="#ch3">実行オブジェクトの実行時における情報の出力方法</a></li>
@@ -154,44 +154,44 @@
 <p><span class="ascii">GHC</span>の対話環境である<span class="ascii">ghci</span>上で、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type"><code>:t</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type"><code>:type</code></a>コマンド）を実行することにより、変数や関数などについての型の情報を表示できます。<br />
 以下は、<code>:t length</code>コマンドの実行例です。<br />
 <code>ghci</code>コマンドを起動してから、<code>:t length</code>コマンドを実行すると、</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> ghci
-<span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t length</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">$</span> ghci</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t length</a></code></pre></div>
 <p>次の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">length<span class="ot"> ::</span> <span class="dt">Foldable</span> t <span class="ot">=&gt;</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1">length<span class="ot"> ::</span> <span class="dt">Foldable</span> t <span class="ot">=&gt;</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
 <p>上の例では、「<span class="ascii">length</span>関数は、<code>t a</code>型の値を入力して、<code>Int</code>型の値を返す関数である」ことを示しています。 また、「型変数<code>t</code>は<code>Foldable</code>クラスに属する」ことを示しています。</p>
 <h3 id="型typeの情報の入門者向けの出力t-dコマンド">型<span class="ascii">(type)</span>の情報の入門者向けの出力（<code>:t +d</code>コマンド）</h3>
 <p><span class="ascii">GHC8.2</span>で導入された新しい機能です。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d"><code>:t +d</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d"><code>:type +d</code></a>コマンド）を実行することにより、デフォルトの型を考慮して、型の情報を分かりやすく出力できます。<br />
 <code>:t +d length</code>コマンドを実行すると、</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t <span class="fu">+</span>d length</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t <span class="fu">+</span>d length</a></code></pre></div>
 <p>次の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">length<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1">length<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
 <p>上の例では、<code>+d</code>オプションをつけない<code>:type</code>コマンドと比べると、<code>Foldable t =&gt; t a</code>の部分がリスト型として具体化されて出力されています。</p>
 <h3 id="型typeの情報の詳細出力t-vコマンド">型<span class="ascii">(type)</span>の情報の詳細出力（<code>:t +v</code>コマンド）</h3>
 <p><span class="ascii">GHC8.2</span>で導入された新しい機能です。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+v"><code>:t +v</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+v"><code>:type +v</code></a>コマンド）を実行することにより、型についての情報をより詳しく出力できます。<br />
 <code>:t +v length</code>コマンドを実行すると、</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t <span class="fu">+</span>v length</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t <span class="fu">+</span>v length</a></code></pre></div>
 <p>次の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">length<span class="ot"> ::</span> <span class="dt">Foldable</span> t <span class="ot">=&gt;</span> forall a<span class="fu">.</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1">length<span class="ot"> ::</span> <span class="dt">Foldable</span> t <span class="ot">=&gt;</span> forall a<span class="fu">.</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
 <p>上の例では、<code>+v</code>オプションをつけない<code>:type</code>コマンドと比べると、<code>forall a.</code>の部分が詳しく出力されています。</p>
 <h3 id="種kindの情報の出力kコマンド">種<span class="ascii">(kind)</span>の情報の出力（<code>:k</code>コマンド）</h3>
 <p><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:kind"><code>:k</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:kind"><code>:kind</code></a>コマンド）を実行することにより、種（カインド）についての情報を出力できます。<br />
 <code>:k Maybe</code>コマンドを実行すると、</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>k <span class="dt">Maybe</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>k <span class="dt">Maybe</span></a></code></pre></div>
 <p>次の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Maybe</span><span class="ot"> ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="dt">Maybe</span><span class="ot"> ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
 <p>上の例では、<code>Maybe</code>型は、<code>*</code>の種を入力し、<code>*</code>の種を返す型であることを出力します。</p>
 <h3 id="名前の内容についての情報の出力iコマンド">名前の内容についての情報の出力（<code>:i</code>コマンド）</h3>
 <p><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:info"><code>:i</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:info"><code>:info</code></a>コマンド）を実行することにより、その名前の定義情報などを出力できます。<br />
 <code>:i length</code>コマンドを実行すると、</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>i length</code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>i length</a></code></pre></div>
 <p>次の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Foldable</span> (<span class="ot">t ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="kw">where</span>
-  <span class="fu">...</span>
-<span class="ot">  length ::</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span>
-  <span class="fu">...</span>
-  	<span class="co">-- Defined in ‘Data.Foldable’</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">class</span> <span class="dt">Foldable</span> (<span class="ot">t ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">  <span class="fu">...</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="ot">  length ::</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">  <span class="fu">...</span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5">  	<span class="co">-- Defined in ‘Data.Foldable’</span></a></code></pre></div>
 <p>上の例では、<code>length</code>の定義内容（関数であり、<span class="ascii">Foldable</span>クラスに属しており、<span class="ascii">Data.Foldable</span>モジュール内で定義されていること）が出力されています。</p>
 <h3 id="その他ghciのいろいろなコマンド">その他、<span class="ascii">ghci</span>のいろいろなコマンド</h3>
 <p>他にも<span class="ascii">ghci</span>のコマンドにより、様々な情報を対話的に出力させることが出来ます。</p>
@@ -214,89 +214,89 @@
 <p><span class="ascii">GHC</span>は、コンパイル時に、中間言語変換などの<a href="https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/HscMain">複数のパイプラインステージ</a>を経ながら、最終的にアセンブリコードを生成します。<br />
 コンパイル時に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#dumping-out-compiler-intermediate-structures">情報出力用のオプション</a>を指定することにより、それらの各ステージごとの中間コードを出力できます。</p>
 <p>例えば、以下の単純なソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Func1.hs
-
-<span class="kw">module</span> <span class="dt">Func1</span> <span class="kw">where</span>
-
-<span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
-f1 x y <span class="fu">=</span> x <span class="fu">+</span> y</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="fu">$</span> cat Func1.hs</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Func1</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">f1 x y <span class="fu">=</span> x <span class="fu">+</span> y</a></code></pre></div>
 <p>以下、<span class="ascii">GHC</span>のコンパイル・パイプラインにおける、パーサーやリネームなどの各ステージ後のコード出力例を示します。</p>
 <h4 id="パーサー後">パーサー後</h4>
 <p><span class="ascii">GHC</span>のコンパイルにおける、パーサーのステージ直後のコードを出力するには、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#ghc-flag--ddump-parsed"><code>-ddump-parsed</code></a>オプションを指定します。</p>
 <pre><code>$ ghc  -ddump-parsed Func1.hs </code></pre>
 <p>パーサー後のコードが、以下の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func1</span>            ( Func1.hs, Func1.o ) [flags changed]
-
-<span class="fu">====================</span> <span class="dt">Parser</span> <span class="fu">====================</span>
-<span class="kw">module</span> <span class="dt">Func1</span> <span class="kw">where</span>
-<span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
-f1 x y <span class="fu">=</span> x <span class="fu">+</span> y</code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" data-line-number="1">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func1</span>            ( Func1.hs, Func1.o ) [flags changed]</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="fu">====================</span> <span class="dt">Parser</span> <span class="fu">====================</span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="kw">module</span> <span class="dt">Func1</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6">f1 x y <span class="fu">=</span> x <span class="fu">+</span> y</a></code></pre></div>
 <p>上の例では、元のソースと同じコードが表示されました。</p>
 <h4 id="リネーム後">リネーム後</h4>
 <p>以下は、リネームのステージ直後のコードを出力する、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#ghc-flag--ddump-rn"><code>-ddump-rn</code></a>オプションの例です。</p>
 <pre><code>$ ghc -fforce-recomp -ddump-rn Func1.hs </code></pre>
 <p>以下の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func1</span>            ( Func1.hs, Func1.o )
-
-<span class="fu">====================</span> <span class="dt">Renamer</span> <span class="fu">====================</span>
-Func1.f1<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
-Func1.f1 x_aRf y_aRg <span class="fu">=</span> x_aRf <span class="fu">+</span> y_aRg</code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" data-line-number="1">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func1</span>            ( Func1.hs, Func1.o )</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="fu">====================</span> <span class="dt">Renamer</span> <span class="fu">====================</span></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4">Func1.f1<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb15-5" data-line-number="5">Func1.f1 x_aRf y_aRg <span class="fu">=</span> x_aRf <span class="fu">+</span> y_aRg</a></code></pre></div>
 <p>上の例では、ユニークな識別子に変換されたコードが出力されています。<br />
 なお、上の例では、ソースファイルの最終更新時刻が、オブジェクトファイルよりも古い場合でも強制的に再コンパイルさせる<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/separate_compilation.html?highlight=#ghc-flag--fforce-recomp"><code>-fforce-recomp</code></a>を指定しています。</p>
 <p>以下、いくつかのステージ後の中間コードの出力例を、続けて示します。</p>
 <h4 id="脱糖desugar後のcore言語コード">脱糖<span class="ascii">(Desugar)</span>後の、<span class="ascii">Core</span>言語コード</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-ds Func1.hs</code></pre>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">  <span class="fu">:</span>
-<span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
-[<span class="dt">LclIdX</span>]
-f1
-  <span class="fu">=</span> \ (<span class="ot">x_aSt ::</span> <span class="dt">Int</span>) (<span class="ot">y_aSu ::</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span>
-      <span class="fu">+</span> <span class="fu">@</span> <span class="dt">Int</span> <span class="fu">GHC.Num.$</span>fNumInt x_aSt y_aSu
-  <span class="fu">:</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" data-line-number="1">  <span class="fu">:</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">[<span class="dt">LclIdX</span>]</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">f1</a>
+<a class="sourceLine" id="cb17-5" data-line-number="5">  <span class="fu">=</span> \ (<span class="ot">x_aSt ::</span> <span class="dt">Int</span>) (<span class="ot">y_aSu ::</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb17-6" data-line-number="6">      <span class="fu">+</span> <span class="fu">@</span> <span class="dt">Int</span> <span class="fu">GHC.Num.$</span>fNumInt x_aSt y_aSu</a>
+<a class="sourceLine" id="cb17-7" data-line-number="7">  <span class="fu">:</span></a></code></pre></div>
 <p>上の例では、<span class="ascii">Haskell</span>言語の構文から、<span class="ascii">GHC</span>の内部表現の１つである<span class="ascii">Core</span>言語に変換されたコードが出力されています。<br />
 <span class="ascii">Core</span>言語は、非常にシンプルな要素で構成された関数型言語です。</p>
 <h4 id="stg中間言語での最適化最終コード"><span class="ascii">STG</span>中間言語での最適化最終コード</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-stg Func1.hs</code></pre>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">  <span class="fu">:</span>
-Func1.f1<span class="ot"> ::</span> <span class="dt">GHC.Types.Int</span> <span class="ot">-&gt;</span> <span class="dt">GHC.Types.Int</span> <span class="ot">-&gt;</span> <span class="dt">GHC.Types.Int</span>
-[<span class="dt">GblId</span>,
- <span class="dt">Arity</span><span class="fu">=</span><span class="dv">2</span>,
- <span class="dt">Caf</span><span class="fu">=</span><span class="dt">NoCafRefs</span>,
- <span class="dt">Str</span><span class="fu">=&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;</span>m,
- <span class="dt">Unf</span><span class="fu">=</span><span class="dt">OtherCon</span> []] <span class="fu">=</span>
-    \r [eta_B2 eta_B1] <span class="fu">GHC.Num.$</span>fNumInt_<span class="fu">$</span>c<span class="fu">+</span> eta_B2 eta_B1;
-  <span class="fu">:</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" data-line-number="1">  <span class="fu">:</span></a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">Func1.f1<span class="ot"> ::</span> <span class="dt">GHC.Types.Int</span> <span class="ot">-&gt;</span> <span class="dt">GHC.Types.Int</span> <span class="ot">-&gt;</span> <span class="dt">GHC.Types.Int</span></a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">[<span class="dt">GblId</span>,</a>
+<a class="sourceLine" id="cb19-4" data-line-number="4"> <span class="dt">Arity</span><span class="fu">=</span><span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb19-5" data-line-number="5"> <span class="dt">Caf</span><span class="fu">=</span><span class="dt">NoCafRefs</span>,</a>
+<a class="sourceLine" id="cb19-6" data-line-number="6"> <span class="dt">Str</span><span class="fu">=&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;</span>m,</a>
+<a class="sourceLine" id="cb19-7" data-line-number="7"> <span class="dt">Unf</span><span class="fu">=</span><span class="dt">OtherCon</span> []] <span class="fu">=</span></a>
+<a class="sourceLine" id="cb19-8" data-line-number="8">    \r [eta_B2 eta_B1] <span class="fu">GHC.Num.$</span>fNumInt_<span class="fu">$</span>c<span class="fu">+</span> eta_B2 eta_B1;</a>
+<a class="sourceLine" id="cb19-9" data-line-number="9">  <span class="fu">:</span></a></code></pre></div>
 <p>上の例では、さらに、<span class="ascii">GHC</span>の内部表現の１つである<span class="ascii">STG</span>言語に変換されたコードが出力されています。<br />
 <span class="ascii">STG</span>言語は、非常にシンプルな要素で構成された、<span class="ascii">GHC</span>の動作モデルと結びついた関数型言語です。</p>
 <h4 id="cmm中間言語での最適化最終コード"><span class="ascii">Cmm</span>中間言語での最適化最終コード</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-opt-cmm Func1.hs</code></pre>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">  <span class="fu">:</span>
-Func1.f1_entry() <span class="fu">//</span>  [<span class="dt">R3</span>, <span class="dt">R2</span>]
-        { [(c15y,
-            Func1.f1_info<span class="fu">:</span>
-                const <span class="dv">8589934607</span>;
-                const <span class="dv">0</span>;
-                const <span class="dv">14</span>;)]
-        }
-    {offset
-      c15y<span class="fu">:</span> <span class="fu">//</span> global
-          <span class="fu">//</span> nop
-          <span class="fu">//</span> nop
-          call <span class="fu">GHC.Num.$</span>fNumInt_<span class="fu">$</span>c<span class="fu">+</span>_info(<span class="dt">R3</span>, <span class="dt">R2</span>) args<span class="fu">:</span> <span class="dv">8</span>, res<span class="fu">:</span> <span class="dv">0</span>, upd<span class="fu">:</span> <span class="dv">8</span>;
-    }
-}
-  <span class="fu">:</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" data-line-number="1">  <span class="fu">:</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">Func1.f1_entry() <span class="fu">//</span>  [<span class="dt">R3</span>, <span class="dt">R2</span>]</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">        { [(c15y,</a>
+<a class="sourceLine" id="cb21-4" data-line-number="4">            Func1.f1_info<span class="fu">:</span></a>
+<a class="sourceLine" id="cb21-5" data-line-number="5">                const <span class="dv">8589934607</span>;</a>
+<a class="sourceLine" id="cb21-6" data-line-number="6">                const <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb21-7" data-line-number="7">                const <span class="dv">14</span>;)]</a>
+<a class="sourceLine" id="cb21-8" data-line-number="8">        }</a>
+<a class="sourceLine" id="cb21-9" data-line-number="9">    {offset</a>
+<a class="sourceLine" id="cb21-10" data-line-number="10">      c15y<span class="fu">:</span> <span class="fu">//</span> global</a>
+<a class="sourceLine" id="cb21-11" data-line-number="11">          <span class="fu">//</span> nop</a>
+<a class="sourceLine" id="cb21-12" data-line-number="12">          <span class="fu">//</span> nop</a>
+<a class="sourceLine" id="cb21-13" data-line-number="13">          call <span class="fu">GHC.Num.$</span>fNumInt_<span class="fu">$</span>c<span class="fu">+</span>_info(<span class="dt">R3</span>, <span class="dt">R2</span>) args<span class="fu">:</span> <span class="dv">8</span>, res<span class="fu">:</span> <span class="dv">0</span>, upd<span class="fu">:</span> <span class="dv">8</span>;</a>
+<a class="sourceLine" id="cb21-14" data-line-number="14">    }</a>
+<a class="sourceLine" id="cb21-15" data-line-number="15">}</a>
+<a class="sourceLine" id="cb21-16" data-line-number="16">  <span class="fu">:</span></a></code></pre></div>
 <p>上の例では、さらに、<span class="ascii">GHC</span>の内部表現の１つである<span class="ascii">Cmm</span>言語に変換されたコードが出力されています。<br />
 <span class="ascii">Cmm(C minus minus)</span>言語は、<span class="ascii">C</span>言語とアセンブリ言語の中間的な位置づけの、手続き型言語です。</p>
 <h4 id="最終アセンブリ命令列">最終アセンブリ命令列</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-asm Func1.hs</code></pre>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">  <span class="fu">:</span>
-<span class="fu">.</span>globl Func1.f1_info
-<span class="fu">.</span><span class="kw">type</span> Func1.f1_info, <span class="fu">@</span>object
-Func1.f1_info<span class="fu">:</span>
-_c15y<span class="fu">:</span>
-	jmp <span class="fu">GHC.Num.$</span>fNumInt_<span class="fu">$</span>c<span class="fu">+</span>_info
-  <span class="fu">:</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" data-line-number="1">  <span class="fu">:</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="fu">.</span>globl Func1.f1_info</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="fu">.</span><span class="kw">type</span> Func1.f1_info, <span class="fu">@</span>object</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4">Func1.f1_info<span class="fu">:</span></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5">_c15y<span class="fu">:</span></a>
+<a class="sourceLine" id="cb23-6" data-line-number="6">	jmp <span class="fu">GHC.Num.$</span>fNumInt_<span class="fu">$</span>c<span class="fu">+</span>_info</a>
+<a class="sourceLine" id="cb23-7" data-line-number="7">  <span class="fu">:</span></a></code></pre></div>
 <p>上の例では、最終的なターゲット<span class="ascii">CPU</span>用のアセンブリ言語の命令コードが出力されています。</p>
 <p>詳細は省略しますが、他にも様々なステージの情報を出力させることが出来ます。</p>
 <ul>
@@ -311,52 +311,52 @@ _c15y<span class="fu">:</span>
 <h3 id="型情報の出力">型情報の出力</h3>
 <p>コンパイル時に得られる型情報を出力することが出来ます。<br />
 例えば、以下の単純なソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Func2.hs
-
-<span class="kw">module</span> <span class="dt">Func2</span> <span class="kw">where</span>
-
-<span class="kw">type</span> <span class="dt">Count</span> <span class="fu">=</span> <span class="dt">Int</span>
-
-<span class="ot">f2 ::</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span>
-f2 a b <span class="fu">=</span> a <span class="fu">+</span> b</code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="fu">$</span> cat Func2.hs</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Func2</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="kw">type</span> <span class="dt">Count</span> <span class="fu">=</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7"><span class="ot">f2 ::</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span></a>
+<a class="sourceLine" id="cb24-8" data-line-number="8">f2 a b <span class="fu">=</span> a <span class="fu">+</span> b</a></code></pre></div>
 <p>コンパイル時に得られる型情報を出力するには、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#ghc-flag--ddump-types"><code>-ddump-types</code></a>オプションを指定します。</p>
 <pre><code>$ ghc -ddump-types Func2.hs</code></pre>
 <p>以下の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func2</span>            ( Func2.hs, Func2.o )
-<span class="dt">TYPE</span> <span class="dt">SIGNATURES</span>
-<span class="ot">  f2 ::</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span>
-<span class="dt">TYPE</span> <span class="dt">CONSTRUCTORS</span>
-  <span class="kw">type</span> <span class="dt">Count</span> <span class="fu">=</span> <span class="dt">Int</span>
-<span class="dt">COERCION</span> <span class="dt">AXIOMS</span>
-<span class="dt">Dependent</span> modules<span class="fu">:</span> []
-<span class="dt">Dependent</span> packages<span class="fu">:</span> [base<span class="fu">-</span><span class="fl">4.10</span><span class="fu">.</span><span class="fl">0.0</span>, ghc<span class="fu">-</span>prim<span class="fu">-</span><span class="fl">0.5</span><span class="fu">.</span><span class="fl">1.0</span>,
-                     integer<span class="fu">-</span>gmp<span class="fu">-</span><span class="fl">1.0</span><span class="fu">.</span><span class="fl">1.0</span>]</code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" data-line-number="1">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func2</span>            ( Func2.hs, Func2.o )</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="dt">TYPE</span> <span class="dt">SIGNATURES</span></a>
+<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="ot">  f2 ::</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span> <span class="ot">-&gt;</span> <span class="dt">Count</span></a>
+<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="dt">TYPE</span> <span class="dt">CONSTRUCTORS</span></a>
+<a class="sourceLine" id="cb26-5" data-line-number="5">  <span class="kw">type</span> <span class="dt">Count</span> <span class="fu">=</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb26-6" data-line-number="6"><span class="dt">COERCION</span> <span class="dt">AXIOMS</span></a>
+<a class="sourceLine" id="cb26-7" data-line-number="7"><span class="dt">Dependent</span> modules<span class="fu">:</span> []</a>
+<a class="sourceLine" id="cb26-8" data-line-number="8"><span class="dt">Dependent</span> packages<span class="fu">:</span> [base<span class="fu">-</span><span class="fl">4.10</span><span class="fu">.</span><span class="fl">0.0</span>, ghc<span class="fu">-</span>prim<span class="fu">-</span><span class="fl">0.5</span><span class="fu">.</span><span class="fl">1.0</span>,</a>
+<a class="sourceLine" id="cb26-9" data-line-number="9">                     integer<span class="fu">-</span>gmp<span class="fu">-</span><span class="fl">1.0</span><span class="fu">.</span><span class="fl">1.0</span>]</a></code></pre></div>
 <p>それぞれの型の情報が出力されています。</p>
 <h3 id="正格性情報の出力">正格性情報の出力</h3>
 <p>コンパイル時に得られる正格性についての情報を出力することが出来ます。<br />
 例えば、以下の単純なソースの場合について例を示します。<br />
 少し恣意的な例ですが、関数<span class="ascii">f3</span>の第１引数は正格（かつ関数内で使用されている）、第<span class="ascii">2</span>引数は非正格（かつ関数内で使用されている）、第<span class="ascii">3</span>引数は非正格（かつ関数内で使用されていない）という場合の例です。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Func3.hs 
-
-<span class="kw">module</span> <span class="dt">Func3</span> <span class="kw">where</span>
-
-<span class="ot">f3 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
-f3 <span class="dv">0</span> y z <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>
-f3 x y z <span class="fu">=</span> abs y</code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="fu">$</span> cat Func3.hs </a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Func3</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb27-5" data-line-number="5"><span class="ot">f3 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb27-6" data-line-number="6">f3 <span class="dv">0</span> y z <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb27-7" data-line-number="7">f3 x y z <span class="fu">=</span> abs y</a></code></pre></div>
 <p>コンパイル時に得られる、関数の各引数についての正格性の情報を出力するには、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#ghc-flag--ddump-str-signatures"><code>-ddump-str-signatures</code></a>オプションを指定します。 なお、正格性についての最適化を行うために、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using-optimisation.html?highlight=#ghc-flag--O"><code>-O</code></a>オプションも併せて指定します。</p>
 <pre><code>$ ghc -O -ddump-str-signatures Func3.hs</code></pre>
 <p>正格性についての情報が、以下の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func3</span>            ( Func3.hs, Func3.o )
-
-<span class="fu">====================</span> <span class="dt">Strictness</span> signatures <span class="fu">====================</span>
-<span class="dt">Func3</span><span class="fu">.$</span>trModule<span class="fu">:</span> m
-Func3.f3<span class="fu">:</span> <span class="fu">&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dt">A</span><span class="fu">&gt;</span>m
-
-
-
-<span class="fu">====================</span> <span class="dt">Strictness</span> signatures <span class="fu">====================</span>
-<span class="dt">Func3</span><span class="fu">.$</span>trModule<span class="fu">:</span> m
-Func3.f3<span class="fu">:</span> <span class="fu">&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dt">A</span><span class="fu">&gt;</span>m</code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" data-line-number="1">[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">1</span>] <span class="dt">Compiling</span> <span class="dt">Func3</span>            ( Func3.hs, Func3.o )</a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="fu">====================</span> <span class="dt">Strictness</span> signatures <span class="fu">====================</span></a>
+<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="dt">Func3</span><span class="fu">.$</span>trModule<span class="fu">:</span> m</a>
+<a class="sourceLine" id="cb29-5" data-line-number="5">Func3.f3<span class="fu">:</span> <span class="fu">&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dt">A</span><span class="fu">&gt;</span>m</a>
+<a class="sourceLine" id="cb29-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb29-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb29-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb29-9" data-line-number="9"><span class="fu">====================</span> <span class="dt">Strictness</span> signatures <span class="fu">====================</span></a>
+<a class="sourceLine" id="cb29-10" data-line-number="10"><span class="dt">Func3</span><span class="fu">.$</span>trModule<span class="fu">:</span> m</a>
+<a class="sourceLine" id="cb29-11" data-line-number="11">Func3.f3<span class="fu">:</span> <span class="fu">&lt;</span><span class="dt">S</span>(<span class="dt">S</span>),<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dv">1</span><span class="fu">*</span><span class="dt">U</span>(<span class="dt">U</span>)<span class="fu">&gt;&lt;</span><span class="dt">L</span>,<span class="dt">A</span><span class="fu">&gt;</span>m</a></code></pre></div>
 <p>上の例によると、第１引数は、<code>&lt;S(S),1*U(1*U)&gt;</code>の部分により表されています。 ここでの<code>S(S)</code>は、引数が正格<span class="ascii">(Strict)</span>であることを示しています。 <code>1*U(1*U)</code>は、引数が関数内で使用<span class="ascii">(Use)</span>されていることを示しています。<br />
 第<span class="ascii">2</span>引数は、<code>&lt;L,1*U(U)&gt;</code>の部分により表されています。 <code>L</code>は引数が非正格（<span class="ascii">non-strict</span>）であることを示しています。 <code>1*U(U)</code>は、引数が関数内で使用<span class="ascii">(Use)</span>されていることを示しています。<br />
 第<span class="ascii">3</span>引数は、<code>&lt;L,A&gt;</code>の部分により表されています。 <code>L</code>は引数が非正格（<span class="ascii">non-strict</span>）であることを示しています。 <code>A</code>は、引数が関数内で不使用（<span class="ascii">Absence</span>）であることを示しています。</p>
@@ -383,12 +383,12 @@ Func3.f3<span class="fu">:</span> <span class="fu">&lt;</span><span class="dt">S
 <h3 id="実行時の統計情報の出力">実行時の統計情報の出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時の統計情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Prog1.hs
-
-<span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span>
-
-<span class="ot">main ::</span> <span class="dt">IO</span> ()
-main <span class="fu">=</span> print <span class="fu">$</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">10000000</span>]</code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="fu">$</span> cat Prog1.hs</a>
+<a class="sourceLine" id="cb30-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb30-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb30-6" data-line-number="6">main <span class="fu">=</span> print <span class="fu">$</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">10000000</span>]</a></code></pre></div>
 <p>まずは、普通にコンパイルを行います。<br />
 ここでは、通常の例を示すために、標準的な最適化を行う<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using-optimisation.html?highlight=#ghc-flag--O"><code>-O</code></a>オプションを指定しています（プロファイル取得に必須ではありません。）</p>
 <pre><code>$ ghc -O Prog1.hs </code></pre>
@@ -422,18 +422,18 @@ main <span class="fu">=</span> print <span class="fu">$</span> sum [<span class=
 <h3 id="時間プロファイルの出力">時間プロファイルの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時の時間プロファイル情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Prog2.hs
-
-<span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span>
-
-<span class="ot">main ::</span> <span class="dt">IO</span> ()
-main <span class="fu">=</span> print f1
-
-<span class="ot">f1 ::</span> <span class="dt">Int</span>
-f1 <span class="fu">=</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">10000000</span>] <span class="fu">+</span> f2
-
-<span class="ot">f2 ::</span> <span class="dt">Int</span>
-f2 <span class="fu">=</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">10000000</span>]</code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="fu">$</span> cat Prog2.hs</a>
+<a class="sourceLine" id="cb34-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb34-6" data-line-number="6">main <span class="fu">=</span> print f1</a>
+<a class="sourceLine" id="cb34-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb34-8" data-line-number="8"><span class="ot">f1 ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb34-9" data-line-number="9">f1 <span class="fu">=</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">10000000</span>] <span class="fu">+</span> f2</a>
+<a class="sourceLine" id="cb34-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb34-11" data-line-number="11"><span class="ot">f2 ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb34-12" data-line-number="12">f2 <span class="fu">=</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">10000000</span>]</a></code></pre></div>
 <p>プロファイルを取るためには、以下の様にまず、コンパイル時に、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts%5B=%E2%9F%A8none%7Csome%7Call%E2%9F%A9%5D"><code>-rtsopts</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>オプションを指定します。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts%5B=%E2%9F%A8none%7Csome%7Call%E2%9F%A9%5D"><code>-rtsopts</code></a>は、実行オブジェクトの実行時に、<span class="ascii">GHC</span>のランタイムシステム<span class="ascii">(RTS)</span>用の引数を使用可能にするオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a>は、プロファイル用のコードを埋め込むためのオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>は、プロファイルを取得する対象を自動で設定するオプションです。</p>
 <pre><code>$ ghc -O -rtsopts -prof -fprof-auto Prog2.hs</code></pre>
@@ -464,15 +464,15 @@ main        Main             Prog2.hs:5:1-15     0.0   21.3
 <h3 id="空間プロファイルの出力">空間プロファイルの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時の空間プロファイル情報、つまり、ヒープメモリの使用状況等を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Prog3.hs
-
-<span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span>
-
-<span class="ot">main ::</span> <span class="dt">IO</span> ()
-main <span class="fu">=</span> print <span class="fu">$</span> f1 [<span class="dv">1</span><span class="fu">..</span><span class="dv">1000000</span>]
-
-f1 [] <span class="fu">=</span> <span class="dv">0</span>
-f1 (x<span class="fu">:</span>xs) <span class="fu">=</span> (abs x) <span class="fu">+</span> (f1 xs)</code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="fu">$</span> cat Prog3.hs</a>
+<a class="sourceLine" id="cb38-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb38-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb38-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb38-5" data-line-number="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb38-6" data-line-number="6">main <span class="fu">=</span> print <span class="fu">$</span> f1 [<span class="dv">1</span><span class="fu">..</span><span class="dv">1000000</span>]</a>
+<a class="sourceLine" id="cb38-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb38-8" data-line-number="8">f1 [] <span class="fu">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb38-9" data-line-number="9">f1 (x<span class="fu">:</span>xs) <span class="fu">=</span> (abs x) <span class="fu">+</span> (f1 xs)</a></code></pre></div>
 <p>プロファイルを取るためには、以下の様にまず、コンパイル時に、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts%5B=%E2%9F%A8none%7Csome%7Call%E2%9F%A9%5D"><code>-rtsopts</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>オプションを指定します。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts%5B=%E2%9F%A8none%7Csome%7Call%E2%9F%A9%5D"><code>-rtsopts</code></a>は、実行オブジェクトの実行時に、<span class="ascii">GHC</span>のランタイムシステム<span class="ascii">(RTS)</span>用の引数を使用可能にするオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a>は、プロファイル用のコードを埋め込むためのオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>は、プロファイルを取得する対象を自動で設定するオプションです。</p>
 <p>ここでは、メモリ使用状況を分かりやすくするために、最適化のレベルを下げる<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using-optimisation.html?highlight=#ghc-flag--O0"><code>-O0</code></a>オプションを指定しています（プロファイル取得に必須ではありません）。</p>
@@ -486,32 +486,29 @@ f1 (x<span class="fu">:</span>xs) <span class="fu">=</span> (abs x) <span class=
 <p>さらに、<span class="ascii">OS</span>プラットフォームに応じたコマンドなどにより、<span class="ascii">PostScript</span>ファイルを<span class="ascii">PDF</span>に変換します。 ここでは、<span class="ascii">ps2pdf</span>コマンドを使用しています。</p>
 <pre><code>$ ps2pdf Prog3.ps &gt; Prog3.pdf</code></pre>
 <p>これにより、以下の様に、空間プロファイルがグラフィカルに表示されます。</p>
-<div class="figure">
-<img src="../../img/2017/12-rts-space-profile.png" />
-
-</div>
+<p><img src="../../img/2017/12-rts-space-profile.png" /></p>
 <p>空間プロファイルの表示内容の詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#profiling-memory-usage">こちら</a>を参照してください。<br />
 空間プロファイルについては、<a href="http://book.realworldhaskell.org/read/profiling-and-optimization.html#id678078">こちら</a>や、<a href="https://medium.com/@maoe/ghc%E3%83%92%E3%83%BC%E3%83%97%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0%E3%81%AE%E6%89%8B%E5%BC%95%E3%81%8D-md-bb8d180230f6">こちら</a>も参考になります。</p>
 <h3 id="実行時イベントの出力">実行時イベントの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時のイベント情報を出力できます。<br />
 実行時のイベントとは、<span class="ascii">GHC</span>のランタイムシステム（<span class="ascii">RTS</span>）におけるスレッドスケジューラや<span class="ascii">GC</span>などの動作情報や、ユーザー指定による動作情報です。<br />
 例えば、以下のソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Prog4.hs
-
-<span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span>
-
-<span class="kw">import </span><span class="dt">Control.Concurrent</span> (forkIO, threadDelay, myThreadId)
-
-<span class="ot">main ::</span> <span class="dt">IO</span> ()
-main <span class="fu">=</span> <span class="kw">do</span>
-    forkIO sub
-    forkIO sub
-    threadDelay (<span class="dv">2</span> <span class="fu">*</span> <span class="dv">1000</span> <span class="fu">*</span> <span class="dv">1000</span>)
-
-<span class="ot">sub ::</span> <span class="dt">IO</span> ()
-sub <span class="fu">=</span> <span class="kw">do</span>
-    myThreadId <span class="fu">&gt;&gt;=</span> print
-    print <span class="fu">$</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">100000</span>]</code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="fu">$</span> cat Prog4.hs</a>
+<a class="sourceLine" id="cb43-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb43-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb43-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb43-5" data-line-number="5"><span class="kw">import</span> <span class="dt">Control.Concurrent</span> (forkIO, threadDelay, myThreadId)</a>
+<a class="sourceLine" id="cb43-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb43-7" data-line-number="7"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb43-8" data-line-number="8">main <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb43-9" data-line-number="9">    forkIO sub</a>
+<a class="sourceLine" id="cb43-10" data-line-number="10">    forkIO sub</a>
+<a class="sourceLine" id="cb43-11" data-line-number="11">    threadDelay (<span class="dv">2</span> <span class="fu">*</span> <span class="dv">1000</span> <span class="fu">*</span> <span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb43-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb43-13" data-line-number="13"><span class="ot">sub ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb43-14" data-line-number="14">sub <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb43-15" data-line-number="15">    myThreadId <span class="fu">&gt;&gt;=</span> print</a>
+<a class="sourceLine" id="cb43-16" data-line-number="16">    print <span class="fu">$</span> sum [<span class="dv">1</span><span class="fu">..</span><span class="dv">100000</span>]</a></code></pre></div>
 <p>実行時イベントを出力するためには、以下の様にまず、コンパイル時に、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts%5B=%E2%9F%A8none%7Csome%7Call%E2%9F%A9%5D"><code>-rtsopts</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html#ghc-flag--eventlog"><code>-eventlog</code></a>オプションを指定します。<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html#ghc-flag--eventlog"><code>-eventlog</code></a>が、イベントログを出力するためのオプションです。</p>
 <pre><code>$ ghc -O -rtsopts -eventlog Prog4.hs</code></pre>
 <p>さらに、実際に実行時イベントを出力するには、実行オブジェクトの起動時に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html#setting-rts-options-on-the-command-line"><code>+RTS</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--l"><code>-l</code></a>オプションを指定します。 （<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--l"><code>-l</code></a>が実行時イベントを出力するためのオプションです。）</p>
@@ -525,10 +522,7 @@ sub <span class="fu">=</span> <span class="kw">do</span>
 <p>そして、以下のコマンドにより<span class="ascii">Threadscope</span>を起動します。</p>
 <pre><code>$ threadscope Prog4.eventlog</code></pre>
 <p>以下の様に<span class="ascii">GUI</span>が起動し、スレッドの稼動状態や<span class="ascii">GC</span>の状態を可視化できます。</p>
-<div class="figure">
-<img src="../../img/2017/12-rts-threadscope.png" />
-
-</div>
+<p><img src="../../img/2017/12-rts-threadscope.png" /></p>
 <p>上の例では、緑の部分がスレッドの稼働中、橙の部分が<span class="ascii">GC</span>の稼働中を表しています。 また、同時に１つスレッドのみが稼働していることが分かります（物理<span class="ascii">CPU</span>が１個に制限されたハードウェアでの実行例です。）</p>
 <h4 id="ghc-eventsによるテキスト表示"><span class="ascii">ghc-events</span>によるテキスト表示</h4>
 <p>以下は、２つめの方法である<span class="ascii">ghc-events</span>を用いた表示例です。<br />
@@ -575,20 +569,20 @@ Events:
 <h3 id="コードカバレッジの出力">コードカバレッジの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時のコードカバレッジ情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Prog5.hs
-
-<span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span>
-
-<span class="ot">main ::</span> <span class="dt">IO</span> ()
-main <span class="fu">=</span> print f1
-
-f1 <span class="fu">=</span> f2 <span class="dv">3</span>
-
-f2 <span class="dv">3</span> <span class="fu">=</span> f3
-f2 _ <span class="fu">=</span> f4
-
-f3 <span class="fu">=</span> <span class="dv">30</span>
-f4 <span class="fu">=</span> <span class="dv">40</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="fu">$</span> cat Prog5.hs</a>
+<a class="sourceLine" id="cb51-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb51-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb51-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb51-5" data-line-number="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb51-6" data-line-number="6">main <span class="fu">=</span> print f1</a>
+<a class="sourceLine" id="cb51-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb51-8" data-line-number="8">f1 <span class="fu">=</span> f2 <span class="dv">3</span></a>
+<a class="sourceLine" id="cb51-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb51-10" data-line-number="10">f2 <span class="dv">3</span> <span class="fu">=</span> f3</a>
+<a class="sourceLine" id="cb51-11" data-line-number="11">f2 _ <span class="fu">=</span> f4</a>
+<a class="sourceLine" id="cb51-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb51-13" data-line-number="13">f3 <span class="fu">=</span> <span class="dv">30</span></a>
+<a class="sourceLine" id="cb51-14" data-line-number="14">f4 <span class="fu">=</span> <span class="dv">40</span></a></code></pre></div>
 <p>コードカバレッジを取得するためには、以下の様にまず、コンパイル時に、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fhpc"><code>-fhpc</code></a>オプションを指定します。</p>
 <pre><code>$ ghc -fhpc Prog5.hs</code></pre>
 <p>さらに、コンパイルされた実行オブジェクトを起動するだけで、実行時のコードカバレッジを出力できます。</p>
@@ -612,50 +606,44 @@ f4 <span class="fu">=</span> <span class="dv">40</span></code></pre></div>
 Main.hs.html    hpc_index_alt.html  hpc_index_fun.html
 hpc_index.html  hpc_index_exp.html</code></pre>
 <p>生成された<span class="ascii">HTML</span>ファイルでは、モジュールごとの概況が以下の様に表示されます。</p>
-<div class="figure">
-<img src="../../img/2017/12-rts-coverage1.png" />
-
-</div>
+<p><img src="../../img/2017/12-rts-coverage1.png" /></p>
 <p>さらに、モジュール内の詳細状況も以下の様に表示されます。</p>
-<div class="figure">
-<img src="../../img/2017/12-rts-coverage2.png" />
-
-</div>
+<p><img src="../../img/2017/12-rts-coverage2.png" /></p>
 <p>上の例では、<span class="ascii">f4</span>は、評価（実行）されていないパスである事が分かります。</p>
 <p>コードカバレッジの詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=coverage#observing-code-coverage">こちら</a>を参照してください。<br />
 コードカバレッジについては、<a href="http://book.realworldhaskell.org/read/testing-and-quality-assurance.html#id629497">こちら</a>も参考になります。</p>
 <h3 id="スタックトレースの出力">スタックトレースの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時のエラー発生時のスタックトレース情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">$</span> cat Prog6.hs
-
-<span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span>
-
-<span class="ot">main ::</span> <span class="dt">IO</span> ()
-main <span class="fu">=</span> print f1
-
-f1 <span class="fu">=</span> f2 <span class="fu">+</span> <span class="dv">1</span>
-
-f2 <span class="fu">=</span> f3 <span class="fu">+</span> <span class="dv">1</span>
-
-f3 <span class="fu">=</span> <span class="dv">1</span> <span class="ot">`div`</span> <span class="dv">0</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="fu">$</span> cat Prog6.hs</a>
+<a class="sourceLine" id="cb58-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb58-3" data-line-number="3"><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb58-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb58-5" data-line-number="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb58-6" data-line-number="6">main <span class="fu">=</span> print f1</a>
+<a class="sourceLine" id="cb58-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb58-8" data-line-number="8">f1 <span class="fu">=</span> f2 <span class="fu">+</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb58-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb58-10" data-line-number="10">f2 <span class="fu">=</span> f3 <span class="fu">+</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb58-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb58-12" data-line-number="12">f3 <span class="fu">=</span> <span class="dv">1</span> <span class="ot">`div`</span> <span class="dv">0</span></a></code></pre></div>
 <p>スタックトレースを取るためには、以下の様にまず、コンパイル時に、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts%5B=%E2%9F%A8none%7Csome%7Call%E2%9F%A9%5D"><code>-rtsopts</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>オプションを指定します。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html?highlight=#ghc-flag--rtsopts%5B=%E2%9F%A8none%7Csome%7Call%E2%9F%A9%5D"><code>-rtsopts</code></a>は、実行オブジェクトの実行時に、<span class="ascii">GHC</span>のランタイムシステム<span class="ascii">(RTS)</span>用の引数を使用可能にするオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--prof"><code>-prof</code></a>は、プロファイル用のコードを埋め込むためのオプションです。 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#ghc-flag--fprof-auto"><code>-fprof-auto</code></a>は、プロファイルを取得する対象を自動で設定するオプションです。</p>
 <pre><code>$ ghc -rtsopts -prof -fprof-auto Prog6.hs</code></pre>
 <p>実行時におけるエラー時のスタックトレースを出力するには、実行オブジェクトの起動時に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html#setting-rts-options-on-the-command-line"><code>+RTS</code></a> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--xc"><code>-xc</code></a>オプションを指定します。 （<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#rts-flag--xc"><code>-xc</code></a>がスタックトレース出力のためのオプションです。）</p>
 <pre><code>$ ./Prog6 +RTS -xc</code></pre>
 <p>これにより、エラー時のスタックトレース情報が、次の様に出力されます。</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="fu">***</span> <span class="dt">Exception</span> (reporting due to <span class="fu">+</span><span class="dt">RTS</span> <span class="fu">-</span>xc)<span class="fu">:</span> (<span class="dt">THUNK_STATIC</span>), stack trace<span class="fu">:</span> 
-  <span class="dt">GHC.Real.CAF</span>
-  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.f3,
-  called from <span class="dt">Main.CAF</span>
-  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.f2,
-  called from <span class="dt">Main.CAF</span>
-  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.f1,
-  called from <span class="dt">Main.CAF</span>
-  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.main,
-  called from <span class="dt">Main.CAF</span>
-<span class="dt">Prog6</span><span class="fu">:</span> divide by zero</code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb61-1" data-line-number="1"><span class="fu">***</span> <span class="dt">Exception</span> (reporting due to <span class="fu">+</span><span class="dt">RTS</span> <span class="fu">-</span>xc)<span class="fu">:</span> (<span class="dt">THUNK_STATIC</span>), stack trace<span class="fu">:</span> </a>
+<a class="sourceLine" id="cb61-2" data-line-number="2">  <span class="dt">GHC.Real.CAF</span></a>
+<a class="sourceLine" id="cb61-3" data-line-number="3">  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.f3,</a>
+<a class="sourceLine" id="cb61-4" data-line-number="4">  called from <span class="dt">Main.CAF</span></a>
+<a class="sourceLine" id="cb61-5" data-line-number="5">  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.f2,</a>
+<a class="sourceLine" id="cb61-6" data-line-number="6">  called from <span class="dt">Main.CAF</span></a>
+<a class="sourceLine" id="cb61-7" data-line-number="7">  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.f1,</a>
+<a class="sourceLine" id="cb61-8" data-line-number="8">  called from <span class="dt">Main.CAF</span></a>
+<a class="sourceLine" id="cb61-9" data-line-number="9">  <span class="fu">--&gt;</span> evaluated by<span class="fu">:</span> Main.main,</a>
+<a class="sourceLine" id="cb61-10" data-line-number="10">  called from <span class="dt">Main.CAF</span></a>
+<a class="sourceLine" id="cb61-11" data-line-number="11"><span class="dt">Prog6</span><span class="fu">:</span> divide by zero</a></code></pre></div>
 <p>上の例では、エラーは<span class="ascii">f3</span>で発生しており、<span class="ascii">f3</span>は<span class="ascii">f2, f1, main</span>の順に呼び出されてきたことが分かります。</p>
 <p>スタックトレースの詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html?highlight=#rts-flag--xc">こちら</a>を参照してください。<br />
 スタックトレースについては、<a href="http://d.hatena.ne.jp/kazu-yamamoto/20130205/1360051153">こちら</a>も参考になります。</p>

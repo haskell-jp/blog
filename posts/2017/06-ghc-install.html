@@ -137,16 +137,16 @@
 <p>例えば、<span class="ascii">Linux(Debian, Ubuntu,</span> …<span class="ascii">)</span>用の <span class="ascii">ghc 8.2.1</span> のバイナリであれば、以下から、<code>ghc-8.2.1-x86_64-deb8-linux.tar.xz</code> を選びます。</p>
 <p><span class="ascii">https://www.haskell.org/ghc/download_ghc_8_2_1.html#linux_x86_64</span></p>
 <h2 id="tarファイルを展開します"><span class="ascii">2. tar</span>ファイルを展開します</h2>
-<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">tar</span> -xvJf ghc-8.2.1-x86_64-deb8-linux.tar.xz</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" data-line-number="1">$ <span class="fu">tar</span> -xvJf ghc-8.2.1-x86_64-deb8-linux.tar.xz</a></code></pre></div>
 <h2 id="インストール先のローカルディレクトリを作ります"><span class="ascii">3.</span> インストール先のローカルディレクトリを作ります</h2>
-<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">mkdir</span> ghc821</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1">$ <span class="fu">mkdir</span> ghc821</a></code></pre></div>
 <h2 id="configします"><span class="ascii">4. config</span>します</h2>
 <p><span class="ascii">tar</span>を展開したトップディレクトリに<span class="ascii">cd</span>で移動します。 さらに、<code>--prefix</code>オプションで、<span class="ascii">GHC</span>のインストール先のディレクトリを指定します。</p>
-<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="bu">cd</span> ghc-8.2.1
-$ <span class="ex">./configure</span> --prefix=/home/my/ghc821</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1">$ <span class="bu">cd</span> ghc-8.2.1</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">$ <span class="ex">./configure</span> --prefix=/home/my/ghc821</a></code></pre></div>
 <h2 id="installします"><span class="ascii">5. install</span>します</h2>
 <p><span class="ascii">tar</span>を展開したトップディレクトリで、<span class="ascii">make</span>コマンドを実行します。</p>
-<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash">$ <span class="fu">make</span> install</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1">$ <span class="fu">make</span> install</a></code></pre></div>
 <p>これで、<code>--prefix</code> オプションで指定したディレクトリの <code>bin/</code>下に、<code>ghc</code><span class="ascii">,</span> <code>ghci</code><span class="ascii">,</span> <code>runghc</code> などがインストールされます。<br />
 なお、インストール後は、<span class="ascii">tar</span>で展開した側のディレクトリ以下は削除して構いません。</p>
 <h2 id="遊ぶ"><span class="ascii">6.</span> 遊ぶ</h2>

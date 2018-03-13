@@ -1,0 +1,22 @@
+Building all executables for `haskell-jp-blog' once. After a successful build of all of them, only specified executables will be rebuilt.
+haskell-jp-blog-0.1.0.0: configure (exe + test)
+Configuring haskell-jp-blog-0.1.0.0...
+haskell-jp-blog-0.1.0.0: build (exe + test)
+Preprocessing test suite 'site-doctest' for haskell-jp-blog-0.1.0.0..
+Building test suite 'site-doctest' for haskell-jp-blog-0.1.0.0..
+[1 of 1] Compiling Main             ( test/DocTest.hs, .stack-work/dist/x86_64-linux/Cabal-2.0.1.0/build/site-doctest/site-doctest-tmp/Main.o )
+Linking .stack-work/dist/x86_64-linux/Cabal-2.0.1.0/build/site-doctest/site-doctest ...
+Preprocessing executable 'site' for haskell-jp-blog-0.1.0.0..
+Building executable 'site' for haskell-jp-blog-0.1.0.0..
+[1 of 1] Compiling Main             ( src/site.hs, .stack-work/dist/x86_64-linux/Cabal-2.0.1.0/build/site/site-tmp/Main.o )
+Linking .stack-work/dist/x86_64-linux/Cabal-2.0.1.0/build/site/site ...
+haskell-jp-blog-0.1.0.0: copy/register
+Installing executable site in /home/travis/build/haskell-jp/blog/.stack-work/install/x86_64-linux/lts-10.9/8.2.2/bin
+haskell-jp-blog-0.1.0.0: test (suite: site-doctest)
+
+Examples: 19  Tried: 19  Errors: 0  Failures: 0
+
+haskell-jp-blog-0.1.0.0: Test suite site-doctest passed
+Completed 2 action(s).
+Updating Haddock index for snapshot packages in
+/home/travis/.stack/snapshots/x86_64-linux/lts-10.9/8.2.2/doc/index.html
