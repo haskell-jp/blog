@@ -6,5 +6,5 @@ extra-deps:
 - http-conduit-2.2.4
 - http-types-0.11
 - pandoc-citeproc-0.13.0.1
-- resourcet-1.1.11
+- resourcet-1.2.0
 resolver: lts-11.0
