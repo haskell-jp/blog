@@ -9,6 +9,7 @@ language: node_js
 branches:
   only:
   - master
+  - '/^test-ci-.*/'
 
 # Caching so the next build will be fast too.
 cache:
@@ -16,6 +17,8 @@ cache:
   - $HOME/.ghc
   - $HOME/.cabal
   - $HOME/.stack
+  - $HOME/.local/bin/
+  - .stack-work/
 
 addons:
   apt:
@@ -28,7 +31,7 @@ addons:
 # Use the latest version of node-6 available
 node_js: "6"
 
-before_install:
+install:
 # Using compiler above sets CC to an invalid value, so unset it
 - unset CC
 
@@ -48,18 +51,20 @@ before_install:
     echo 'jobs: $ncpus' >> $HOME/.cabal/config
   fi
 
-install:
-- if [ -f configure.ac ]; then autoreconf -i; fi
-- |
-  set -ex
-  time stack --no-terminal --install-ghc test --bench --only-dependencies
-  set +ex
-
-script:
-- |
-  set -ex
-  time travis_wait 30 stack --no-terminal test --bench --no-run-benchmarks --haddock --no-haddock-deps
-  time stack exec -- site build
-  # -e オプションをつけることで、GITHUB_TOKEN環境変数をmakeに渡す
-  [ "$TRAVIS_BRANCH" == master ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && make -e deploy
-  set +ex
+jobs:
+  include:
+    - stage: install cabal
+      script: stack --no-terminal build -j 1 Cabal
+    - stage: install pandoc
+      script: travis_wait 30 stack --no-terminal build pandoc
+    - stage: install deprndences
+      script: stack --no-terminal test --only-dependencies
+    - stage: deploy site
+      script:
+      - |
+        set -ex
+        time travis_wait 30 stack --no-terminal test --bench --no-run-benchmarks --haddock --no-haddock-deps
+        time stack exec -- site build
+        # -e オプションをつけることで、GITHUB_TOKEN環境変数をmakeに渡す
+        [ "$TRAVIS_PULL_REQUEST" == "false" ] && make -e deploy
+        set +ex
