@@ -9,6 +9,7 @@ language: node_js
 branches:
   only:
   - master
+  - igrep-patch-1
 
 # Caching so the next build will be fast too.
 cache:
