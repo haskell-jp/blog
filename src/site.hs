@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 import Control.Applicative (empty)
@@ -94,7 +95,16 @@ main = hakyllWith hakyllConfig $ do
                   defaultHakyllWriterOptions
                   addSpaceAroundAsciiPandoc
             postTemplateOut <- loadAndApplyTemplate postTemplate postsCtx pandocOut
-            applyDefaultTemplate postsCtx postTemplateOut
+            applyDefaultTemplate postsCtx =<< saveSnapshot "content" postTemplateOut
+
+    -- atom feed
+    feedConfig <- getFeedConfig "feed.md"
+    create ["feed.xml"] $ do
+        route idRoute
+        compile $ do
+            let feedCtx = postCtx `mappend` bodyField "description"
+            posts <- fmap (take 10) . recentFirst =<< loadAllSnapshots "posts/**" "content"
+            renderAtom feedConfig feedCtx posts
 
 -- | For posts, add a @date@ field to the default context.
 postCtx :: Context String
@@ -336,3 +346,12 @@ charLangToTextLang cs@(JapaneseChar{} :| _) =
   Japanese . toList $ charLangToChar <$> cs
 charLangToTextLang cs@(EnglishChar{} :| _) =
   English . toList $ charLangToChar <$> cs
+
+getFeedConfig :: MonadMetadata m => Identifier -> m FeedConfiguration
+getFeedConfig ident = do
+    feedTitle       <- getMetadataField' ident "title"
+    feedDescription <- getMetadataField' ident "description"
+    feedAuthorName  <- getMetadataField' ident "author"
+    feedAuthorEmail <- getMetadataField' ident "email"
+    feedRoot        <- getMetadataField' ident "root"
+    pure FeedConfiguration{..}
