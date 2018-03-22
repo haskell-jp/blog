@@ -109,6 +109,7 @@ main = hakyllWith hakyllConfig $ do
 -- | For posts, add a @date@ field to the default context.
 postCtx :: Context String
 postCtx = dateField "date" "%B %e, %Y" `mappend`
+          dateField "year" "%Y" `mappend`
           defaultContext
 
 -- | Apply the default template and then relativize all the URLs in the
