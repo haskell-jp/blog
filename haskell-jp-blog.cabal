@@ -13,6 +13,7 @@ executable site
                   , data-default >= 0.5
                   , hakyll
                   , pandoc-types
+                  , skylighting
   ghc-options:      -threaded -Wall
   default-language: Haskell2010
 
