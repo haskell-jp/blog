@@ -1,5 +1,5 @@
 ---
-title: CLIアプリのE2Eテストを行うためのライブラリーmain-testerをリリースしました
+title: CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました
 headingBackgroundImage: ../../img/post-bg.jpg
 headingDivClass: post-heading
 subHeading: たまにはHaskellらしからぬ（？）テストも書いてみよう！
@@ -68,7 +68,70 @@ silentlyや`System.IO.Fake`は、`String`なのです。
 
 # 使い方・バグ報告
 
-機能は非常にシンプルなので、使い方については[ドキュメント](https://hackage.haskell.org/package/main-tester-0.1.0.0/docs/Test-Main.html)のサンプルコードを読めば大体わかるかなぁと思うので割愛します。
+機能は非常にシンプルなので、使い方については[ドキュメント](https://hackage.haskell.org/package/main-tester-0.1.0.0/docs/Test-Main.html)のサンプルコードを読めば大体わかるかなぁと思いますが、簡単にサンプルを載せておきましょう。
+
+例えばこんなソース👇のプログラムがあった場合、
+
+ExampleMain.hs:
+
+```haskell
+module ExampleMain where
+
+import Data.List
+import System.Exit
+
+main :: IO ()
+main = do
+  putStr "What's your name?: "
+  name <- getLine
+  if "Yuji" `isInfixOf` name
+    then putStrLn "Nice name!"
+    else die $ name ++ "? Sorry I don't know such a guy!"
+```
+
+main-testerを使えば、次のようにHspecでテストできます。
+
+ExampleSpec.hs:
+
+```haskell
+import System.Exit
+import Test.Main
+import Test.Hspec
+import qualified ExampleMain
+import qualified Data.ByteString as B
+
+main = hspec $
+  describe "your-cool-command" $ do
+    context "Given 'Yuji' to stdin" $
+      it "prints a string including 'Nice name' without an error" $ do
+        result <- withStdin "Yuji"$ captureProcessResult ExampleMain.main
+        prExitCode result `shouldBe` ExitSuccess
+        prStderr result `shouldSatisfy` B.null
+        prStdout result `shouldSatisfy` ("Nice name" `B.isInfixOf`)
+
+    context "Given other name to stdin" $
+      it "prints an error message" $ do
+        result <- withStdin "other name" $ captureProcessResult ExampleMain.main
+        prExitCode result `shouldBe` ExitFailure 1
+        prStdout result `shouldSatisfy` B.null
+        prStderr result `shouldSatisfy` (not . B.null)
+```
+
+それぞれのファイルを同じディレクトリーに置いた上で、次のように実行すれば試せるはずです。
+
+```bash
+> stack build hspec main-tester
+> stack exec runghc -- --ghc-arg=-i. ExampleSpec.hs
+
+your-cool-command
+  Given 'Yuji' to stdin
+    prints a string including 'Nice name' without an error
+  Given other name to stdin
+    prints an error message
+
+Finished in 0.0130 seconds
+2 examples, 0 failures
+```
 
 バグを見つけたら[こちらのGitLabのIssue](https://gitlab.com/igrep/main-tester/issues)に報告してください<small>（最近の個人的な判官贔屓により、敢えてGitLabにしております 😏）</small>。  
 それではこの春はmain-testerでHappy Haskell Testing!! 💚💚💚
