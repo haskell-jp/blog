@@ -14,6 +14,7 @@ import Data.List.NonEmpty (NonEmpty((:|)), groupBy, toList)
 import Data.Maybe (fromMaybe)
 import Data.Typeable (Typeable)
 import Hakyll
+import Skylighting (pygments, styleToCss)
 import Text.Pandoc.Definition (Inline(Space, Span, Str), Pandoc)
 import Text.Pandoc.Generic (bottomUp)
 
@@ -38,6 +39,10 @@ main = hakyllWith hakyllConfig $ do
         compile copyFileCompiler
 
     -- CSS
+    create ["css/syntax.css"] $ do
+      route idRoute
+      compile $ makeItem (compressCss $ styleToCss pygments)
+
     match "css/*" $ do
         route idRoute
         compile compressCssCompiler
