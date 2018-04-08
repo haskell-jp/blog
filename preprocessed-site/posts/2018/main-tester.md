@@ -94,6 +94,8 @@ main-testerを使えば、次のようにHspecでテストできます。
 ExampleSpec.hs:
 
 ```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
 import System.Exit
 import Test.Main
 import Test.Hspec
@@ -113,11 +115,10 @@ main = hspec $
       it "prints an error message" $ do
         result <- withStdin "other name" $ captureProcessResult ExampleMain.main
         prExitCode result `shouldBe` ExitFailure 1
-        prStdout result `shouldSatisfy` B.null
         prStderr result `shouldSatisfy` (not . B.null)
 ```
 
-それぞれのファイルを同じディレクトリーに置いた上で、次のように実行すれば試せるはずです。
+それぞれのファイルを同じディレクトリーに置いた上で、次のように実行すれば試せるはずです <small>（cabalユーザーの皆さんは適当に読み替えてください...）</small>。
 
 ```bash
 > stack build hspec main-tester
