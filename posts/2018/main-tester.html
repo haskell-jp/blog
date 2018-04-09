@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2018/main-tester.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-black-frame.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---こんにちは。みなさん、テストは書いてますか？  「[Haskellライブラリ所感2016](http://syocy.hatenablog.com/entry/haskell-library-2016#%E3%83%86%E3%82%B9%E3%83%88)」という記事でも紹介されているとおり、Haskellにも様々なテスト用ライブラリーがあります。  今回は、「Haskellライブラリ所感" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img height="30px" src="../../img/logo.svg"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="https://haskell.jp">Home</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  <div class="post-heading">
+                    <div class="well well-sm" style="opacity: 0.9; background: #2b3a1e;">
+                      <h1>CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました</h1>
+                      <h2 class="subheading">たまにはHaskellらしからぬ（？）テストも書いてみよう！</h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on April 9, 2018</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>こんにちは。みなさん、テストは書いてますか？<br />
+「<a href="http://syocy.hatenablog.com/entry/haskell-library-2016#%E3%83%86%E3%82%B9%E3%83%88"><span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span></a>」という記事でも紹介されているとおり、<span class="ascii">Haskell</span>にも様々なテスト用ライブラリーがあります。<br />
+今回は、「<span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span>」でも紹介されている<a href="https://hackage.haskell.org/package/silently"><span class="ascii">silently</span></a>というパッケージにインスパイアされた、新しいテスト用ライブラリーを作りました。<br />
+タイトルにも書きましたが<a href="https://hackage.haskell.org/package/main-tester"><span class="ascii">main-tester</span></a>といいます。</p>
+<h1 id="main-testerができること"><span class="ascii">main-tester</span>ができること</h1>
+<p><span class="ascii">main-tester</span>は名前の通り、<code>main</code>関数のテストをサポートするライブラリーです。<br />
+<span class="ascii">Haskell</span>製のプログラムを起動すると最初に実行される、あの<code>main</code>関数です。</p>
+<p><code>main</code>関数は<code>IO ()</code>という型であるとおり、原則として必ず入出力を伴うので、自動テストがしにくい関数です。<br />
+一般的なベストプラクティスとしては、できるだけ<code>IO</code>でない、純粋な関数を中心にテストを書いていくのが普通でしょう。<br />
+それでも敢えて<code>main</code>関数の自動テストを書くのには、以下のメリットがあります。</p>
+<ol type="1">
+<li><code>main</code>関数をテストすると言うことは、作っているコマンドの、ユーザーの要求に最も近いレベルのテスト、<span class="ascii">E2E</span>テストをすることができる。</li>
+<li><code>main</code>関数（や、その他の<code>IO</code>を伴う関数）に対するテストは、データベースやファイルシステムなど、外部のソフトウェアとの「組み合わせ」で起こるバグを検出できる。
+<ul>
+<li>経験上、特に単純なアプリケーションでは、そうした外部のソフトウェアに対する「誤解」が原因となったバグが比較的多いように感じています。</li>
+</ul></li>
+<li>私の個人的な都合ですが、趣味では小さなアプリケーションを書くことが多いので、そうした<span class="ascii">E2E</span>テストの方が効果的だったりする。</li>
+</ol>
+<p>このように、<code>main</code>関数をはじめとする、<code>IO</code>な関数に対して敢えて自動テストを書くことには、様々なメリットがあります。<br />
+<code>main-tester</code>はそうした<code>IO</code>な関数をテストする際に伴う、<span class="ascii">2</span>つの問題を解決しました。</p>
+<ol type="1">
+<li>標準出力・標準エラー出力に出力した文字列がテストしにくい
+<ul>
+<li>➡️ <code>captureProcessResult</code>という関数で、標準出力・標準エラー出力に出力した文字列をそれぞれ<code>ByteString</code>として取得することができます。</li>
+</ul></li>
+<li>標準入力から文字列を読み出そうとすると、テストの実行が停止してしまう。
+<ul>
+<li>➡️ <code>withStdin</code>という関数で、標準入力に与えたい文字列を<code>ByteString</code>として与えることができます。</li>
+</ul></li>
+</ol>
+<p>ここに書いたことは、ビルドした実行ファイルを子プロセスとして呼び出すことによってもできます。<br />
+入出力の順番など、標準出力や標準エラー出力のより細かい挙動をテストするにはその方がいいでしょう<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+しかし、テストのために<code>PATH</code>を分離させる必要があったり、そのために<a href="https://github.com/commercialhaskell/stack/issues/2885"><code>stack exec</code>を使ったらめっちゃ遅い</a>という問題があったり、そもそも子プロセス呼び出しはそれだけでオーバーヘッドがあったりと、様々な問題があります。<br />
+物事をよりシンプルにするには、<code>main</code>関数を直接呼び出した方がよいでしょう。<br />
+<span class="ascii">main-tester</span>は、<span class="ascii">CLI</span>アプリケーションの<span class="ascii">E2E</span>テストにおける、そうした子プロセスの呼び出しの問題と、より大きな関数をテストしたいというニーズに応えるためのライブラリーなのです。</p>
+<h1 id="ほかのライブラリーとの違い">ほかのライブラリーとの違い</h1>
+<p>「<span class="ascii">silently</span>というパッケージにインスパイアされた」と冒頭で申しましたとおり、前節で紹介した機能は、実はすでにほかのライブラリーに似たものがあります。<br />
+<span class="ascii">silently</span>に加え、<a href="https://hackage.haskell.org/package/imperative-edsl-0.7.1/docs/System-IO-Fake.html"><span class="ascii">imperative-edsl</span>というパッケージに含まれる、<code>System.IO.Fake</code>というモジュール</a>です<small>（ほかにもあったらすみません！🙇🙇🙇）</small>。<br />
+これらと<span class="ascii">main-tester</span>との違いは何でしょう？</p>
+<p>第一に、先ほども触れましたが、<span class="ascii">main-tester</span>の<code>captureProcessResult</code>関数や<code>withStdin</code>関数は、標準出力・標準エラー出力・標準入力でやりとりする文字列を<span class="ascii">strict</span>な<code>ByteString</code>でやりとりします。<br />
+<span class="ascii">silently</span>や<code>System.IO.Fake</code>は、<code>String</code>なのです。<br />
+<code>ByteString</code>は文字通り任意のバイト列を扱うことができるので、「<span class="ascii">Unicode</span>の文字のリスト」である<code>String</code>よりも、多様なデータを扱うことができます。</p>
+<p>これは、特に複数の種類の文字コードを扱うとき、非常に重要な機能となります。<br />
+<a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html">以前の記事で取り上げた、<code>Invalid character</code>というエラー</a>を再現させる場合も、ないと大変やりづらいでしょう。</p>
+<p>第二に、<span class="ascii">main-tester</span>の<code>captureProcessResult</code>関数は、<code>main</code>関数の終了コードも<a href="https://hackage.haskell.org/package/base-4.11.0.0/docs/System-Exit.html#t:ExitCode"><code>ExitCode</code>型</a>の値として取得できます。<br />
+<code>main</code>関数の中で<code>exitFailure</code>等の関数を呼び出すと、<code>ExitCode</code>が例外として投げられます。<br />
+既存のライブラリーでこれを行うと、<code>ExitCode</code>が例外として処理されるため、テストしたい<code>main</code>関数の実行が終了してしまいます。<br />
+結果、<code>main</code>関数が標準出力・標準エラー出力に書き込んだ文字列を取得することができないのです。<br />
+「○○というエラーメッセージを出力して異常終了する」といったことをテストしたい場合、これでは使いづらいでしょう。<br />
+<strong>「<code>main</code>関数の<span class="ascii">E2E</span>テストを行うためのライブラリーである」</strong>という観点から、必須の機能であると判断し、実装しました。 ちなみに、<code>ExitCode</code>以外の例外についてはそのまま投げられます。仕様を単純にするために、これはユーザーのテストコードの中で処理することとしています。</p>
+<h1 id="使い方バグ報告">使い方・バグ報告</h1>
+<p>機能は非常にシンプルなので、使い方については<a href="https://hackage.haskell.org/package/main-tester-0.1.0.0/docs/Test-Main.html">ドキュメント</a>のサンプルコードを読めば大体わかるかなぁと思いますが、簡単にサンプルを載せておきましょう。</p>
+<p>例えばこんなソース👇のプログラムがあった場合、</p>
+<p><span class="ascii">ExampleMain.hs:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">module</span> <span class="dt">ExampleMain</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">import</span> <span class="dt">Data.List</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">import</span> <span class="dt">System.Exit</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">main <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">  putStr <span class="st">&quot;What's your name?: &quot;</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">  name <span class="ot">&lt;-</span> getLine</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">  <span class="kw">if</span> <span class="st">&quot;Yuji&quot;</span> <span class="ot">`isInfixOf`</span> name</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">    <span class="kw">then</span> putStrLn <span class="st">&quot;Nice name!&quot;</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">    <span class="kw">else</span> die <span class="fu">$</span> name <span class="fu">++</span> <span class="st">&quot;? Sorry I don't know such a guy!&quot;</span></a></code></pre></div>
+<p><span class="ascii">main-tester</span>を使えば、次のように<span class="ascii">Hspec</span>でテストできます。</p>
+<p><span class="ascii">ExampleSpec.hs:</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="ot">{-# LANGUAGE OverloadedStrings #-}</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw">import</span> <span class="dt">System.Exit</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw">import</span> <span class="dt">Test.Main</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw">import</span> <span class="dt">Test.Hspec</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">ExampleMain</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString</span> <span class="kw">as</span> <span class="dt">B</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">main <span class="fu">=</span> hspec <span class="fu">$</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10">  describe <span class="st">&quot;your-cool-command&quot;</span> <span class="fu">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11">    context <span class="st">&quot;Given 'Yuji' to stdin&quot;</span> <span class="fu">$</span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">      it <span class="st">&quot;prints a string including 'Nice name' without an error&quot;</span> <span class="fu">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb2-13" data-line-number="13">        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;Yuji&quot;</span><span class="fu">$</span> captureProcessResult ExampleMain.main</a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitSuccess</span></a>
+<a class="sourceLine" id="cb2-15" data-line-number="15">        prStderr result <span class="ot">`shouldSatisfy`</span> B.null</a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">        prStdout result <span class="ot">`shouldSatisfy`</span> (<span class="st">&quot;Nice name&quot;</span> <span class="ot">`B.isInfixOf`</span>)</a>
+<a class="sourceLine" id="cb2-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb2-18" data-line-number="18">    context <span class="st">&quot;Given other name to stdin&quot;</span> <span class="fu">$</span></a>
+<a class="sourceLine" id="cb2-19" data-line-number="19">      it <span class="st">&quot;prints an error message&quot;</span> <span class="fu">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb2-20" data-line-number="20">        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;other name&quot;</span> <span class="fu">$</span> captureProcessResult ExampleMain.main</a>
+<a class="sourceLine" id="cb2-21" data-line-number="21">        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitFailure</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-22" data-line-number="22">        prStderr result <span class="ot">`shouldSatisfy`</span> (not <span class="fu">.</span> B.null)</a></code></pre></div>
+<p>それぞれのファイルを同じディレクトリーに置いた上で、次のように実行すれば試せるはずです <small>（<span class="ascii">cabal</span>ユーザーの皆さんは適当に読み替えてください…）</small>。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="op">&gt;</span> <span class="ex">stack</span> build hspec main-tester</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="op">&gt;</span> <span class="ex">stack</span> exec runghc -- --ghc-arg=-i. ExampleSpec.hs</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="ex">your-cool-command</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  <span class="ex">Given</span> <span class="st">'Yuji'</span> to stdin</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">    <span class="ex">prints</span> a string including <span class="st">'Nice name'</span> without an error</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">  <span class="ex">Given</span> other name to stdin</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">    <span class="ex">prints</span> an error message</a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="ex">Finished</span> in 0.0130 seconds</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="ex">2</span> examples, 0 failures</a></code></pre></div>
+<p>バグを見つけたら<a href="https://gitlab.com/igrep/main-tester/issues">こちらの<span class="ascii">GitLab</span>の<span class="ascii">Issue</span></a>に報告してください<small>（最近の個人的な判官贔屓により、敢えて<span class="ascii">GitLab</span>にしております 😏）</small>。<br />
+それではこの春は<span class="ascii">main-tester</span>で<span class="ascii">Happy Haskell Testing!!</span> 💚💚💚</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><code>main</code>関数を子スレッドとして<code>forkIO</code>することで同じことが恐らくできますが、テスト結果の報告に使うべき、標準出力・標準エラー出力を食い合うことになってしまうので、非常にやりづらいと思います。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2018/renew-haskell-antenna.html" style="margin-left: auto;">Haskell Antenna をリニューアルしました</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2018</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
