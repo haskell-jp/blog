@@ -1,6 +1,6 @@
 ---
 title: タイプセーフプリキュア！を支える技術 その2
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: ～定義を自動でまとめる問題にGHCのANNプラグマで挑む～
 author: Yuji Yamamoto

@@ -1,6 +1,6 @@
 ---
 title: hashdos脆弱性とunordered-containers
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: HashMap・HashSetの利用時は注意！
 author: Yuji Yamamoto

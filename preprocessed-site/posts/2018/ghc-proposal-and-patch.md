@@ -1,6 +1,6 @@
 ---
 title: GHCへの変更提案とパッチ送付の手順例
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: ghc-proposals, Trac ticket, Phabricator, ...
 author: takenbu.hs

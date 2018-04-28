@@ -1,6 +1,6 @@
 ---
 title: 素のGHCをローカルディレクトリにインストールする方法
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: takenbu.hs
 date: August 8, 2017

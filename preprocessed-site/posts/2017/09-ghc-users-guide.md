@@ -1,6 +1,6 @@
 ---
 title: GHCのユーザーズガイドへのリンク集
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: コンパイル時オプション、実行時オプション、対話コマンド、言語拡張など
 author: takenbu.hs

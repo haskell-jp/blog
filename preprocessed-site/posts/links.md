@@ -1,6 +1,6 @@
 ---
 title: 相互リンク集
-headingBackgroundImage: ../img/post-bg.jpg
+headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 subHeading: Haskell-jpが応援するWebサイト一覧
 author: Haskell-jp

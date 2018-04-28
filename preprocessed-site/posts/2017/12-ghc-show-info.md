@@ -1,6 +1,6 @@
 ---
 title: GHCにおける多彩な情報の出力方法
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 対話操作による出力、コンパイル時出力、実行時出力
 author: takenbu.hs

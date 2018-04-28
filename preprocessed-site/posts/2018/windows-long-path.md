@@ -1,6 +1,6 @@
 ---
 title: WindowsでHaskellを扱う時によく遭遇するNo such file or directoryについて
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 短いパスにしよう
 author: Yuji Yamamoto

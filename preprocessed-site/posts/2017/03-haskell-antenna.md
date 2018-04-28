@@ -1,6 +1,6 @@
 ---
 title: Haskell Antenna を公開しました
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Tatsuya Hirose
 date: May 21, 2017

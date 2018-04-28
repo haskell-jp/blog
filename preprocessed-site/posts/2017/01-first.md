@@ -1,6 +1,6 @@
 ---
 title: 日本Haskellユーザーグループ発足・Slackチーム開放のお知らせ
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: もくもく会を添えて
 author: Haskell-jp

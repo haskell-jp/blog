@@ -1,6 +1,6 @@
 ---
 title: Haskellと日本Haskellユーザーグループについて
-headingBackgroundImage: ../img/post-bg.jpg
+headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 heading: Haskellと日本Haskellユーザーグループについて
 author: Haskell-jp

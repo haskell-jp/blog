@@ -1,6 +1,6 @@
 ---
 title: Haskell Antenna をリニューアルしました
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: MATSUBARA Nobutada
 postedBy: <a href="https://matsubara0507.github.io/whoami">MATSUBARA Nobutada(@matsubara0507)</a>

@@ -1,6 +1,6 @@
 ---
 title: Haskell Advent Calendar 2017 まとめ
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 2017年のAdCに投稿されたHaskell記事のリンク集
 author: MATSUBARA Nobutada
