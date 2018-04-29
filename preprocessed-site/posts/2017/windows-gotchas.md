@@ -1,6 +1,6 @@
 ---
 title: WindowsでHaskellを扱う時によく遭遇するエラーと対処法
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 雑なまとめ
 author: Yuji Yamamoto

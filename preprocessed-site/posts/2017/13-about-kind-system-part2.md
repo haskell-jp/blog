@@ -1,6 +1,6 @@
 ---
 title: Haskellの種(kind)について (Part 2)
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 種の仕組みとそれに付随する言語拡張について
 author: mizunashi-mana

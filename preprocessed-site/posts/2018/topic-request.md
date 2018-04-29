@@ -1,6 +1,6 @@
 ---
 title: Haskell-jp Blogで書いてほしいネタを募集します！
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 
 author: Haskell-jp

@@ -1,6 +1,6 @@
 ---
 title: Haskell-jp 公式subreddit作成のお知らせ
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 今後は質問や議論はr/haskell_jpで行うのを推奨します。
 author: Haskell-jp

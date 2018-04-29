@@ -42,6 +42,30 @@ ul.social-buttons li {
   vertical-align: middle;
 }
 
+.navbar {
+  background-color: #F3C677;
+  border-color: #080808;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+}
+
+.navbar-brand > img {
+  width: 150px;
+  position: relative;
+  /* bottom: 30%; */
+}
+
+.navbar .navbar-nav > li > a {
+  color: #777;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar .navbar-nav > li > a:focus,
+.navbar .navbar-nav > li > a:hover {
+  color: #000;
+}
+
 #post-navigation {
   display: flex;
   align-items: center;

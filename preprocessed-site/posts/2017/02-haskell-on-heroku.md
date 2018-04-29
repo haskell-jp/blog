@@ -1,6 +1,6 @@
 ---
 title: Dockerを使ってHaskellアプリをHerokuにデプロイする
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 heading: Dockerを使ってHaskellアプリをHerokuにデプロイする
 subHeading: コンパイル時間に制限されないデプロイ方法

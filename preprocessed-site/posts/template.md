@@ -1,6 +1,6 @@
 ---
 title: 記事のタイトル
-headingBackgroundImage: ../img/post-bg.jpg
+headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 subHeading: （副題が必要な場合はこちらを）
 author: （あなたの名前。HTMLのmetaタグの`author`や、フッターにおけるコピーライトマークの箇所に使用されます）

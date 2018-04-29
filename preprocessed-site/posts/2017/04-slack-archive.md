@@ -1,6 +1,6 @@
 ---
 title: SlackArchiveを導入しました
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: 発言が1万件を越えて保存・公開されるようになります！
 author: Haskell-jp

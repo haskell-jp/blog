@@ -1,6 +1,6 @@
 ---
 title: GHCのTyped Holes機能で、式中の部分の型を推論させる
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: takenbu.hs
 date: August 8, 2017

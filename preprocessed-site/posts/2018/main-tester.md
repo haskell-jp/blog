@@ -1,6 +1,6 @@
 ---
 title: CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: たまにはHaskellらしからぬ（？）テストも書いてみよう！
 author: Yuji Yamamoto

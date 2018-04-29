@@ -45,7 +45,7 @@ hr.small {
   max-width: 100px;
   margin: 15px auto;
   border-width: 4px;
-  border-color: white;
+  border-color: #333;
 }
 .navbar-custom {
   position: absolute;
@@ -178,19 +178,11 @@ hr.small {
 .intro-header .site-heading .subheading,
 .intro-header .post-heading .subheading,
 .intro-header .post-heading .meta {
-  text-shadow:
-    0 1px 1px #000,
-    1px 0 1px #000,
-    -1px 0 1px #000,
-    0 -1px 1px #000;
+  color: #333
 }
 .intro-header .site-heading h1,
 .intro-header .post-heading h1 {
-  text-shadow:
-    0 1px 2px #000,
-    1px 0 2px #000,
-    -1px 0 2px #000,
-    0 -1px 2px #000;
+  color: #333;
 }
 .navbar-brand img:hover {
   cursor: pointer;
@@ -222,7 +214,7 @@ hr.small {
   font-size: 20px;
 }
 .intro-header .post-heading .meta a {
-  color: white;
+  color: #333;
 }
 @media only screen and (min-width: 768px) {
   .intro-header .post-heading h1 {

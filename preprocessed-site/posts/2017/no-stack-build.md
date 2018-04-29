@@ -1,6 +1,6 @@
 ---
 title: Haskell-jp Blogへの投稿が簡単になりました！
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: Advent Calendarの記事の投稿も募集しております！
 author: Haskell-jp

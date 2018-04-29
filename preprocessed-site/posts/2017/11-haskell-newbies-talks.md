@@ -1,6 +1,6 @@
 ---
 title: Haskell-jp現在の活動・目的総ざらい
-headingBackgroundImage: ../../img/post-bg.jpg
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: Haskell入門者LT会での発表内容の再共有です
 author: Yuji Yamamoto
