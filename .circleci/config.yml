@@ -6,6 +6,7 @@ jobs:
     - image: haskell:8.2.1
     steps:
     - run: stack upgrade
+    - run: "echo 'tcp     6       TCP' > /etc/protocols"
     - checkout
 
     - restore_cache:
