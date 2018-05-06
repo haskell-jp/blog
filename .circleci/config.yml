@@ -5,6 +5,7 @@ jobs:
     docker:
     - image: haskell:8.2.1
     steps:
+    - run: stack upgrade
     - checkout
 
     - restore_cache:
