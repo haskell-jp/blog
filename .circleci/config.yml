@@ -1,0 +1,66 @@
+version: 2
+jobs:
+  build:
+    # Ref: https://mmhaskell.com/blog/2018/4/25/dockerizing-our-haskell-app
+    docker:
+    - image: haskell:8.2.1
+    steps:
+    - checkout
+
+    - restore_cache:
+        keys:
+        - 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
+        - 'dependencies-'
+    - run: stack build --only-dependencies
+    - save_cache:
+        key: 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
+        paths:
+        - ~/.stack/
+        - .stack-work/
+
+    - restore_cache:
+        keys:
+        - 'executable-{{ checksum "src/site.hs" }}'
+        - 'executable-'
+    - run: stack --local-bin-path='.' install --pedantic
+    - save_cache:
+        key: 'executable-{{ checksum "src/site.hs" }}'
+        paths:
+        - ./site
+
+    - run: ./site build
+    - store_artifacts:
+        path: ./generated-site/
+  submit_preview_url:
+    steps:
+    - run: |
+        printenv |
+        grep -E '^CIRCLE_|^HOME' | # Circle CIの環境変数を抽出して、preview botのサーバーにJSONとして渡す https://circleci.com/docs/2.0/env-vars/
+        jq -csR 'split("\n")
+          | map (split("=")
+            | select(.[0] != null)
+            | {(.[0]): .[1:] | join("=")})
+            | add' |
+        curl -H 'Content-Type:application/json' -d @- \
+          https://haskell-jp-blog-artifact.herokuapp.com/
+  deploy:
+    steps:
+    - run: make -e deploy
+workflows:
+  version: 2
+  build_and_submit_preview_url_or_deploy:
+    jobs:
+    - build
+    - submit_preview_url:
+        requires: [build]
+        filters:
+          branches:
+            ignore: master
+    # Circle CIからのdeployは最後に挑戦した際うまくいかなかったのでコメントアウト。
+    # 改めて試す場合、Travis CIによるデプロイと
+    # 関連: https://github.com/haskell-jp/blog/issues/54
+    #- deploy:
+    #    requires: [build]
+    #    filters:
+    #      branches:
+    #        only: master
