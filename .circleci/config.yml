@@ -32,6 +32,8 @@ jobs:
     - store_artifacts:
         path: ./generated-site/
   submit_preview_url:
+    docker:
+    - image: haskell:8.2.1
     steps:
     - run: |
         printenv |
@@ -44,6 +46,8 @@ jobs:
         curl -H 'Content-Type:application/json' -d @- \
           https://haskell-jp-blog-artifact.herokuapp.com/
   deploy:
+    docker:
+    - image: haskell:8.2.1
     steps:
     - run: make -e deploy
 workflows:
