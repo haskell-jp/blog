@@ -7,6 +7,7 @@ jobs:
     steps:
     - run: stack upgrade
     - run: "echo 'tcp     6       TCP' > /etc/protocols"
+    - run: "stack config --system-ghc set system-ghc --global true"
     - checkout
 
     - restore_cache:
