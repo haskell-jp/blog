@@ -43,6 +43,7 @@ jobs:
     docker:
     - image: haskell:8.2.1
     steps:
+    - run: apt install -y jq curl
     - run: |
         printenv |
         grep -E '^CIRCLE_|^HOME' | # Circle CIの環境変数を抽出して、preview botのサーバーにJSONとして渡す https://circleci.com/docs/2.0/env-vars/
