@@ -48,7 +48,7 @@ jobs:
     - run: |
         printenv |
         grep -E '^CIRCLE_|^HOME' | # Circle CIの環境変数を抽出して、preview botのサーバーにJSONとして渡す https://circleci.com/docs/2.0/env-vars/
-        jq -csR 'split("\n")
+        jq -c -s -R 'split("\n")
           | map (split("=")
             | select(.[0] != null)
             | {(.[0]): .[1:] | join("=")})
