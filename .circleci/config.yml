@@ -43,6 +43,7 @@ jobs:
     docker:
     - image: haskell:8.2.1
     steps:
+    - run: apt update
     - run: apt install -y jq curl
     - run: |
         printenv |
