@@ -5,6 +5,7 @@ jobs:
     docker:
     - image: haskell:8.2.1
     steps:
+    - run: apt install -y zip
     - run: stack upgrade
     - run: "echo 'tcp     6       TCP' > /etc/protocols"
     - run: "stack config --system-ghc set system-ghc --global true"
