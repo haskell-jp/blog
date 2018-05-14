@@ -69,7 +69,7 @@ $ ghc --supported-extensions | wc -l
 * [`DoAndIfThenElse`](https://prime.haskell.org/wiki/DoAndIfThenElse): `if`式の構文を，`then`と`else`の前に`;`を許容するよう変更する拡張です．これにより，`do`式において`then`や`else`をインデントする必要がなくなります．
 
 [^notice-haskell2010-standard-exts]: Haskell2010標準では，`Haskell2010`というプラグマをサポートすること，またHaskell98から新たにHaskell2010までに取り込まれた機能を切り離した`PatternGuards`/`NoNPlusKPatterns`/`RelaxedPolyRec`/`EmptyDataDecls`/`EmptyDataDecls`という拡張をそれぞれサポートすることが望ましいと規定されています．GHCも`Haskell2010`という拡張を指定できるようになっており，ここにあるほとんどはこの拡張を有効にした場合にも有効になります．
-[^notice-default-extensions-by-ghc]: デフォルトで有効になる拡張のほとんどは，Haskell 2010を元にしたものです．ただし全てがそうというわけではありません．`NondecreasingIndentation`はHaskell標準にはない機能です．またGHCはHaskell 2010で規定されている仕様を全てデフォルトで取り込んでいる訳でもありません．特にHaskell標準ではデータ型の宣言に型制約を書くことができますが，GHCではデフォルトではできません．これを有効にする場合，`DatatypeContexts`拡張を有効にする必要があります．
+[^notice-default-extensions-by-ghc]: デフォルトで有効になる拡張のほとんどは，Haskell 2010を元にしたものです．ただし全てがそうというわけではありません．`NondecreasingIndentation`はHaskell標準にはない機能です．またGHCはHaskell 2010で規定されている仕様を全てデフォルトで取り込んでいる訳でもありません．特にHaskell標準ではデータ型の宣言に型制約を書くことができますが，GHCではデフォルトではできません．これを有効にする場合，[`DatatypeContexts`拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DatatypeContexts)を有効にする必要があります．
 [^notice-relaxed-polyrec]: GHCの内部では`RelaxedPolyRec`という拡張も一緒に有効になります．しかし，現在この拡張は実装上の問題でGHC上で無効にすることができないため，ドキュメント上からも削除されています．この記事でもGHCの方針に従って，この拡張は特に扱いませんのでご留意ください．
 
 歴史的経緯で生まれ，互換性のために残されているものの，現状使用が推奨されていない拡張もあります．他に実験的な拡張やかなり大胆な拡張も存在するため，GHC拡張を使用する際は[GHCのユーザーガイド][ghc-user-guide-url]をよく読んでから使用するのが良いでしょう．
@@ -574,7 +574,7 @@ infixl 1 &
 しかしHaskell標準では，型を定義する場合そのようなことはできません．これを可能にするのが，`TypeOperators`拡張です．この拡張の有効下では，
 
 ```haskell
-type f + g = Product f g
+type a + b = Either a b
 infixr 5 +
 ```
 
@@ -672,7 +672,7 @@ instance Functor [] => C1 a
 
 となります．また，この拡張下では，型シノニムをインスタンスにすることもできます[^notice-type-synonym-instances]．
 
-[^notice-type-synonym-instances]: この拡張は，`TypeSynonymInstances`拡張として切り離されており，`FlexibleInstances`拡張を有効にすると一緒に有効になります．
+[^notice-type-synonym-instances]: この拡張は，[`TypeSynonymInstances`拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeSynonymInstances)として切り離されており，`FlexibleInstances`拡張を有効にすると一緒に有効になります．
 
 ```haskell
 type List a = [a]
@@ -779,7 +779,7 @@ doSomething = do
   pure $ x + y
 ```
 
-この関数は，次のように`mfix`を使った関数と同等です．
+この関数は，次のように`MonadFix`クラスのメソッド`mfix`を使った関数と同等です．
 
 ```haskell
 doSomething :: [Int]
