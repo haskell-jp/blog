@@ -74,8 +74,8 @@ endif
 	# Do the commit and push.
 	git commit -m "Release $(GIT_HASH) on `date` [ci skip]."
 	git push -f origin gh-pages
-	# Go back to master.
 ifndef GITHUB_TOKEN
+	# Go back to master.
 	git checkout master
 endif
 	rm -rf /tmp/haskell-jp-blog-deploy

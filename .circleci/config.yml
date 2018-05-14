@@ -1,0 +1,57 @@
+version: 2
+jobs:
+  build:
+    # Ref: https://mmhaskell.com/blog/2018/4/25/dockerizing-our-haskell-app
+    docker:
+    - image: haskell:8.2.1
+    steps:
+    - run: apt update
+    - run: apt install -y zip jq curl
+    - run: stack upgrade
+    - run: "echo 'tcp     6       TCP' > /etc/protocols"
+    - run: "stack config --system-ghc set system-ghc --global true"
+    - checkout
+
+    - restore_cache:
+        keys:
+        - 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
+        - 'dependencies-'
+    # 下記のパッケージはビルド時にメモリが不足するため、一旦 -j1 でビルドしておく
+    # Ref: https://haskell.e-bigmoon.com/posts/2017/12-31-travis-out-of-memory.html
+    - run: stack build --compiler=ghc-8.2.1 --no-terminal -j1 Cabal wai-logger
+    - run: stack build --compiler=ghc-8.2.1 --no-terminal --only-dependencies
+    - save_cache:
+        key: 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
+        paths:
+        - ~/.stack/
+        - .stack-work/
+
+    - restore_cache:
+        keys:
+        - 'executable-{{ checksum "src/site.hs" }}'
+        - 'executable-'
+    - run: stack --compiler=ghc-8.2.1 --local-bin-path='.' --no-terminal install --pedantic
+    - save_cache:
+        key: 'executable-{{ checksum "src/site.hs" }}'
+        paths:
+        - ./site
+
+    - run: ./site build
+    - store_artifacts: { path: ./generated-site/ }
+
+    - run: |
+        if [ "$CIRCLE_BRANCH" != master ] ; then
+          printenv |
+          grep -E '^CIRCLE_|^HOME' | # Circle CIの環境変数を抽出して、preview botのサーバーにJSONとして渡す https://circleci.com/docs/2.0/env-vars/
+          jq -c -s -R 'split("\n")
+            | map (split("=")
+              | select(.[0] != null)
+              | {(.[0]): .[1:] | join("=")})
+              | add' |
+          curl -H 'Content-Type:application/json' -d @- \
+            https://haskell-jp-blog-artifact.herokuapp.com/
+        fi
+    # Circle CIからのdeployは最後に挑戦した際うまくいかなかったのでコメントアウト。
+    # 改めて試す場合、Travis CIによるデプロイと
+    # 関連: https://github.com/haskell-jp/blog/issues/54
+    #- run: "$CIRCLE_BRANCH" = master && make -e deploy
