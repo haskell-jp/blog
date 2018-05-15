@@ -6,7 +6,7 @@ subHeading: n番煎じのよく使うGHC拡張の紹介
 author: mizunashi_mana
 postedBy: mizunashi_mana
 tags: GHC, Language Extensions
-date: May 12, 2018
+date: May 15, 2018
 ...
 ---
 
