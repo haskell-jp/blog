@@ -30,7 +30,7 @@ Let me add more details.
 # chcp 65001 if "Invalid character"
 # Invalid characterと言われたらchcp 65001しよう
 
-I guess you'd encounter most freqquently with this, which can't be avoided if you don't know.  
+You would have encountered this frequently, especially if you don't know how to avoid/fix this.  
 恐らく一番高確率で遭遇する & 知らないと回避できないのがこれ。  
 Oh, it's caused again by building with hakyll!
 
@@ -73,7 +73,7 @@ Remember this kind of errors are often caused when reading or writing stdout/std
 ### If you encounter as a user
 ### ユーザーとして出くわした場合
 
-In many cases, you can avoid this kind of errors by running the command below in advance.
+In many cases you can avoid these kind of errors by running the below command in advance.
 
 多くの場合、このエラーは以下のコマンドをあらかじめ実行しておけば回避できます。
 
@@ -117,7 +117,7 @@ If you've done like me, run by full path:
 /c/Windows/System32/chcp.com 932
 ```
 
-### Still if it doesn't work, or you're the developer of the libraries etc.
+### If still it doesn't work, or you're the developer of the libraries etc.
 ### それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合
 
 Unfortunately, the error can often persist even after running `chcp 65001`[^eta-20127].  
@@ -125,14 +125,14 @@ Unfortunately, the error can often persist even after running `chcp 65001`[^eta-
 According to my guess, the `chcp 65001` command doesn't affect the grandchild processes of the Command Prompt (or bash etc.) on which the `chcp` is run (i.e. the child processes of the command you enter).
 私の推測なんですが、どうも`chcp 65001`は`chcp 65001`したコマンドプロンプト（とかbash）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。
 
-[^eta-20127]: By the way, when I once tried to build the compiler of [Eta](http://eta-lang.org/), (as long as I remember) `chcp 65001` didn't fix the problem, but `chcp 20127` did.  
+[^eta-20127]: By the way, when I once tried to build the compiler of [Eta](http://eta-lang.org/), (as far as I remember) `chcp 65001` didn't fix the problem, but `chcp 20127` did.  
 As `chcp 20127` switches into US-ASCII, so I suspect the local environment of the developer of Eta is US-ASCII...
 
-If the error still happenes, report to the developer, or let's fix it by yourself!  
+If the error still happens you can either report to the developer, or fix it yourself!  
 そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。  
-When reporting, asking the developer to run after `chcp 932' could help he/she reproduce the bug (Sorry, I've never tried it).  
+When reporting; asking the developer to run after doing `chcp 932' could help him/her reproduce the bug (Sorry, I've never tried it).  
 バグ報告する場合は、「`chcp 932`してから実行してみて」とお願いすると、バグ報告を受けた開発者も再現しやすくて助かるかも知れません（残念ながら私はやったことがありません）。  
-When fixing by yourself, it'd be the best and certain way to switch the character encoding of the `Handle` object, among the many other ways.
+When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the `Handle` object.
 
 自分で直す場合、いろいろ方法はありますが、対象の`Handle`オブジェクトの文字コードを変えることで対処するのが、一番直接的で確実でしょう。
 
@@ -218,7 +218,7 @@ the question mark. Yeah, this is the "?" I bet most users of GHC on Japanese Win
 のように、クエスチョンマークに変換されるようになります。そう、日本語のWindowsでGHCをお使いの方は一度は目にした「?」ではないでしょうか😅  
 This makes me guess GHC executes `hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure` by default before printing out the compilation error.  
 つまりGHCはデフォルトで`hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure`しているものと推測されます。  
-Anyway, it's good that the program dosen't abort due to the error!
+Anyway, it's good that the program doesn't abort due to the error!
 
 いずれにせよ、エラーが起きないだけマシですね。
 
@@ -236,7 +236,7 @@ To tell the truth, I'm completely not sure of the cause, but those errors disapp
 正直に言って私は原因はサッパリ分かってないのですが、このエラーは大抵の場合何度も同じコマンドを実行すれば再現しませんでした。  
 The key is to repeat many times. Never give up only by once or twice 😅  
 一度や二度ではめげず、繰り返すのがポイントです 😅  
-It also might fix the error to turn off your antivirus software's scanning of the problematic directory, Dropbox's synchronisatin, or some other similar things.  
+Turning off your antivirus software's scanning of the problematic directory, Dropbox's synchronisatin, etc. might also fix such errors.
 問題が起きているディレクトリーをウィルス対策ソフトのスキャン対象から外してみるとか、Dropboxの同期を一時的に止めてみる、といったこともやってみるといいかもしれません。
 
 あ、あと、「Directory not empty」みたいなのもあったかな。これは同類のはずです。
