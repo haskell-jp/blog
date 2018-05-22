@@ -149,7 +149,7 @@ import GHC.IO.Encoding (utf8)
 hSetEncoding handle utf8
 ```
 
-As a bonus, I'll show you how [I actually addressed myself to the problem to fix a bug of haddock](https://github.com/haskell/haddock/pull/566), as an example case when the error is caused by the standard output  (or standard error output).  
+As a bonus, I'll show you an example of how [I myself addressed a problem caused by the standard output (or standard error output), and fixed a bug in haddock](https://github.com/haskell/haddock/pull/566).
 それから、[実際に私がhaddockのバグを直した時](https://github.com/haskell/haddock/pull/566)を例に標準出力（または標準エラー出力）でこのエラーが発生した時の対応も紹介しておきます。  
 In short, it can at least suppress the error to paste the code below before your program uses the `Handle` (Copied from [this commit](https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2)).
 
