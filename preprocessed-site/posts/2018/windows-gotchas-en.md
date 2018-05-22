@@ -15,10 +15,16 @@ The original article is the 4th article of [Haskell (その4) Advent Calendar 20
 
 この記事は、[Haskell (その4) Advent Calendar 2017](https://qiita.com/advent-calendar/2017/haskell4)14日目の記事です。
 
-What I'm going to tell is summarized as just one tweet (originally in Japanese):
+What I'm going to tell is summarized as [just one tweet (originally in Japanese)](https://twitter.com/igrep/status/938056578934042626):
 
-<blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">What I've learned:<br>- chcp65001 if 'Invalid character'<br>- rebuild if 'Permission Denied'<br>- Don't mix Japanese characters in some paths.<br>- Some libraries in C are available, and others are not.<br>Perhaps they're helpful in other languages.</p>&mdash; Yuji Yamamoto: 山本悠滋 (@igrep) <a href="https://twitter.com/igrep/status/938056578934042626?ref_src=twsrc%5Etfw">Dec 5, 2017</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+> What I've learned:
+>
+> - chcp65001 if 'Invalid character'
+> - rebuild if 'Permission Denied'
+> - Don't mix Japanese characters in some paths.
+> - Some libraries in C are available, and others are not.
+>
+> Perhaps they're helpful in other languages.
 
 Let me add more details.
 
