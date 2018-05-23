@@ -113,7 +113,7 @@ The directory contains many incompatible commands whose names conflict with the 
 
 このディレクトリーには、`find.exe`など、Unixな方が好んで使うコマンドと同じ名前の非互換なコマンドがゴロゴロ転がっているのです！
 
-So I've dropped `C:\Windows\System32\` from `PATH when using MSYS2.  
+So I've dropped `C:\Windows\System32\` from `PATH` when using MSYS2.  
 なので私はMSYS2を使う時は`C:\Windows\System32\`は`PATH`から抜いています。  
 If you've done like me, run by full path:
 
