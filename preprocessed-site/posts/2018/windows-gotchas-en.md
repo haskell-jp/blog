@@ -142,7 +142,7 @@ When fixing by yourself, perhaps the best and most certain way would be to switc
 
 自分で直す場合、いろいろ方法はありますが、対象の`Handle`オブジェクトの文字コードを変えることで対処するのが、一番直接的で確実でしょう。
 
-This problem is caused by the inconsistency between the `Handle`'s character encoding and the actually transferred bytes' encoding. So switching into the proper encoding should fix it.  
+This problem is caused by the inconsistency between the `Handle`\'s character encoding and the actually transferred bytes' encoding. So switching into the proper encoding should fix it.  
 この問題は`Handle`に設定された文字コードと実際にやりとりされる文字列の文字コードに食い違いが発生しているため起こるものなのですから、適切な文字コードに変えてしまえばいいのです。  
 If the error happenes when reading/writing a common UTF-8 file via the `Handle`, writing like below can avoid it:
 
