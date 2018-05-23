@@ -136,7 +136,7 @@ As `chcp 20127` switches into US-ASCII, so I suspect the local environment of th
 
 If the error still happens you can either report to the developer, or fix it yourself!  
 そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。  
-When reporting; asking the developer to run after doing `chcp 932' could help him/her reproduce the bug (Sorry, I've never tried it).  
+When reporting; asking the developer to run after doing `chcp 932` could help him/her reproduce the bug (Sorry, I've never tried it).  
 バグ報告する場合は、「`chcp 932`してから実行してみて」とお願いすると、バグ報告を受けた開発者も再現しやすくて助かるかも知れません（残念ながら私はやったことがありません）。  
 When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the `Handle` object.
 
