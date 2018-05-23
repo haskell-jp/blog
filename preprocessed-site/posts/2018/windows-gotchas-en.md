@@ -107,7 +107,7 @@ It seems that the "932" of "CP932" is the same "932" entered here!
 
 The `chcp` command is available in MSYS2's bash (Suprises me a little. How it works?).  
 どういう仕様なのか分かりませんが、このコマンド、MSYS2のbashでも使用できます。  
-But you should know that `chcp` exists at `C:\Windows\System32\`, which MSYS2 users usually don't want include in the `PATH`.  
+But you should know that `chcp` exists at `C:\Windows\System32\`, which MSYS2 users usually don't want to include in the `PATH`.  
 ただし`chcp`コマンドは`C:\Windows\System32\`という、MSYS2ユーザーにとってはあまり`PATH`に入れたくない場所に入っています。  
 The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g. `find.exe`)!
 
