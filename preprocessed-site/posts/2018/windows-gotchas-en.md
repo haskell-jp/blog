@@ -160,11 +160,6 @@ As the result of the `hSetEncoding` above, and the current character encoding is
 ↑
 ```
 
-```
-• No instance for (Transformation Nagisa CardCommune_Mepple)
-↑
-```
-
 is converted into
 
 
