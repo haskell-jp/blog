@@ -21,7 +21,7 @@ What I'm going to tell is summarized as [just one tweet (originally in Japanese)
 >
 > - chcp65001 if 'Invalid character'
 > - rebuild if 'Permission Denied'
-> - Don't mix Japanese characters in some paths.
+> - Don't mix Japanese characters in file paths.
 > - Some libraries in C are available, and others are not.
 >
 > Perhaps they're helpful in other languages.
