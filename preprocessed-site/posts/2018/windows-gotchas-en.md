@@ -5,8 +5,8 @@ headingDivClass: post-heading
 subHeading: Quick-and-dirty checklist
 author: Yuji Yamamoto
 postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
-date: May 15, 2018
-tags:
+date: May 25, 2018
+tags: Windows
 ...
 ---
 
