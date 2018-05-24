@@ -47,7 +47,7 @@ Both of them represent the "gateway" of data, and assigning character encoding t
 In Haskell's type `Char`, the only default encoding is UTF-32 (is this the right name in this case?).
 
 
-The character encoding assinged to a `Handle` by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).  
+The character encoding assigned to a `Handle` by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).  
 But it's now soon becoming 2018 (when writing the original article). The most of the file you create should be in UTF-8 unless you write programs in notepad.exe[^notepad].  
 It doesn't work to read a UTF-8 file as a Windows-31J file because they're very different encoding system.  
 The `invalid byte sequence` error, shown at the head of this section, is caused by that inconsistency.  
@@ -81,7 +81,7 @@ To roll it back, run `chcp 932`.
 It seems that the "932" of "CP932" is the same "932" entered here!
 
 
-The `chcp` command is available in MSYS2's bash (Suprises me a little. How it works?).  
+The `chcp` command is available in MSYS2's bash (Surprises me a little. How it works?).  
 But you should know that `chcp` exists at `C:\Windows\System32\`, which MSYS2 users usually don't want to include in the `PATH`.  
 The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g. `find.exe`)!
 
@@ -108,7 +108,7 @@ When fixing by yourself, perhaps the best and most certain way would be to switc
 
 
 This problem is caused by the inconsistency between the `Handle`\'s character encoding and the actually transferred bytes' encoding. So switching into the proper encoding should fix it.  
-If the error happenes when reading/writing a common UTF-8 file via the `Handle`, writing like below can avoid it:
+If the error happens when reading/writing a common UTF-8 file via the `Handle`, writing like below can avoid it:
 
 
 ```haskell
@@ -180,12 +180,12 @@ I've made the first section too long for "Quick-and-dirty checklist", but I'll t
 We often encounter some errors like "Permission Denied", "Directory not empty" and similar ones when running `stack build`, `ghc`, `elm-make`, and any other commands written in Haskell.  
 To tell the truth, I'm completely not sure of the cause, but those errors disappear by running the same command several times.  
 The key is to repeat many times. Never give up only by once or twice 😅  
-Turning off your antivirus software's scanning of the problematic directory, Dropbox's synchronisatin, etc. might also fix such errors.
+Turning off your antivirus software's scanning of the problematic directory, Dropbox's synchronisation, etc. might also fix such errors.
 
 
 # Try hard to build libraries in C...
 
-On Windows, it frequetly troubles us to install libraries which depend on libraries written in C (registered as `lib***` in your OS's package manager).  
+On Windows, it frequently troubles us to install libraries which depend on libraries written in C (registered as `lib***` in your OS's package manager).  
 But this is not the case only for Haskell.
 
 
