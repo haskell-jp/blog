@@ -33,7 +33,7 @@ tags:
 
 GHCがファイルを読み書きする時に使う[`Handle`](https://www.stackage.org/haddock/lts-10.0/base-4.10.1.0/System-IO.html#t:Handle)というオブジェクトには、文字コードの情報が含まれています。
 
-これはRubyの[`IO`](https://docs.ruby-lang.org/ja/latest/class/IO.html)やPerlのファイルハンドラーにあるような仕組みと大体似ていて、`Handle`といったデータの「入り口」を表すオブジェクトに文字コードを紐付けることで、外から入ってくる文字列の文字コードを確実に内部の統一された文字コードに変換する変換できるようにしてくれます。  
+これはRubyの[`IO`](https://docs.ruby-lang.org/ja/latest/class/IO.html)やPerlのファイルハンドラーにあるような仕組みと大体似ていて、`Handle`といったデータの「入り口」を表すオブジェクトに文字コードを紐付けることで、外から入ってくる文字列の文字コードを確実に内部の統一された文字コードに変換してくれます。  
 Haskellの`Char`型の場合はUTF-32（この場合その言い方でよかったっけ？）のはずです。
 
 この`Handle`に紐付ける文字コード、当然のごとくデフォルトではOSのロケール設定に従って設定されるようになってまして、日本語版のWindowsではそう、Windows-31J（またの名をCP932）ですね。  
@@ -75,7 +75,7 @@ UTF-8とWindows-31Jは全然違う体系の文字コードなので、UTF-8な�
 /c/Windows/System32/chcp.com 932
 ```
 
-### それでもダメな場合、あるいはライブラリーや開発者として出くわした場合
+### それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合
 
 残念ながら、`chcp 65001`してもこのエラーが消えないことはあります[^eta-20127]。  
 私の推測なんですが、どうも`chcp 65001`は`chcp 65001`したコマンドプロンプト（とかbash）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。
@@ -128,7 +128,7 @@ hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure
 一つ一つ解説しましょう。  
 まず`hSetEncoding`は先ほども触れたとおり指定した`Handle`の文字コードを変更する関数です。  
 そして`stdout`は名前の通り標準出力を表す`Handle`です。  
-最後の`mkLocaleEncoding TransliterateCodingFailure`ですが、これはWindowsで設定された文字コード（この場合`chcp`された文字コードと同じ）に対して、「もし（Unicodeから、あるいはUnicodeに）変換できない文字があった場合、エラーにせず、それっぽい文字に変換する」という設定にすることができます。
+最後の`mkLocaleEncoding TransliterateCodingFailure`ですが、これはWindowsで設定された文字コード（`chcp`された文字コードと同じ）を作って、「もし（Unicodeから、あるいはUnicodeに）変換できない文字があった場合、エラーにせず、それっぽい文字に変換する」という設定で返す、という意味です。
 
 結果、`chcp 932`な状態でGHCのエラーメッセージにも使われる
 
@@ -144,9 +144,9 @@ hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure
 ? No instance for (Transformation Nagisa CardCommune_Mepple)
 ```
 
-のように、クエスチョンマークに変換されるようになります。そう、WindowsでGHCをお使いの方は一度は目にした「?」ではないでしょうか😅  
-つまりGHCはデフォルトで`mkLocaleEncoding TransliterateCodingFailure`しているものと推測されます。  
-いずれにせよ、エラーが起きないだけマシですね。
+のように、クエスチョンマークに変換されるようになります。そう、日本語のWindowsでGHCをお使いの方は一度は目にした「?」ではないでしょうか😅  
+つまりGHCはデフォルトで`hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure`しているものと推測されます。  
+いずれにせよ、エラーでプログラムが異常終了しないだけマシですね。
 
 更に補足すると、GHCの文字コードについてより詳しい情報は、[GHC.IO.Encodingのドキュメント](https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html)をご覧ください。
 
