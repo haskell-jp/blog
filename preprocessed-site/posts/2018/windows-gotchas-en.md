@@ -48,7 +48,7 @@ In Haskell's type `Char`, the only default encoding is UTF-32 (is this the right
 
 
 The character encoding assigned to a `Handle` by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).  
-But it's now soon becoming 2018 (when writing the original article). The most of the file you create should be in UTF-8 unless you write programs in notepad.exe[^notepad].  
+But it's now soon becoming 2018 (when writing the original article). Most files you create should be in UTF-8 unless you write programs in notepad.exe[^notepad].  
 It doesn't work to read a UTF-8 file as a Windows-31J file because they're very different encoding system.  
 The `invalid byte sequence` error, shown at the head of this section, is caused by that inconsistency.  
 Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.
@@ -94,20 +94,20 @@ If you've done like me, run by full path:
 /c/Windows/System32/chcp.com 932
 ```
 
-### If still it doesn't work, or you're the developer of the libraries etc.
+### If it still doesn't work, or you're the developer of the libraries etc.
 
 Unfortunately, the error can often persist even after running `chcp 65001`[^eta-20127].  
 According to my guess, the `chcp 65001` command doesn't affect the grandchild processes of the Command Prompt (or bash etc.) on which the `chcp` is run (i.e. the child processes of the command you enter).
 
 [^eta-20127]: By the way, when I once tried to build the compiler of [Eta](http://eta-lang.org/), (as far as I remember) `chcp 65001` didn't fix the problem, but `chcp 20127` did.  
-As `chcp 20127` switches into US-ASCII, so I suspect the local environment of the developer of Eta is US-ASCII...
+As `chcp 20127` switches into US-ASCII, I suspect the local environment of the developer of Eta is US-ASCII...
 
 If the error still happens you can either report to the developer, or fix it yourself!  
 When reporting; asking the developer to run after doing `chcp 932` could help him/her reproduce the bug (Sorry, I've never tried it).  
 When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the `Handle` object.
 
 
-This problem is caused by the inconsistency between the `Handle`\'s character encoding and the actually transferred bytes' encoding. So switching into the proper encoding should fix it.  
+This problem is caused by the inconsistency between the `Handle`\'s character encoding and the encoding of the bytes that are actually transferred. So switching into the proper encoding should fix it.  
 If the error happens when reading/writing a common UTF-8 file via the `Handle`, writing like below can avoid it:
 
 
