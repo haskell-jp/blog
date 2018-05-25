@@ -160,7 +160,7 @@
 <span class="ascii">Both of them represent the</span> “<span class="ascii">gateway</span>” <span class="ascii">of data, and assigning character encoding to them enables us to handle the only, consistently encoded strings by converting the incoming data.</span><br />
 <span class="ascii">In Haskell</span>’<span class="ascii">s type</span> <code>Char</code><span class="ascii">, the only default encoding is UTF-32 (is this the right name in this case?).</span></p>
 <p><span class="ascii">The character encoding assigned to a</span> <code>Handle</code> <span class="ascii">by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).</span><br />
-<span class="ascii">But it</span>’<span class="ascii">s now soon becoming 2018 (when writing the original article). The most of the file you create should be in UTF-8 unless you write programs in notepad.exe</span><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a><span class="ascii">.</span><br />
+<span class="ascii">But it</span>’<span class="ascii">s now soon becoming 2018 (when writing the original article). Most files you create should be in UTF-8 unless you write programs in notepad.exe</span><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a><span class="ascii">.</span><br />
 <span class="ascii">It doesn</span>’<span class="ascii">t work to read a UTF-8 file as a Windows-31J file because they</span>’<span class="ascii">re very different encoding system.</span><br />
 <span class="ascii">The</span> <code>invalid byte sequence</code> <span class="ascii">error, shown at the head of this section, is caused by that inconsistency.</span><br />
 <span class="ascii">Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.</span></p>
@@ -181,13 +181,13 @@
 <p><span class="ascii">So I</span>’<span class="ascii">ve dropped</span> <code>C:\Windows\System32\</code> <span class="ascii">from</span> <code>PATH</code> <span class="ascii">when using MSYS2.</span><br />
 <span class="ascii">If you</span>’<span class="ascii">ve done like me, run by full path:</span></p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="if-still-it-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="ascii">If still it doesn</span>’<span class="ascii">t work, or you</span>’<span class="ascii">re the developer of the libraries etc.</span></h3>
+<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="ascii">If it still doesn</span>’<span class="ascii">t work, or you</span>’<span class="ascii">re the developer of the libraries etc.</span></h3>
 <p><span class="ascii">Unfortunately, the error can often persist even after running</span> <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a><span class="ascii">.</span><br />
 <span class="ascii">According to my guess, the</span> <code>chcp 65001</code> <span class="ascii">command doesn</span>’<span class="ascii">t affect the grandchild processes of the Command Prompt (or bash etc.) on which the</span> <code>chcp</code> <span class="ascii">is run (i.e. the child processes of the command you enter).</span></p>
 <p><span class="ascii">If the error still happens you can either report to the developer, or fix it yourself!</span><br />
 <span class="ascii">When reporting; asking the developer to run after doing</span> <code>chcp 932</code> <span class="ascii">could help him/her reproduce the bug (Sorry, I</span>’<span class="ascii">ve never tried it).</span><br />
 <span class="ascii">When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the</span> <code>Handle</code> <span class="ascii">object.</span></p>
-<p><span class="ascii">This problem is caused by the inconsistency between the</span> <code>Handle</code><span class="ascii">'s character encoding and the actually transferred bytes</span>’ <span class="ascii">encoding. So switching into the proper encoding should fix it.</span><br />
+<p><span class="ascii">This problem is caused by the inconsistency between the</span> <code>Handle</code><span class="ascii">'s character encoding and the encoding of the bytes that are actually transferred. So switching into the proper encoding should fix it.</span><br />
 <span class="ascii">If the error happens when reading/writing a common UTF-8 file via the</span> <code>Handle</code><span class="ascii">, writing like below can avoid it:</span></p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
@@ -249,7 +249,7 @@
 <ol>
 <li id="fn1"><p><span class="ascii">Translator</span>’<span class="ascii">s note: In Japanese locale, notepad.exe saves the file in Windows-31J. This will be changed (into UTF-8) in the future release of Windows 10.</span><a href="#fnref1" class="footnote-back">↩</a></p></li>
 <li id="fn2"><p><span class="ascii">By the way, when I once tried to build the compiler of</span> <a href="http://eta-lang.org/"><span class="ascii">Eta</span></a><span class="ascii">, (as far as I remember)</span> <code>chcp 65001</code> <span class="ascii">didn</span>’<span class="ascii">t fix the problem, but</span> <code>chcp 20127</code> <span class="ascii">did.</span><br />
-<span class="ascii">As</span> <code>chcp 20127</code> <span class="ascii">switches into US-ASCII, so I suspect the local environment of the developer of Eta is US-ASCII</span>…<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<span class="ascii">As</span> <code>chcp 20127</code> <span class="ascii">switches into US-ASCII, I suspect the local environment of the developer of Eta is US-ASCII</span>…<a href="#fnref2" class="footnote-back">↩</a></p></li>
 </ol>
 </section>
             </div>
