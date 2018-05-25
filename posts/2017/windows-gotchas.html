@@ -154,7 +154,7 @@
 ...
   [ERROR] preprocessed-site\posts/2017/01-first.md: hGetContents: invalid argument (invalid byte sequence)</code></pre>
 <p><span class="ascii">GHC</span>がファイルを読み書きする時に使う<a href="https://www.stackage.org/haddock/lts-10.0/base-4.10.1.0/System-IO.html#t:Handle"><code>Handle</code></a>というオブジェクトには、文字コードの情報が含まれています。</p>
-<p>これは<span class="ascii">Ruby</span>の<a href="https://docs.ruby-lang.org/ja/latest/class/IO.html"><code>IO</code></a>や<span class="ascii">Perl</span>のファイルハンドラーにあるような仕組みと大体似ていて、<code>Handle</code>といったデータの「入り口」を表すオブジェクトに文字コードを紐付けることで、外から入ってくる文字列の文字コードを確実に内部の統一された文字コードに変換する変換できるようにしてくれます。<br />
+<p>これは<span class="ascii">Ruby</span>の<a href="https://docs.ruby-lang.org/ja/latest/class/IO.html"><code>IO</code></a>や<span class="ascii">Perl</span>のファイルハンドラーにあるような仕組みと大体似ていて、<code>Handle</code>といったデータの「入り口」を表すオブジェクトに文字コードを紐付けることで、外から入ってくる文字列の文字コードを確実に内部の統一された文字コードに変換してくれます。<br />
 <span class="ascii">Haskell</span>の<code>Char</code>型の場合は<span class="ascii">UTF-32</span>（この場合その言い方でよかったっけ？）のはずです。</p>
 <p>この<code>Handle</code>に紐付ける文字コード、当然のごとくデフォルトでは<span class="ascii">OS</span>のロケール設定に従って設定されるようになってまして、日本語版の<span class="ascii">Windows</span>ではそう、<span class="ascii">Windows-31J</span>（またの名を<span class="ascii">CP932</span>）ですね。<br />
 でも今はもうすぐ<span class="ascii">2018</span>年。あなたが「メモ帳」でプログラムを書く人でもない限り、新しく作るファイルの大半は<span class="ascii">UTF-8</span>でしょう。<br />
@@ -178,7 +178,7 @@
 <p>なので私は<span class="ascii">MSYS2</span>を使う時は<code>C:\Windows\System32\</code>は<code>PATH</code>から抜いています。<br />
 私と同じような方は下記のようにフルパスで実行しましょう。</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="それでもダメな場合あるいはライブラリーや開発者として出くわした場合">それでもダメな場合、あるいはライブラリーや開発者として出くわした場合</h3>
+<h3 id="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合">それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</h3>
 <p>残念ながら、<code>chcp 65001</code>してもこのエラーが消えないことはあります<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
 私の推測なんですが、どうも<code>chcp 65001</code>は<code>chcp 65001</code>したコマンドプロンプト（とか<span class="ascii">bash</span>）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。</p>
 <p>そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。<br />
@@ -212,16 +212,16 @@
 <p>一つ一つ解説しましょう。<br />
 まず<code>hSetEncoding</code>は先ほども触れたとおり指定した<code>Handle</code>の文字コードを変更する関数です。<br />
 そして<code>stdout</code>は名前の通り標準出力を表す<code>Handle</code>です。<br />
-最後の<code>mkLocaleEncoding TransliterateCodingFailure</code>ですが、これは<span class="ascii">Windows</span>で設定された文字コード（この場合<code>chcp</code>された文字コードと同じ）に対して、「もし（<span class="ascii">Unicode</span>から、あるいは<span class="ascii">Unicode</span>に）変換できない文字があった場合、エラーにせず、それっぽい文字に変換する」という設定にすることができます。</p>
+最後の<code>mkLocaleEncoding TransliterateCodingFailure</code>ですが、これは<span class="ascii">Windows</span>で設定された文字コード（<code>chcp</code>された文字コードと同じ）を作って、「もし（<span class="ascii">Unicode</span>から、あるいは<span class="ascii">Unicode</span>に）変換できない文字があった場合、エラーにせず、それっぽい文字に変換する」という設定で返す、という意味です。</p>
 <p>結果、<code>chcp 932</code>な状態で<span class="ascii">GHC</span>のエラーメッセージにも使われる</p>
 <pre><code>↓この文字
 • No instance for (Transformation Nagisa CardCommune_Mepple)
 ↑</code></pre>
 <p>が、</p>
 <pre><code>? No instance for (Transformation Nagisa CardCommune_Mepple)</code></pre>
-<p>のように、クエスチョンマークに変換されるようになります。そう、<span class="ascii">Windows</span>で<span class="ascii">GHC</span>をお使いの方は一度は目にした「<span class="ascii">?</span>」ではないでしょうか😅<br />
-つまり<span class="ascii">GHC</span>はデフォルトで<code>mkLocaleEncoding TransliterateCodingFailure</code>しているものと推測されます。<br />
-いずれにせよ、エラーが起きないだけマシですね。</p>
+<p>のように、クエスチョンマークに変換されるようになります。そう、日本語の<span class="ascii">Windows</span>で<span class="ascii">GHC</span>をお使いの方は一度は目にした「<span class="ascii">?</span>」ではないでしょうか😅<br />
+つまり<span class="ascii">GHC</span>はデフォルトで<code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code>しているものと推測されます。<br />
+いずれにせよ、エラーでプログラムが異常終了しないだけマシですね。</p>
 <p>更に補足すると、<span class="ascii">GHC</span>の文字コードについてより詳しい情報は、<a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html"><span class="ascii">GHC.IO.Encoding</span>のドキュメント</a>をご覧ください。</p>
 <h1 id="permission-deniedと言われたらビルドし直そう"><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</h1>
 <p>雑なまとめと言いつつ最初の一つ目が長くなってしまいましたが、ここからは簡単に言います。<br />
