@@ -7,6 +7,7 @@ author: Yuji Yamamoto
 postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
 date: May 25, 2018
 tags: Windows
+language: en
 ...
 ---
 

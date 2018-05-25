@@ -152,11 +152,17 @@ createSubHeadingContentForPost item = do
     maybePostedBy <- getMetadataField ident "postedBy"
     date          <- getMetadataField' ident "date"
     mtags         <- getMetadataField ident "tags"
+    language      <- fromMaybe "ja" <$> getMetadataField ident "language"
     let subHeadingHtml = "<h2 class=\"subheading\">" ++ subHeading ++ "</h2>"
         postedBy = fromMaybe author maybePostedBy
         postedByHtml = "<span class=\"meta\">Posted by " ++ postedBy ++ " on " ++ date ++  "</span>"
         tagsHtml = maybe "" (\tags -> "<span class=\"meta\">Tags: " ++ tags ++ "</span>") mtags
-    return $ subHeadingHtml ++ postedByHtml ++ tagsHtml
+        langStyle = getLanguageStyle language
+    return $ subHeadingHtml ++ postedByHtml ++ tagsHtml ++ langStyle
+
+getLanguageStyle :: String -> String
+getLanguageStyle "en" = "<style>.ascii:before,.ascii:after{content:'' !important;}</style>"
+getLanguageStyle _ = ""
 
 isDraftPost :: MonadMetadata m => Identifier -> m Bool
 isDraftPost ident = do
