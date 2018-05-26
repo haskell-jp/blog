@@ -102,7 +102,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                  <div class="$headingDivClass$">
+                  $if(language)$
+                  <div lang="$language$" class="$headingDivClass$">
+                  $else$
+                  <div lang="ja" class="$headingDivClass$">
+                  $endif$
                     <div class="jumbotron" style="background: #eee;">
                       <h1>$title$</h1>
                       $subHeadingContent$

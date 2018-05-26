@@ -84,10 +84,13 @@ main = hakyllWith hakyllConfig $ do
             let relatedPostCtx = prevPostCtx `mappend` nextPostCtx
                 lookupUrl ident = maybe empty (pure . toUrl) =<< getRoute ident
                 lookupTitle ident = maybe empty pure =<< getMetadataField ident "title"
+                lookupLanguage ident = fromMaybe "ja" <$> getMetadataField ident "language"
                 prevPostCtx = field "prevPostUrl" (getPrevPostField lookupUrl) `mappend`
-                              field "prevPostTitle" (getPrevPostField lookupTitle)
+                              field "prevPostTitle" (getPrevPostField lookupTitle) `mappend`
+                              field "prevPostLanguage" (getPrevPostField lookupLanguage)
                 nextPostCtx = field "nextPostUrl" (getNextPostField lookupUrl) `mappend`
-                              field "nextPostTitle" (getNextPostField lookupTitle)
+                              field "nextPostTitle" (getNextPostField lookupTitle)`mappend`
+                              field "nextPostLanguage" (getNextPostField lookupLanguage)
             let postsCtx =
                     field "description" createOpenGraphDescription `mappend`
                     boolField "article" (const True) `mappend`
