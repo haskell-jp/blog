@@ -1,7 +1,11 @@
 $for(posts)$
   $if(draft)$
   $else$
-    <div class="post-preview">
+    $if(language)$
+    <div class="post-preview" lang="$language$">
+    $else$
+    <div class="post-preview" lang="ja">
+    $endif$
         <a href="$url$">
             <h2 class="post-title">
                 $title$
