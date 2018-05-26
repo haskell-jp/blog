@@ -94,11 +94,13 @@ main = hakyllWith hakyllConfig $ do
                     field "subHeadingContent" createSubHeadingContentForPost `mappend`
                     relatedPostCtx `mappend`
                     postCtx
+            language <-
+              fmap (fromMaybe "ja") $ (`getMetadataField` "language") =<< getUnderlying
             pandocOut <-
                 pandocCompilerWithTransform
                   defaultHakyllReaderOptions
                   defaultHakyllWriterOptions
-                  addSpaceAroundAsciiPandoc
+                  (addSpaceAroundAsciiPandoc language)
             postTemplateOut <- loadAndApplyTemplate postTemplate postsCtx pandocOut
             applyDefaultTemplate postsCtx =<< saveSnapshot "content" postTemplateOut
 
@@ -198,8 +200,17 @@ postsAndDraftsRoutes = metadataRoute $ \metadata ->
 
 -- | All blocks of Latin text will be placed in @\<span\>@ tags with an
 -- @\"ascii\"@ class.
-addSpaceAroundAsciiPandoc :: Pandoc -> Pandoc
-addSpaceAroundAsciiPandoc = bottomUp (collapseAsciiSpan . addSpaceAroundAsciiInlines)
+addSpaceAroundAsciiPandoc
+  :: String
+  -- ^ Language of the article got from the language metadata.
+  --   This transformation should be executed only for Japanese articles.
+  --   Related: https://github.com/haskell-jp/blog/issues/119 https://github.com/haskell-jp/blog/pull/121
+  -> Pandoc -- ^ Content of the article before inserting the span tags.
+  -> Pandoc
+addSpaceAroundAsciiPandoc lang =
+  if lang == "ja"
+    then bottomUp (collapseAsciiSpan . addSpaceAroundAsciiInlines)
+    else id
 
 collapseAsciiSpan :: [Inline] -> [Inline]
 collapseAsciiSpan (AsciiSpan innerInlinesA : Space : AsciiSpan innerInlinesB : other) =
