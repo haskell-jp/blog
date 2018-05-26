@@ -97,7 +97,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                  <div class="post-heading">
+                  
+                  <div lang="en" class="post-heading">
+                  
                     <div class="jumbotron" style="background: #eee;">
                       <h1>Errors and the workarounds frequently encountered when dealing with Haskell on Windows</h1>
                       <h2 class="subheading">Quick-and-dirty checklist</h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on May 25, 2018</span><span class="meta">Tags: Windows</span>
@@ -109,7 +111,9 @@
     </header>
 
     <!-- Main Content -->
-    <article>
+    
+<article lang="en">
+
     <div class="container">
         <div class="row">
             <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
@@ -135,65 +139,65 @@
         <div class="row">
             <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<p><span class="ascii">This is the English version of</span> <a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html"><span class="ascii">Windows</span>で<span class="ascii">Haskell</span>を扱う時によく遭遇するエラーと対処法</a><span class="ascii">.</span><br />
-<span class="ascii">The original article is the 4th article of</span> <a href="https://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 (Japanese)</span></a><span class="ascii">.</span></p>
-<p><span class="ascii">What I</span>’<span class="ascii">m going to tell is summarized as</span> <a href="https://twitter.com/igrep/status/938056578934042626"><span class="ascii">just one tweet (originally in Japanese)</span></a><span class="ascii">:</span></p>
+<p>This is the English version of <a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html">WindowsでHaskellを扱う時によく遭遇するエラーと対処法</a>.<br />
+The original article is the 4th article of <a href="https://qiita.com/advent-calendar/2017/haskell4">Haskell (その4) Advent Calendar 2017 (Japanese)</a>.</p>
+<p>What I’m going to tell is summarized as <a href="https://twitter.com/igrep/status/938056578934042626">just one tweet (originally in Japanese)</a>:</p>
 <blockquote>
-<p><span class="ascii">What I</span>’<span class="ascii">ve learned:</span></p>
+<p>What I’ve learned:</p>
 <ul>
-<li><span class="ascii">chcp65001 if</span> ‘<span class="ascii">Invalid character</span>’</li>
-<li><span class="ascii">rebuild if</span> ‘<span class="ascii">Permission Denied</span>’</li>
-<li><span class="ascii">Don</span>’<span class="ascii">t mix Japanese characters in file paths.</span></li>
-<li><span class="ascii">Some libraries in C are available, and others are not.</span></li>
+<li>chcp65001 if ‘Invalid character’</li>
+<li>rebuild if ‘Permission Denied’</li>
+<li>Don’t mix Japanese characters in file paths.</li>
+<li>Some libraries in C are available, and others are not.</li>
 </ul>
-<p><span class="ascii">Perhaps they</span>’<span class="ascii">re helpful in other languages.</span></p>
+<p>Perhaps they’re helpful in other languages.</p>
 </blockquote>
-<p><span class="ascii">Let me add more details.</span></p>
-<h1 id="chcp-65001-if-invalid-character"><span class="ascii">chcp 65001 if</span> “<span class="ascii">Invalid character</span>”</h1>
-<p><span class="ascii">You would have encountered this frequently, especially if you don</span>’<span class="ascii">t know how to avoid/fix this.</span><br />
-<span class="ascii">Oh, it</span>’<span class="ascii">s caused again by building with hakyll!</span></p>
+<p>Let me add more details.</p>
+<h1 id="chcp-65001-if-invalid-character">chcp 65001 if “Invalid character”</h1>
+<p>You would have encountered this frequently, especially if you don’t know how to avoid/fix this.<br />
+Oh, it’s caused again by building with hakyll!</p>
 <pre><code>&gt; stack exec -- site rebuild
 ...
   [ERROR] preprocessed-site\posts/2017/01-first.md: hGetContents: invalid argument (invalid byte sequence)</code></pre>
-<p><span class="ascii">The object called</span> <a href="https://www.stackage.org/haddock/lts-10.0/base-4.10.1.0/System-IO.html#t:Handle"><code>Handle</code></a><span class="ascii">, used by GHC to read and write a file, knows its character encoding.</span></p>
-<p><span class="ascii">This resembles Ruby</span>’<span class="ascii">s</span> <a href="https://ruby-doc.org/core-2.5.0/IO.html"><code>IO</code></a> <span class="ascii">and Perl</span>’<span class="ascii">s file handler.</span><br />
-<span class="ascii">Both of them represent the</span> “<span class="ascii">gateway</span>” <span class="ascii">of data, and assigning character encoding to them enables us to handle the only, consistently encoded strings by converting the incoming data.</span><br />
-<span class="ascii">In Haskell</span>’<span class="ascii">s type</span> <code>Char</code><span class="ascii">, the only default encoding is UTF-32 (is this the right name in this case?).</span></p>
-<p><span class="ascii">The character encoding assigned to a</span> <code>Handle</code> <span class="ascii">by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).</span><br />
-<span class="ascii">But it</span>’<span class="ascii">s now soon becoming 2018 (when writing the original article). Most files you create should be in UTF-8 unless you write programs in notepad.exe</span><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a><span class="ascii">.</span><br />
-<span class="ascii">It doesn</span>’<span class="ascii">t work to read a UTF-8 file as a Windows-31J file because they</span>’<span class="ascii">re very different encoding system.</span><br />
-<span class="ascii">The</span> <code>invalid byte sequence</code> <span class="ascii">error, shown at the head of this section, is caused by that inconsistency.</span><br />
-<span class="ascii">Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.</span></p>
-<h2 id="workaround"><span class="ascii">Workaround</span></h2>
-<h3 id="if-you-encounter-as-a-user"><span class="ascii">If you encounter as a user</span></h3>
-<p><span class="ascii">In many cases you can avoid these kind of errors by running the below command in advance.</span></p>
+<p>The object called <a href="https://www.stackage.org/haddock/lts-10.0/base-4.10.1.0/System-IO.html#t:Handle"><code>Handle</code></a>, used by GHC to read and write a file, knows its character encoding.</p>
+<p>This resembles Ruby’s <a href="https://ruby-doc.org/core-2.5.0/IO.html"><code>IO</code></a> and Perl’s file handler.<br />
+Both of them represent the “gateway” of data, and assigning character encoding to them enables us to handle the only, consistently encoded strings by converting the incoming data.<br />
+In Haskell’s type <code>Char</code>, the only default encoding is UTF-32 (is this the right name in this case?).</p>
+<p>The character encoding assigned to a <code>Handle</code> by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).<br />
+But it’s now soon becoming 2018 (when writing the original article). Most files you create should be in UTF-8 unless you write programs in notepad.exe<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.<br />
+It doesn’t work to read a UTF-8 file as a Windows-31J file because they’re very different encoding system.<br />
+The <code>invalid byte sequence</code> error, shown at the head of this section, is caused by that inconsistency.<br />
+Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.</p>
+<h2 id="workaround">Workaround</h2>
+<h3 id="if-you-encounter-as-a-user">If you encounter as a user</h3>
+<p>In many cases you can avoid these kind of errors by running the below command in advance.</p>
 <pre><code>&gt; chcp 65001
 &gt; stack exec -- site rebuild
 ... Should work!</code></pre>
-<p><span class="ascii">This command temporarily changes the character encoding in the current Command Prompt session.</span><br />
-<span class="ascii">The number</span> <code>65001</code> <span class="ascii">seems to stand for UTF-8.</span><br />
-<span class="ascii">To roll it back, run</span> <code>chcp 932</code><span class="ascii">.</span></p>
+<p>This command temporarily changes the character encoding in the current Command Prompt session.<br />
+The number <code>65001</code> seems to stand for UTF-8.<br />
+To roll it back, run <code>chcp 932</code>.</p>
 <pre><code>&gt; chcp 932</code></pre>
-<p><span class="ascii">It seems that the</span> “<span class="ascii">932</span>” <span class="ascii">of</span> “<span class="ascii">CP932</span>” <span class="ascii">is the same</span> “<span class="ascii">932</span>” <span class="ascii">entered here!</span></p>
-<p><span class="ascii">The</span> <code>chcp</code> <span class="ascii">command is available in MSYS2</span>’<span class="ascii">s bash (Surprises me a little. How it works?).</span><br />
-<span class="ascii">But you should know that</span> <code>chcp</code> <span class="ascii">exists at</span> <code>C:\Windows\System32\</code><span class="ascii">, which MSYS2 users usually don</span>’<span class="ascii">t want to include in the</span> <code>PATH</code><span class="ascii">.</span><br />
-<span class="ascii">The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g.</span> <code>find.exe</code><span class="ascii">)!</span></p>
-<p><span class="ascii">So I</span>’<span class="ascii">ve dropped</span> <code>C:\Windows\System32\</code> <span class="ascii">from</span> <code>PATH</code> <span class="ascii">when using MSYS2.</span><br />
-<span class="ascii">If you</span>’<span class="ascii">ve done like me, run by full path:</span></p>
+<p>It seems that the “932” of “CP932” is the same “932” entered here!</p>
+<p>The <code>chcp</code> command is available in MSYS2’s bash (Surprises me a little. How it works?).<br />
+But you should know that <code>chcp</code> exists at <code>C:\Windows\System32\</code>, which MSYS2 users usually don’t want to include in the <code>PATH</code>.<br />
+The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g. <code>find.exe</code>)!</p>
+<p>So I’ve dropped <code>C:\Windows\System32\</code> from <code>PATH</code> when using MSYS2.<br />
+If you’ve done like me, run by full path:</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="ascii">If it still doesn</span>’<span class="ascii">t work, or you</span>’<span class="ascii">re the developer of the libraries etc.</span></h3>
-<p><span class="ascii">Unfortunately, the error can often persist even after running</span> <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a><span class="ascii">.</span><br />
-<span class="ascii">According to my guess, the</span> <code>chcp 65001</code> <span class="ascii">command doesn</span>’<span class="ascii">t affect the grandchild processes of the Command Prompt (or bash etc.) on which the</span> <code>chcp</code> <span class="ascii">is run (i.e. the child processes of the command you enter).</span></p>
-<p><span class="ascii">If the error still happens you can either report to the developer, or fix it yourself!</span><br />
-<span class="ascii">When reporting; asking the developer to run after doing</span> <code>chcp 932</code> <span class="ascii">could help him/her reproduce the bug (Sorry, I</span>’<span class="ascii">ve never tried it).</span><br />
-<span class="ascii">When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the</span> <code>Handle</code> <span class="ascii">object.</span></p>
-<p><span class="ascii">This problem is caused by the inconsistency between the</span> <code>Handle</code><span class="ascii">'s character encoding and the encoding of the bytes that are actually transferred. So switching into the proper encoding should fix it.</span><br />
-<span class="ascii">If the error happens when reading/writing a common UTF-8 file via the</span> <code>Handle</code><span class="ascii">, writing like below can avoid it:</span></p>
+<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc.">If it still doesn’t work, or you’re the developer of the libraries etc.</h3>
+<p>Unfortunately, the error can often persist even after running <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.<br />
+According to my guess, the <code>chcp 65001</code> command doesn’t affect the grandchild processes of the Command Prompt (or bash etc.) on which the <code>chcp</code> is run (i.e. the child processes of the command you enter).</p>
+<p>If the error still happens you can either report to the developer, or fix it yourself!<br />
+When reporting; asking the developer to run after doing <code>chcp 932</code> could help him/her reproduce the bug (Sorry, I’ve never tried it).<br />
+When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the <code>Handle</code> object.</p>
+<p>This problem is caused by the inconsistency between the <code>Handle</code>'s character encoding and the encoding of the bytes that are actually transferred. So switching into the proper encoding should fix it.<br />
+If the error happens when reading/writing a common UTF-8 file via the <code>Handle</code>, writing like below can avoid it:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb5-4" data-line-number="4">hSetEncoding handle utf8</a></code></pre></div>
-<p><span class="ascii">As a bonus, I</span>’<span class="ascii">ll show you an example of how</span> <a href="https://github.com/haskell/haddock/pull/566"><span class="ascii">I myself addressed a problem caused by the standard output (or standard error output), and fixed a bug in haddock</span></a><span class="ascii">.</span> <span class="ascii">In short, it can at least suppress the error to paste the code below before your program uses the</span> <code>Handle</code> <span class="ascii">(Copied from</span> <a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2"><span class="ascii">this commit</span></a><span class="ascii">).</span></p>
+<p>As a bonus, I’ll show you an example of how <a href="https://github.com/haskell/haddock/pull/566">I myself addressed a problem caused by the standard output (or standard error output), and fixed a bug in haddock</a>. In short, it can at least suppress the error to paste the code below before your program uses the <code>Handle</code> (Copied from <a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">this commit</a>).</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</a>
@@ -208,48 +212,48 @@
 <a class="sourceLine" id="cb6-12" data-line-number="12"><span class="ot">#if defined(mingw32_HOST_OS)</span></a>
 <a class="sourceLine" id="cb6-13" data-line-number="13">  liftIO <span class="fu">$</span> hSetEncoding stdout <span class="fu">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></a>
 <a class="sourceLine" id="cb6-14" data-line-number="14"><span class="ot">#endif</span></a></code></pre></div>
-<p><span class="ascii">CPP macros to</span> <code>import</code> <span class="ascii">modules only available on Windows makes this code hard to read, so let</span>’<span class="ascii">s cut out the verbose part:</span></p>
+<p>CPP macros to <code>import</code> modules only available on Windows makes this code hard to read, so let’s cut out the verbose part:</p>
 <pre><code>hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure</code></pre>
-<p><span class="ascii">Here</span>’<span class="ascii">re the details:</span><br />
-<span class="ascii">First of all,</span> <code>hSetEncoding</code> <span class="ascii">is the function to change the</span> <code>Handle</code>‘<span class="ascii">s character encoding, as I referred before.</span><br />
-<span class="ascii">Then</span> <code>stdout</code> <span class="ascii">is the</span> <code>Handle</code> <span class="ascii">for the standard output as its name.</span><br />
-<span class="ascii">The last function call</span> <code>mkLocaleEncoding TransliterateCodingFailure</code> <span class="ascii">returns a character encoding object for the current Windows</span>’ <span class="ascii">character encoding (i.e.</span> <code>chcp</code><span class="ascii">ed character encoding), configured as</span> “<span class="ascii">Even if the</span> <code>Handle</code> <span class="ascii">detects any characters which can</span>’<span class="ascii">t be converted into/from a Unicode character, don</span>’<span class="ascii">t raise an error, convert it into some likable character instead.</span>”<span class="ascii">.</span></p>
-<p><span class="ascii">As the result of the</span> <code>hSetEncoding</code> <span class="ascii">above, and the current character encoding is Windows-31J, the character used in the compilation error of GHC:</span></p>
+<p>Here’re the details:<br />
+First of all, <code>hSetEncoding</code> is the function to change the <code>Handle</code>‘s character encoding, as I referred before.<br />
+Then <code>stdout</code> is the <code>Handle</code> for the standard output as its name.<br />
+The last function call <code>mkLocaleEncoding TransliterateCodingFailure</code> returns a character encoding object for the current Windows’ character encoding (i.e. <code>chcp</code>ed character encoding), configured as “Even if the <code>Handle</code> detects any characters which can’t be converted into/from a Unicode character, don’t raise an error, convert it into some likable character instead.”.</p>
+<p>As the result of the <code>hSetEncoding</code> above, and the current character encoding is Windows-31J, the character used in the compilation error of GHC:</p>
 <pre><code>↓This character
 • No instance for (Transformation Nagisa CardCommune_Mepple)
 ↑</code></pre>
-<p><span class="ascii">is converted into</span></p>
+<p>is converted into</p>
 <pre><code>? No instance for (Transformation Nagisa CardCommune_Mepple)</code></pre>
-<p><span class="ascii">the question mark. Yeah, this is the</span> “<span class="ascii">?</span>” <span class="ascii">I bet most users of GHC on Japanese Windows have seen at least once</span> 😅<br />
-<span class="ascii">This makes me guess GHC executes</span> <code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code> <span class="ascii">by default before printing out the compilation error.</span><br />
-<span class="ascii">Anyway, it</span>’<span class="ascii">s good that the program doesn</span>’<span class="ascii">t abort due to the error!</span></p>
-<p><span class="ascii">As the last note of this section: Read</span> <a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html"><span class="ascii">the document of GHC.IO.Encoding</span></a> <span class="ascii">for the details of how GHC handles various character encodings.</span></p>
-<h1 id="rebuild-if-permission-denied"><span class="ascii">Rebuild if</span> “<span class="ascii">Permission Denied</span>”</h1>
-<p><span class="ascii">I</span>’<span class="ascii">ve made the first section too long for</span> “<span class="ascii">Quick-and-dirty checklist</span>”<span class="ascii">, but I</span>’<span class="ascii">ll tell you in short from this section.</span><br />
-<span class="ascii">We often encounter some errors like</span> “<span class="ascii">Permission Denied</span>”<span class="ascii">,</span> “<span class="ascii">Directory not empty</span>” <span class="ascii">and similar ones when running</span> <code>stack build</code><span class="ascii">,</span> <code>ghc</code><span class="ascii">,</span> <code>elm-make</code><span class="ascii">, and any other commands written in Haskell.</span><br />
-<span class="ascii">To tell the truth, I</span>’<span class="ascii">m completely not sure of the cause, but those errors disappear by running the same command several times.</span><br />
-<span class="ascii">The key is to repeat many times. Never give up only by once or twice</span> 😅<br />
-<span class="ascii">Turning off your antivirus software</span>’<span class="ascii">s scanning of the problematic directory, Dropbox</span>’<span class="ascii">s synchronisation, etc. might also fix such errors.</span></p>
-<h1 id="try-hard-to-build-libraries-in-c"><span class="ascii">Try hard to build libraries in C</span>…</h1>
-<p><span class="ascii">On Windows, it frequently troubles us to install libraries which depend on libraries written in C (registered as</span> <code>lib***</code> <span class="ascii">in your OS</span>’<span class="ascii">s package manager).</span><br />
-<span class="ascii">But this is not the case only for Haskell.</span></p>
-<p><span class="ascii">The way to fix depends on the case, so let me give you some examples as external links (Sorry, all pages are written in Japanese!).</span></p>
+<p>the question mark. Yeah, this is the “?” I bet most users of GHC on Japanese Windows have seen at least once 😅<br />
+This makes me guess GHC executes <code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code> by default before printing out the compilation error.<br />
+Anyway, it’s good that the program doesn’t abort due to the error!</p>
+<p>As the last note of this section: Read <a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html">the document of GHC.IO.Encoding</a> for the details of how GHC handles various character encodings.</p>
+<h1 id="rebuild-if-permission-denied">Rebuild if “Permission Denied”</h1>
+<p>I’ve made the first section too long for “Quick-and-dirty checklist”, but I’ll tell you in short from this section.<br />
+We often encounter some errors like “Permission Denied”, “Directory not empty” and similar ones when running <code>stack build</code>, <code>ghc</code>, <code>elm-make</code>, and any other commands written in Haskell.<br />
+To tell the truth, I’m completely not sure of the cause, but those errors disappear by running the same command several times.<br />
+The key is to repeat many times. Never give up only by once or twice 😅<br />
+Turning off your antivirus software’s scanning of the problematic directory, Dropbox’s synchronisation, etc. might also fix such errors.</p>
+<h1 id="try-hard-to-build-libraries-in-c">Try hard to build libraries in C…</h1>
+<p>On Windows, it frequently troubles us to install libraries which depend on libraries written in C (registered as <code>lib***</code> in your OS’s package manager).<br />
+But this is not the case only for Haskell.</p>
+<p>The way to fix depends on the case, so let me give you some examples as external links (Sorry, all pages are written in Japanese!).</p>
 <ul>
-<li><span class="ascii">HDBC-sqlite3:</span>
+<li>HDBC-sqlite3:
 <ul>
-<li><a href="https://qiita.com/igrep/items/d947ab871eb5b20b57e4"><span class="ascii">Windows</span>版<span class="ascii">stack</span>でも<span class="ascii">HDBC-sqlite3</span>をビルドする <span class="ascii">- Qiita</span></a></li>
-<li><a href="http://hiratara.hatenadiary.jp/entry/2017/01/29/110100"><span class="ascii">MSYS2</span>で<span class="ascii">HDBC-sqlite3</span>をコンパイル <span class="ascii">-</span> 北海道苫小牧市出身の初老<span class="ascii">PG</span>が書くブログ</a></li>
+<li><a href="https://qiita.com/igrep/items/d947ab871eb5b20b57e4">Windows版stackでもHDBC-sqlite3をビルドする - Qiita</a></li>
+<li><a href="http://hiratara.hatenadiary.jp/entry/2017/01/29/110100">MSYS2でHDBC-sqlite3をコンパイル - 北海道苫小牧市出身の初老PGが書くブログ</a></li>
 </ul></li>
-<li><a href="https://teratail.com/questions/102462"><span class="ascii">Haskell - Haskell</span>にて<span class="ascii">stack</span>で<span class="ascii">iconv</span>パッケージを利用する方法【<span class="ascii">Windows</span>環境】<span class="ascii">(102462)</span>｜<span class="ascii">teratail</span></a></li>
+<li><a href="https://teratail.com/questions/102462">Haskell - Haskellにてstackでiconvパッケージを利用する方法【Windows環境】(102462)｜teratail</a></li>
 </ul>
-<p><span class="ascii">That</span>’<span class="ascii">s all!</span><br />
-<span class="ascii">Then, Happy Hacking in Haskell on Windows 10!! I don</span>’<span class="ascii">t know WSL!</span>🏁🏁🏁</p>
+<p>That’s all!<br />
+Then, Happy Hacking in Haskell on Windows 10!! I don’t know WSL!🏁🏁🏁</p>
 <section class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><span class="ascii">Translator</span>’<span class="ascii">s note: In Japanese locale, notepad.exe saves the file in Windows-31J. This will be changed (into UTF-8) in the future release of Windows 10.</span><a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p><span class="ascii">By the way, when I once tried to build the compiler of</span> <a href="http://eta-lang.org/"><span class="ascii">Eta</span></a><span class="ascii">, (as far as I remember)</span> <code>chcp 65001</code> <span class="ascii">didn</span>’<span class="ascii">t fix the problem, but</span> <code>chcp 20127</code> <span class="ascii">did.</span><br />
-<span class="ascii">As</span> <code>chcp 20127</code> <span class="ascii">switches into US-ASCII, I suspect the local environment of the developer of Eta is US-ASCII</span>…<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Translator’s note: In Japanese locale, notepad.exe saves the file in Windows-31J. This will be changed (into UTF-8) in the future release of Windows 10.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>By the way, when I once tried to build the compiler of <a href="http://eta-lang.org/">Eta</a>, (as far as I remember) <code>chcp 65001</code> didn’t fix the problem, but <code>chcp 20127</code> did.<br />
+As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environment of the developer of Eta is US-ASCII…<a href="#fnref2" class="footnote-back">↩</a></p></li>
 </ol>
 </section>
             </div>
@@ -259,11 +263,11 @@
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="../../">トップに戻る</a>
+                <a href="../../" lang="ja">トップに戻る</a>
             </div>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
-                <a href="../../posts/2018/about-ghc-exts-1.html" style="margin-left: auto;">GHC拡張ノック(Part 1)</a>
+                <a href="../../posts/2018/about-ghc-exts-1.html" style="margin-left: auto;" lang="ja">GHC拡張ノック(Part 1)</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
