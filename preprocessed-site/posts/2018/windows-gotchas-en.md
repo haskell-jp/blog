@@ -82,7 +82,7 @@ To roll it back, run `chcp 932`.
 It seems that the "932" of "CP932" is the same "932" entered here!
 
 
-The `chcp` command is available in MSYS2's bash (Surprises me a little. How it works?).  
+The `chcp` command is available in MSYS2's bash (Surprises me a little. Wondering how it works...😕).  
 But you should know that `chcp` exists at `C:\Windows\System32\`, which MSYS2 users usually don't want to include in the `PATH`.  
 The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g. `find.exe`)!
 
