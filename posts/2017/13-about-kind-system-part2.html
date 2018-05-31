@@ -310,37 +310,59 @@
 <p><code>()</code>は、ユニット型の方が優先されています。<code>(,)</code>は、最初に書いた型の種によって、受け取る種が左右されていることが分かりますね。型制約のペアは、<code>(,) (Monad Maybe) (Monoid Bool)</code>というような表記は許容されていませんが、それ以外はあまりタプル型と変わりありません。異なるのは、タプル型が幾つかのデータ型を受け取って一つのデータ型となるのに対し、型制約のペアは型制約を幾つか受け取りそれを全て満たすような型制約になるということです。</p>
 <p>最後に<code>ConstraintKinds</code>拡張をきちんと紹介しておきましょう。<code>ConstraintKinds</code>拡張は、次のようなことを可能にしてくれる拡張です。</p>
 <ul>
-<li><p>型エイリアスと同じ構文で、型制約コンストラクタのエイリアスを書くことができるようになる。</p>
-<p>つまり、次のようなことが可能になります<span class="ascii">:</span> <span class="ascii">```haskell</span> <span class="ascii">{-# LANGUAGE ConstraintKinds #-}</span></p>
-<p>– 型制約のエイリアス <span class="ascii">type MonMonad m a = (Monoid (m a), Monad m)</span></p>
-<p>– 型制約コンストラクタのエイリアス <span class="ascii">type Mappable = Functor</span> <span class="ascii">```</span></p></li>
-<li><p>型制約種<code>Constraint</code>を持つ型を、型制約として使用できるようにする。</p>
-<p>こちらは、あまり実感が湧かないかもしれません。デフォルトで、<span class="ascii">GHC</span>では型クラスなどを型制約として扱う、つまり<code>=&gt;</code>に渡すことができます。ですが、<code>Constraint</code>の種を持つ型制約変数などを渡すことはできません<span class="ascii">:</span> <span class="ascii">```haskell</span> <span class="ascii">&gt;&gt;&gt; import Data.Proxy</span> <span class="ascii">&gt;&gt;&gt;</span> – 型クラスを型制約として使っているため、問題ない <span class="ascii">&gt;&gt;&gt; :type undefined :: Monad m =&gt; m a</span> <span class="ascii">undefined :: Monad m =&gt; m a :: Monad m =&gt; m a</span> <span class="ascii">&gt;&gt;&gt;</span> – 型制約変数は、型制約として扱えない <span class="ascii">&gt;&gt;&gt; :type undefined :: a =&gt; Proxy a</span></p>
-<p><interactive><span class="ascii">:1:14: error:</span> • <span class="ascii">Illegal constraint: a (Use ConstraintKinds to permit this)</span> • <span class="ascii">In an expression type signature: a =&gt; Proxy a</span> <span class="ascii">In the expression: undefined :: a =&gt; Proxy a</span> <span class="ascii">&gt;&gt;&gt; :set -XConstraintKinds</span> <span class="ascii">&gt;&gt;&gt;</span> – 型制約種を持つものなら、型制約として扱えるようになる <span class="ascii">&gt;&gt;&gt; :type undefined :: a =&gt; Proxy a</span> <span class="ascii">undefined :: a =&gt; Proxy a :: a =&gt; Proxy a</span> <span class="ascii">``</span><code></code><span class="ascii">((Monad m, Monoid a), Show a)</span><code>などが標準で扱えないのも、</code><span class="ascii">(Monad m, Monoid a)</span><code>という形式のものは型制約種を持ってはいますが、標準で許容されている形式ではないからです。このような場合に、より柔軟に扱えるようにしてくれる拡張が、</code><span class="ascii">ConstraintKinds`</span>拡張です。</p></li>
+<li>型エイリアスと同じ構文で、型制約コンストラクタのエイリアスを書くことができるようになる。</li>
 </ul>
+<p>つまり、次のようなことが可能になります<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="ot">{-# LANGUAGE ConstraintKinds #-}</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="co">-- 型制約のエイリアス</span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="kw">type</span> <span class="dt">MonMonad</span> m a <span class="fu">=</span> (<span class="dt">Monoid</span> (m a), <span class="dt">Monad</span> m)</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="co">-- 型制約コンストラクタのエイリアス</span></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="kw">type</span> <span class="dt">Mappable</span> <span class="fu">=</span> <span class="dt">Functor</span></a></code></pre></div>
+<ul>
+<li>型制約種<code>Constraint</code>を持つ型を、型制約として使用できるようにする。</li>
+</ul>
+<p>こちらは、あまり実感が湧かないかもしれません。デフォルトで、<span class="ascii">GHC</span>では型クラスなどを型制約として扱う、つまり<code>=&gt;</code>に渡すことができます。ですが、<code>Constraint</code>の種を持つ型制約変数などを渡すことはできません<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">Data.Proxy</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 型クラスを型制約として使っているため、問題ない</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span><span class="ot"> undefined ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> m a</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">undefined<span class="ot"> ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> m<span class="ot"> a ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> m a</a>
+<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 型制約変数は、型制約として扱えない</span></a>
+<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span><span class="ot"> undefined ::</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span> a</a>
+<a class="sourceLine" id="cb17-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">1</span><span class="fu">:</span><span class="dv">14</span><span class="fu">:</span> error<span class="fu">:</span></a>
+<a class="sourceLine" id="cb17-9" data-line-number="9">    • <span class="dt">Illegal</span> constraint<span class="fu">:</span> a (<span class="dt">Use</span> <span class="dt">ConstraintKinds</span> to permit this)</a>
+<a class="sourceLine" id="cb17-10" data-line-number="10">    • <span class="dt">In</span> an expression <span class="kw">type</span> signature<span class="fu">:</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span> a</a>
+<a class="sourceLine" id="cb17-11" data-line-number="11">      <span class="dt">In</span> the expression<span class="fu">:</span><span class="ot"> undefined ::</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span> a</a>
+<a class="sourceLine" id="cb17-12" data-line-number="12"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XConstraintKinds</span></a>
+<a class="sourceLine" id="cb17-13" data-line-number="13"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 型制約種を持つものなら、型制約として扱えるようになる</span></a>
+<a class="sourceLine" id="cb17-14" data-line-number="14"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span><span class="ot"> undefined ::</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span> a</a>
+<a class="sourceLine" id="cb17-15" data-line-number="15">undefined<span class="ot"> ::</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span><span class="ot"> a ::</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span> a</a></code></pre></div>
+<p><code>((Monad m, Monoid a), Show a)</code>などが標準で扱えないのも、<code>(Monad m, Monoid a)</code>という形式のものは型制約種を持ってはいますが、標準で許容されている形式ではないからです。このような場合に、より柔軟に扱えるようにしてくれる拡張が、<code>ConstraintKinds</code>拡張です。</p>
 <p>型制約種<code>Constraint</code>について、馴染んでもらえたでしょうか？普段、この種や<code>ConstraintKinds</code>を明示的に使うような場面は少ないかもしれませんね。もし、型制約種について興味を持ったなら、<a href="http://hackage.haskell.org/package/constraints"><span class="ascii">constraints</span></a>というパッケージを見てみるのが良いでしょう。このパッケージは、型制約プログラミングに関する幾つかの有用な<span class="ascii">API</span>を提供しています。</p>
 <h3 id="データ型の昇格">データ型の昇格</h3>
 <p>今までは、<code>*</code>や<code>Constraint</code>、<code>k1 -&gt; k2</code>といった、予め用意された特別な種を紹介してきました。<span class="ascii">GHC</span>上で、私たちが種を定義するような方法も、実は用意されています。それが、<code>DataKinds</code>という拡張です。<code>DataKinds</code>は基本的には簡単な拡張です。</p>
 <p>私たちは、以下のようなデータ宣言を使ってデータ型を定義することができました<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw">data</span> <span class="dt">SimpleData</span> a <span class="fu">=</span> <span class="dt">SimpleData</span> a</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">data</span> <span class="dt">SimpleData</span> a <span class="fu">=</span> <span class="dt">SimpleData</span> a</a></code></pre></div>
 <p>このデータ宣言は、</p>
 <ul>
 <li><code>SimpleData :: * -&gt; *</code>な、<code>SimpleData a</code>という<strong>データ型</strong>を作るような型コンストラクタ</li>
 <li><code>SimpleData :: a -&gt; SimpleData a</code>な、<code>SimpleData a</code>という<strong>データ型の値</strong>を作る値コンストラクタ</li>
 </ul>
 <p>をそれぞれ作るのでした。<code>DataKinds</code>は、このそれぞれのコンストラクタを、一つ上の層に昇格させることができるようになる拡張です。どういうことかは、見てみた方が早いと思うので、<span class="ascii">GHCi</span>上でいくつか試してみます<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 単純なデータ型を作成</span></a>
-<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">SimpleData</span> a <span class="fu">=</span> <span class="dt">SimpleData</span> a</a>
-<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- DataKinds拡張有効化</span></a>
-<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span></a>
-<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 通常のコンストラクタ</span></a>
-<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">SimpleData</span></a>
-<a class="sourceLine" id="cb17-7" data-line-number="7"><span class="dt">SimpleData</span><span class="ot"> ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dt">SimpleData</span></a>
-<a class="sourceLine" id="cb17-9" data-line-number="9"><span class="dt">SimpleData</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">SimpleData</span> a</a>
-<a class="sourceLine" id="cb17-10" data-line-number="10"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- DataKindsによって、一つ上の層に昇格させたコンストラクタ</span></a>
-<a class="sourceLine" id="cb17-11" data-line-number="11"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData</span></a>
-<a class="sourceLine" id="cb17-12" data-line-number="12"><span class="ch">'SimpleData :: a -&gt; SimpleData a</span></a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 単純なデータ型を作成</span></a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">SimpleData</span> a <span class="fu">=</span> <span class="dt">SimpleData</span> a</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- DataKinds拡張有効化</span></a>
+<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span></a>
+<a class="sourceLine" id="cb19-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 通常のコンストラクタ</span></a>
+<a class="sourceLine" id="cb19-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">SimpleData</span></a>
+<a class="sourceLine" id="cb19-7" data-line-number="7"><span class="dt">SimpleData</span><span class="ot"> ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb19-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dt">SimpleData</span></a>
+<a class="sourceLine" id="cb19-9" data-line-number="9"><span class="dt">SimpleData</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">SimpleData</span> a</a>
+<a class="sourceLine" id="cb19-10" data-line-number="10"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- DataKindsによって、一つ上の層に昇格させたコンストラクタ</span></a>
+<a class="sourceLine" id="cb19-11" data-line-number="11"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData</span></a>
+<a class="sourceLine" id="cb19-12" data-line-number="12"><span class="ch">'SimpleData :: a -&gt; SimpleData a</span></a></code></pre></div>
 <p>最後の実行例に注目してください。ここで書かれている<code>SimpleData</code>は値コンストラクタのものです。先頭に<code>'</code><span class="ascii">(</span>シングルクォーテーション<span class="ascii">)</span>がついていますが、何より注目すべきなのは、種の表示にもやはり<code>SimpleData</code>というものが現れていることです。これが一つ上の層に昇格させるということになります。<code>DataKinds</code>拡張は、以下のようなものを提供する拡張になります<span class="ascii">:</span></p>
 <ul>
 <li>データ型の型コンストラクタを、種上で書けるようにする<span class="ascii">(</span><strong>種への昇格</strong><span class="ascii">)</span></li>
@@ -357,82 +379,82 @@
 <li>二つ目の<code>'SimpleData :: a -&gt; SimpleData a</code>の<code>a</code>は、任意の<strong>種</strong>を、</li>
 </ul>
 <p>それぞれ表すということに注意してください。では、種多相化されていることを確認してみましょう。以下を見てください<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData Bool</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="ch">'SimpleData Bool :: SimpleData *</span></a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData Maybe</span></a>
-<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="ch">'SimpleData Maybe :: SimpleData (* -&gt; *)</span></a>
-<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData Monad</span></a>
-<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="ch">'SimpleData Monoid :: SimpleData (* -&gt; Constraint)</span></a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData Bool</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="ch">'SimpleData Bool :: SimpleData *</span></a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData Maybe</span></a>
+<a class="sourceLine" id="cb20-4" data-line-number="4"><span class="ch">'SimpleData Maybe :: SimpleData (* -&gt; *)</span></a>
+<a class="sourceLine" id="cb20-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'SimpleData Monad</span></a>
+<a class="sourceLine" id="cb20-6" data-line-number="6"><span class="ch">'SimpleData Monoid :: SimpleData (* -&gt; Constraint)</span></a></code></pre></div>
 <p><code>Proxy</code>型のように、どんな値でもとれるようになっていることが分かると思います。注意して欲しいのは、値コンストラクタ、型コンストラクタがそれぞれ一つ上に昇格されたので、<code>'SimpleData Monoid</code>という型を持つような値は存在しないということです。値を作るコンストラクタは昇格して型コンストラクタになってしまいましたからね！ 値を持つ型は全て、<code>*</code>という種を持つのでしたね。<code>SimpleData a</code>という種は<code>*</code>と一致しないため、値を持たないということもできます。値が存在しないならば、一体どういう場面で役に立つのでしょうか？ 一つの活用例としては、データ型のタグに利用ができます。以下を見てください<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="ot">{-# LANGUAGE KindSignatures #-}</span></a>
-<a class="sourceLine" id="cb19-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb19-3" data-line-number="3"><span class="kw">data</span> <span class="dt">GET</span></a>
-<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="kw">data</span> <span class="dt">POST</span></a>
-<a class="sourceLine" id="cb19-5" data-line-number="5"><span class="kw">data</span> <span class="dt">PUT</span></a>
-<a class="sourceLine" id="cb19-6" data-line-number="6"><span class="kw">data</span> <span class="dt">DELETE</span></a>
-<a class="sourceLine" id="cb19-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb19-8" data-line-number="8"><span class="kw">data</span> <span class="dt">Request</span> (<span class="ot">a ::</span> <span class="fu">*</span>) <span class="fu">=</span> <span class="dt">Request</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb19-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb19-10" data-line-number="10"><span class="ot">forGetMethod ::</span> <span class="dt">Request</span> <span class="dt">GET</span> <span class="ot">-&gt;</span> <span class="fu">...</span></a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="ot">{-# LANGUAGE KindSignatures #-}</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="kw">data</span> <span class="dt">GET</span></a>
+<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw">data</span> <span class="dt">POST</span></a>
+<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="kw">data</span> <span class="dt">PUT</span></a>
+<a class="sourceLine" id="cb21-6" data-line-number="6"><span class="kw">data</span> <span class="dt">DELETE</span></a>
+<a class="sourceLine" id="cb21-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb21-8" data-line-number="8"><span class="kw">data</span> <span class="dt">Request</span> (<span class="ot">a ::</span> <span class="fu">*</span>) <span class="fu">=</span> <span class="dt">Request</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb21-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb21-10" data-line-number="10"><span class="ot">forGetMethod ::</span> <span class="dt">Request</span> <span class="dt">GET</span> <span class="ot">-&gt;</span> <span class="fu">...</span></a></code></pre></div>
 <p>この例は、<span class="ascii">HTTP</span>のリクエストが、どんなメソッドでのリクエストかを、タグ情報で持つような例です。このタグ情報によって、処理を型安全に分けることができます。しかしながら、以下の問題点があります。</p>
 <ul>
 <li>各メソッドのタグが別々のデータとして宣言されていて、集約されていません。</li>
 <li><code>Request</code>型も、メソッド用のタグの他にも<code>*</code>という種を持っているならどんな型でも、例えば<code>Request Bool</code>といった型を作ることもできるようになってしまいます。</li>
 </ul>
 <p><code>DataKinds</code>を使うことで、もう少しタグ情報を明確に書くことができます。それは、以下のような修正をくわえることで、実現できます<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="ot">{-# LANGUAGE DataKinds, KindSignatures #-}</span></a>
-<a class="sourceLine" id="cb20-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="kw">data</span> <span class="dt">HttpMethod</span></a>
-<a class="sourceLine" id="cb20-4" data-line-number="4">  <span class="fu">=</span> <span class="dt">GET</span></a>
-<a class="sourceLine" id="cb20-5" data-line-number="5">  <span class="fu">|</span> <span class="dt">POST</span></a>
-<a class="sourceLine" id="cb20-6" data-line-number="6">  <span class="fu">|</span> <span class="dt">PUT</span></a>
-<a class="sourceLine" id="cb20-7" data-line-number="7">  <span class="fu">|</span> <span class="dt">DELETE</span></a>
-<a class="sourceLine" id="cb20-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb20-9" data-line-number="9"><span class="kw">data</span> <span class="dt">Request</span> (<span class="ot">a ::</span> <span class="dt">HttpMethod</span>) <span class="fu">=</span> <span class="dt">Request</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb20-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb20-11" data-line-number="11"><span class="ot">forGetMethod ::</span> <span class="dt">Request</span> <span class="ch">'GET -&gt; ...</span></a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="ot">{-# LANGUAGE DataKinds, KindSignatures #-}</span></a>
+<a class="sourceLine" id="cb22-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw">data</span> <span class="dt">HttpMethod</span></a>
+<a class="sourceLine" id="cb22-4" data-line-number="4">  <span class="fu">=</span> <span class="dt">GET</span></a>
+<a class="sourceLine" id="cb22-5" data-line-number="5">  <span class="fu">|</span> <span class="dt">POST</span></a>
+<a class="sourceLine" id="cb22-6" data-line-number="6">  <span class="fu">|</span> <span class="dt">PUT</span></a>
+<a class="sourceLine" id="cb22-7" data-line-number="7">  <span class="fu">|</span> <span class="dt">DELETE</span></a>
+<a class="sourceLine" id="cb22-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb22-9" data-line-number="9"><span class="kw">data</span> <span class="dt">Request</span> (<span class="ot">a ::</span> <span class="dt">HttpMethod</span>) <span class="fu">=</span> <span class="dt">Request</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb22-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb22-11" data-line-number="11"><span class="ot">forGetMethod ::</span> <span class="dt">Request</span> <span class="ch">'GET -&gt; ...</span></a></code></pre></div>
 <p>この例では、<code>DataKinds</code>拡張を使うことで、前の例での欠点を修正しています。メソッド情報は<code>HttpMethod</code>というデータ型の宣言に集約していますし、種に昇格させたデータ型で種注釈を行うことで、<code>Request</code>は<code>HttpMethod</code>以外の型がとれないようになっています。このように、<code>DataKinds</code>は値を持ちませんが、タグを表す型としてとても便利です。</p>
 <p>その他にも、<code>DataKinds</code>拡張は、シングルトンというものを定義することによって、より有用になる場合があります。ただし、これらの話は種の話題というよりは型レベルプログラミングの話題になるので、この記事では紹介しません。興味がある方は、<a href="http://hackage.haskell.org/package/singletons"><span class="ascii">singletons</span></a>という有用なパッケージがあるので、見てみると良いでしょう。</p>
 <p>ところで、<code>DataKinds</code>は、リスト型<code>[a]</code>、タプル型<code>(a, b)</code>などにも適用できます。まずリスト型の昇格から見ていきましょう。以下を見てください<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span> <span class="fu">-</span><span class="dt">XTypeOperators</span></a>
-<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'[]</span></a>
-<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="ch">'[] :: [k]</span></a>
-<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(:)</span></a>
-<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="ch">'(:) :: a -&gt; [a] -&gt; [a]</span></a>
-<a class="sourceLine" id="cb21-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Functor</span> <span class="ch">': Applicative '</span><span class="fu">:</span> <span class="dt">Monad</span> <span class="ch">': '</span>[]</a>
-<a class="sourceLine" id="cb21-7" data-line-number="7"><span class="dt">Functor</span> <span class="ch">': Applicative '</span><span class="fu">:</span> <span class="dt">Monad</span> <span class="ch">': '</span>[]<span class="ot"> ::</span> [(<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> <span class="dt">Constraint</span>]</a>
-<a class="sourceLine" id="cb21-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'[Functor, Applicative, Monad]</span></a>
-<a class="sourceLine" id="cb21-9" data-line-number="9"><span class="ch">'[Functor, Applicative, Monad] :: [(* -&gt; *) -&gt; Constraint]</span></a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span> <span class="fu">-</span><span class="dt">XTypeOperators</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'[]</span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="ch">'[] :: [k]</span></a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(:)</span></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="ch">'(:) :: a -&gt; [a] -&gt; [a]</span></a>
+<a class="sourceLine" id="cb23-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Functor</span> <span class="ch">': Applicative '</span><span class="fu">:</span> <span class="dt">Monad</span> <span class="ch">': '</span>[]</a>
+<a class="sourceLine" id="cb23-7" data-line-number="7"><span class="dt">Functor</span> <span class="ch">': Applicative '</span><span class="fu">:</span> <span class="dt">Monad</span> <span class="ch">': '</span>[]<span class="ot"> ::</span> [(<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> <span class="dt">Constraint</span>]</a>
+<a class="sourceLine" id="cb23-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'[Functor, Applicative, Monad]</span></a>
+<a class="sourceLine" id="cb23-9" data-line-number="9"><span class="ch">'[Functor, Applicative, Monad] :: [(* -&gt; *) -&gt; Constraint]</span></a></code></pre></div>
 <p>リストの値コンストラクタは二つ、<code>[] :: [a]</code>、<code>(:) :: a -&gt; [a] -&gt; [a]</code>でした。また、リストは特別な構文として、<code>[True, False] == True : False : [] :: [Bool]</code>といったようなものが書けるのでした。これらをそれぞれ昇格させたものが上のものになります。タプル型の方は、以下のようになります<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'()</span></a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="ch">'() :: ()</span></a>
-<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(,)</span></a>
-<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="ch">'(,) :: a -&gt; b -&gt; (a, b)</span></a>
-<a class="sourceLine" id="cb22-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(Bool, Monad Maybe)</span></a>
-<a class="sourceLine" id="cb22-6" data-line-number="6"><span class="ch">'(Bool, Monad Maybe) :: (*, Constraint)</span></a>
-<a class="sourceLine" id="cb22-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(,,,)</span></a>
-<a class="sourceLine" id="cb22-8" data-line-number="8"><span class="ch">'(,,,) :: a -&gt; b -&gt; c -&gt; d -&gt; (a, b, c, d)</span></a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'()</span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="ch">'() :: ()</span></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(,)</span></a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="ch">'(,) :: a -&gt; b -&gt; (a, b)</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(Bool, Monad Maybe)</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="ch">'(Bool, Monad Maybe) :: (*, Constraint)</span></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'(,,,)</span></a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="ch">'(,,,) :: a -&gt; b -&gt; c -&gt; d -&gt; (a, b, c, d)</span></a></code></pre></div>
 <p>タプル型もリスト型と大体同じような感じですね。</p>
 <p>さてここからは、<code>DataKinds</code>のもう少し詳細な見方を紹介しておきましょう。<code>DataKinds</code>は型コンストラクタを種上に昇格、値コンストラクタを型上に昇格させることをできるようにするような拡張でした。実は、<code>Constraint</code>や<code>k1 -&gt; k2</code>という種も昇格された種とみなすことができます。</p>
 <p><code>Costraint</code>の方は単純で、以下のようになっています<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">Constraint</span>)</a>
-<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">Constraint</span></a>
-<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="kw">data</span> <span class="dt">Constraint</span>         <span class="co">-- Defined in ‘GHC.Types’</span></a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">Constraint</span>)</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">Constraint</span></a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="kw">data</span> <span class="dt">Constraint</span>         <span class="co">-- Defined in ‘GHC.Types’</span></a></code></pre></div>
 <p>見ての通り、<code>GHC.Types</code>というモジュールで定義された、値コンストラクタを持たないデータ型です。この型が<code>DataKinds</code>と違うところは、</p>
 <ul>
 <li>デフォルトで、型コンストラクタ<code>Constraint :: *</code>が、種に昇格可能なこと</li>
 <li>型制約は、<code>Constraint</code>型が昇格された種に結び付けられること</li>
 </ul>
 <p>だけで、他は<code>DataKinds</code>と同じです。なので、昇格前は単純に値も型引数も持たないデータ型です。見てみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">Constraint</span>)</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Constraint</span></a>
-<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="dt">Constraint</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">Constraint</span>)</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Constraint</span></a>
+<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="dt">Constraint</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
 <p>確かに<code>Constraint</code>が、<code>*</code>を種に持つ型であることが分かりますね。</p>
 <p><code>k1 -&gt; k2</code>の方はちょっと特殊で、関数型コンストラクタ<code>(-&gt;)</code>が昇格したものになっています。関数型は関数に結びついているデータ型でした。<code>Constraint</code>の時と同じように定義を見てみると、以下のようになっています<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info (<span class="ot">-&gt;</span>)</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="kw">data</span> (<span class="ot">-&gt;</span>) t1 t2         <span class="co">-- Defined in ‘GHC.Prim’</span></a>
-<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="kw">infixr</span> <span class="dv">0</span> <span class="ot">`(-&gt;)`</span></a>
-<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="fu">...</span></a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info (<span class="ot">-&gt;</span>)</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="kw">data</span> (<span class="ot">-&gt;</span>) t1 t2         <span class="co">-- Defined in ‘GHC.Prim’</span></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="kw">infixr</span> <span class="dv">0</span> <span class="ot">`(-&gt;)`</span></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="fu">...</span></a></code></pre></div>
 <p>関数型もやはり値コンストラクタを持ちません。ですが、<code>Constraint</code>と違い、関数型は関数という値を持ちます。<span class="ascii">Haskell</span>上では、<code>a -&gt; b</code>という型を持つ値は、<code>a</code>型の値を受け取り<code>b</code>型の値を返すような関数になるのでしたね。これらの関数を作る操作、例えばラムダ記法や関数宣言などが、関数型の値コンストラクタと言えるでしょう。これらがそれぞれ昇格すると、<code>a -&gt; b</code>という種は、<code>a</code>の種を持つ型を受け取り、<code>b</code>の種を持つ型を返すような、型上の関数を表します。つまり、</p>
 <ul>
 <li><code>a -&gt; b</code>という関数型を、種<code>a -&gt; b</code>に昇格</li>
@@ -440,22 +462,22 @@
 </ul>
 <p>という感じの対応をすることになります。こう見ると、少々特殊ではありますが、<code>DataKinds</code>での昇格したデータ型と同じような扱いと思うことができます。</p>
 <p>このように、<code>Constraint</code>や<code>k1 -&gt; k2</code>でさえ、<code>DataKinds</code>の昇格と同じように見ることができます。<code>*</code>はどうでしょうか？実は、<code>*</code>だけは少し特別です。見てみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
-<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="fu">*</span></a>
-<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="fu">*</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
+<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="fu">*</span></a>
+<a class="sourceLine" id="cb28-3" data-line-number="3"><span class="fu">*</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
 <p>さて、<code>GHC.Types</code>モジュールには、データ型<code>*</code>が定義されています。このデータ型は自身を、つまり<code>*</code>の昇格された種を持っていると見ることができます。つまり、次のような型表記も可能です<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
-<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
 <p>種においての<code>* -&gt; *</code>とは、上の型が種に昇格されたものとなるわけです。もちろん、次のような型表記もできます<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span></a>
-<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
-<a class="sourceLine" id="cb28-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="dt">Constraint</span></a>
-<a class="sourceLine" id="cb28-4" data-line-number="4"><span class="fu">*</span> <span class="ot">-&gt;</span> <span class="dt">Constraint</span><span class="ot"> ::</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb28-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'Just Int</span></a>
-<a class="sourceLine" id="cb28-6" data-line-number="6"><span class="ch">'Just Int :: Maybe *</span></a>
-<a class="sourceLine" id="cb28-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Maybe</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb28-8" data-line-number="8"><span class="dt">Maybe</span> <span class="fu">*</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span></a>
+<a class="sourceLine" id="cb30-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
+<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="dt">Constraint</span></a>
+<a class="sourceLine" id="cb30-4" data-line-number="4"><span class="fu">*</span> <span class="ot">-&gt;</span> <span class="dt">Constraint</span><span class="ot"> ::</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'Just Int</span></a>
+<a class="sourceLine" id="cb30-6" data-line-number="6"><span class="ch">'Just Int :: Maybe *</span></a>
+<a class="sourceLine" id="cb30-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Maybe</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb30-8" data-line-number="8"><span class="dt">Maybe</span> <span class="fu">*</span><span class="ot"> ::</span> <span class="fu">*</span></a></code></pre></div>
 <p>これらをもっと視覚的にまとめてみましょう。型が結びついている種は、どのような型が昇格したものかをまとめてみると、以下のようなグラフの形になるわけです<span class="ascii">:</span></p>
 <figure>
 <img src="../../img/2017/13-01-kind-graph.png" alt="kind graph" /><figcaption><span class="ascii">kind graph</span></figcaption>
@@ -463,46 +485,46 @@
 <p><code>'Nothing :: Maybe a</code>であることに注意してください。<code>'Nothing</code>は種多相化されているので、<code>'Nothing :: Maybe *</code>とすることも、<code>'Nothing :: Maybe Bool</code>とすることも可能です<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
 <p>このように見てみると、私たちが種と呼んでいたものは、単にある型に付属する単なる型情報だと思えてきます。種注釈とは、単にその型がどういう型に付属しているかの情報に過ぎないのです。そして、値にもやはり型情報が付属しています。値と<code>DataKinds</code>によって型に昇格したものを同一視してみると、値と型の間には差異はないということになりますね。このアイデアを元に、<span class="ascii">GHC</span>では <code>TypeInType</code> という拡張が提供されています。この拡張は後ほど紹介しましょう。</p>
 <p>最後に名前空間の話をしておきましょう。全ての種は、ある型が昇格したものである、という話をしました。<span class="ascii">GHC</span>では、そういう背景があり、種の名前空間は型の名前空間と完全に一致します。ただし、値の名前空間と型の名前空間を完全に一致させることはできません。それは<span class="ascii">Haskell</span>が多用している、型コンストラクタと値コンストラクタの名前を同じにするという文化があるからです。以下の例を見てください<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span></a>
-<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">A</span> a <span class="fu">=</span> <span class="dt">A</span> a <span class="fu">|</span> <span class="dt">B</span> a</a>
-<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">A</span></a>
-<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="dt">A</span><span class="ot"> ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb29-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'A</span></a>
-<a class="sourceLine" id="cb29-6" data-line-number="6"><span class="ch">'A :: a -&gt; A a</span></a>
-<a class="sourceLine" id="cb29-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">B</span></a>
-<a class="sourceLine" id="cb29-8" data-line-number="8"><span class="dt">B</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">A</span> a</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XDataKinds</span></a>
+<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">A</span> a <span class="fu">=</span> <span class="dt">A</span> a <span class="fu">|</span> <span class="dt">B</span> a</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">A</span></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="dt">A</span><span class="ot"> ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'A</span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="ch">'A :: a -&gt; A a</span></a>
+<a class="sourceLine" id="cb31-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">B</span></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8"><span class="dt">B</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">A</span> a</a></code></pre></div>
 <p><code>B</code>の例は、<code>'</code>を書いていないのに型に昇格できていますね。<code>DataKinds</code>は値と型の名前で被るものが無いようなものは<code>'</code>を書かなくていいようになっています。これは型から種へ昇格できる時は自然な動作でしたが、値から型の場合、今回でいう<code>A</code>のように型コンストラクタと値コンストラクタの名前が被ってしまうケースが出てきます。もちろん、データ型<code>B</code>が新しく宣言されてしまうような場合もあるでしょう。このように、型から種へは名前空間が一致しますが、値から型へは名前が被るのを避けるために<code>'</code>を付けるようにしているのです。なので、本質的には値から型へも、<code>'</code>を付けないで昇格させることが理想です。それを覚えておきながら、<code>DataKinds</code>拡張使用の際は、<code>'</code>を適切に付けていくのが良いでしょう。</p>
 <h3 id="型の分類">型の分類</h3>
 <p>最後に、少し変わった型と、それにまつわる種の分類分けについてお話ししましょう。この見方は、より<span class="ascii">GHC</span>のプリミティブな部分に携わる時に、役にたつはずです。<span class="ascii">Haskell</span>標準では、種は<code>*</code>と<code>k1 -&gt; k2</code>しかありませんでした。<span class="ascii">GHC</span>では、それに型制約種<code>Constraint</code>が追加されてるのでしたね。そして、<code>DataKinds</code>拡張を使えば、データ型を種に昇格することもできました。しかし、結局値を持つ型は<code>*</code>という種を持つのでしたね。ですが、この制約には一部例外があります。それは、<span class="ascii">GHC</span>のプリミティブな値についてです。</p>
 <p>私たちは普段何気なく<code>Int</code>型や<code>Double</code>型を使用しています。しかしながら、これらは実際に実行するとき、メモリ上でどのような構造で保持されているのか考えたことはないでしょうか？ ここでは詳細な話はしませんが、幾つか基本的な<span class="ascii">GHC</span>での内部表現についてお話ししましょう。<span class="ascii">GHCi</span>で、この二つの型の情報を表示してみましょう。</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">Prelude</span> (<span class="dt">Int</span>, <span class="dt">Double</span>)</a>
-<a class="sourceLine" id="cb30-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="kw">data</span> <span class="dt">Int</span> <span class="fu">=</span> <span class="dt">GHC.Types.I</span><span class="fu">#</span> <span class="dt">GHC.Prim.Int</span><span class="fu">#</span>   <span class="co">-- Defined in ‘GHC.Types’</span></a>
-<a class="sourceLine" id="cb30-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="kw">data</span> <span class="dt">Double</span> <span class="fu">=</span> <span class="dt">GHC.Types.D</span><span class="fu">#</span> <span class="dt">GHC.Prim.Double</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb30-6" data-line-number="6">        <span class="co">-- Defined in ‘GHC.Types’</span></a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">Prelude</span> (<span class="dt">Int</span>, <span class="dt">Double</span>)</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="kw">data</span> <span class="dt">Int</span> <span class="fu">=</span> <span class="dt">GHC.Types.I</span><span class="fu">#</span> <span class="dt">GHC.Prim.Int</span><span class="fu">#</span>   <span class="co">-- Defined in ‘GHC.Types’</span></a>
+<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="kw">data</span> <span class="dt">Double</span> <span class="fu">=</span> <span class="dt">GHC.Types.D</span><span class="fu">#</span> <span class="dt">GHC.Prim.Double</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb32-6" data-line-number="6">        <span class="co">-- Defined in ‘GHC.Types’</span></a></code></pre></div>
 <p>どうやらこの二つの型は、不思議な値コンストラクタを持っているようですね。</p>
 <ul>
 <li><code>Int</code>データ型は、一つの値コンストラクタ<code>I# :: Int# -&gt; Int</code>を持ちます。</li>
 <li><code>Double</code>データ型は、一つの値コンストラクタ<code>D# :: Double# -&gt; Double</code>を持ちます。</li>
 </ul>
 <p><code>Int#</code>や<code>Double#</code>といった見慣れないデータ型が出てきましたね。これらが今回紹介する<span class="ascii">GHC</span>の用意しているプリミティブなデータ型です。せっかくですから、上の値コンストラクタを使って、それぞれのデータ型の値を作ってみましょう。それには<code>MagicHash</code>拡張が必要です。通常、<code>#</code>のついた値や型は、私たちは扱うことができません。それを可能にするのが<code>MagicHash</code>拡張です。また、<code>Int</code>や<code>Double</code>の値は、<code>1</code>といった数値リテラルで作れるのでした。同じように、<code>Int#</code>や<code>Double#</code>といった不思議なデータ型にも、それぞれのリテラルが用意されています。使ってみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
-<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span> (<span class="dt">Int</span>(..), <span class="dt">Double</span>(..))</a>
-<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- I#を使って、Int型を作る</span></a>
-<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dv">1</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="dv">1</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">GHC.Prim.Int</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="dt">I</span><span class="fu">#</span> <span class="dv">1</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb31-7" data-line-number="7"><span class="dv">1</span></a>
-<a class="sourceLine" id="cb31-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dt">I</span><span class="fu">#</span> <span class="dv">1</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb31-9" data-line-number="9"><span class="dt">I</span><span class="fu">#</span> <span class="dv">1</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb31-10" data-line-number="10"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- D#を使って、Double型を作る</span></a>
-<a class="sourceLine" id="cb31-11" data-line-number="11"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="fl">1.0</span><span class="fu">##</span></a>
-<a class="sourceLine" id="cb31-12" data-line-number="12"><span class="fl">1.0</span><span class="fu">##</span><span class="ot"> ::</span> <span class="dt">GHC.Prim.Double</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb31-13" data-line-number="13"><span class="fu">&gt;&gt;&gt;</span> <span class="dt">D</span><span class="fu">#</span> <span class="fl">1.0</span><span class="fu">##</span></a>
-<a class="sourceLine" id="cb31-14" data-line-number="14"><span class="fl">1.0</span></a>
-<a class="sourceLine" id="cb31-15" data-line-number="15"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dt">D</span><span class="fu">#</span> <span class="fl">1.0</span><span class="fu">##</span></a>
-<a class="sourceLine" id="cb31-16" data-line-number="16"><span class="dt">D</span><span class="fu">#</span> <span class="fl">1.0</span><span class="fu">##</span><span class="ot"> ::</span> <span class="dt">Double</span></a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span> (<span class="dt">Int</span>(..), <span class="dt">Double</span>(..))</a>
+<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- I#を使って、Int型を作る</span></a>
+<a class="sourceLine" id="cb33-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dv">1</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="dv">1</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">GHC.Prim.Int</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="dt">I</span><span class="fu">#</span> <span class="dv">1</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb33-7" data-line-number="7"><span class="dv">1</span></a>
+<a class="sourceLine" id="cb33-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dt">I</span><span class="fu">#</span> <span class="dv">1</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb33-9" data-line-number="9"><span class="dt">I</span><span class="fu">#</span> <span class="dv">1</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb33-10" data-line-number="10"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- D#を使って、Double型を作る</span></a>
+<a class="sourceLine" id="cb33-11" data-line-number="11"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="fl">1.0</span><span class="fu">##</span></a>
+<a class="sourceLine" id="cb33-12" data-line-number="12"><span class="fl">1.0</span><span class="fu">##</span><span class="ot"> ::</span> <span class="dt">GHC.Prim.Double</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb33-13" data-line-number="13"><span class="fu">&gt;&gt;&gt;</span> <span class="dt">D</span><span class="fu">#</span> <span class="fl">1.0</span><span class="fu">##</span></a>
+<a class="sourceLine" id="cb33-14" data-line-number="14"><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb33-15" data-line-number="15"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dt">D</span><span class="fu">#</span> <span class="fl">1.0</span><span class="fu">##</span></a>
+<a class="sourceLine" id="cb33-16" data-line-number="16"><span class="dt">D</span><span class="fu">#</span> <span class="fl">1.0</span><span class="fu">##</span><span class="ot"> ::</span> <span class="dt">Double</span></a></code></pre></div>
 <p>各リテラル表記は、次のようになっています<span class="ascii">:</span></p>
 <ul>
 <li><code>Int#</code>のリテラルは、整数と<code>#</code>で作ることができます。</li>
@@ -516,41 +538,41 @@
 <li>非ボックス型とは、ボックス化されていない型、つまりポインタとして表現されるのではなく実データとして表現されるような値を持つ型のこと。</li>
 </ul>
 <p>さて、この記事は種についての記事なので、種の話もしましょう。プリミティブ型は、<span class="ascii">GHC</span>では<code>*</code>ではなくそれぞれが特別な種を割り当てられています。見てみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
-<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Prim</span> (<span class="dt">Int</span>#, <span class="dt">Double</span>#)</a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Int</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="dt">Int</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">TYPE</span> <span class="ch">'GHC.Types.IntRep</span></a>
-<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Double</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb32-6" data-line-number="6"><span class="dt">Double</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">TYPE</span> <span class="ch">'GHC.Types.DoubleRep</span></a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
+<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Prim</span> (<span class="dt">Int</span>#, <span class="dt">Double</span>#)</a>
+<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Int</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="dt">Int</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">TYPE</span> <span class="ch">'GHC.Types.IntRep</span></a>
+<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">Double</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb34-6" data-line-number="6"><span class="dt">Double</span><span class="fu">#</span><span class="ot"> ::</span> <span class="dt">TYPE</span> <span class="ch">'GHC.Types.DoubleRep</span></a></code></pre></div>
 <p>なにやら、不思議な種が登場しました。一体これらの種は、どのようなものなのでしょうか？ <code>info</code>コマンドで見てみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
-<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">TYPE</span></a>
-<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="kw">data</span> <span class="dt">TYPE</span> (<span class="ot">a ::</span> <span class="dt">RuntimeRep</span>)</a>
-<a class="sourceLine" id="cb33-4" data-line-number="4">        <span class="co">-- Defined in ‘GHC.Prim’</span></a>
-<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">RuntimeRep</span></a>
-<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="kw">data</span> <span class="dt">RuntimeRep</span></a>
-<a class="sourceLine" id="cb33-7" data-line-number="7">  <span class="fu">=</span> <span class="dt">VecRep</span> <span class="dt">VecCount</span> <span class="dt">VecElem</span></a>
-<a class="sourceLine" id="cb33-8" data-line-number="8">  <span class="fu">|</span> <span class="dt">TupleRep</span> [<span class="dt">RuntimeRep</span>]</a>
-<a class="sourceLine" id="cb33-9" data-line-number="9">  <span class="fu">|</span> <span class="dt">SumRep</span> [<span class="dt">RuntimeRep</span>]</a>
-<a class="sourceLine" id="cb33-10" data-line-number="10">  <span class="fu">|</span> <span class="dt">LiftedRep</span></a>
-<a class="sourceLine" id="cb33-11" data-line-number="11">  <span class="fu">|</span> <span class="dt">UnliftedRep</span></a>
-<a class="sourceLine" id="cb33-12" data-line-number="12">  <span class="fu">|</span> <span class="dt">IntRep</span></a>
-<a class="sourceLine" id="cb33-13" data-line-number="13">  <span class="fu">|</span> <span class="dt">WordRep</span></a>
-<a class="sourceLine" id="cb33-14" data-line-number="14">  <span class="fu">|</span> <span class="dt">Int64Rep</span></a>
-<a class="sourceLine" id="cb33-15" data-line-number="15">  <span class="fu">|</span> <span class="dt">Word64Rep</span></a>
-<a class="sourceLine" id="cb33-16" data-line-number="16">  <span class="fu">|</span> <span class="dt">AddrRep</span></a>
-<a class="sourceLine" id="cb33-17" data-line-number="17">  <span class="fu">|</span> <span class="dt">FloatRep</span></a>
-<a class="sourceLine" id="cb33-18" data-line-number="18">  <span class="fu">|</span> <span class="dt">DoubleRep</span></a>
-<a class="sourceLine" id="cb33-19" data-line-number="19">        <span class="co">-- Defined in ‘GHC.Types’</span></a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">TYPE</span></a>
+<a class="sourceLine" id="cb35-3" data-line-number="3"><span class="kw">data</span> <span class="dt">TYPE</span> (<span class="ot">a ::</span> <span class="dt">RuntimeRep</span>)</a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">        <span class="co">-- Defined in ‘GHC.Prim’</span></a>
+<a class="sourceLine" id="cb35-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>info <span class="dt">RuntimeRep</span></a>
+<a class="sourceLine" id="cb35-6" data-line-number="6"><span class="kw">data</span> <span class="dt">RuntimeRep</span></a>
+<a class="sourceLine" id="cb35-7" data-line-number="7">  <span class="fu">=</span> <span class="dt">VecRep</span> <span class="dt">VecCount</span> <span class="dt">VecElem</span></a>
+<a class="sourceLine" id="cb35-8" data-line-number="8">  <span class="fu">|</span> <span class="dt">TupleRep</span> [<span class="dt">RuntimeRep</span>]</a>
+<a class="sourceLine" id="cb35-9" data-line-number="9">  <span class="fu">|</span> <span class="dt">SumRep</span> [<span class="dt">RuntimeRep</span>]</a>
+<a class="sourceLine" id="cb35-10" data-line-number="10">  <span class="fu">|</span> <span class="dt">LiftedRep</span></a>
+<a class="sourceLine" id="cb35-11" data-line-number="11">  <span class="fu">|</span> <span class="dt">UnliftedRep</span></a>
+<a class="sourceLine" id="cb35-12" data-line-number="12">  <span class="fu">|</span> <span class="dt">IntRep</span></a>
+<a class="sourceLine" id="cb35-13" data-line-number="13">  <span class="fu">|</span> <span class="dt">WordRep</span></a>
+<a class="sourceLine" id="cb35-14" data-line-number="14">  <span class="fu">|</span> <span class="dt">Int64Rep</span></a>
+<a class="sourceLine" id="cb35-15" data-line-number="15">  <span class="fu">|</span> <span class="dt">Word64Rep</span></a>
+<a class="sourceLine" id="cb35-16" data-line-number="16">  <span class="fu">|</span> <span class="dt">AddrRep</span></a>
+<a class="sourceLine" id="cb35-17" data-line-number="17">  <span class="fu">|</span> <span class="dt">FloatRep</span></a>
+<a class="sourceLine" id="cb35-18" data-line-number="18">  <span class="fu">|</span> <span class="dt">DoubleRep</span></a>
+<a class="sourceLine" id="cb35-19" data-line-number="19">        <span class="co">-- Defined in ‘GHC.Types’</span></a></code></pre></div>
 <p><strong>注記</strong><span class="ascii">:</span> この実行例は<span class="ascii">GHC 8.2.1</span>のものですが、これらのデータ型は現在かなりアグレッシブな変更が加えられており、表現方法がバージョンによってかなり異なります。ただし、データ型の意味は特に変わらないはずなので、手元の環境の実行例に差異があっても、特に気にしないでください！</p>
 <p><code>TYPE :: RuntimeRep -&gt; *</code>、<code>RuntimeRep :: *</code>、共に特に難しい定義ではありませんね。<code>RuntimeRep</code>は“<span class="ascii">runtime representation</span>”<span class="ascii">(</span>実行環境での表現<span class="ascii">)</span>という意味を表した名前になっています。前の章でのデータ型の昇格の話を思い出してください。<code>TYPE 'IntRep</code>という種は、<code>TYPE 'IntRep</code>という型が昇格したものになります。<code>'IntRep</code>は、<code>RuntimeRep</code>データ型の値コンストラクタ<code>IntRep</code>が、型に昇格したものということを思い出してください。つまり、値<code>IntRep</code>を型に昇格した<code>'IntRep</code>が、さらに種に昇格しているということになります。ちゃんと型が合ってるかは、昇格される前の型で調べれば良いのですね。いちよ<span class="ascii">GHCi</span>で確認してみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
-<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">TYPE</span></a>
-<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="dt">TYPE</span><span class="ot"> ::</span> <span class="dt">RuntimeRep</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'IntRep</span></a>
-<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="ch">'IntRep :: RuntimeRep</span></a>
-<a class="sourceLine" id="cb34-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">TYPE</span> <span class="ch">'IntRep</span></a>
-<a class="sourceLine" id="cb34-7" data-line-number="7"><span class="dt">TYPE</span> <span class="ch">'IntRep :: *</span></a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Types</span></a>
+<a class="sourceLine" id="cb36-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">TYPE</span></a>
+<a class="sourceLine" id="cb36-3" data-line-number="3"><span class="dt">TYPE</span><span class="ot"> ::</span> <span class="dt">RuntimeRep</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb36-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="ch">'IntRep</span></a>
+<a class="sourceLine" id="cb36-5" data-line-number="5"><span class="ch">'IntRep :: RuntimeRep</span></a>
+<a class="sourceLine" id="cb36-6" data-line-number="6"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">TYPE</span> <span class="ch">'IntRep</span></a>
+<a class="sourceLine" id="cb36-7" data-line-number="7"><span class="dt">TYPE</span> <span class="ch">'IntRep :: *</span></a></code></pre></div>
 <p>ちゃんと種が符合していることが分かりますね。<code>RuntimeRep</code>や<code>TYPE</code>は、<code>*</code>や<code>Constraint</code>、<code>a -&gt; b</code>などと同じく、<code>DataKinds</code>無しで特別に種に昇格することが許可されています。この特別なデータ型によって、プリミティブ型は表現されています。幾つかのプリミティブ型に対する対応を、表にしてみました<span class="ascii">:</span></p>
 <table>
 <thead>
@@ -630,59 +652,59 @@
 </table>
 <p>この他にも<span class="ascii">GHC</span>はプリミティブ型を用意しています。プリミティブ型は、<a href="https://www.stackage.org/package/ghc-prim"><code>ghc-prim</code>パッケージ</a>の<a href="https://www.stackage.org/haddock/lts-9.4/ghc-prim-0.5.0.0/GHC-Prim.html"><code>GHC.Prim</code>モジュール</a>にて公開されています。興味があれば、種を確認しながら見てみると面白いでしょう<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>。また、<code>TupleRep</code>や<code>SumRep</code>を持つ型は、それぞれ<code>UnboxedTuples</code>拡張、<code>UnboxedSums</code>拡張を使用する必要があります。こちらについても、気になる方は調べてみてください。</p>
 <p>さて、プリミティブ型は、その表現方法によって種が用意されていることは分かったと思います。最後に、この<code>RuntimeRep</code>の中で二つの特殊な要素<code>LiftedRep</code>と<code>UnliftedRep</code>について話しておきましょう。データ型を表す種として、<code>*</code>を紹介しました。実はこの種は、次のようなエイリアスになっています<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a><span class="ascii">:</span></p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw">type</span> <span class="fu">*</span> <span class="fu">=</span> <span class="dt">TYPE</span> <span class="ch">'LiftedRep</span></a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw">type</span> <span class="fu">*</span> <span class="fu">=</span> <span class="dt">TYPE</span> <span class="ch">'LiftedRep</span></a></code></pre></div>
 <p>つまり、今まで見てきたデータ型は、実行時に<strong><span class="ascii">lifted</span></strong>という枠組みで表現されるようなものというわけです。では、この<strong><span class="ascii">lifted</span></strong>と<strong><span class="ascii">unlifted</span></strong>の違いはなんなのでしょうか？ それの説明に入る前に、<span class="ascii">GHC</span>においての評価戦略とデータの内部表現についての話をしておきましょう。ときに、<span class="ascii">Haskell</span>は遅延評価デフォルトの言語です。例えば、以下の式の評価は例外になりません<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>; f _ <span class="fu">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb36-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
-<a class="sourceLine" id="cb36-3" data-line-number="3"><span class="dv">0</span></a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>; f _ <span class="fu">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb38-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
+<a class="sourceLine" id="cb38-3" data-line-number="3"><span class="dv">0</span></a></code></pre></div>
 <p><span class="ascii">GHC</span>では、このような<code>error &quot;raise an exception&quot;</code>という式は評価されるまでは実際の値でなく、サンクという計算式を表現したデータとして保持されます。サンクは一度評価されると破棄され、実際の値にすげ変わります。上の関数<code>f</code>が受け取るのは、このサンクまたはすげ変わった実際の値を指し示すようなポインタです。今回の場合、<code>error &quot;raise an exception&quot;</code>という、まだ評価されていない式のサンクを指し示すポインタというわけです。上の例では、関数<code>f</code>に渡されたサンクを示すポインタは、特に評価されないまま捨てられ、定数値が返ってきます。では、サンクを評価するような関数を作って、動かしてみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>; f b <span class="fu">=</span> <span class="kw">if</span> b <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
-<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> raise an exception</a>
-<a class="sourceLine" id="cb37-4" data-line-number="4"><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="fu">:</span></a>
-<a class="sourceLine" id="cb37-5" data-line-number="5">  error, called at <span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">2</span><span class="fu">:</span><span class="dv">4</span> <span class="kw">in</span> interactive<span class="fu">:</span><span class="dt">Ghci2</span></a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>; f b <span class="fu">=</span> <span class="kw">if</span> b <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb39-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
+<a class="sourceLine" id="cb39-3" data-line-number="3"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> raise an exception</a>
+<a class="sourceLine" id="cb39-4" data-line-number="4"><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="fu">:</span></a>
+<a class="sourceLine" id="cb39-5" data-line-number="5">  error, called at <span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">2</span><span class="fu">:</span><span class="dv">4</span> <span class="kw">in</span> interactive<span class="fu">:</span><span class="dt">Ghci2</span></a></code></pre></div>
 <p>この例では先ほどと違い、受け取ったサンクを関数<code>f</code>の中の<span class="ascii">if</span>文で評価しています。そのため、例外が発生しているわけです。サンクは<span class="ascii">GHC</span>が遅延評価を実装するための仕組みであり、<span class="ascii">lifted</span>型の値は指し示す先がサンクになり得るようなポインタで表現されます。<span class="ascii">lifted</span>型とは、その値としてボトムと称される値になるようなものも持てるような型のことです。ボトムと呼ばれる値には、主に以下のようなものがあります<span class="ascii">:</span></p>
 <ul>
 <li>評価すると例外が出されるような値</li>
 <li>無限ループになっていて永遠に評価が終わらないような値</li>
 </ul>
 <p><span class="ascii">Haskell</span>の通常の型は、上のような式を表すサンクをも値として持ちますから、無限ループになったり例外が出されたりするような値、つまりボトムをも表現できます。それに対して、<span class="ascii">GHC</span>ではボトムを表現できない型も存在します。その典型が非ボックス型です。非ボックス型はポインタではなく、実データとして表されているんでしたよね。実データは、サンクとすげ替えるということができないですよね。では、非ボックス型を処理するような関数に、<code>undefined</code>を渡すとどうなるか、見てみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
-<a class="sourceLine" id="cb38-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
-<a class="sourceLine" id="cb38-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Int</span><span class="fu">#</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>; f _ <span class="fu">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb38-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
-<a class="sourceLine" id="cb38-5" data-line-number="5"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> raise an exception</a>
-<a class="sourceLine" id="cb38-6" data-line-number="6"><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="fu">:</span></a>
-<a class="sourceLine" id="cb38-7" data-line-number="7">  error, called at <span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">7</span><span class="fu">:</span><span class="dv">4</span> <span class="kw">in</span> interactive<span class="fu">:</span><span class="dt">Ghci4</span></a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
+<a class="sourceLine" id="cb40-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
+<a class="sourceLine" id="cb40-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Int</span><span class="fu">#</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>; f _ <span class="fu">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb40-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
+<a class="sourceLine" id="cb40-5" data-line-number="5"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> raise an exception</a>
+<a class="sourceLine" id="cb40-6" data-line-number="6"><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="fu">:</span></a>
+<a class="sourceLine" id="cb40-7" data-line-number="7">  error, called at <span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">7</span><span class="fu">:</span><span class="dv">4</span> <span class="kw">in</span> interactive<span class="fu">:</span><span class="dt">Ghci4</span></a></code></pre></div>
 <p>先ほどの<span class="ascii">lifted</span>の例<span class="ascii">(</span><code>Int</code>の例<span class="ascii">)</span>と、何が違うか分かりますか？ 今回、関数<code>f</code>はやはり受け取った値を無視して定数を返します。どこにも受け取った引数を評価する箇所はありません。</p>
 <ul>
 <li><span class="ascii">lifted</span>の例<span class="ascii">(</span><code>Int</code>の例<span class="ascii">)</span>では、<code>undefined</code>を評価せず、つまり例外が一切出ずに定数が返ってきました。</li>
 <li>今回の非ボックス型の例<span class="ascii">(</span><code>Int#</code>の例<span class="ascii">)</span>では、例外が発生しています。</li>
 </ul>
 <p>なぜでしょうか？ 実は、非ボックス型は遅延評価ではなく正格評価が行われます。その理由はお分かりですね？ なぜなら遅延評価のためにサンクを用意しようにも、非ボックス型はサンクを表現できないからです！ 非ボックス型として値を格納するならば、サンクではなく評価した後の実データでないといけません。そのため、ボックス型の引数を受け取る関数の場合は、一旦引数に渡される式を評価して実データにした上で、関数に渡すということを行います。実は、これは非ボックス型だけに止まりません。<span class="ascii">GHC</span>では、ボックス型の中にも正格評価になるような、つまりサンクを値として持たないような型があります。それが、<code>TYPE 'UnliftedRep</code>を種に持つデータ型です。見てみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
-<a class="sourceLine" id="cb39-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
-<a class="sourceLine" id="cb39-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Array</span><span class="fu">#</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>; f _ <span class="fu">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb39-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
-<a class="sourceLine" id="cb39-5" data-line-number="5"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> raise an exception</a>
-<a class="sourceLine" id="cb39-6" data-line-number="6"><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="fu">:</span></a>
-<a class="sourceLine" id="cb39-7" data-line-number="7">  error, called at <span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">8</span><span class="fu">:</span><span class="dv">4</span> <span class="kw">in</span> interactive<span class="fu">:</span><span class="dt">Ghci2</span></a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XMagicHash</span></a>
+<a class="sourceLine" id="cb41-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
+<a class="sourceLine" id="cb41-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span><span class="ot"> f ::</span> <span class="dt">Array</span><span class="fu">#</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>; f _ <span class="fu">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb41-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> f (error <span class="st">&quot;raise an exception&quot;</span>)</a>
+<a class="sourceLine" id="cb41-5" data-line-number="5"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> raise an exception</a>
+<a class="sourceLine" id="cb41-6" data-line-number="6"><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="fu">:</span></a>
+<a class="sourceLine" id="cb41-7" data-line-number="7">  error, called at <span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">8</span><span class="fu">:</span><span class="dv">4</span> <span class="kw">in</span> interactive<span class="fu">:</span><span class="dt">Ghci2</span></a></code></pre></div>
 <p><code>Array# a</code>はヒープ上に本体があり、それを指し示すポインタで表現されます。ただしこのポインタは、サンクを指し示すことはありません。つまりかならず実データを指し示すことになり、ボトムを値に持つことはないのです。</p>
 <p>ところで、今までは引数が<span class="ascii">unlifted</span>な型である場合の話をしてきましたが、返り値が<span class="ascii">unlifted</span>な型になっている場合はどう見ることができるのでしょう？例えば、次のような関数を考えてみてください<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="ot">{-# LANGUAGE MagicHash #-}</span></a>
-<a class="sourceLine" id="cb40-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb40-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
-<a class="sourceLine" id="cb40-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb40-5" data-line-number="5"><span class="ot">infLoop ::</span> <span class="dt">Int</span><span class="fu">#</span> <span class="ot">-&gt;</span> <span class="dt">Int</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb40-6" data-line-number="6">infLoop i <span class="fu">=</span> infLoop (i <span class="fu">+#</span> <span class="dv">1</span><span class="fu">#</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb42-1" data-line-number="1"><span class="ot">{-# LANGUAGE MagicHash #-}</span></a>
+<a class="sourceLine" id="cb42-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb42-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
+<a class="sourceLine" id="cb42-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb42-5" data-line-number="5"><span class="ot">infLoop ::</span> <span class="dt">Int</span><span class="fu">#</span> <span class="ot">-&gt;</span> <span class="dt">Int</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb42-6" data-line-number="6">infLoop i <span class="fu">=</span> infLoop (i <span class="fu">+#</span> <span class="dv">1</span><span class="fu">#</span>)</a></code></pre></div>
 <p><code>(+#) :: Int# -&gt; Int# -&gt; Int#</code>は、<span class="ascii">GHC</span>で用意されている<code>Int#</code>専用の加算演算子です。この関数は問題なく定義することができますが、実行すると無限ループを起こします。つまり<code>infLoop 1# :: Int#</code>というような式はボトムを表しているように見えます。<span class="ascii">unlifted</span>な型は、ボトムを持たないはずでは無かったのでしょうか？ 注意して欲しいのは、<code>infLoop 1#</code>という式は、それ単体では<span class="ascii">Haskell</span>では単なる表記に過ぎないということです。この式は、なんらかのトップレベル関数や定数の一部になっているはずです。関数は<span class="ascii">lifted</span>な型の値です<span class="ascii">(</span>関数型は、<code>a -&gt; b :: *</code>であることを思い出してください！<span class="ascii">)</span>。関数はコンパイルされ、ランタイムによって実行されます。つまり、最終的に実行時に意味を持つのは、トップレベルの関数であり、それは<span class="ascii">lifted</span>な型で表現されるということです。また、<span class="ascii">Haskell</span>では<span class="ascii">unlifted</span>型のトップレベル定数の宣言は許されていません。以下のコードはコンパイルエラーになります<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="ot">{-# LANGUAGE MagicHash #-}</span></a>
-<a class="sourceLine" id="cb41-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb41-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
-<a class="sourceLine" id="cb41-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb41-5" data-line-number="5"><span class="co">-- 許可されていない</span></a>
-<a class="sourceLine" id="cb41-6" data-line-number="6"><span class="ot">unliftedConstant ::</span> <span class="dt">Int</span><span class="fu">#</span></a>
-<a class="sourceLine" id="cb41-7" data-line-number="7">unliftedConstant <span class="fu">=</span> <span class="dv">1</span><span class="fu">#</span></a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="ot">{-# LANGUAGE MagicHash #-}</span></a>
+<a class="sourceLine" id="cb43-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb43-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
+<a class="sourceLine" id="cb43-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb43-5" data-line-number="5"><span class="co">-- 許可されていない</span></a>
+<a class="sourceLine" id="cb43-6" data-line-number="6"><span class="ot">unliftedConstant ::</span> <span class="dt">Int</span><span class="fu">#</span></a>
+<a class="sourceLine" id="cb43-7" data-line-number="7">unliftedConstant <span class="fu">=</span> <span class="dv">1</span><span class="fu">#</span></a></code></pre></div>
 <p>これにより、トップレベルの関数や定数は、全て<span class="ascii">lifted</span>な型を持つことになります。もし、内部で<span class="ascii">unlifted</span>な式が無限ループや例外を吐くなら、それはその式を含んだトップレベルの<span class="ascii">lifted</span>な関数や定数が、ボトムを表すサンクを持つことになるということです。これは、<span class="ascii">unlifted</span>の考え方を逸脱しません。</p>
 <ul>
 <li>トップレベルの関数や定数はサンクを持つ<span class="ascii">lifted</span>な値に翻訳され、</li>
@@ -746,135 +768,135 @@
 <h3 id="もう一つの型の分類">もう一つの型の分類</h3>
 <p>今までは、種に関する基本的な話題を紹介しました。ここでは、種とは別の、もう一つの型に付属する種別情報を紹介しましょう。それは、<span class="ascii">type role</span>と呼ばれるものです。<span class="ascii">type role</span>は、<code>GeneralizedNewtypeDeriving</code>という拡張と、密接な関係があります。</p>
 <p>ここでは詳しく解説しませんが、<code>GeneralizedNewtypeDeriving</code>という拡張は、<code>newtype</code>で作った型のクラスインスタンス導出を簡略化するための拡張で、そのインスタンスを元の型のものを持ってきて実装します。この拡張は利便性を向上させますが、その導出が壊れるケースが出てきます。例えば次のケースです<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb42-1" data-line-number="1"><span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving, StandaloneDeriving, TypeFamilies #-}</span></a>
-<a class="sourceLine" id="cb42-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb42-3" data-line-number="3"><span class="kw">newtype</span> <span class="dt">Age</span> <span class="fu">=</span> <span class="dt">MkAge</span> {<span class="ot"> unAge ::</span> <span class="dt">Int</span> }</a>
-<a class="sourceLine" id="cb42-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb42-5" data-line-number="5"><span class="kw">type</span> family <span class="dt">Inspect</span> x</a>
-<a class="sourceLine" id="cb42-6" data-line-number="6"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Inspect</span> <span class="dt">Age</span> <span class="fu">=</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb42-7" data-line-number="7"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Inspect</span> <span class="dt">Int</span> <span class="fu">=</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb42-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb42-9" data-line-number="9"><span class="kw">class</span> <span class="dt">BadIdea</span> a <span class="kw">where</span></a>
-<a class="sourceLine" id="cb42-10" data-line-number="10"><span class="ot">  bad ::</span> a <span class="ot">-&gt;</span> <span class="dt">Inspect</span> a</a>
-<a class="sourceLine" id="cb42-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb42-12" data-line-number="12"><span class="kw">instance</span> <span class="dt">BadIdea</span> <span class="dt">Int</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb42-13" data-line-number="13">  bad <span class="fu">=</span> (<span class="fu">&gt;</span> <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb42-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb42-15" data-line-number="15"><span class="kw">deriving</span> <span class="kw">instance</span> <span class="dt">BadIdea</span> <span class="dt">Age</span> <span class="co">-- 壊れた導出になる</span></a>
-<a class="sourceLine" id="cb42-16" data-line-number="16"><span class="co">{- | 上のものは、以下のものと同じ</span></a>
-<a class="sourceLine" id="cb42-17" data-line-number="17"><span class="co">instance BadIdea Age where</span></a>
-<a class="sourceLine" id="cb42-18" data-line-number="18"><span class="co">  bad = coerce (bad :: Int -&gt; Inspect Int)</span></a>
-<a class="sourceLine" id="cb42-19" data-line-number="19"><span class="co">-}</span></a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving, StandaloneDeriving, TypeFamilies #-}</span></a>
+<a class="sourceLine" id="cb44-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb44-3" data-line-number="3"><span class="kw">newtype</span> <span class="dt">Age</span> <span class="fu">=</span> <span class="dt">MkAge</span> {<span class="ot"> unAge ::</span> <span class="dt">Int</span> }</a>
+<a class="sourceLine" id="cb44-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb44-5" data-line-number="5"><span class="kw">type</span> family <span class="dt">Inspect</span> x</a>
+<a class="sourceLine" id="cb44-6" data-line-number="6"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Inspect</span> <span class="dt">Age</span> <span class="fu">=</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb44-7" data-line-number="7"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Inspect</span> <span class="dt">Int</span> <span class="fu">=</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb44-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb44-9" data-line-number="9"><span class="kw">class</span> <span class="dt">BadIdea</span> a <span class="kw">where</span></a>
+<a class="sourceLine" id="cb44-10" data-line-number="10"><span class="ot">  bad ::</span> a <span class="ot">-&gt;</span> <span class="dt">Inspect</span> a</a>
+<a class="sourceLine" id="cb44-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb44-12" data-line-number="12"><span class="kw">instance</span> <span class="dt">BadIdea</span> <span class="dt">Int</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb44-13" data-line-number="13">  bad <span class="fu">=</span> (<span class="fu">&gt;</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb44-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb44-15" data-line-number="15"><span class="kw">deriving</span> <span class="kw">instance</span> <span class="dt">BadIdea</span> <span class="dt">Age</span> <span class="co">-- 壊れた導出になる</span></a>
+<a class="sourceLine" id="cb44-16" data-line-number="16"><span class="co">{- | 上のものは、以下のものと同じ</span></a>
+<a class="sourceLine" id="cb44-17" data-line-number="17"><span class="co">instance BadIdea Age where</span></a>
+<a class="sourceLine" id="cb44-18" data-line-number="18"><span class="co">  bad = coerce (bad :: Int -&gt; Inspect Int)</span></a>
+<a class="sourceLine" id="cb44-19" data-line-number="19"><span class="co">-}</span></a></code></pre></div>
 <p><code>Age -&gt; Inspect Age</code>は<code>Age -&gt; Int</code>と同じ、<code>Int -&gt; Inspect Int</code>は<code>Int -&gt; Bool</code>と同じであるということに注意してください。この場合、<code>Age</code>と<code>Int</code>は同じ実行時表現を持ちますが、<code>Int</code>と<code>Bool</code>は同じ表現を持たないわけですから、直感的には<code>Int -&gt; Inspect Int</code>を<code>Age -&gt; Inspect Age</code>にキャストすることは型の健全性を壊します。</p>
 <p><span class="ascii">type role</span>は、二つの型が同じ表現を持つ型かどうかを判断するために、組み込まれた機能です。つまり、キャストが型安全にできるかを判断するためのものなのです。データ型や型クラス、型族などの型変数は、<span class="ascii">type role</span>を持ちます。<span class="ascii">type role</span>の概念は、<code>a</code>と<code>b</code>という型が同じ表現を持つときに<span class="ascii">(</span>例えば、<code>Int</code>と<code>Age</code>は同じ表現を持ちます<span class="ascii">)</span>、型コンストラクタや型族<code>T</code>に対して<code>T a</code>と<code>T b</code>が同じ表現を持つかを判断するための機構で、<code>T</code>のどのパラメータが判断するときに関与するか、という情報を持ちます。<span class="ascii">type role</span>は以下の三種類があります<span class="ascii">:</span></p>
 <ul>
 <li><p><span class="ascii">nominal:</span> 受け取ったパラメータの型が例え同じ表現であっても、全体として同じ表現になるとは限らないことを示します<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw">type</span> family <span class="dt">F</span> a <span class="co">-- a has nominal type role</span></a>
-<a class="sourceLine" id="cb43-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb43-3" data-line-number="3"><span class="kw">data</span> <span class="dt">D</span> a <span class="fu">=</span> <span class="dt">D</span> (<span class="dt">F</span> a) <span class="co">-- a has nominal type role</span></a></code></pre></div></li>
+<div class="sourceCode" id="cb45"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb45-1" data-line-number="1"><span class="kw">type</span> family <span class="dt">F</span> a <span class="co">-- a has nominal type role</span></a>
+<a class="sourceLine" id="cb45-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb45-3" data-line-number="3"><span class="kw">data</span> <span class="dt">D</span> a <span class="fu">=</span> <span class="dt">D</span> (<span class="dt">F</span> a) <span class="co">-- a has nominal type role</span></a></code></pre></div></li>
 <li><p><span class="ascii">representational:</span> 受け取ったパラメータの型が同じ表現であるならば、全体としても同じ表現になることを示します。一般的にはこの<span class="ascii">type role</span>を持ちます<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Simple</span> a <span class="fu">=</span> <span class="dt">Simple</span> a <span class="co">-- a has representational type role</span></a></code></pre></div></li>
+<div class="sourceCode" id="cb46"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Simple</span> a <span class="fu">=</span> <span class="dt">Simple</span> a <span class="co">-- a has representational type role</span></a></code></pre></div></li>
 <li><p><span class="ascii">phantom:</span> 受け取ったパラメータが、表現に全く関与しないことを示します<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb45-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Tag</span> a <span class="fu">=</span> <span class="dt">Tag</span> <span class="co">-- a has phantom type role</span></a></code></pre></div></li>
+<div class="sourceCode" id="cb47"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Tag</span> a <span class="fu">=</span> <span class="dt">Tag</span> <span class="co">-- a has phantom type role</span></a></code></pre></div></li>
 </ul>
 <p>これらの<span class="ascii">type role</span>は推論によって決定するようになっているため、私たちは普段特に意識する必要はありません。ただし、推論結果が意図しないものである場合もあります。その際は、<code>RoleAnnotations</code>拡張を使って、以下のようにすることで、<span class="ascii">type role</span>を明示的に書くこともできます<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="kw">type</span> role <span class="dt">T</span> nominal _ phantom</a>
-<a class="sourceLine" id="cb46-2" data-line-number="2"><span class="kw">data</span> <span class="dt">T</span> a b c <span class="fu">=</span> <span class="dt">T</span> <span class="dt">Int</span> b</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="kw">type</span> role <span class="dt">T</span> nominal _ phantom</a>
+<a class="sourceLine" id="cb48-2" data-line-number="2"><span class="kw">data</span> <span class="dt">T</span> a b c <span class="fu">=</span> <span class="dt">T</span> <span class="dt">Int</span> b</a></code></pre></div>
 <p><code>_</code>は推論に任せることを意味します。</p>
 <p><span class="ascii">type role</span>に興味があるならば、<a href="https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#roles"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.36 Roles</span></a>を読んでみると良いでしょう。また、歴史的経緯については、<a href="https://typesandkinds.wordpress.com/2013/08/15/roles-a-new-feature-of-ghc/"><span class="ascii">Roles: a new feature of GHC</span></a>に簡潔にまとまっています。</p>
 <h3 id="軽率多相">軽率多相</h3>
 <p>前の章では、プリミティブ型の種を紹介しました。この種は<code>TYPE :: RuntimeRep -&gt; *</code>という型コンストラクタを昇格したものによって、作られているのでした。そして、<code>*</code>でさえ<code>TYPE 'LiftedRep</code>のエイリアスでしか無かったのでしたね。このような種の表現になったのは、実は最近のことです。昔はそれぞれの種は実行時の表現ごとに切り離されていました。<code>TYPE</code>を使って共通化されたのには、幾つかの歴史的経緯があり、 <strong>軽率多相<span class="ascii">(levity polymorphism)</span></strong> という話題と密接な関係があります。軽率多相は、種多相を少し制限したものです。種多相は任意の種を扱えるような種変数を許容しますが、軽率多相は実行時表現に関係するような範囲での種の多相を提供します。</p>
 <p>関数型コンストラクタ<code>(-&gt;)</code>の種は、<code>(-&gt;) :: * -&gt; * -&gt; *</code>であると話してきました。実際には、<code>(-&gt;) :: TYPE q -&gt; TYPE r -&gt; *</code>というような種を持っています。<code>TYPE</code>の引数の部分は、任意の<code>RuntimeRep</code>をとれるようになっています。確認してみましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XTypeInType</span> <span class="fu">-</span><span class="dt">XKindSignatures</span></a>
-<a class="sourceLine" id="cb47-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
-<a class="sourceLine" id="cb47-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">type</span> <span class="dt">CheckFuncType</span> (<span class="ot">q ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">r ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">a ::</span> <span class="dt">TYPE</span> q) (<span class="ot">b ::</span> <span class="dt">TYPE</span> r) <span class="fu">=</span> a <span class="ot">-&gt;</span> b <span class="co">-- no error</span></a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XTypeInType</span> <span class="fu">-</span><span class="dt">XKindSignatures</span></a>
+<a class="sourceLine" id="cb49-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">GHC.Exts</span></a>
+<a class="sourceLine" id="cb49-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">type</span> <span class="dt">CheckFuncType</span> (<span class="ot">q ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">r ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">a ::</span> <span class="dt">TYPE</span> q) (<span class="ot">b ::</span> <span class="dt">TYPE</span> r) <span class="fu">=</span> a <span class="ot">-&gt;</span> b <span class="co">-- no error</span></a></code></pre></div>
 <p><code>TypeInType</code>拡張については、後ほど解説しますので、今はおまじないとしておきましょう。上の例では、任意の<code>RuntimeRep</code>に対して、確かに関数型コンストラクタが有効であることが確認できます。このように関数型コンストラタは軽率多相化されています。なので、私たちは<code>Int# -&gt; Int#</code>といったような関数を、通常の関数型の表記で書けるようになっていたのです。</p>
 <p>関数型が軽率多相化されているということは、軽率多相化された関数が書けるということでもあります。実際、幾つかの関数は軽率多相化された形で提供されています。例えば<code>($)</code>や<code>error</code>などがそうです。ただし、軽率多相は全てに気軽に適用できるというわけではありません。以下の例を考えて見ましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="ot">{-# LANGUAGE TypeInType, KindSignatures, ExplicitForAll #-}</span></a>
-<a class="sourceLine" id="cb48-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb48-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">RuntimeRep</span>, <span class="dt">TYPE</span>)</a>
-<a class="sourceLine" id="cb48-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb48-5" data-line-number="5"><span class="ot">bad ::</span> forall (<span class="ot">r1 ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">r2 ::</span> <span class="dt">RuntimeRep</span>)</a>
-<a class="sourceLine" id="cb48-6" data-line-number="6">              (<span class="ot">a ::</span> <span class="dt">TYPE</span> r1) (<span class="ot">b ::</span> <span class="dt">TYPE</span> r2)<span class="fu">.</span></a>
-<a class="sourceLine" id="cb48-7" data-line-number="7">       (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b</a>
-<a class="sourceLine" id="cb48-8" data-line-number="8">bad f x <span class="fu">=</span> f x</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="ot">{-# LANGUAGE TypeInType, KindSignatures, ExplicitForAll #-}</span></a>
+<a class="sourceLine" id="cb50-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb50-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">RuntimeRep</span>, <span class="dt">TYPE</span>)</a>
+<a class="sourceLine" id="cb50-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb50-5" data-line-number="5"><span class="ot">bad ::</span> forall (<span class="ot">r1 ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">r2 ::</span> <span class="dt">RuntimeRep</span>)</a>
+<a class="sourceLine" id="cb50-6" data-line-number="6">              (<span class="ot">a ::</span> <span class="dt">TYPE</span> r1) (<span class="ot">b ::</span> <span class="dt">TYPE</span> r2)<span class="fu">.</span></a>
+<a class="sourceLine" id="cb50-7" data-line-number="7">       (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b</a>
+<a class="sourceLine" id="cb50-8" data-line-number="8">bad f x <span class="fu">=</span> f x</a></code></pre></div>
 <p>この例は、<code>($)</code>を軽率多相化した例になります。しかし、この実装には幾つかの問題があります。<code>bad</code>をコンパイルすることを考えてみてください。<code>bad</code>の引数<code>f</code>はただの関数なので問題ありませんが、引数<code>x</code>は軽率多相化されています。<code>x</code>は果たして実データかポインタかどちらでしょうか？ また、サンクを持っているのでしょうか？ <code>x</code>のビット幅は？ <code>x</code>はどのレジスタに格納すべきでしょうか？ 私たちはコンパイル時に、この質問に答えることはできません。なぜなら実データである場合もありポインタである場合もありますし、サンクを持っているかもしれません。浮動小数点数である場合も整数である場合もあり、ビット幅も一定ではないからです！ つまり私たちは、<code>bad</code>の引数<code>x</code>をどのように扱えばいいのか、コンパイル時に決めることができないのです。これは、引数が軽率多相化された関数全てに対して当てはまることです。このため、<span class="ascii">GHC</span>では軽率多相化したような変数を使った関数宣言は許可されていません。ですが、注意して欲しいのは、次のような関数は作ることができるということです<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="ot">{-# LANGUAGE TypeInType, KindSignatures, ExplicitForAll #-}</span></a>
-<a class="sourceLine" id="cb49-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb49-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">RuntimeRep</span>, <span class="dt">TYPE</span>)</a>
-<a class="sourceLine" id="cb49-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb49-5" data-line-number="5"><span class="ot">good ::</span> forall (<span class="ot">r1 ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">r2 ::</span> <span class="dt">RuntimeRep</span>)</a>
-<a class="sourceLine" id="cb49-6" data-line-number="6">              (<span class="ot">a ::</span> <span class="dt">TYPE</span> r1) (<span class="ot">b ::</span> <span class="dt">TYPE</span> r2)<span class="fu">.</span></a>
-<a class="sourceLine" id="cb49-7" data-line-number="7">       (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b</a>
-<a class="sourceLine" id="cb49-8" data-line-number="8">good f <span class="fu">=</span> f</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="ot">{-# LANGUAGE TypeInType, KindSignatures, ExplicitForAll #-}</span></a>
+<a class="sourceLine" id="cb51-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb51-3" data-line-number="3"><span class="kw">import</span> <span class="dt">GHC.Exts</span> (<span class="dt">RuntimeRep</span>, <span class="dt">TYPE</span>)</a>
+<a class="sourceLine" id="cb51-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb51-5" data-line-number="5"><span class="ot">good ::</span> forall (<span class="ot">r1 ::</span> <span class="dt">RuntimeRep</span>) (<span class="ot">r2 ::</span> <span class="dt">RuntimeRep</span>)</a>
+<a class="sourceLine" id="cb51-6" data-line-number="6">              (<span class="ot">a ::</span> <span class="dt">TYPE</span> r1) (<span class="ot">b ::</span> <span class="dt">TYPE</span> r2)<span class="fu">.</span></a>
+<a class="sourceLine" id="cb51-7" data-line-number="7">       (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b</a>
+<a class="sourceLine" id="cb51-8" data-line-number="8">good f <span class="fu">=</span> f</a></code></pre></div>
 <p>この場合、軽率多相化された変数はどこにも出てきていません。</p>
 <p>ところで、軽率多相の焦点は、実行時表現の中でも<span class="ascii">lifted/unlifted</span>の枠組みについてです。<span class="ascii">lifted</span>な型の値はサンクを持ち遅延評価を主とし、<span class="ascii">unlifted</span>な型の値はサンクを持たないので正格評価になるのでしたね。このサンクを持つ持たないに関わらず関数を多相化して書けるようにするのが、軽率多相の主な目的です。ですが、<span class="ascii">GHC</span>ではもう一つ重要な<span class="ascii">boxed/unboxed</span>という枠組みもあるのでしたね。この二つの枠組みを分けて多相化できるように、現在次のような変更も提案されています<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Boxity</span> <span class="fu">=</span> <span class="dt">Boxed</span> <span class="fu">|</span> <span class="dt">Unboxed</span></a>
-<a class="sourceLine" id="cb50-2" data-line-number="2"><span class="kw">data</span> <span class="dt">Levity</span> <span class="fu">=</span> <span class="dt">Lifted</span> <span class="fu">|</span> <span class="dt">Unlifted</span></a>
-<a class="sourceLine" id="cb50-3" data-line-number="3"><span class="kw">data</span> <span class="dt">TYPE</span> (<span class="ot">b ::</span> <span class="dt">Boxity</span>) (<span class="ot">l ::</span> <span class="dt">Levity</span>)</a>
-<a class="sourceLine" id="cb50-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb50-5" data-line-number="5"><span class="kw">type</span> <span class="fu">*</span> <span class="fu">=</span> <span class="dt">TYPE</span> <span class="ch">'Boxed '</span><span class="dt">Lifted</span></a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Boxity</span> <span class="fu">=</span> <span class="dt">Boxed</span> <span class="fu">|</span> <span class="dt">Unboxed</span></a>
+<a class="sourceLine" id="cb52-2" data-line-number="2"><span class="kw">data</span> <span class="dt">Levity</span> <span class="fu">=</span> <span class="dt">Lifted</span> <span class="fu">|</span> <span class="dt">Unlifted</span></a>
+<a class="sourceLine" id="cb52-3" data-line-number="3"><span class="kw">data</span> <span class="dt">TYPE</span> (<span class="ot">b ::</span> <span class="dt">Boxity</span>) (<span class="ot">l ::</span> <span class="dt">Levity</span>)</a>
+<a class="sourceLine" id="cb52-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb52-5" data-line-number="5"><span class="kw">type</span> <span class="fu">*</span> <span class="fu">=</span> <span class="dt">TYPE</span> <span class="ch">'Boxed '</span><span class="dt">Lifted</span></a></code></pre></div>
 <p>もし、軽率多相に興味があるならば、原論文<a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/levity-1.pdf"><span class="ascii">Levity Polymorphism (extended version)</span></a>を読んでみるのがいいでしょう。この論文では、軽率多相に至るまでの<span class="ascii">GHC</span>での経緯と問題点、軽率多相の動機などが丁寧に解説されています。また、論文より説明が若干劣りますが<a href="https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#levity-polymorphism"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.12 Levity polymorphism</span></a>にも、<span class="ascii">GHC</span>での軽率多相についての仕組みが書かれています。</p>
 <h3 id="トップレベル種注釈">トップレベル種注釈</h3>
 <p><code>KindSignatures</code>拡張は、種の注釈を書けるようにするようなものでした。<code>KindSignatures</code>は型パラメータの種を明示的に書くことができるようにする拡張でしたね。種が明示されないパラメータは、種推論によってその種が定まります。ですが、種推論は幾つか制約があり、その一つに再帰的データ型に対しては、単相的な再帰の種推論しか行えないというものがあります。以下のケースを見てください<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XPolyKinds</span></a>
-<a class="sourceLine" id="cb51-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> m a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
-<a class="sourceLine" id="cb51-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">T</span></a>
-<a class="sourceLine" id="cb51-4" data-line-number="4"><span class="dt">T</span><span class="ot"> ::</span> (<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb53-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XPolyKinds</span></a>
+<a class="sourceLine" id="cb53-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> m a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
+<a class="sourceLine" id="cb53-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">T</span></a>
+<a class="sourceLine" id="cb53-4" data-line-number="4"><span class="dt">T</span><span class="ot"> ::</span> (<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
 <p>このデータ型<code>T</code>の種は<code>(k -&gt; *) -&gt; k -&gt; *</code>というような多相化された種でも問題ないはずですが、実際には<code>PolyKinds</code>をつけているにも関わらず<code>*</code>で単相化されて推論されます。単相制約によって、例えば次のように、一部種注釈を書いてもうまく推論できません<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> (<span class="ot">m ::</span> k <span class="ot">-&gt;</span> <span class="fu">*</span>) a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
-<a class="sourceLine" id="cb52-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb52-3" data-line-number="3"><span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">49</span><span class="fu">:</span><span class="dv">45</span><span class="fu">:</span> error<span class="fu">:</span></a>
-<a class="sourceLine" id="cb52-4" data-line-number="4">    • <span class="dt">Expected</span> kind ‘k <span class="ot">-&gt;</span> <span class="fu">*</span>’, but ‘<span class="dt">Maybe</span>’ has kind ‘<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>’</a>
-<a class="sourceLine" id="cb52-5" data-line-number="5">    • <span class="dt">In</span> the first argument <span class="kw">of</span> ‘<span class="dt">T</span>’, namely ‘<span class="dt">Maybe</span>’</a>
-<a class="sourceLine" id="cb52-6" data-line-number="6">      <span class="dt">In</span> the <span class="kw">type</span> ‘<span class="dt">T</span> <span class="dt">Maybe</span> (m a)’</a>
-<a class="sourceLine" id="cb52-7" data-line-number="7">      <span class="dt">In</span> the definition <span class="kw">of</span> <span class="kw">data</span> constructor ‘<span class="dt">MkT</span>’</a>
-<a class="sourceLine" id="cb52-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> m (<span class="ot">a ::</span> k) <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
-<a class="sourceLine" id="cb52-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb52-10" data-line-number="10"><span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">50</span><span class="fu">:</span><span class="dv">40</span><span class="fu">:</span> error<span class="fu">:</span></a>
-<a class="sourceLine" id="cb52-11" data-line-number="11">    • <span class="dt">Expected</span> kind ‘k <span class="ot">-&gt;</span> <span class="fu">*</span>’, but ‘<span class="dt">Maybe</span>’ has kind ‘<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>’</a>
-<a class="sourceLine" id="cb52-12" data-line-number="12">    • <span class="dt">In</span> the first argument <span class="kw">of</span> ‘<span class="dt">T</span>’, namely ‘<span class="dt">Maybe</span>’</a>
-<a class="sourceLine" id="cb52-13" data-line-number="13">      <span class="dt">In</span> the <span class="kw">type</span> ‘<span class="dt">T</span> <span class="dt">Maybe</span> (m a)’</a>
-<a class="sourceLine" id="cb52-14" data-line-number="14">      <span class="dt">In</span> the definition <span class="kw">of</span> <span class="kw">data</span> constructor ‘<span class="dt">MkT</span>’</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> (<span class="ot">m ::</span> k <span class="ot">-&gt;</span> <span class="fu">*</span>) a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
+<a class="sourceLine" id="cb54-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb54-3" data-line-number="3"><span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">49</span><span class="fu">:</span><span class="dv">45</span><span class="fu">:</span> error<span class="fu">:</span></a>
+<a class="sourceLine" id="cb54-4" data-line-number="4">    • <span class="dt">Expected</span> kind ‘k <span class="ot">-&gt;</span> <span class="fu">*</span>’, but ‘<span class="dt">Maybe</span>’ has kind ‘<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>’</a>
+<a class="sourceLine" id="cb54-5" data-line-number="5">    • <span class="dt">In</span> the first argument <span class="kw">of</span> ‘<span class="dt">T</span>’, namely ‘<span class="dt">Maybe</span>’</a>
+<a class="sourceLine" id="cb54-6" data-line-number="6">      <span class="dt">In</span> the <span class="kw">type</span> ‘<span class="dt">T</span> <span class="dt">Maybe</span> (m a)’</a>
+<a class="sourceLine" id="cb54-7" data-line-number="7">      <span class="dt">In</span> the definition <span class="kw">of</span> <span class="kw">data</span> constructor ‘<span class="dt">MkT</span>’</a>
+<a class="sourceLine" id="cb54-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> m (<span class="ot">a ::</span> k) <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
+<a class="sourceLine" id="cb54-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb54-10" data-line-number="10"><span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">50</span><span class="fu">:</span><span class="dv">40</span><span class="fu">:</span> error<span class="fu">:</span></a>
+<a class="sourceLine" id="cb54-11" data-line-number="11">    • <span class="dt">Expected</span> kind ‘k <span class="ot">-&gt;</span> <span class="fu">*</span>’, but ‘<span class="dt">Maybe</span>’ has kind ‘<span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span>’</a>
+<a class="sourceLine" id="cb54-12" data-line-number="12">    • <span class="dt">In</span> the first argument <span class="kw">of</span> ‘<span class="dt">T</span>’, namely ‘<span class="dt">Maybe</span>’</a>
+<a class="sourceLine" id="cb54-13" data-line-number="13">      <span class="dt">In</span> the <span class="kw">type</span> ‘<span class="dt">T</span> <span class="dt">Maybe</span> (m a)’</a>
+<a class="sourceLine" id="cb54-14" data-line-number="14">      <span class="dt">In</span> the definition <span class="kw">of</span> <span class="kw">data</span> constructor ‘<span class="dt">MkT</span>’</a></code></pre></div>
 <p>ですが、私たちは完全に種推論に頼らないような種注釈を提供することで、<code>T :: (k -&gt; *) -&gt; k -&gt; *</code>というような種多相化された型コンストラクタを作ることができます<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb53-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> (<span class="ot">m ::</span> k <span class="ot">-&gt;</span> <span class="fu">*</span>) (<span class="ot">a ::</span> k) <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
-<a class="sourceLine" id="cb53-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">T</span></a>
-<a class="sourceLine" id="cb53-3" data-line-number="3"><span class="dt">T</span><span class="ot"> ::</span> (k <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb55-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> (<span class="ot">m ::</span> k <span class="ot">-&gt;</span> <span class="fu">*</span>) (<span class="ot">a ::</span> k) <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
+<a class="sourceLine" id="cb55-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">T</span></a>
+<a class="sourceLine" id="cb55-3" data-line-number="3"><span class="dt">T</span><span class="ot"> ::</span> (k <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
 <p>このような完全に種が提供されているような種注釈の形式を、<span class="ascii">GHC</span>では <strong><span class="ascii">CUSKs(Complete User-Supplied Kind signatures)</span></strong> と呼んでいます。<span class="ascii">CUSK</span>は、種多相な再帰的データ型を提供する場合必須のものになってきますが、上の例からも分かる通り非常に見にくいのが難点です。また構文を解析して<span class="ascii">CUSK</span>か判断するのにも、手間がかかります。そのため、現在<span class="ascii">CUSK</span>に代わるものとして、 <strong>トップレベル種注釈<span class="ascii">(top-level kind signatures)</span></strong> という機能が提案されています。この提案は、上の例の<span class="ascii">CUSK</span>と同等の注釈を、次のように書けるようにするものです<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="kw">type</span> <span class="dt">T</span><span class="ot"> ::</span> (k <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb54-2" data-line-number="2"><span class="kw">data</span> <span class="dt">T</span> m a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="kw">type</span> <span class="dt">T</span><span class="ot"> ::</span> (k <span class="ot">-&gt;</span> <span class="fu">*</span>) <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb56-2" data-line-number="2"><span class="kw">data</span> <span class="dt">T</span> m a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a></code></pre></div>
 <p>関数の型注釈などと同じスタイルで、非常に見やすいですね。</p>
 <p>トップレベル種注釈は、現在、<a href="https://github.com/ghc-proposals/ghc-proposals/pull/54"><span class="ascii">GHC Proposals - Pull Request #54</span></a>で提案されています。興味がある方は、<a href="https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#complete-user-supplied-kind-signatures-and-polymorphic-recursion"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.11.5 Complete user-supplied kind signatures and polymorphic recursion</span></a>と合わせて提案内容を見てみると良いでしょう。</p>
 <h3 id="unliftedデータ型"><span class="ascii">Unlifted</span>データ型</h3>
 <p><span class="ascii">Haskell</span>のデータ型は、<span class="ascii">lifted</span>という枠組みの型でした。<span class="ascii">lifted</span>な型は、評価されるまではサンクになっているのでした。<span class="ascii">unlifted</span>な型は、<span class="ascii">GHC</span>で幾つかプリミティブ型として提供されているのでした。現在、<strong><span class="ascii">unlifted</span>データ型</strong>という拡張が提案されています。この拡張は、ユーザー定義の<span class="ascii">unlifted</span>な型を定義できるようにする拡張です。</p>
 <p>この拡張は、次のような新たなデータ宣言をできるようにするものです<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb55-1" data-line-number="1"><span class="kw">data</span> unlifted <span class="dt">UBool</span> <span class="fu">=</span> <span class="dt">UTrue</span> <span class="fu">|</span> <span class="dt">UFalse</span></a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb57-1" data-line-number="1"><span class="kw">data</span> unlifted <span class="dt">UBool</span> <span class="fu">=</span> <span class="dt">UTrue</span> <span class="fu">|</span> <span class="dt">UFalse</span></a></code></pre></div>
 <p>ここで、<code>UBool</code>型の値は、<span class="ascii">unlifted</span>な型でありボックス型であるようなデータ型になります。つまり、<code>Array# a</code>と同じようなデータ型で、サンクを持たずポインタでヒープ上の本体を指し示すような表現がされます。そして、その種は<code>TYPE 'UnliftedRep</code>になります。また、この拡張下では、<span class="ascii">unlifted</span>型の<code>newtype</code>が行えるようにするという提案もされています。</p>
 <p>ただこの拡張は新たなシンタックスを導入することになるため、<code>GADTSyntax</code>と<code>KindSignatures</code>を使って以下のようなことをできるようにすることが、代わりに提案されています<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="ot">{-# LANGUAGE GADTSyntax, KindSignatures #-}</span></a>
-<a class="sourceLine" id="cb56-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb56-3" data-line-number="3"><span class="kw">data</span> <span class="dt">UBool</span><span class="ot"> ::</span> <span class="dt">TYPE</span> <span class="ch">'UnliftedRep where</span></a>
-<a class="sourceLine" id="cb56-4" data-line-number="4">    <span class="dt">UTrue</span><span class="ot">  ::</span> <span class="dt">UBool</span></a>
-<a class="sourceLine" id="cb56-5" data-line-number="5">    <span class="dt">UFalse</span><span class="ot"> ::</span> <span class="dt">UBool</span></a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="ot">{-# LANGUAGE GADTSyntax, KindSignatures #-}</span></a>
+<a class="sourceLine" id="cb58-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb58-3" data-line-number="3"><span class="kw">data</span> <span class="dt">UBool</span><span class="ot"> ::</span> <span class="dt">TYPE</span> <span class="ch">'UnliftedRep where</span></a>
+<a class="sourceLine" id="cb58-4" data-line-number="4">    <span class="dt">UTrue</span><span class="ot">  ::</span> <span class="dt">UBool</span></a>
+<a class="sourceLine" id="cb58-5" data-line-number="5">    <span class="dt">UFalse</span><span class="ot"> ::</span> <span class="dt">UBool</span></a></code></pre></div>
 <p>これにより、新たな構文を導入しなくても、<span class="ascii">unlifted</span>なデータ型を定義できるようになります。</p>
 <p><span class="ascii">unlifted</span>データ型について興味があるならば、<a href="https://ghc.haskell.org/trac/ghc/wiki/UnliftedDataTypes"><span class="ascii">GHC Wiki - UnliftedDataTypes</span></a>のページを見てみると良いでしょう。このページに、主な提案内容が書かれています。</p>
 <h3 id="type-in-type"><span class="ascii">Type in Type</span></h3>
 <p><code>TypeInType</code>拡張は、<code>DataKinds</code>拡張と<code>PolyKinds</code>拡張をより強力にした拡張です。例えば、以下のようなことができるようになります<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb57-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XTypeInType</span> <span class="fu">-</span>fprint<span class="fu">-</span>explicit<span class="fu">-</span>foralls</a>
-<a class="sourceLine" id="cb57-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 型エイリアスを種として使えるようになる</span></a>
-<a class="sourceLine" id="cb57-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">type</span> <span class="dt">B</span> <span class="fu">=</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb57-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">D</span> (<span class="ot">a ::</span> <span class="dt">B</span>)</a>
-<a class="sourceLine" id="cb57-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">D</span></a>
-<a class="sourceLine" id="cb57-6" data-line-number="6"><span class="dt">D</span><span class="ot"> ::</span> <span class="dt">B</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb57-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- より広い範囲の多相を書けるようになる</span></a>
-<a class="sourceLine" id="cb57-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">A</span> (<span class="ot">d ::</span> <span class="dt">D</span> a)</a>
-<a class="sourceLine" id="cb57-9" data-line-number="9"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">A</span></a>
-<a class="sourceLine" id="cb57-10" data-line-number="10"><span class="dt">A</span><span class="ot"> ::</span> forall (<span class="ot">a ::</span> <span class="dt">B</span>)<span class="fu">.</span> <span class="dt">D</span> a <span class="ot">-&gt;</span> <span class="fu">*</span></a>
-<a class="sourceLine" id="cb57-11" data-line-number="11"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- RankN多相な種を書けるようになる</span></a>
-<a class="sourceLine" id="cb57-12" data-line-number="12"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XRankNTypes</span></a>
-<a class="sourceLine" id="cb57-13" data-line-number="13"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">AN</span> (<span class="ot">d ::</span> forall a<span class="fu">.</span> <span class="dt">D</span> a)</a>
-<a class="sourceLine" id="cb57-14" data-line-number="14"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">AN</span></a>
-<a class="sourceLine" id="cb57-15" data-line-number="15"><span class="dt">AN</span><span class="ot"> ::</span> (forall (<span class="ot">a ::</span> <span class="dt">B</span>)<span class="fu">.</span> <span class="dt">D</span> a) <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XTypeInType</span> <span class="fu">-</span>fprint<span class="fu">-</span>explicit<span class="fu">-</span>foralls</a>
+<a class="sourceLine" id="cb59-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 型エイリアスを種として使えるようになる</span></a>
+<a class="sourceLine" id="cb59-3" data-line-number="3"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">type</span> <span class="dt">B</span> <span class="fu">=</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb59-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">D</span> (<span class="ot">a ::</span> <span class="dt">B</span>)</a>
+<a class="sourceLine" id="cb59-5" data-line-number="5"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">D</span></a>
+<a class="sourceLine" id="cb59-6" data-line-number="6"><span class="dt">D</span><span class="ot"> ::</span> <span class="dt">B</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb59-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- より広い範囲の多相を書けるようになる</span></a>
+<a class="sourceLine" id="cb59-8" data-line-number="8"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">A</span> (<span class="ot">d ::</span> <span class="dt">D</span> a)</a>
+<a class="sourceLine" id="cb59-9" data-line-number="9"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">A</span></a>
+<a class="sourceLine" id="cb59-10" data-line-number="10"><span class="dt">A</span><span class="ot"> ::</span> forall (<span class="ot">a ::</span> <span class="dt">B</span>)<span class="fu">.</span> <span class="dt">D</span> a <span class="ot">-&gt;</span> <span class="fu">*</span></a>
+<a class="sourceLine" id="cb59-11" data-line-number="11"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- RankN多相な種を書けるようになる</span></a>
+<a class="sourceLine" id="cb59-12" data-line-number="12"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XRankNTypes</span></a>
+<a class="sourceLine" id="cb59-13" data-line-number="13"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">AN</span> (<span class="ot">d ::</span> forall a<span class="fu">.</span> <span class="dt">D</span> a)</a>
+<a class="sourceLine" id="cb59-14" data-line-number="14"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">AN</span></a>
+<a class="sourceLine" id="cb59-15" data-line-number="15"><span class="dt">AN</span><span class="ot"> ::</span> (forall (<span class="ot">a ::</span> <span class="dt">B</span>)<span class="fu">.</span> <span class="dt">D</span> a) <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
 <p>このように、型注釈でできたことが、種注釈でできるようになるわけです。</p>
 <p>ただし、この拡張は現状とても不安定であり、使用が推奨されているわけではありません。この拡張を使用する場合は、コンパイル時、内部でこの拡張の挙動をチェックするように<code>-dcore-lint</code>というフラグを使用することが推奨されています。将来的には、この拡張の範囲を型と種の範囲から、型と値の範囲、ひいては種と型と値の違いを取り払い、依存型というシステムに徐々に近づけていくことも視野に入れているようです。ただし、まずは種と型の範囲で安定的な機能を提供するのが、目的ということでしょう。</p>
 <p><code>TypeInType</code>拡張については、主に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#overview-of-type-in-type"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.11.3 Overview of Type-in-Type</span></a>に、その概要が書かれています。</p>
