@@ -211,38 +211,38 @@ undefined :: ((Monad m, Monoid a), Show a) => m a
 
 * 型エイリアスと同じ構文で、型制約コンストラクタのエイリアスを書くことができるようになる。
 
-    つまり、次のようなことが可能になります:
-    ```haskell
-    {-# LANGUAGE ConstraintKinds #-}
+つまり、次のようなことが可能になります:
+```haskell
+{-# LANGUAGE ConstraintKinds #-}
 
-    -- 型制約のエイリアス
-    type MonMonad m a = (Monoid (m a), Monad m)
+-- 型制約のエイリアス
+type MonMonad m a = (Monoid (m a), Monad m)
 
-    -- 型制約コンストラクタのエイリアス
-    type Mappable = Functor
-    ```
+-- 型制約コンストラクタのエイリアス
+type Mappable = Functor
+```
 
 * 型制約種`Constraint`を持つ型を、型制約として使用できるようにする。
 
-    こちらは、あまり実感が湧かないかもしれません。デフォルトで、GHCでは型クラスなどを型制約として扱う、つまり`=>`に渡すことができます。ですが、`Constraint`の種を持つ型制約変数などを渡すことはできません:
-    ```haskell
-    >>> import Data.Proxy
-    >>> -- 型クラスを型制約として使っているため、問題ない
-    >>> :type undefined :: Monad m => m a
-    undefined :: Monad m => m a :: Monad m => m a
-    >>> -- 型制約変数は、型制約として扱えない
-    >>> :type undefined :: a => Proxy a
+こちらは、あまり実感が湧かないかもしれません。デフォルトで、GHCでは型クラスなどを型制約として扱う、つまり`=>`に渡すことができます。ですが、`Constraint`の種を持つ型制約変数などを渡すことはできません:
+```haskell
+>>> import Data.Proxy
+>>> -- 型クラスを型制約として使っているため、問題ない
+>>> :type undefined :: Monad m => m a
+undefined :: Monad m => m a :: Monad m => m a
+>>> -- 型制約変数は、型制約として扱えない
+>>> :type undefined :: a => Proxy a
 
-    <interactive>:1:14: error:
-        • Illegal constraint: a (Use ConstraintKinds to permit this)
-        • In an expression type signature: a => Proxy a
-          In the expression: undefined :: a => Proxy a
-    >>> :set -XConstraintKinds
-    >>> -- 型制約種を持つものなら、型制約として扱えるようになる
-    >>> :type undefined :: a => Proxy a
-    undefined :: a => Proxy a :: a => Proxy a
-    ```
-    `((Monad m, Monoid a), Show a)`などが標準で扱えないのも、`(Monad m, Monoid a)`という形式のものは型制約種を持ってはいますが、標準で許容されている形式ではないからです。このような場合に、より柔軟に扱えるようにしてくれる拡張が、`ConstraintKinds`拡張です。
+<interactive>:1:14: error:
+    • Illegal constraint: a (Use ConstraintKinds to permit this)
+    • In an expression type signature: a => Proxy a
+      In the expression: undefined :: a => Proxy a
+>>> :set -XConstraintKinds
+>>> -- 型制約種を持つものなら、型制約として扱えるようになる
+>>> :type undefined :: a => Proxy a
+undefined :: a => Proxy a :: a => Proxy a
+```
+`((Monad m, Monoid a), Show a)`などが標準で扱えないのも、`(Monad m, Monoid a)`という形式のものは型制約種を持ってはいますが、標準で許容されている形式ではないからです。このような場合に、より柔軟に扱えるようにしてくれる拡張が、`ConstraintKinds`拡張です。
 
 型制約種`Constraint`について、馴染んでもらえたでしょうか？普段、この種や`ConstraintKinds`を明示的に使うような場面は少ないかもしれませんね。もし、型制約種について興味を持ったなら、[constraints](http://hackage.haskell.org/package/constraints)というパッケージを見てみるのが良いでしょう。このパッケージは、型制約プログラミングに関する幾つかの有用なAPIを提供しています。
 
