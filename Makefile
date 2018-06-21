@@ -6,7 +6,7 @@ all: site
 #############
 
 # Path to the directory that `stack` uses to install binaries locally.
-STACK_LOCAL_INSTALL_PATH = $(shell stack path --local-install-root)
+STACK_LOCAL_INSTALL_PATH ?= $(shell stack path --local-install-root)
 
 # Path to the `site` binary.
 SITE_PROG_PATH = $(STACK_LOCAL_INSTALL_PATH)/site
@@ -72,8 +72,13 @@ endif
 	git add -A .
 	git status
 	# Do the commit and push.
-	git commit -m "Release $(GIT_HASH) on `date` [ci skip]."
-	git push -f origin gh-pages
+	@git diff --exit-code; \
+	rc=$?; if [ $rc != 0 ] ; then \
+		git commit -m "Release $(GIT_HASH) on `date`."; \
+		git push -f origin gh-pages; \
+	else \
+		echo "Skip commit and push to gh-pages"; \
+	fi
 ifndef GITHUB_TOKEN
 	# Go back to master.
 	git checkout master
@@ -84,7 +89,7 @@ endif
 release: deploy
 
 # Generate the .html files for our blog.
-site: $(SITE_PROG_PATH) 
+site: $(SITE_PROG_PATH)
 	@# We don't actually need to use rebuild here, we could just use build.
 	@# If this blog becomes really big and produces tons of pages, then switching
 	@# to 'build' here (and adding an additional site-rebuild target) would be a
