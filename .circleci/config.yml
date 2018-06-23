@@ -51,7 +51,39 @@ jobs:
           curl -H 'Content-Type:application/json' -d @- \
             https://haskell-jp-blog-artifact.herokuapp.com/
         fi
-    # Circle CIからのdeployは最後に挑戦した際うまくいかなかったのでコメントアウト。
-    # 改めて試す場合、Travis CIによるデプロイと
-    # 関連: https://github.com/haskell-jp/blog/issues/54
-    #- run: "$CIRCLE_BRANCH" = master && make -e deploy
+    - persist_to_workspace:
+        root: .
+        paths:
+          - ./generated-site
+
+  deploy:
+    docker:
+    - image: haskell:8.2.1
+    steps:
+    - checkout:
+        path: ~/project
+    - add-ssh-keys:
+        fingerprints:
+          - "ce:26:f9:6a:ac:98:43:91:5c:c8:77:ef:11:13:d3:fc"
+    - run: apt update
+    - run: apt install -y make ssh-client
+    - attach_workspace:
+       at: .
+    - run: |
+        git config --global user.email "ci@haskell.jp"
+        git config --global user.name "Circle CI User"
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        STACK_LOCAL_INSTALL_PATH=dummy make -W site -W dummy/site -e deploy
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
