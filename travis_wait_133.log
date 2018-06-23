@@ -1,7 +1,0 @@
-haskell-jp-blog-0.1.0.0: test (suite: site-doctest)
-
-Examples: 19  Tried: 19  Errors: 0  Failures: 0
-
-haskell-jp-blog-0.1.0.0: Test suite site-doctest passed
-Haddock index for snapshot packages already up to date at:
-/home/travis/.stack/snapshots/x86_64-linux/lts-10.9/8.2.2/doc/index.html
