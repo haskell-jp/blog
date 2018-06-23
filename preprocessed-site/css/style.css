@@ -80,3 +80,8 @@ ul.social-buttons li {
   color: #313537;
   font-size: smaller;
 }
+
+:target {
+  margin-top: -60px;
+  padding-top: 60px;
+}
