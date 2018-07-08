@@ -12,10 +12,18 @@ import Data.Data (Data)
 import Data.Default (def)
 import Data.List.NonEmpty (NonEmpty((:|)), groupBy, toList)
 import Data.Maybe (fromMaybe)
+import Data.Monoid ((<>))
+import qualified Data.Tree as Tree
 import Data.Typeable (Typeable)
 import Hakyll
 import Skylighting (pygments, styleToCss)
-import Text.Pandoc.Definition (Inline(Space, Span, Str), Pandoc)
+import Text.Pandoc.Definition ( Inline(Space, Span, Str)
+                              , Pandoc(Pandoc)
+                              , Block(Header)
+                              , Inline(Link)
+                              , Attr
+                              )
+import qualified Text.Pandoc.Builder as PB
 import Text.Pandoc.Generic (bottomUp)
 
 -- | Change some of the default configuration variables.  This makes our
@@ -103,7 +111,7 @@ main = hakyllWith hakyllConfig $ do
                 pandocCompilerWithTransform
                   defaultHakyllReaderOptions
                   defaultHakyllWriterOptions
-                  (addSpaceAroundAsciiPandoc language)
+                  (postMakeTOC . addSpaceAroundAsciiPandoc language)
             postTemplateOut <- loadAndApplyTemplate postTemplate postsCtx pandocOut
             applyDefaultTemplate postsCtx =<< saveSnapshot "content" postTemplateOut
 
@@ -375,3 +383,113 @@ getFeedConfig ident = do
     feedAuthorEmail <- getMetadataField' ident "email"
     feedRoot        <- getMetadataField' ident "root"
     pure FeedConfiguration{..}
+
+-- | Intermediate data that contains a section of a post.
+data PostSection = PostSection
+  {
+    psDepth :: Int,
+    psHeaderAttr :: Attr,
+    psHeaderInline :: [Inline],
+    psContent :: [Block]
+  } deriving Show
+
+-- | Extract element ID from `Attr`.
+attrId :: Attr -> String
+attrId (x, _, _) = x
+
+-- | Construct `Attr` with ID.
+idAttr :: String -> Attr
+idAttr s = (s, [], [])
+
+-- | Construct `Attr` with one class.
+classAttr :: String -> Attr
+classAttr s = ("", [s], [])
+
+-- | Eliminate all links from `Block`s or `Inline`s.
+elimLink :: Data a => a -> a
+elimLink = bottomUp $ foldMap go
+  where
+    go :: Inline -> [Inline]
+    go (Link _ cnt _) = cnt
+    go x              = [x]
+
+-- | Pick up all header tag from a document and split it into sections.
+-- the 1st element of the result is the leading(non-headered) part of the post.
+splitIntoSections :: [Block] -> ([Block], [PostSection])
+splitIntoSections = foldr spl ([], [])
+  where
+    spl (Header d a i) ~(leading, secs) = ([], PostSection d a i leading : secs)
+    spl l              ~(leading, secs) = (l : leading, secs)
+
+-- | Depth-first construction of trees.
+--
+-- *  If the 1st element of the result is 1-element list,
+--    it adds a sibling node of the current tip like `unfoldr`.
+-- *  If one result containes more than two elements, it increases the depth and move the tip on it.
+-- *  A null result finishes the current tip and decreases the depth.
+unfoldTree_DF :: (b -> ([a], b)) -> b -> Tree.Forest a
+unfoldTree_DF f x0 = fst $ go (f x0)
+  where
+    go ([], b) = ([], b)
+    go (x:xs, b) =
+        let (ch, b')    = go (xs, b)
+            (sibs, b'') = go (f b')
+          in  (Tree.Node x ch : sibs, b'')
+
+-- | Apply a function unless the argument is null.
+exceptNull :: (Foldable f, Monoid b) => (f a -> b) -> f a -> b
+exceptNull f x | null x    = mempty
+               | otherwise = f x
+
+-- | Generate the list part of the table of contents.
+makeTOCList :: [PostSection] -> PB.Blocks
+makeTOCList [] = mempty
+makeTOCList xs0@(x0 : _) = PB.bulletList $ Tree.foldTree fld <$> unfoldTree_DF unf (psDepth x0, xs0)
+  where
+    unf (n, []) = ([], (n, []))
+    unf (n, x:xs)
+      | psDepth x < n  =                                        ([],       (n-1, x:xs))
+      | psDepth x == n = let (r, (n', ys)) = unf (n+1, xs)   in (Just x : r,  (n', ys))
+      | otherwise      = let (r, (n', ys)) = unf (n+1, x:xs) in (Nothing : r, (n', ys))
+
+    fld hd ch = foldMap listItem hd <> exceptNull PB.bulletList ch
+
+    listItem :: PostSection -> PB.Blocks
+    listItem PostSection{..} =
+        PB.plain $ PB.link ("#" ++ attrId psHeaderAttr)
+                           (attrId psHeaderAttr)
+                           (PB.fromList $ elimLink psHeaderInline)
+
+-- | Generate each section block with headings.
+makeSectionBlock :: PostSection -> PB.Blocks
+makeSectionBlock PostSection{..} = hd <> PB.fromList psContent
+  where
+    hd = PB.headerWith psHeaderAttr psDepth $
+           anchor
+           <> PB.fromList psHeaderInline
+
+    anchor = PB.spanWith (classAttr "link-to-here-outer") $
+               PB.link ("#" ++ attrId psHeaderAttr)
+                       (attrId psHeaderAttr) $
+                 PB.spanWith (classAttr "link-to-here") $
+                   PB.str "Link to" <> PB.linebreak <> PB.str "here"
+
+-- | Transformation function that generates the Table of Contents,
+-- "link to here" buttons.
+postMakeTOC :: Pandoc -> Pandoc
+postMakeTOC (Pandoc meta blk0) = Pandoc meta (PB.toList processed)
+  where
+    (leading, sections) = splitIntoSections blk0
+
+    processed = PB.fromList leading
+                <> toc
+                <> foldMap makeSectionBlock sections
+
+    toc :: PB.Blocks
+    toc = exceptNull `flip` makeTOCList sections $ \tocList ->
+            PB.divWith (idAttr "table-of-contents-outer") $
+              PB.divWith (idAttr "table-of-contents") $
+                PB.divWith (classAttr "table-of-contents-title")
+                  (PB.plain $ PB.str "Contents")
+                <> tocList
+
