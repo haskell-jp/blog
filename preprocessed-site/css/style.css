@@ -92,8 +92,9 @@ ul.social-buttons li {
 
 #table-of-contents {
   display: inline-block;
-  border: solid 1px black;
-  background-color: lightgray;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f5f5f5;
   margin-left: 5%;
   margin-right: 10%;
   padding: 0.5em 1em;
