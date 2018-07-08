@@ -139,28 +139,60 @@
         <div class="row">
             <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<h1 id="はじめに">はじめに</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#はじめに" title="はじめに">はじめに</a></li>
+<li><a href="#インストール方法" title="インストール方法">インストール方法</a>
+<ul>
+<li><a href="#リリース物をdownloadします" title="リリース物をdownloadします"><span class="ascii">1.</span> リリース物を<span class="ascii">download</span>します</a></li>
+<li><a href="#tarファイルを展開します" title="tarファイルを展開します"><span class="ascii">2. tar</span>ファイルを展開します</a></li>
+<li><a href="#インストール先のローカルディレクトリを作ります" title="インストール先のローカルディレクトリを作ります"><span class="ascii">3.</span> インストール先のローカルディレクトリを作ります</a></li>
+<li><a href="#configします" title="configします"><span class="ascii">4. config</span>します</a></li>
+<li><a href="#installします" title="installします"><span class="ascii">5. install</span>します</a></li>
+<li><a href="#遊ぶ" title="遊ぶ"><span class="ascii">6.</span> 遊ぶ</a></li>
+</ul></li>
+<li><a href="#補足" title="補足">補足</a>
+<ul>
+<li><a href="#補足1" title="補足1">補足<span class="ascii">1</span></a></li>
+<li><a href="#補足2" title="補足2">補足<span class="ascii">2</span></a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<h1 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめに</h1>
 <p>素<span class="ascii">(</span>単独<span class="ascii">)</span>の<span class="ascii">GHC</span>のバイナリをローカルディレクトリにインストールする方法について簡単に紹介します。<br />
 <span class="ascii">GHC</span>の新リリースが出た場合などに、<span class="ascii">stack</span> や <span class="ascii">haskell-platform</span> 経由ではなく、手軽にインストールして遊べます。 以下、<span class="ascii">Linux</span>系での手順です。 ユーザー権限で行えます。</p>
-<h1 id="インストール方法">インストール方法</h1>
-<h2 id="リリース物をdownloadします"><span class="ascii">1.</span> リリース物を<span class="ascii">download</span>します</h2>
+<h1 id="インストール方法"><span class="link-to-here-outer"><a href="#インストール方法" title="インストール方法"><span class="link-to-here">Link to<br />
+here</span></a></span>インストール方法</h1>
+<h2 id="リリース物をdownloadします"><span class="link-to-here-outer"><a href="#リリース物をdownloadします" title="リリース物をdownloadします"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">1.</span> リリース物を<span class="ascii">download</span>します</h2>
 <p><span class="ascii">GHC</span>単独品の配布ディレクトリ（ <span class="ascii">https://www.haskell.org/ghc/</span> ）から、目的のバージョンの<span class="ascii">GHC</span>を選びます。</p>
 <p>例えば、<span class="ascii">Linux(Debian, Ubuntu,</span> …<span class="ascii">)</span>用の <span class="ascii">ghc 8.2.1</span> のバイナリであれば、以下から、<code>ghc-8.2.1-x86_64-deb8-linux.tar.xz</code> を選びます。</p>
 <p><span class="ascii">https://www.haskell.org/ghc/download_ghc_8_2_1.html#linux_x86_64</span></p>
-<h2 id="tarファイルを展開します"><span class="ascii">2. tar</span>ファイルを展開します</h2>
+<h2 id="tarファイルを展開します"><span class="link-to-here-outer"><a href="#tarファイルを展開します" title="tarファイルを展開します"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">2. tar</span>ファイルを展開します</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" data-line-number="1">$ <span class="fu">tar</span> -xvJf ghc-8.2.1-x86_64-deb8-linux.tar.xz</a></code></pre></div>
-<h2 id="インストール先のローカルディレクトリを作ります"><span class="ascii">3.</span> インストール先のローカルディレクトリを作ります</h2>
+<h2 id="インストール先のローカルディレクトリを作ります"><span class="link-to-here-outer"><a href="#インストール先のローカルディレクトリを作ります" title="インストール先のローカルディレクトリを作ります"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">3.</span> インストール先のローカルディレクトリを作ります</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1">$ <span class="fu">mkdir</span> ghc821</a></code></pre></div>
-<h2 id="configします"><span class="ascii">4. config</span>します</h2>
+<h2 id="configします"><span class="link-to-here-outer"><a href="#configします" title="configします"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">4. config</span>します</h2>
 <p><span class="ascii">tar</span>を展開したトップディレクトリに<span class="ascii">cd</span>で移動します。 さらに、<code>--prefix</code>オプションで、<span class="ascii">GHC</span>のインストール先のディレクトリを指定します。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1">$ <span class="bu">cd</span> ghc-8.2.1</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">$ <span class="ex">./configure</span> --prefix=/home/my/ghc821</a></code></pre></div>
-<h2 id="installします"><span class="ascii">5. install</span>します</h2>
+<h2 id="installします"><span class="link-to-here-outer"><a href="#installします" title="installします"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">5. install</span>します</h2>
 <p><span class="ascii">tar</span>を展開したトップディレクトリで、<span class="ascii">make</span>コマンドを実行します。</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1">$ <span class="fu">make</span> install</a></code></pre></div>
 <p>これで、<code>--prefix</code> オプションで指定したディレクトリの <code>bin/</code>下に、<code>ghc</code><span class="ascii">,</span> <code>ghci</code><span class="ascii">,</span> <code>runghc</code> などがインストールされます。<br />
 なお、インストール後は、<span class="ascii">tar</span>で展開した側のディレクトリ以下は削除して構いません。</p>
-<h2 id="遊ぶ"><span class="ascii">6.</span> 遊ぶ</h2>
+<h2 id="遊ぶ"><span class="link-to-here-outer"><a href="#遊ぶ" title="遊ぶ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">6.</span> 遊ぶ</h2>
 <p><code>bin/</code>ディレクトリ下の、<code>ghc</code><span class="ascii">,</span> <code>ghci</code><span class="ascii">,</span> <code>runghc</code> などで遊べます。 例えば、以下のようにして<span class="ascii">ghci</span>を起動できます。</p>
 <pre><code>$ ghc821/bin/ghci
 GHCi, version 8.2.1: http://www.haskell.org/ghc/  :? for help
@@ -168,14 +200,17 @@ Prelude&gt; 1+2
 3</code></pre>
 <p><span class="ascii">ghc8.2.1</span>のカラフルなエラーメッセージや、<span class="ascii">compact-region</span>など、新機能を手軽に楽しめます、<span class="ascii">enjoy! :)</span></p>
 <p>もちろん、環境変数<span class="ascii">PATH</span>にインストール先のディレクトリを追加しておけば、デフォルトでこの<span class="ascii">GHC</span>を使用できます。</p>
-<h1 id="補足">補足</h1>
-<h2 id="補足1">補足<span class="ascii">1</span></h2>
+<h1 id="補足"><span class="link-to-here-outer"><a href="#補足" title="補足"><span class="link-to-here">Link to<br />
+here</span></a></span>補足</h1>
+<h2 id="補足1"><span class="link-to-here-outer"><a href="#補足1" title="補足1"><span class="link-to-here">Link to<br />
+here</span></a></span>補足<span class="ascii">1</span></h2>
 <p>本格的に<span class="ascii">GHC</span>で<span class="ascii">project</span>を作る場合には、素の<span class="ascii">GHC</span>でなく、<span class="ascii">stack</span> や <span class="ascii">haskell-platform</span> をインストールするのが良いでしょう。</p>
 <ul>
 <li><a href="https://haskell-lang.org/get-started"><span class="ascii">stack</span></a></li>
 <li><a href="https://www.haskell.org/platform/"><span class="ascii">haskell-platform</span></a></li>
 </ul>
-<h2 id="補足2">補足<span class="ascii">2</span></h2>
+<h2 id="補足2"><span class="link-to-here-outer"><a href="#補足2" title="補足2"><span class="link-to-here">Link to<br />
+here</span></a></span>補足<span class="ascii">2</span></h2>
 <p>環境によっては、<span class="ascii">libgmp</span>が無いというエラーが発生する場合があります。<br />
 その場合は、以下の対処方法があります。</p>
 <pre><code># apt-get install libgmp10

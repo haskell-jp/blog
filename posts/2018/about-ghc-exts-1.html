@@ -141,8 +141,44 @@
               <hr />
 <p><span class="ascii">Haskell</span><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>では各処理系で言語拡張を提供し，<code>LANGUAGE</code>プラグマというものを利用することで，言語拡張を利用することが許容されています．<span class="ascii">Haskell</span>のデファクト標準的な処理系<span class="ascii">GHC</span>も多くの言語拡張を提供しており，その拡張は<strong><span class="ascii">GHC</span>拡張</strong>と呼ばれています．</p>
 <p>今回は，この<span class="ascii">GHC</span>拡張の簡単な紹介と，個人的に良く使う拡張についての簡単な紹介を，全<span class="ascii">3</span>回に分けて行いたいと思います．対象としては，<span class="ascii">GHC</span>で<span class="ascii">Haskell</span>プログラミングをしたことがあり，通常の<span class="ascii">Haskell</span>の構文や動作方法が分かっている人を考えています．また，この記事はあくまで簡単な紹介に留めるもので，付随する留意点や詳細な機能説明は，大事な箇所は漏らさないよう注意するつもりですが，全てを網羅するつもりはありませんのでその点は注意してください．もし，実際に<span class="ascii">GHC</span>拡張を使用する際は，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/"><span class="ascii">GHC</span>のユーザーガイド</a>をよく読んでから使用するのが良いでしょう．</p>
-<h1 id="ghc拡張について"><span class="ascii">GHC</span>拡張について</h1>
-<h2 id="haskellの言語拡張"><span class="ascii">Haskell</span>の言語拡張</h2>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#ghc拡張について" title="ghc拡張について"><span class="ascii">GHC</span>拡張について</a>
+<ul>
+<li><a href="#haskellの言語拡張" title="haskellの言語拡張"><span class="ascii">Haskell</span>の言語拡張</a></li>
+<li><a href="#ghc拡張" title="ghc拡張"><span class="ascii">GHC</span>拡張</a></li>
+<li><a href="#ghc拡張の使い方" title="ghc拡張の使い方"><span class="ascii">GHC</span>拡張の使い方</a></li>
+</ul></li>
+<li><a href="#主要なghc拡張" title="主要なghc拡張">主要な<span class="ascii">GHC</span>拡張</a>
+<ul>
+<li><a href="#preludeの暗黙的な使用を抑制する" title="preludeの暗黙的な使用を抑制する"><span class="ascii">Prelude</span>の暗黙的な使用を抑制する</a></li>
+<li><a href="#便利な構文の導入" title="便利な構文の導入">便利な構文の導入</a>
+<ul>
+<li><a href="#新たなリテラル表記を可能にする" title="新たなリテラル表記を可能にする">新たなリテラル表記を可能にする</a></li>
+<li><a href="#空のデータ型に対するより強力なサポートを導入する" title="空のデータ型に対するより強力なサポートを導入する">空のデータ型に対するより強力なサポートを導入する</a></li>
+<li><a href="#新たな基本構文を導入する" title="新たな基本構文を導入する">新たな基本構文を導入する</a></li>
+<li><a href="#正格化に対するサポートを導入する" title="正格化に対するサポートを導入する">正格化に対するサポートを導入する</a></li>
+<li><a href="#パターンマッチをより柔軟に扱えるようにする" title="パターンマッチをより柔軟に扱えるようにする">パターンマッチをより柔軟に扱えるようにする</a></li>
+<li><a href="#レコードに対するサポートを強化する" title="レコードに対するサポートを強化する">レコードに対するサポートを強化する</a></li>
+<li><a href="#型演算子を導入する" title="型演算子を導入する">型演算子を導入する</a></li>
+<li><a href="#型クラスを拡張する" title="型クラスを拡張する">型クラスを拡張する</a></li>
+<li><a href="#型ワイルドカードをより柔軟に扱う" title="型ワイルドカードをより柔軟に扱う">型ワイルドカードをより柔軟に扱う</a></li>
+<li><a href="#新たな表記法の導入" title="新たな表記法の導入">新たな表記法の導入</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#次回予告" title="次回予告">次回予告</a></li>
+<li><a href="#参考文献" title="参考文献">参考文献</a></li>
+</ul>
+</div>
+</div>
+<h1 id="ghc拡張について"><span class="link-to-here-outer"><a href="#ghc拡張について" title="ghc拡張について"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">GHC</span>拡張について</h1>
+<h2 id="haskellの言語拡張"><span class="link-to-here-outer"><a href="#haskellの言語拡張" title="haskellの言語拡張"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>の言語拡張</h2>
 <p><span class="ascii">Haskell</span>には，言語拡張を取り込む方法が標準で提供されています．<span class="ascii">Haskell</span>標準では，コンパイラプラグマというものが策定されており，これを通してコンパイラに追加情報を提供することができます．コンパイラプラグマは<code>{-#</code>と<code>#-}</code>で囲まれ，字句的にはコメントとして扱われます．標準では，インラインプラグマや特殊化プラグマの他に，<code>LANGUAGE</code>プラグマというものが策定されており，このプラグマを通して言語拡張を指定することができます．</p>
 <p>例えば，実装によって<code>CPP</code>と<code>ScopedTypeVariables</code>という名前の言語拡張が提供されており，それを使いたい場合，次のような文をモジュールの開始前に指定することで，言語拡張が有効になります．</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="ot">{-# LANGUAGE CPP, ScopedTypeVariables #-}</span></a>
@@ -154,7 +190,8 @@
 <a class="sourceLine" id="cb2-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></a></code></pre></div>
 <p>この機能を通して，多くの<span class="ascii">Haskell</span>処理系では言語拡張を提供しています．</p>
-<h2 id="ghc拡張"><span class="ascii">GHC</span>拡張</h2>
+<h2 id="ghc拡張"><span class="link-to-here-outer"><a href="#ghc拡張" title="ghc拡張"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">GHC</span>拡張</h2>
 <p><span class="ascii">Haskell</span>のデファクト標準な処理系<span class="ascii">GHC</span>も，多数の拡張を提供しており，この拡張が<span class="ascii">GHC</span>拡張と呼ばれるものです．<span class="ascii">GHC</span>拡張は，バージョン<span class="ascii">8.4.2</span>現在，以下の数が提供されています<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>．</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1">$ <span class="ex">ghc</span> --supported-extensions <span class="kw">|</span> <span class="fu">wc</span> -l</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="ex">235</span></a></code></pre></div>
@@ -171,7 +208,8 @@
 <li><a href="https://prime.haskell.org/wiki/DoAndIfThenElse"><code>DoAndIfThenElse</code></a><span class="ascii">:</span> <code>if</code>式の構文を，<code>then</code>と<code>else</code>の前に<code>;</code>を許容するよう変更する拡張です．これにより，<code>do</code>式において<code>then</code>や<code>else</code>をインデントする必要がなくなります．</li>
 </ul>
 <p>歴史的経緯で生まれ，互換性のために残されているものの，現状使用が推奨されていない拡張もあります．他に実験的な拡張やかなり大胆な拡張も存在するため，<span class="ascii">GHC</span>拡張を使用する際は<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/"><span class="ascii">GHC</span>のユーザーガイド</a>をよく読んでから使用するのが良いでしょう．</p>
-<h2 id="ghc拡張の使い方"><span class="ascii">GHC</span>拡張の使い方</h2>
+<h2 id="ghc拡張の使い方"><span class="link-to-here-outer"><a href="#ghc拡張の使い方" title="ghc拡張の使い方"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">GHC</span>拡張の使い方</h2>
 <p><span class="ascii">GHC</span>で<span class="ascii">GHC</span>拡張を使用する方法は，<span class="ascii">Haskell</span>標準の<code>LANGUAGE</code>プラグマを使用する他に，幾つかあります．まず，<span class="ascii">GHC</span>にオプションを渡して有効にする方法です．例えば，<code>NoImplicitPrelude</code>拡張と<code>Strict</code>拡張を有効にした状態で<code>Main.hs</code>をコンパイルしたい場合，次のように書けます．</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="ex">ghc</span> -XNoImplicitPrelude -XStrict --make Main.hs</a></code></pre></div>
 <p><span class="ascii">GHC</span>では<code>-X</code>の後に拡張名を続けることで，言語拡張を有効にしてコンパイルすることができます．通常は，<code>LANGUAGE</code>プラグマを使用するのが良いですが，何らかの事情で<code>LANGUAGE</code>プラグマを使用できない場合や，デフォルトで有効にしたい言語拡張がある場合などに便利でしょう．特に<span class="ascii">GHCi</span>で言語拡張を有効にしたくなった場合，このオプションを<code>set</code>コマンドで指定すると良いでしょう．</p>
@@ -189,9 +227,11 @@ executable program1
   build-depends:      base
   main-is:            Main.hs
   default-extensions: NoImplicitPrelude, Strict</code></pre>
-<h1 id="主要なghc拡張">主要な<span class="ascii">GHC</span>拡張</h1>
+<h1 id="主要なghc拡張"><span class="link-to-here-outer"><a href="#主要なghc拡張" title="主要なghc拡張"><span class="link-to-here">Link to<br />
+here</span></a></span>主要な<span class="ascii">GHC</span>拡張</h1>
 <p>以下では，個人的にデフォルトで有効化して使っている拡張を幾つか紹介します．なお，<span class="ascii">GHC</span>のバージョンは<span class="ascii">8.4.2</span>で<span class="ascii">Haskell2010</span>モードで使用することを前提にしています．</p>
-<h2 id="preludeの暗黙的な使用を抑制する"><span class="ascii">Prelude</span>の暗黙的な使用を抑制する</h2>
+<h2 id="preludeの暗黙的な使用を抑制する"><span class="link-to-here-outer"><a href="#preludeの暗黙的な使用を抑制する" title="preludeの暗黙的な使用を抑制する"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Prelude</span>の暗黙的な使用を抑制する</h2>
 <p>この節では，以下の拡張を紹介します．</p>
 <ul>
 <li><code>NoImplicitPrelude</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NoImplicitPrelude">ユーザーガイド <span class="ascii">- NoImplicitPrelude</span>拡張</a></li>
@@ -221,8 +261,10 @@ executable program1
 <a class="sourceLine" id="cb8-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb8-7" data-line-number="7"><span class="fu">...</span></a></code></pre></div>
 <p>と書くことで，保守がかなりしやすくなります．</p>
-<h2 id="便利な構文の導入">便利な構文の導入</h2>
-<h3 id="新たなリテラル表記を可能にする">新たなリテラル表記を可能にする</h3>
+<h2 id="便利な構文の導入"><span class="link-to-here-outer"><a href="#便利な構文の導入" title="便利な構文の導入"><span class="link-to-here">Link to<br />
+here</span></a></span>便利な構文の導入</h2>
+<h3 id="新たなリテラル表記を可能にする"><span class="link-to-here-outer"><a href="#新たなリテラル表記を可能にする" title="新たなリテラル表記を可能にする"><span class="link-to-here">Link to<br />
+here</span></a></span>新たなリテラル表記を可能にする</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>BinaryLiterals</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-BinaryLiterals">ユーザーガイド <span class="ascii">- BinaryLiterals</span>拡張</a></li>
@@ -246,7 +288,8 @@ executable program1
 <a class="sourceLine" id="cb9-11" data-line-number="11"><span class="dt">SamplePZ</span></a>
 <a class="sourceLine" id="cb9-12" data-line-number="12"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">-</span> <span class="fl">100.10</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span></a>
 <a class="sourceLine" id="cb9-13" data-line-number="13"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> <span class="fu">...</span></a></code></pre></div>
-<h3 id="空のデータ型に対するより強力なサポートを導入する">空のデータ型に対するより強力なサポートを導入する</h3>
+<h3 id="空のデータ型に対するより強力なサポートを導入する"><span class="link-to-here-outer"><a href="#空のデータ型に対するより強力なサポートを導入する" title="空のデータ型に対するより強力なサポートを導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>空のデータ型に対するより強力なサポートを導入する</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>EmptyCase</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-EmptyCase">ユーザーガイド <span class="ascii">- EmptyCase</span>拡張</a></li>
@@ -276,7 +319,8 @@ executable program1
 <a class="sourceLine" id="cb14-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb14-10" data-line-number="10"><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Empty</span> <span class="kw">where</span></a>
 <a class="sourceLine" id="cb14-11" data-line-number="11">  showsPrec _ x <span class="fu">=</span> <span class="kw">case</span> x <span class="kw">of</span> {}</a></code></pre></div>
-<h3 id="新たな基本構文を導入する">新たな基本構文を導入する</h3>
+<h3 id="新たな基本構文を導入する"><span class="link-to-here-outer"><a href="#新たな基本構文を導入する" title="新たな基本構文を導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>新たな基本構文を導入する</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>TupleSections</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TupleSections">ユーザーガイド <span class="ascii">- TupleSections</span>拡張</a></li>
@@ -310,7 +354,8 @@ executable program1
 <a class="sourceLine" id="cb17-2" data-line-number="2">f <span class="fu">=</span> negate <span class="fu">.</span> \<span class="kw">case</span></a>
 <a class="sourceLine" id="cb17-3" data-line-number="3">  <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dv">0</span></a>
 <a class="sourceLine" id="cb17-4" data-line-number="4">  <span class="dt">Just</span> x  <span class="ot">-&gt;</span> x</a></code></pre></div>
-<h3 id="正格化に対するサポートを導入する">正格化に対するサポートを導入する</h3>
+<h3 id="正格化に対するサポートを導入する"><span class="link-to-here-outer"><a href="#正格化に対するサポートを導入する" title="正格化に対するサポートを導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>正格化に対するサポートを導入する</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>BangPatterns</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-BangPatterns">ユーザーガイド <span class="ascii">- BangPatterns</span>拡張</a></li>
@@ -342,7 +387,8 @@ executable program1
 <div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="ot">f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
 <a class="sourceLine" id="cb24-2" data-line-number="2">f <span class="fu">!</span>x <span class="fu">!</span>(z, y) <span class="fu">=</span> <span class="kw">let</span> <span class="fu">!</span>zy <span class="fu">=</span> z <span class="fu">*</span> y <span class="kw">in</span> <span class="kw">case</span> x <span class="fu">-</span> z <span class="kw">of</span> <span class="fu">!</span>z' <span class="ot">-&gt;</span> z' <span class="fu">^</span> z</a></code></pre></div>
 <p>注意して欲しいのは，このバンパターンは<code>seq</code>に置き換わるため，<span class="ascii">WHNF</span>までしか評価されないということです．つまり，<code>!(z, y)</code>というパターンは単なる<code>(z, y)</code>と完全に同じです．またトップレベルの束縛にバンパターンを付与することは許されておらず，遅延されるということにも注意が必要です．</p>
-<h3 id="パターンマッチをより柔軟に扱えるようにする">パターンマッチをより柔軟に扱えるようにする</h3>
+<h3 id="パターンマッチをより柔軟に扱えるようにする"><span class="link-to-here-outer"><a href="#パターンマッチをより柔軟に扱えるようにする" title="パターンマッチをより柔軟に扱えるようにする"><span class="link-to-here">Link to<br />
+here</span></a></span>パターンマッチをより柔軟に扱えるようにする</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>ViewPatterns</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ViewPatterns">ユーザーガイド <span class="ascii">- ViewPatterns</span>拡張</a></li>
@@ -401,7 +447,8 @@ executable program1
 <a class="sourceLine" id="cb33-2" data-line-number="2">f (<span class="dt">Pair</span> x (<span class="dt">Pair</span> y z)) <span class="fu">|</span> <span class="dt">True</span> <span class="ot">&lt;-</span> x, <span class="dt">True</span> <span class="ot">&lt;-</span> y, <span class="dt">True</span> <span class="ot">&lt;-</span> z <span class="fu">=</span> <span class="dt">True</span></a>
 <a class="sourceLine" id="cb33-3" data-line-number="3">f _                                                     <span class="fu">=</span> <span class="dt">False</span></a></code></pre></div>
 <p>パターンシノニムは，モジュールエクスポートを書く際にも注意が必要で，<code>module A (pattern Cons, pattern Nil) where ...</code>というように接頭に<code>pattern</code>をつける必要があります．</p>
-<h3 id="レコードに対するサポートを強化する">レコードに対するサポートを強化する</h3>
+<h3 id="レコードに対するサポートを強化する"><span class="link-to-here-outer"><a href="#レコードに対するサポートを強化する" title="レコードに対するサポートを強化する"><span class="link-to-here">Link to<br />
+here</span></a></span>レコードに対するサポートを強化する</h3>
 <p>この節では，以下の<span class="ascii">4</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>DuplicateRecordFields</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DuplicateRecordFields">ユーザーガイド <span class="ascii">- DuplicateRecordFields</span>拡張</a></li>
@@ -464,7 +511,8 @@ executable program1
 <a class="sourceLine" id="cb40-2" data-line-number="2">g <span class="dt">A</span>{ y <span class="fu">=</span> <span class="dt">False</span>, <span class="fu">..</span>} <span class="fu">=</span> <span class="fu">-</span>x</a>
 <a class="sourceLine" id="cb40-3" data-line-number="3">g <span class="dt">A</span>{<span class="fu">..</span>}             <span class="fu">=</span> x</a></code></pre></div>
 <p>コンストラクトの際も，この拡張は有効です．<code>let x = 1 in A { y = True, ..}</code>と書いた場合，<code>A { x = 1, y = True }</code>と書くのと同等になります．</p>
-<h3 id="型演算子を導入する">型演算子を導入する</h3>
+<h3 id="型演算子を導入する"><span class="link-to-here-outer"><a href="#型演算子を導入する" title="型演算子を導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>型演算子を導入する</h3>
 <p>この節では，以下の拡張を紹介します．</p>
 <ul>
 <li><code>TypeOperators</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeOperators">ユーザーガイド <span class="ascii">- TypeOperators</span>拡張</a></li>
@@ -487,7 +535,8 @@ executable program1
 <a class="sourceLine" id="cb43-5" data-line-number="5">  ) <span class="kw">where</span></a>
 <a class="sourceLine" id="cb43-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb43-7" data-line-number="7"><span class="kw">type</span> a <span class="fu">+</span> b <span class="fu">=</span> <span class="dt">Either</span> a b</a></code></pre></div>
-<h3 id="型クラスを拡張する">型クラスを拡張する</h3>
+<h3 id="型クラスを拡張する"><span class="link-to-here-outer"><a href="#型クラスを拡張する" title="型クラスを拡張する"><span class="link-to-here">Link to<br />
+here</span></a></span>型クラスを拡張する</h3>
 <p>この節では，以下の<span class="ascii">4</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>MultiParamTypeClasses</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-MultiParamTypeClasses">ユーザーガイド <span class="ascii">- MultiParamTypeClasses</span>拡張</a></li>
@@ -549,7 +598,8 @@ executable program1
 <a class="sourceLine" id="cb50-3" data-line-number="3"><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">A</span> <span class="kw">where</span></a>
 <a class="sourceLine" id="cb50-4" data-line-number="4"><span class="ot">  (==) ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
 <a class="sourceLine" id="cb50-5" data-line-number="5">  <span class="dt">A</span> <span class="fu">==</span> <span class="dt">A</span> <span class="fu">=</span> <span class="dt">True</span></a></code></pre></div>
-<h3 id="型ワイルドカードをより柔軟に扱う">型ワイルドカードをより柔軟に扱う</h3>
+<h3 id="型ワイルドカードをより柔軟に扱う"><span class="link-to-here-outer"><a href="#型ワイルドカードをより柔軟に扱う" title="型ワイルドカードをより柔軟に扱う"><span class="link-to-here">Link to<br />
+here</span></a></span>型ワイルドカードをより柔軟に扱う</h3>
 <p>この節では，以下の拡張を紹介します．</p>
 <ul>
 <li><code>NamedWildCards</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NamedWildCards">ユーザーガイド <span class="ascii">- NamedWildCards</span>拡張</a></li>
@@ -562,7 +612,8 @@ executable program1
 <div class="sourceCode" id="cb52"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="co">-- Inferred type: (a, Maybe a1) -&gt; (a, Maybe a1)</span></a>
 <a class="sourceLine" id="cb52-2" data-line-number="2"><span class="ot">ignoreSecond ::</span> _a <span class="ot">-&gt;</span> _a</a>
 <a class="sourceLine" id="cb52-3" data-line-number="3">ignoreSecond (x, _) <span class="fu">=</span> (x, <span class="dt">Nothing</span>)</a></code></pre></div>
-<h3 id="新たな表記法の導入">新たな表記法の導入</h3>
+<h3 id="新たな表記法の導入"><span class="link-to-here-outer"><a href="#新たな表記法の導入" title="新たな表記法の導入"><span class="link-to-here">Link to<br />
+here</span></a></span>新たな表記法の導入</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>Arrows</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-Arrows">ユーザーガイド <span class="ascii">- Arrows</span>拡張</a></li>
@@ -637,10 +688,12 @@ executable program1
 <a class="sourceLine" id="cb60-11" data-line-number="11">    pure (d, e)</a>
 <a class="sourceLine" id="cb60-12" data-line-number="12">  pure c</a></code></pre></div>
 <p>という式に翻訳されます．<code>mdo</code>と<code>rec</code>の変換規則は，<a href="https://dl.acm.org/citation.cfm?doid=581690.581693">提案論文</a>にて確認が可能です．</p>
-<h1 id="次回予告">次回予告</h1>
+<h1 id="次回予告"><span class="link-to-here-outer"><a href="#次回予告" title="次回予告"><span class="link-to-here">Link to<br />
+here</span></a></span>次回予告</h1>
 <p>今回は，<span class="ascii">GHC</span>拡張の簡単な紹介と使い方について，それから個人的にデフォルトで有効化している，<span class="ascii">Prelude</span>の暗黙的なインポートを抑制する拡張，新たな構文を導入する拡張を紹介しました．</p>
 <p>次回は，他のデフォルトで有効化している拡張について紹介したいと思います．</p>
-<h1 id="参考文献">参考文献</h1>
+<h1 id="参考文献"><span class="link-to-here-outer"><a href="#参考文献" title="参考文献"><span class="link-to-here">Link to<br />
+here</span></a></span>参考文献</h1>
 <ul>
 <li><a href="https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/"><span class="ascii">GHC 8.4.2 User</span>’<span class="ascii">s Guide</span></a>
 <ul>

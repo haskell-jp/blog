@@ -139,7 +139,23 @@
         <div class="row">
             <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<h2 id="はじめに">はじめに</h2>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#はじめに" title="はじめに">はじめに</a></li>
+<li><a href="#コンパイル実行" title="コンパイル実行">コンパイル実行</a></li>
+<li><a href="#スクリプト的実行" title="スクリプト的実行">スクリプト的実行</a></li>
+<li><a href="#対話的実行" title="対話的実行">対話的実行</a></li>
+<li><a href="#ワンライナー的実行" title="ワンライナー的実行">ワンライナー的実行</a></li>
+<li><a href="#おまけ" title="おまけ">おまけ</a></li>
+</ul>
+</div>
+</div>
+<h2 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめに</h2>
 <p><span class="ascii">Haskell</span>用コンパイラである<span class="ascii">GHC</span>には、以下のように４種類の実行方法があります。</p>
 <ul>
 <li>コンパイル実行 <span class="ascii">:</span> <code>ghc</code></li>
@@ -149,7 +165,8 @@
 </ul>
 <p>以下、それぞれについて簡単に紹介します。<br />
 なお、本記事では、<span class="ascii">stack</span>経由ではなく、素の<span class="ascii">GHC</span>を使う場合について説明しています。</p>
-<h2 id="コンパイル実行">コンパイル実行</h2>
+<h2 id="コンパイル実行"><span class="link-to-here-outer"><a href="#コンパイル実行" title="コンパイル実行"><span class="link-to-here">Link to<br />
+here</span></a></span>コンパイル実行</h2>
 <p><span class="ascii">Haskell</span>のソースファイルから、実行ファイルを生成（コンパイル）する方法です。生成された実行ファイルは、ユーザーが明示的に起動することにより実行されます。</p>
 <p>例えばソースファイルが以下の場合に、</p>
 <pre><code>$ cat prog.hs 
@@ -167,14 +184,16 @@ prog   prog.hi  prog.hs  prog.o</code></pre>
 3</code></pre>
 <p><code>ghc</code>のコンパイル方法についての詳しい説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using.html">こちら</a>や<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/flags.html">こちら</a>にあります。<br />
 なお、<span class="ascii">stack</span>を使用する場合は、<code>ghc</code>コマンドではなく、<code>stack ghc</code>コマンドによりコンパイルを実行できます。</p>
-<h2 id="スクリプト的実行">スクリプト的実行</h2>
+<h2 id="スクリプト的実行"><span class="link-to-here-outer"><a href="#スクリプト的実行" title="スクリプト的実行"><span class="link-to-here">Link to<br />
+here</span></a></span>スクリプト的実行</h2>
 <p><span class="ascii">Haskell</span>のソースファイルから、実行ファイルを一時的に生成（コンパイル）し、その実行ファイルを起動する方法です。つまり、スクリプト的な実行方法です。<br />
 例えば以下の様に、<code>runghc</code>コマンド<span class="ascii">(</span>または別名である<code>runhaskell</code>コマンド<span class="ascii">)</span>により実行できます。</p>
 <pre><code>$ runghc prog.hs 
 3</code></pre>
 <p><code>runghc</code>の使用方法についての詳しい説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runghc.html">こちら</a>にあります。<br />
 なお、<span class="ascii">stack</span>を使用する場合は、<code>runghc</code>コマンドではなく、<code>stack runghc</code>コマンドにより実行できます。</p>
-<h2 id="対話的実行">対話的実行</h2>
+<h2 id="対話的実行"><span class="link-to-here-outer"><a href="#対話的実行" title="対話的実行"><span class="link-to-here">Link to<br />
+here</span></a></span>対話的実行</h2>
 <p><span class="ascii">Haskell</span>のソースを対話的に入力する実行方法です。いわゆる、<span class="ascii">REPL</span>（<span class="ascii">read-eval-print-loop</span>）と呼ばれるものです。<br />
 例えば以下の様に、<code>ghci</code>コマンドにより実行できます。</p>
 <pre><code>$ ghci
@@ -187,14 +206,16 @@ Prelude&gt; :q
 Leaving GHCi.</code></pre>
 <p><code>ghci</code>の使用方法についての詳しい説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html">こちら</a>にあります。<br />
 なお、<span class="ascii">stack</span>を使用する場合は、<code>ghci</code>コマンドではなく、<code>stack ghci</code>コマンドにより実行できます。</p>
-<h2 id="ワンライナー的実行">ワンライナー的実行</h2>
+<h2 id="ワンライナー的実行"><span class="link-to-here-outer"><a href="#ワンライナー的実行" title="ワンライナー的実行"><span class="link-to-here">Link to<br />
+here</span></a></span>ワンライナー的実行</h2>
 <p>コマンドライン上で、<span class="ascii">Haskell</span>の「式」を直接入力する実行方法です。１つの式だけを指定できます。<br />
 例えば以下の様に、<code>-e</code>オプション付きの<code>ghc -e</code>コマンドにより実行できます。</p>
 <pre><code>$ ghc -e &quot;1+2&quot;
 3</code></pre>
 <p><code>ghc -e</code>の使用方法についての説明は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using.html#expression-evaluation-mode">こちら</a>にあります。<br />
 なお、<span class="ascii">stack</span>を使用する場合は、<code>ghc -e</code>コマンドではなく、<code>stack ghc -- -e</code>コマンドにより実行できます。</p>
-<h2 id="おまけ">おまけ</h2>
+<h2 id="おまけ"><span class="link-to-here-outer"><a href="#おまけ" title="おまけ"><span class="link-to-here">Link to<br />
+here</span></a></span>おまけ</h2>
 <p>以下は、<code>ghc -e</code>による実行例です。<br />
 少し特殊かもしれない記法も記載していますので、以下は気軽に読み飛ばしてください。</p>
 <p>例えば、このようにして数列を手軽に生成できます。</p>

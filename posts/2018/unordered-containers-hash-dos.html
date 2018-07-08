@@ -145,11 +145,29 @@
 現状、<span class="ascii">Haskell</span>はほかの著名なプログラミング言語ほど使用されていないためか、あまり脆弱性が報告されることはありません<small>（<span class="ascii">libc</span>など、ほかの言語の処理系も依存しているようなライブラリーの脆弱性は別として）</small>。<br />
 今回は、そんな中でも<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>というパッケージ</a>について、<a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security">ドキュメントにも書かれている</a>ため<strong>おそらく直ることがないであろう脆弱性</strong>と、その回避方法について紹介します。<br />
 <span class="ascii">hashdos</span>脆弱性自体は結構有名ですし、ドキュメントに書いてあることなので、ご存知の方には何を今更感があるかと思いますが、検索した限りこの問題について日本語で説明した記事は見当たらなかったので、ここで紹介します。</p>
-<h1 id="そもそもunordered-containersって">そもそも<span class="ascii">unordered-containers</span>って？</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#そもそもunordered-containersって" title="そもそもunordered-containersって">そもそも<span class="ascii">unordered-containers</span>って？</a>
+<ul>
+<li><a href="#どうやって高速化しているの" title="どうやって高速化しているの">どうやって高速化しているの？</a></li>
+</ul></li>
+<li><a href="#hashdos脆弱性とは" title="hashdos脆弱性とは"><span class="ascii">hashdos</span>脆弱性とは？</a></li>
+<li><a href="#なぜ直さないのか" title="なぜ直さないのか">なぜ直さないのか？</a></li>
+<li><a href="#回避方法" title="回避方法">回避方法</a></li>
+</ul>
+</div>
+</div>
+<h1 id="そもそもunordered-containersって"><span class="link-to-here-outer"><a href="#そもそもunordered-containersって" title="そもそもunordered-containersって"><span class="link-to-here">Link to<br />
+here</span></a></span>そもそも<span class="ascii">unordered-containers</span>って？</h1>
 <p>脆弱性の前に<span class="ascii">unordered-containers</span>パッケージについて簡単に紹介しましょう。<br />
 <a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>パッケージ</a>は、<span class="ascii">GHC</span>に標準で付いている<a href="https://hackage.haskell.org/package/containers"><span class="ascii">containers</span>パッケージ</a>よりも高速な連想配列（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html"><code>HashMap</code>型</a>）や集合（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html"><code>HashSet</code>型</a>）を提供してくれます。<br />
 <a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>ではなんと<span class="ascii">970</span>ものパッケージに依存されている</a>、超大人気汎用パッケージです。</p>
-<h2 id="どうやって高速化しているの">どうやって高速化しているの？</h2>
+<h2 id="どうやって高速化しているの"><span class="link-to-here-outer"><a href="#どうやって高速化しているの" title="どうやって高速化しているの"><span class="link-to-here">Link to<br />
+here</span></a></span>どうやって高速化しているの？</h2>
 <p><code>HashMap</code>という名前が示しているとおり、キーとなる値のハッシュ値を計算・利用することで高速化しています。<br />
 しかし、<span class="ascii">Java</span>言語などほかの言語によくある<code>HashMap</code>とは大きく異なり、内部ではハッシュテーブルを使用していません。<br />
 <a href="http://itpro.nikkeibp.co.jp/article/COLUMN/20091104/340002/?rt=nocnt">本物のプログラマは<span class="ascii">Haskell</span>を使う <span class="ascii">-</span> 第<span class="ascii">35</span>回　キーを使って値を参照する<span class="ascii">Map</span>型：<span class="ascii">ITpro</span></a>でも説明しているとおり、ハッシュテーブルはミュータブルな配列を内部で使用していることから、イミュータブルなデータ構造を使用して行う関数型プログラミングとは、相性が悪いのです<small>（<code>ST</code>モナドや<code>IO</code>モナドを利用した<a href="https://hackage.haskell.org/package/hashtables"><span class="ascii">hashtables</span>パッケージ</a>などを使えば、限られた範囲内でハッシュテーブルを使うこともできます）</small>。</p>
@@ -158,7 +176,8 @@
 こちらのスライドは<span class="ascii">Scala</span>での実装の話ですが、基本的には<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>も同じはずです。</p>
 <p>大雑把に言うと、<span class="ascii">Hash array mapped trie</span>を使った<code>HashMap</code>では、ハッシュテーブルと同様に、キーとなる値を<strong>ハッシュ関数で一旦固定長の整数に変換する</strong>ことで、キーが存在しているかどうかの確認を高速化しています。そのため、<span class="ascii">containers</span>パッケージよりも高速な処理ができるのです。<br />
 <span class="ascii">containers</span>パッケージの<code>Map</code>ではキーの存在を確認する際、キー全体を既存のキーと比較する必要があるため、特に長い文字列をキーとする場合は、処理が遅くなりがちだったのです。</p>
-<h1 id="hashdos脆弱性とは"><span class="ascii">hashdos</span>脆弱性とは？</h1>
+<h1 id="hashdos脆弱性とは"><span class="link-to-here-outer"><a href="#hashdos脆弱性とは" title="hashdos脆弱性とは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">hashdos</span>脆弱性とは？</h1>
 <p><span class="ascii">hashdos</span>脆弱性は<a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html"><span class="ascii">2011</span>年頃<span class="ascii">Ruby</span>や<span class="ascii">PHP</span>、<span class="ascii">Perl</span>など多くのプログラミング言語が影響を受けるとされた</a>、著名な脆弱性です。<br />
 ここでも簡単に仕組みを説明しましょう。</p>
 <p>前節で説明したとおり、<span class="ascii">Hash array mapped trie</span>もハッシュテーブルも、必ずキーを一旦固定長の整数に変換します。<br />
@@ -168,7 +187,8 @@
 <p><span class="ascii">hashdos</span>脆弱性はこの性質を利用した<span class="ascii">DoS</span>攻撃です。<br />
 攻撃者は、あらかじめ対象のプログラムで使っているハッシュ関数が、「必ず同じハッシュ値」を返すキー<span class="ascii">(</span>大抵文字列でしょう）を大量に用意して、それを対象のプログラムに入力として与えることで、簡単に<span class="ascii">DoS</span>攻撃を仕掛けることができるのです。<br />
 <a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html">先ほど触れた徳丸先生の記事</a>では、<span class="ascii">PHP</span>のアプリケーションに対してわずか<span class="ascii">500KB</span>の<span class="ascii">form-data</span>を送るだけで<span class="ascii">CPU</span>時間を<span class="ascii">1</span>分も消費させることができたそうですから、その威力はすさまじいものと言えるでしょう。</p>
-<h1 id="なぜ直さないのか">なぜ直さないのか？</h1>
+<h1 id="なぜ直さないのか"><span class="link-to-here-outer"><a href="#なぜ直さないのか" title="なぜ直さないのか"><span class="link-to-here">Link to<br />
+here</span></a></span>なぜ直さないのか？</h1>
 <p><a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security"><span class="ascii">unordered-containers</span>の<span class="ascii">Developer Guide</span></a>には、次のように書かれています。</p>
 <blockquote>
 <p><span class="ascii">There</span>’<span class="ascii">s an uncomfortable trade-off with regards to security threats posed by e.g. denial of service attacks. Always using more secure hash function, like SipHash, would provide security by default. However, those functions would make the performance of the data structures no better than that of ordered containers, which defeats the purpose of this package.</span></p>
@@ -177,7 +197,8 @@
 <span class="ascii">containers</span>パッケージよりも高速な連想配列を作るために<span class="ascii">unordered-containers</span>パッケージを作ったのだから、それより遅くなっては存在価値がなくなってしまうのです。<br />
 従って、ユーザーが任意にキーを入力できるようなプログラムでは、<span class="ascii">unordered-containers</span>ではなく、<span class="ascii">containers</span>を使え、ということです。<br />
 このことは<span class="ascii">unordered-containers</span>が使用している<a href="https://hackage.haskell.org/package/hashable-1.2.6.1/docs/Data-Hashable.html#g:1"><span class="ascii">hashable</span>のドキュメント</a>にも書かれています。ある意味ノーガード戦法ですね。</p>
-<h1 id="回避方法">回避方法</h1>
+<h1 id="回避方法"><span class="link-to-here-outer"><a href="#回避方法" title="回避方法"><span class="link-to-here">Link to<br />
+here</span></a></span>回避方法</h1>
 <p>前節で触れたとおりですが、<strong>ユーザーが任意にキーを入力できるようなプログラム</strong>では、<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>や<code>HashSet</code>ではなく、<span class="ascii">containers</span>パッケージの<code>Map</code>や<code>Set</code>を使いましょう。<br />
 <span class="ascii">containers</span>パッケージにある<code>Map</code>や<code>Set</code>はハッシュ関数を一切使っていないので、ハッシュ値の衝突も起こらず、内部で逐次探索が必要なデータ構造を使ってもいません。<br />
 なので<span class="ascii">hashdos</span>攻撃に遭うことはないのです。</p>

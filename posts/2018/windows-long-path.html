@@ -141,7 +141,27 @@
               <hr />
 <p>去年、<a href="../../posts/2017/windows-gotchas.html"><span class="ascii">Windows</span>で<span class="ascii">Haskell</span>を扱う時によく遭遇するエラーと対処法</a>という記事で、<span class="ascii">Windows</span>ユーザーが<span class="ascii">Haskell</span>で開発したとき、あるいは<span class="ascii">Haskell</span>製のプログラムを使用した際によく遭遇するエラーやその回避方法を紹介しました。<br />
 今回は、そこに追記したい内容として、最近私がよく出遭うようになったエラーを紹介します。</p>
-<h1 id="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><code>openFile: does not exist (No such file or directory)</code>といわれたら短いパスに移そう</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう" title="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><code>openFile: does not exist (No such file or directory)</code>といわれたら短いパスに移そう</a>
+<ul>
+<li><a href="#回避方法" title="回避方法">回避方法</a>
+<ul>
+<li><a href="#長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする" title="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする">長いパスをより短くするために、カレントディレクトリーを変更して、相対パスを短くする。</a></li>
+<li><a href="#win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す" title="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="ascii">Win32 API</span>のユニコード版の関数に、<code>\\?\</code>というプレフィックスを着けた絶対パスを渡す。</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#おわりに" title="おわりに">おわりに</a></li>
+<li><a href="#参考url" title="参考url">参考<span class="ascii">URL</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><span class="link-to-here-outer"><a href="#openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう" title="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><span class="link-to-here">Link to<br />
+here</span></a></span><code>openFile: does not exist (No such file or directory)</code>といわれたら短いパスに移そう</h1>
 <p><code>does not exist (No such file or directory)</code>というエラーは、本当に読んで字のごとく、開こうとしたファイルが存在しないためのエラーであることとがもちろん多いのですが、エラーメッセージに反して違う原因である場合もあります。</p>
 <p>例えば、最近私はとあるプロジェクトを数文字長い名前にリネームしたのですが、たったそれだけで、<code>stack test</code>した際必ず問題のエラーが発生するようになってしまいました。</p>
 <pre><code>$ stack test
@@ -160,18 +180,21 @@ Building test suite 'a-little-longer-name-project-test' for a-little-longer-name
 <code>does not exist (No such file or directory)</code>なんてエラーメッセージで表されるのでわかりづらい！<small>（おそらく<span class="ascii">Windows</span>のエラーコードの出し方に問題があるんじゃないかと思います）</small></p>
 <p><span class="ascii">DOS</span>時代から残るこの制限、完全に時代錯誤なものでしかないのですが、<span class="ascii">Windows</span>でパッケージマネージャーなどが自動的に作ったパスを扱っていると、しばしば出くわすことがあります。<br />
 <span class="ascii">stack</span>においても、<a href="https://github.com/commercialhaskell/stack/issues/3285">こちらの<span class="ascii">Issue</span></a>で同じ問題が議論されていたり、<a href="https://github.com/commercialhaskell/stack/releases/tag/v1.6.5"><span class="ascii">ver. 1.6.5</span>の<span class="ascii">ChangeLog</span></a>でも言及されていたりと、至る所で格闘している跡があります。</p>
-<h2 id="回避方法">回避方法</h2>
+<h2 id="回避方法"><span class="link-to-here-outer"><a href="#回避方法" title="回避方法"><span class="link-to-here">Link to<br />
+here</span></a></span>回避方法</h2>
 <p>そんな<code>does not exist (No such file or directory)</code>ですが、残念ながら私が知る限り、プロジェクトなどのパスを（<code>C:\</code>などのよりルートに近い場所に置いて）より短くする以外の回避方法はありません。<br />
 <a href="https://github.com/haskell/haskell-ide-engine#installation-on-windows"><span class="ascii">haskell-ide-engine</span>のインストール方法のページ</a>曰く、（新しめの）<span class="ascii">Windows 10</span>であれば、グループポリシーを編集して、「<span class="ascii">Win32</span>の長いパスを有効にする」を「有効」にすれば回避できるとのことですが、残念ながら手元で試した限りうまくいきませんでした。何かやり方がまずかったのかもしれませんが。<br />
 いずれにしても、<code>stack build</code>コマンドなどを実行したときに問題のエラーに遭遇した場合、ビルドしたいもののパスをなんとかして短くする以上の方法はありません。<br />
 <code>C:\</code>直下をホームディレクトリのように使う人が今でもたくさんいるわけです。</p>
 <p>一方、あなたが問題のエラーが発生するプログラムを<strong>修正する</strong>ことができる立場にある場合、次の方法で回避できるかもしれません。</p>
-<h3 id="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする">長いパスをより短くするために、カレントディレクトリーを変更して、相対パスを短くする。</h3>
+<h3 id="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする"><span class="link-to-here-outer"><a href="#長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする" title="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする"><span class="link-to-here">Link to<br />
+here</span></a></span>長いパスをより短くするために、カレントディレクトリーを変更して、相対パスを短くする。</h3>
 <p>本件はあくまでも、<span class="ascii">Windows</span>の各種ファイル操作用<span class="ascii">API</span>の<span class="ascii">1</span>回の呼び出しで渡せる長さの制限ですので、制限を超えてしまうような場合はパスを分割すればよいのです。<br />
 <a href="https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitFileName"><span class="ascii">filepath</span>パッケージの<code>splitFileName</code>関数</a>や<a href="https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitPath"><code>splitPath</code>関数</a>を駆使してパスを分割した上で、対象のファイルの親ディレクトリーまで<a href="https://hackage.haskell.org/package/directory-1.3.2.1/docs/System-Directory.html#v:setCurrentDirectory"><span class="ascii">directory</span>パッケージの<code>setCurrentDirectory</code>関数</a>で移動すれば、制限に引っかからないはずです<small>（時間の都合でこちらについては試すコードを用意しておりません。あしからず）</small>。</p>
 <p>残念ながらカレントディレクトリーはプロセス全体で共有される情報ですので、マルチスレッドなプログラムでは頭の痛い問題が出てきてしまいますが、一番確実に回避できる方法のはずです。<br />
 マルチスレッドである場合を考慮したくない場合は、次に紹介する方法を検討するとよいでしょう。</p>
-<h3 id="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="ascii">Win32 API</span>のユニコード版の関数に、<code>\\?\</code>というプレフィックスを着けた絶対パスを渡す。</h3>
+<h3 id="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="link-to-here-outer"><a href="#win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す" title="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Win32 API</span>のユニコード版の関数に、<code>\\?\</code>というプレフィックスを着けた絶対パスを渡す。</h3>
 <p>ここまでに出てきた、「<span class="ascii">Windows</span>の各種ファイル操作用<span class="ascii">API</span>」は、すべて「<span class="ascii">Win32 API</span>」と呼ばれる<span class="ascii">Windows</span>固有の<span class="ascii">API</span>群の一部です。<br />
 この「<span class="ascii">Win32 API</span>」に含まれる関数の多くは、「ユニコード版」とそうでないものに分かれます<small>（詳細は<a href="https://msdn.microsoft.com/ja-jp/library/windows/desktop/dd317766(v=vs.85).aspx"><span class="ascii">Conventions for Function Prototypes (Windows)</span></a>をご覧ください）</small>。</p>
 <p>このうち、「ユニコード版」の<span class="ascii">API</span>には、この制限を緩和する専用の機能が含まれています。<br />
@@ -205,10 +228,12 @@ Building test suite 'a-little-longer-name-project-test' for a-little-longer-name
 <a class="sourceLine" id="cb2-22" data-line-number="22"></a>
 <a class="sourceLine" id="cb2-23" data-line-number="23">  putStrLn <span class="fu">$</span> <span class="st">&quot;path4: &quot;</span> <span class="fu">++</span> show path4</a>
 <a class="sourceLine" id="cb2-24" data-line-number="24">  createDirectoryIfMissing <span class="dt">True</span> path4</a></code></pre></div>
-<h1 id="おわりに">おわりに</h1>
+<h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
+here</span></a></span>おわりに</h1>
 <p>さて、またしても<span class="ascii">Windows</span>固有の面倒な問題を紹介することとなってしまいましたが、俗世の喜び（主にゲーム）と簡単にインストールできる<span class="ascii">GUI</span>に慣らされてしまった私は、今後も<span class="ascii">Windows</span>を使い続けるつもりです。<br />
 いろいろ困難は尽きませんがこれからも<span class="ascii">Windows</span>で<span class="ascii">Happy Haskell Life</span>を！🏁🏁🏁</p>
-<h1 id="参考url">参考<span class="ascii">URL</span></h1>
+<h1 id="参考url"><span class="link-to-here-outer"><a href="#参考url" title="参考url"><span class="link-to-here">Link to<br />
+here</span></a></span>参考<span class="ascii">URL</span></h1>
 <p>※本文中で言及していないもののみ</p>
 <ul>
 <li><a href="http://kkamegawa.hatenablog.jp/entry/2016/07/27/220014">プログラマ的に<span class="ascii">Windows 10 Anniversary Update</span>のうれしいところ <span class="ascii">- kkamegawa</span>’<span class="ascii">s weblog</span></a></li>

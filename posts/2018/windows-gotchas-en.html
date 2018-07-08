@@ -153,7 +153,27 @@ The original article is the 4th article of <a href="https://qiita.com/advent-cal
 <p>Perhaps they’re helpful in other languages.</p>
 </blockquote>
 <p>Let me add more details.</p>
-<h1 id="chcp-65001-if-invalid-character">chcp 65001 if “Invalid character”</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#chcp-65001-if-invalid-character" title="chcp-65001-if-invalid-character">chcp 65001 if “Invalid character”</a>
+<ul>
+<li><a href="#workaround" title="workaround">Workaround</a>
+<ul>
+<li><a href="#if-you-encounter-as-a-user" title="if-you-encounter-as-a-user">If you encounter as a user</a></li>
+<li><a href="#if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc." title="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc.">If it still doesn’t work, or you’re the developer of the libraries etc.</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#rebuild-if-permission-denied" title="rebuild-if-permission-denied">Rebuild if “Permission Denied”</a></li>
+<li><a href="#try-hard-to-build-libraries-in-c" title="try-hard-to-build-libraries-in-c">Try hard to build libraries in C…</a></li>
+</ul>
+</div>
+</div>
+<h1 id="chcp-65001-if-invalid-character"><span class="link-to-here-outer"><a href="#chcp-65001-if-invalid-character" title="chcp-65001-if-invalid-character"><span class="link-to-here">Link to<br />
+here</span></a></span>chcp 65001 if “Invalid character”</h1>
 <p>You would have encountered this frequently, especially if you don’t know how to avoid/fix this.<br />
 Oh, it’s caused again by building with hakyll!</p>
 <pre><code>&gt; stack exec -- site rebuild
@@ -168,8 +188,10 @@ But it’s now soon becoming 2018 (when writing the original article). Most file
 It doesn’t work to read a UTF-8 file as a Windows-31J file because they’re very different encoding system.<br />
 The <code>invalid byte sequence</code> error, shown at the head of this section, is caused by that inconsistency.<br />
 Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.</p>
-<h2 id="workaround">Workaround</h2>
-<h3 id="if-you-encounter-as-a-user">If you encounter as a user</h3>
+<h2 id="workaround"><span class="link-to-here-outer"><a href="#workaround" title="workaround"><span class="link-to-here">Link to<br />
+here</span></a></span>Workaround</h2>
+<h3 id="if-you-encounter-as-a-user"><span class="link-to-here-outer"><a href="#if-you-encounter-as-a-user" title="if-you-encounter-as-a-user"><span class="link-to-here">Link to<br />
+here</span></a></span>If you encounter as a user</h3>
 <p>In many cases you can avoid these kind of errors by running the below command in advance.</p>
 <pre><code>&gt; chcp 65001
 &gt; stack exec -- site rebuild
@@ -185,7 +207,8 @@ The directory contains many incompatible commands whose names conflict with the 
 <p>So I’ve dropped <code>C:\Windows\System32\</code> from <code>PATH</code> when using MSYS2.<br />
 If you’ve done like me, run by full path:</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc.">If it still doesn’t work, or you’re the developer of the libraries etc.</h3>
+<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here-outer"><a href="#if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc." title="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here">Link to<br />
+here</span></a></span>If it still doesn’t work, or you’re the developer of the libraries etc.</h3>
 <p>Unfortunately, the error can often persist even after running <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.<br />
 According to my guess, the <code>chcp 65001</code> command doesn’t affect the grandchild processes of the Command Prompt (or bash etc.) on which the <code>chcp</code> is run (i.e. the child processes of the command you enter).</p>
 <p>If the error still happens you can either report to the developer, or fix it yourself!<br />
@@ -228,13 +251,15 @@ The last function call <code>mkLocaleEncoding TransliterateCodingFailure</code> 
 This makes me guess GHC executes <code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code> by default before printing out the compilation error.<br />
 Anyway, it’s good that the program doesn’t abort due to the error!</p>
 <p>As the last note of this section: Read <a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html">the document of GHC.IO.Encoding</a> for the details of how GHC handles various character encodings.</p>
-<h1 id="rebuild-if-permission-denied">Rebuild if “Permission Denied”</h1>
+<h1 id="rebuild-if-permission-denied"><span class="link-to-here-outer"><a href="#rebuild-if-permission-denied" title="rebuild-if-permission-denied"><span class="link-to-here">Link to<br />
+here</span></a></span>Rebuild if “Permission Denied”</h1>
 <p>I’ve made the first section too long for “Quick-and-dirty checklist”, but I’ll tell you in short from this section.<br />
 We often encounter some errors like “Permission Denied”, “Directory not empty” and similar ones when running <code>stack build</code>, <code>ghc</code>, <code>elm-make</code>, and any other commands written in Haskell.<br />
 To tell the truth, I’m completely not sure of the cause, but those errors disappear by running the same command several times.<br />
 The key is to repeat many times. Never give up only by once or twice 😅<br />
 Turning off your antivirus software’s scanning of the problematic directory, Dropbox’s synchronisation, etc. might also fix such errors.</p>
-<h1 id="try-hard-to-build-libraries-in-c">Try hard to build libraries in C…</h1>
+<h1 id="try-hard-to-build-libraries-in-c"><span class="link-to-here-outer"><a href="#try-hard-to-build-libraries-in-c" title="try-hard-to-build-libraries-in-c"><span class="link-to-here">Link to<br />
+here</span></a></span>Try hard to build libraries in C…</h1>
 <p>On Windows, it frequently troubles us to install libraries which depend on libraries written in C (registered as <code>lib***</code> in your OS’s package manager).<br />
 But this is not the case only for Haskell.</p>
 <p>The way to fix depends on the case, so let me give you some examples as external links (Sorry, all pages are written in Japanese!).</p>

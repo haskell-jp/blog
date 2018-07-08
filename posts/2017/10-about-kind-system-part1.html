@@ -142,8 +142,34 @@
 <p><span class="ascii">Haskell</span>には種<span class="ascii">(kind)</span>という仕組みがあります。大雑把に言ってしまえば、「型の型」を実現する仕組みです。この仕組みについて、あまり情報が出回っていないようなので、解説記事を残しておこうと思います。</p>
 <p>この記事は、<a href="http://lambdaconf.us/downloads/documents/lambdaconf_slfp.pdf"><span class="ascii">Ladder of Functional Programming</span></a> <span class="ascii">(</span><a href="http://qiita.com/lotz/items/0d68c8440d1f362d0c32">日本語訳</a><span class="ascii">)</span>の<strong><span class="ascii">FIRE LUBLINE(ADVANCED BEGINNER)</span></strong>を対象に、種の仕組みとそれに付随する<span class="ascii">GHC</span>言語拡張やパッケージを紹介するものです。</p>
 <p>なお、特に断らない限り、対象として<span class="ascii">GHC8</span>系を設定しています。<code>stack</code>を使ってる方は<code>resolver</code>を<span class="ascii">LTS Haskell 8</span>以降に設定しておくことを推奨します。</p>
-<h2 id="基本的な種の仕組み">基本的な種の仕組み</h2>
-<h3 id="種に慣れる">種に慣れる</h3>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#基本的な種の仕組み" title="基本的な種の仕組み">基本的な種の仕組み</a>
+<ul>
+<li><a href="#種に慣れる" title="種に慣れる">種に慣れる</a></li>
+<li><a href="#種の意味と種推論" title="種の意味と種推論">種の意味と種推論</a></li>
+<li><a href="#型と種の評価順序" title="型と種の評価順序">型と種の評価順序</a></li>
+<li><a href="#この章のまとめ" title="この章のまとめ">この章のまとめ</a></li>
+</ul></li>
+<li><a href="#種に付随したghc拡張" title="種に付随したghc拡張">種に付随した<span class="ascii">GHC</span>拡張</a>
+<ul>
+<li><a href="#種注釈" title="種注釈">種注釈</a></li>
+<li><a href="#種多相" title="種多相">種多相</a></li>
+<li><a href="#この章のまとめ-1" title="この章のまとめ-1">この章のまとめ</a></li>
+</ul></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+<li><a href="#参考文献" title="参考文献">参考文献</a></li>
+</ul>
+</div>
+</div>
+<h2 id="基本的な種の仕組み"><span class="link-to-here-outer"><a href="#基本的な種の仕組み" title="基本的な種の仕組み"><span class="link-to-here">Link to<br />
+here</span></a></span>基本的な種の仕組み</h2>
+<h3 id="種に慣れる"><span class="link-to-here-outer"><a href="#種に慣れる" title="種に慣れる"><span class="link-to-here">Link to<br />
+here</span></a></span>種に慣れる</h3>
 <p>私たちは良き<span class="ascii">Haskeller</span>なので、トップレベルの関数には以下のように型注釈をつけます<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="ot">increment ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">increment n <span class="fu">=</span> n <span class="fu">+</span> <span class="dv">1</span></a></code></pre></div>
@@ -213,7 +239,8 @@
 <li><code>AppInt Either</code>の方は「<code>* -&gt; *</code>を期待していたが、受け取った型コンストラクタ<code>Either</code>の種は<code>* -&gt; * -&gt; *</code>ですよ」と言っています。</li>
 </ul>
 <p>このようにして、型注釈によって受け取る値を制限できるように、種によって受け取る型を制限できるわけです。何となく、種がどういうものかは分かっていただけたでしょうか？ では、種がどのような意味を持っているのかを、ちゃんと見ていきましょう。</p>
-<h3 id="種の意味と種推論">種の意味と種推論</h3>
+<h3 id="種の意味と種推論"><span class="link-to-here-outer"><a href="#種の意味と種推論" title="種の意味と種推論"><span class="link-to-here">Link to<br />
+here</span></a></span>種の意味と種推論</h3>
 <p><span class="ascii">Haskell</span>には、標準で二種類の種があります。それは</p>
 <ul>
 <li><code>*</code>という種</li>
@@ -283,7 +310,8 @@
 <li><code>TaggedData</code>型コンストラクタのパラメータ<code>t</code>も、どのような種であってもいいはずですが、<code>*</code>となります。</li>
 </ul>
 <p>このように、標準の<span class="ascii">Haskell</span>では、デフォルトで<code>*</code>が設定されており、確定しないような種は<code>*</code>として扱われます。なので、型コンストラクタでタグ付けしたデータ型を作るといったことはできません。</p>
-<h3 id="型と種の評価順序">型と種の評価順序</h3>
+<h3 id="型と種の評価順序"><span class="link-to-here-outer"><a href="#型と種の評価順序" title="型と種の評価順序"><span class="link-to-here">Link to<br />
+here</span></a></span>型と種の評価順序</h3>
 <p>上では、種の意味と種推論について話しました。種推論は、種を推論してくれるわけですが、正しく私たちが思ったことを推論してくれるわけではなく、表現できない型コンストラクタもありました。さて、その他にも推論が失敗するようなケースもあります。以下をみてください<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Ill</span> m a <span class="fu">=</span> <span class="dt">Ill</span> (m a) m</a></code></pre></div>
 <p>型コンストラクタ<code>Ill</code>のパラメータ<code>m</code>と<code>a</code>の種はどうなるでしょうか？ 実は、このような場合につじつまが合う種はありません。もしこのデータ宣言が成り立つなら、値コンストラクタ<code>Ill</code>の型は<code>Ill :: m a -&gt; m -&gt; Ill m a</code>になりますが、この場合<code>m</code>が型コンストラクタなことは明白なので型コンストラクタに紐づく値が存在することになりますし、<code>(-&gt;)</code>の種にも合いません。もう一つ、推論が失敗する面白いケースがあります。以下のデータ宣言を考えてみましょう<span class="ascii">:</span></p>
@@ -312,7 +340,8 @@
 <a class="sourceLine" id="cb17-8" data-line-number="8">        <span class="ex">f</span> :: Maybe -<span class="op">&gt;</span> Int</a></code></pre></div>
 <p>ここでは、「<code>Maybe</code>は<code>* -&gt; *</code>という種を持っているが、<code>(-&gt;)</code>が期待している種は<code>*</code>だ」と言っています。ですが、上のプログラムにはもう一つおかしな点があります。それは関数<code>g</code>の型注釈です。関数<code>g</code>の受け取る値は<code>Int</code>型のはずですが、実際には<code>Char</code>型の値を受け取っています。ただし、関数<code>g</code>の型注釈の種に関しては何の問題もありません。</p>
 <p><span class="ascii">GHC</span>では、種と型の検査は別々に行われるという話をしました。実は、さらにこの二つの間には評価順序があります。まず種の検査を行ってから、型の検査が行われるようになっているのです。種の検査に失敗すれば型の検査は行われません。これらは、<code>:type</code>コマンドや<code>:kind</code>コマンドにも影響するので注意が必要です。<code>:kind</code>コマンドは種の評価を行いますが、型の評価は行いません。あまり、<code>:kind</code>コマンド上で種の検査が通って型の検査が通らないといった場面には遭遇しないかもしれないですが、これは心に留めておくと良いでしょう。</p>
-<h3 id="この章のまとめ">この章のまとめ</h3>
+<h3 id="この章のまとめ"><span class="link-to-here-outer"><a href="#この章のまとめ" title="この章のまとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>この章のまとめ</h3>
 <p>この章では、基本的な種の仕組みを紹介しました。種というのは、標準では二つ存在するのでした。それは、以下のものです<span class="ascii">:</span></p>
 <ul>
 <li><code>*</code><span class="ascii">:</span> データ型を表す種</li>
@@ -320,8 +349,10 @@
 </ul>
 <p>また、データ宣言において種は推論され、確定しない場合はデフォルトで<code>*</code>を用いるのでした。また、種と型の評価はそれぞれ別々に行われ、種の評価の後に型の評価が行われることも学びました。</p>
 <p>以降では、<span class="ascii">Haskell</span>標準の種の仕組みを拡張する、幾つかの重要な<span class="ascii">GHC</span>拡張について話していきましょう。</p>
-<h2 id="種に付随したghc拡張">種に付随した<span class="ascii">GHC</span>拡張</h2>
-<h3 id="種注釈">種注釈</h3>
+<h2 id="種に付随したghc拡張"><span class="link-to-here-outer"><a href="#種に付随したghc拡張" title="種に付随したghc拡張"><span class="link-to-here">Link to<br />
+here</span></a></span>種に付随した<span class="ascii">GHC</span>拡張</h2>
+<h3 id="種注釈"><span class="link-to-here-outer"><a href="#種注釈" title="種注釈"><span class="link-to-here">Link to<br />
+here</span></a></span>種注釈</h3>
 <p><span class="ascii">Haskell</span>標準では、データ宣言において、型コンストラクタの種は種推論によって決定するのでした。このため、表現できない型コンストラクタがあることも話しました。これは、不便な場合があります。<code>* -&gt; *</code>の種を持つ型コンストラクタをタグとした、データ型を表現することができないのはもちろんですが、そもそも複雑なデータ型の場合に注釈としての種が欲しかったり、推論に任せずそもそも型の種を明示的に宣言したい場合があるのです。これは、<span class="ascii">Haskell</span>においてトップレベルの関数の型注釈を行うことが、良い風習とされているのと同じですね。例えば、以下のデータ宣言を考えてみてください<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Complex</span> a b c <span class="fu">=</span> <span class="dt">Complex</span> (a (<span class="dt">Maybe</span> (b c)))</a></code></pre></div>
 <p>このような場合に、パッとそれぞれのパラメータの種を考えることは出来るでしょうか？ 出来る人もいるかもしれませんが、混乱してしまう人もいるでしょう。もし、次のような注釈があればどうでしょうか？</p>
@@ -344,7 +375,8 @@
 <div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">data</span> <span class="dt">GadtsSample</span> (<span class="ot">a ::</span> <span class="fu">*</span>) <span class="kw">where</span></a>
 <a class="sourceLine" id="cb23-2" data-line-number="2">  <span class="dt">GadtsSample</span><span class="ot"> ::</span> b <span class="ot">-&gt;</span> <span class="dt">GadtsSample</span> b <span class="co">-- aを使わなくてもいい！</span></a></code></pre></div>
 <p>このため、一番最初に提示したような、型コンストラクタにはその種注釈を、値コンストラクタにはその型注釈をそれぞれ書くというスタイルを好む人も多くいます。これも、一つの<code>KindSignatures</code>拡張の魅力と言えるでしょう。なにより重要なことは、<code>GADTs</code>では値コンストラクタの型を明示しないといけないため、意図しない型コンストラクタへの適用を、誤って型注釈に書いてしまう可能性が、通常のデータ宣言より高くなります。種注釈をつけることで、型コンストラクタの意図している種を明示することにより、意図していなかった型コンストラクタの使用法が、種推論によってすりぬけてしまうことを防ぐことができます。</p>
-<h3 id="種多相">種多相</h3>
+<h3 id="種多相"><span class="link-to-here-outer"><a href="#種多相" title="種多相"><span class="link-to-here">Link to<br />
+here</span></a></span>種多相</h3>
 <p>さて、種注釈を行えるようにする<code>KindSignatures</code>拡張の他に、もう一つ重要な拡張があります。それが、種多相を行えるようにする拡張です。「基本的な種の仕組み」の章で紹介した、以下のデータ宣言を思い出してください<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw">data</span> <span class="dt">App</span> f a <span class="fu">=</span> <span class="dt">App</span> (f a)</a></code></pre></div>
 <p>標準では、型コンストラクタ<code>App</code>は、<code>(* -&gt; *) -&gt; * -&gt; *</code>という種になるのでした。しかしながら、<code>f :: k -&gt; *</code>、<code>a :: k</code>という形をしていれば、どんな種でもいいはずだという話は覚えていますか？ <code>f a :: *</code>になればいいのですから、わざわざ<code>*</code>に強めてしまう必要はありません。そこで、デフォルトの<code>*</code>まで具体化をせずに、抽象的に「何かしらの<code>k</code>の種において、<code>f :: k -&gt; *</code>、<code>a :: k</code>という形をしていれば良い」という情報を残すようにするのが、<code>PolyKinds</code>拡張、種多相の基本的な考え方です。<code>PolyKinds</code>拡張を有効にする前とした後での<code>App</code>型コンストラクタの種を見てみましょう<span class="ascii">:</span></p>
@@ -372,15 +404,18 @@
 <a class="sourceLine" id="cb28-4" data-line-number="4"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span><span class="kw">type</span> <span class="dt">BiTaggedData</span></a>
 <a class="sourceLine" id="cb28-5" data-line-number="5"><span class="dt">BiTaggedData</span><span class="ot"> ::</span> forall k (<span class="ot">tag2 ::</span> k) (<span class="ot">tag1 ::</span> k)<span class="fu">.</span> <span class="dt">BiTagged</span> tag1 tag2 </a></code></pre></div>
 <p>このように種変数を使った種注釈も可能です。これを活用すれば、より強力な型コンストラクタを作ることも可能になるでしょう。</p>
-<h3 id="この章のまとめ-1">この章のまとめ</h3>
+<h3 id="この章のまとめ-1"><span class="link-to-here-outer"><a href="#この章のまとめ-1" title="この章のまとめ-1"><span class="link-to-here">Link to<br />
+here</span></a></span>この章のまとめ</h3>
 <p>この章では、種に付随する、二つの重要な<span class="ascii">GHC</span>拡張を紹介しました。</p>
 <p><code>KindSignatures</code>拡張は、種注釈を行えるようにする拡張でした。種注釈によってこれまで表現できなかった型コンストラクタが作れるようになるのはもちろんのこと、分かりやすさや種推論による混乱を避けるための明示的な注釈として、この拡張はとても便利でした。</p>
 <p>もう一つの<code>PolyKinds</code>拡張は、種多相を可能にしてくれる拡張でした。標準では、全ての種は具体化され、曖昧なところは全て標準の種<code>*</code>によって具体化されます。しかし、この拡張によりデフォルトの動作を、抽象化されたまま型変数として残す動作に切り替えることができるようになります。これによって、それぞれの種に対しての具体的な型コンストラクタを用意する必要も無くなります。また、種注釈を多相的に行うことも可能になるのでした。</p>
-<h2 id="まとめ">まとめ</h2>
+<h2 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h2>
 <p>今回は、種の基本概念と、種に関連する<span class="ascii">GHC</span>拡張を紹介しました。</p>
 <p>続編<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>では、<code>*</code>の他の幾つかの種と、種とは別の型の分類についての紹介などを踏まえた、幾つかの種に関連する話題について、話したいと思います。</p>
 <p><strong>追記</strong><span class="ascii">:</span> <a href="13-about-kind-system-part2.html">続編</a>を書きました。続きが気になる方は、読んでみてください。</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><span class="link-to-here-outer"><a href="#参考文献" title="参考文献"><span class="link-to-here">Link to<br />
+here</span></a></span>参考文献</h2>
 <ul>
 <li><a href="https://www.haskell.org/onlinereport/haskell2010/haskell.html"><span class="ascii">Haskell2010 Language Report</span></a><span class="ascii">: Haskell2010</span>の仕様書です。主に標準の仕組みを紹介する際に参照しました。
 <ul>

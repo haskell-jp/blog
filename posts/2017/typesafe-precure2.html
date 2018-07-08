@@ -143,7 +143,45 @@
 毎度の手口ですが、二つの<span class="ascii">Advent Calendar</span>に同時に投稿しています。</p>
 <p><span class="ascii">Haskell</span>とプリキュアの<span class="ascii">Advent Calendar</span>ということで、去年に引き続き「<a href="https://github.com/igrep/typesafe-precure/">タイプセーフプリキュア！</a>」について、開発する上で見つかった問題と、その解決方法について紹介します <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
 なお、「タイプセーフプリキュア！」そのものの日本語の紹介については、<a href="https://qiita.com/igrep/items/5496fa405fae00b5a737">私の去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>や<a href="http://the.igreque.info/posts/2016/06-type-safe-precure.html">同じく去年のプリキュア <span class="ascii">Advent Calendar</span>の記事</a>をご覧ください。</p>
-<h1 id="問題提起">問題提起</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#問題提起" title="問題提起">問題提起</a></li>
+<li><a href="#ほかの言語での例" title="ほかの言語での例">ほかの言語での例</a>
+<ul>
+<li><a href="#typesafe-precure2_case-ruby" title="typesafe-precure2_case-ruby"><span class="ascii">Ruby</span>での場合</a></li>
+<li><a href="#javaでの場合" title="javaでの場合"><span class="ascii">Java</span>での場合</a></li>
+</ul></li>
+<li><a href="#typesafe-precure2_requirement" title="typesafe-precure2_requirement">解決に必要なもの</a></li>
+<li><a href="#typesafe-precure2_warnings" title="typesafe-precure2_warnings">注意点</a></li>
+<li><a href="#haskellでの解決事例---タイプセーフプリキュアにおけるcure-index.jsonの実装" title="haskellでの解決事例---タイプセーフプリキュアにおけるcure-index.jsonの実装"><span class="ascii">Haskell</span>での解決事例 <span class="ascii">-</span> 「タイプセーフプリキュア！」における<code>cure-index.json</code>の実装</a>
+<ul>
+<li><a href="#使用したghcについて" title="使用したghcについて">使用した<span class="ascii">GHC</span>について</a></li>
+<li><a href="#annでまとめたい型が書かれたモジュールに印を着ける" title="annでまとめたい型が書かれたモジュールに印を着ける"><span class="ascii">ANN</span>で「まとめたい型」が書かれたモジュールに「印」を着ける</a>
+<ul>
+<li><a href="#stage-restrictionを避けるためにモジュールを分ける" title="stage-restrictionを避けるためにモジュールを分ける"><span class="ascii">Stage Restriction</span>を避けるためにモジュールを分ける</a></li>
+</ul></li>
+<li><a href="#autoexporterでまとめたい型が書かれているモジュールがどのディレクトリー以下にあるか設定する" title="autoexporterでまとめたい型が書かれているモジュールがどのディレクトリー以下にあるか設定する"><span class="ascii">autoexporter</span>で「まとめたい型」が書かれているモジュールが、どのディレクトリー以下にあるか設定する</a></li>
+<li><a href="#annプラグマで付与した定義情報からjsonを書き出す" title="annプラグマで付与した定義情報からjsonを書き出す"><code>ANN</code>プラグマで付与した定義情報から、<span class="ascii">JSON</span>を書き出す</a></li>
+</ul></li>
+<li><a href="#うまくいかなかった方法-来年のタイプセーフプリキュアについてちょっとだけ" title="うまくいかなかった方法-来年のタイプセーフプリキュアについてちょっとだけ">うまくいかなかった方法 （<span class="ascii">+</span> 来年の「タイプセーフプリキュア！」についてちょっとだけ）</a>
+<ul>
+<li><a href="#型クラスのインスタンスから" title="型クラスのインスタンスから">型クラスのインスタンスから</a></li>
+</ul></li>
+<li><a href="#ほかにやればよかったかも知れない方法" title="ほかにやればよかったかも知れない方法">ほかにやればよかったかも知れない方法</a>
+<ul>
+<li><a href="#モジュールが持っている特定の名前の関数型を処理する" title="モジュールが持っている特定の名前の関数型を処理する">モジュールが持っている特定の名前の関数・型を処理する</a></li>
+</ul></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+<li><a href="#参考にしたページ" title="参考にしたページ">参考にしたページ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="問題提起"><span class="link-to-here-outer"><a href="#問題提起" title="問題提起"><span class="link-to-here">Link to<br />
+here</span></a></span>問題提起</h1>
 <p>例えば、あなたはたくさんの仲間と、たくさんのサブコマンドがある<span class="ascii">CLI</span>アプリを作っていたとします。<br />
 コードの規約上、サブコマンド一つにつき一つのモジュールで、決まった関数<small>（<span class="ascii">Haskell</span>であれば<code>[String] -&gt; IO ()</code>みたいな型の関数でしょうか）</small>を定義するものとします。<br />
 そうした場合、必ずどこかのモジュールで、各モジュールで定義したサブコマンドを表す関数を列挙する必要があるでしょう。<br />
@@ -157,10 +195,12 @@
 <p>つまり、今回実現したいことは、複数のファイルに散らばった特定の関数やデータ型の定義を、自動で一カ所にまとめて再利用する、ということです。<br />
 この記事で何度も使うことになるので「<strong>定義を自動でまとめる問題</strong>」と呼ぶことにします。<br />
 これを<span class="ascii">GHC</span>の各種機能を利用して、<span class="ascii">Haskell</span>で実現させる方法を考えましょう。</p>
-<h1 id="ほかの言語での例">ほかの言語での例</h1>
+<h1 id="ほかの言語での例"><span class="link-to-here-outer"><a href="#ほかの言語での例" title="ほかの言語での例"><span class="link-to-here">Link to<br />
+here</span></a></span>ほかの言語での例</h1>
 <p>こうした処理を<span class="ascii">Haskell</span>以外のプログラミング言語で行う場合、例えば下記のような機能を使うことになるでしょう。<br />
 参考のために、私がこれまでに出会ったものを紹介します。</p>
-<h2 id="typesafe-precure2_case-ruby"><span class="ascii">Ruby</span>での場合</h2>
+<h2 id="typesafe-precure2_case-ruby"><span class="link-to-here-outer"><a href="#typesafe-precure2_case-ruby" title="typesafe-precure2_case-ruby"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Ruby</span>での場合</h2>
 <p>前職時代、私は実際にこの「定義を自動でまとめる問題」に出くわしたのですが、<span class="ascii">Ruby</span>を使っていたため、下記のように<a href="https://docs.ruby-lang.org/ja/2.4.0/method/Module/i/included.html"><span class="ascii">Module#included</span></a>という、対象のモジュールを<code>include</code><small>（モジュールが提供する機能の継承）</small>したときに呼ばれる、特別なメタプログラミング用のメソッドを使って解決しておりました。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">module</span> <span class="dt">ListedAsSubCommand</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="ot">@listed</span> = []</a>
@@ -207,7 +247,8 @@
 <a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co"># require されたファイルの中でクラスの定義が実行されるので、</span></a>
 <a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co"># 定義したクラスがリストに追加される</span></a>
 <a class="sourceLine" id="cb2-13" data-line-number="13"><span class="dt">ListedAsSubCommand</span>.listed <span class="co">#=&gt; [SubCommandA, SubCommandB, ...]</span></a></code></pre></div>
-<h2 id="javaでの場合"><span class="ascii">Java</span>での場合</h2>
+<h2 id="javaでの場合"><span class="link-to-here-outer"><a href="#javaでの場合" title="javaでの場合"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Java</span>での場合</h2>
 <p><span class="ascii">Java</span>で「定義を自動でまとめる問題」を解決する場合も、<span class="ascii">Ruby</span>と同様に、何らかの形でメタプログラミング用の仕組みを利用することになるかと思います。<br />
 とりわけ、<span class="ascii">Java</span>においては、この問題の解決に特化しているライブラリーの機能が存在している点が興味深いでしょう。<span class="ascii">Spring</span>の「コンポーネントスキャン」です。</p>
 <p><span class="ascii">Spring</span>をはじめとする<span class="ascii">DI</span>フレームワークでは、各クラスにおいて依存するオブジェクト<small>（正確にはそのインターフェース）</small>を宣言した際、必ず何らかの形で、「どのインターフェースにどのオブジェクトを紐付けるか」を宣言することになります。いわゆる<span class="ascii">Application Context</span>を書いた<span class="ascii">XML</span>であったり、<code>@Configuration</code>アノテーションが着いたクラスがそれに当たります。<br />
@@ -225,7 +266,8 @@
 <a class="sourceLine" id="cb4-4" data-line-number="4">}</a></code></pre></div>
 <p>このようにコンポーネントスキャンを使うことで、<code>@ComponentScan</code>されたクラスのオブジェクトは自動で依存するオブジェクトとして紐付けられるようになります。<br />
 従来<code>foo-context.xml</code>みたいな名前のファイルに、どのオブジェクトのどのフィールドにどのオブジェクトを紐付けるか、といった情報を一つ一つ書いていたのを、ほとんど書かなくて済むようになりました。</p>
-<h1 id="typesafe-precure2_requirement">解決に必要なもの</h1>
+<h1 id="typesafe-precure2_requirement"><span class="link-to-here-outer"><a href="#typesafe-precure2_requirement" title="typesafe-precure2_requirement"><span class="link-to-here">Link to<br />
+here</span></a></span>解決に必要なもの</h1>
 <p>さて、私が経験した二つの言語における「定義を自動でまとめる問題」の解決方法を見てきたところで、この問題を解決するのに共通して必要なことを列挙しましょう。</p>
 <p><strong><span class="ascii">(1)</span> 対象となる「まとめたい定義（モジュールや関数、型など）」が書かれているファイルが、どのディレクトリー以下にあるか設定する</strong></p>
 <p>「定義を自動でまとめる問題」に取り組むに当たり、最低限必要となるのが、この設定です。<br />
@@ -258,7 +300,8 @@
 <p>前述の<span class="ascii">Ruby</span>による例で言えば、これは<code>include ListedAsSubCommand</code>という、<code>included</code>メソッドを実装した<code>ListedAsSubCommand</code>モジュールを<code>include</code>することが該当します。<br />
 <span class="ascii">Java</span>の<span class="ascii">Spring</span>のコンポーネントスキャンの場合、まさしく<code>@Component</code>アノテーションがそれに当たるでしょう。</p>
 <p>これらの印が着いたファイルを読む場合、この「印」を手がかりにして、コードベースを検索したり定義ジャンプしたり、<span class="ascii">Spring</span>の場合はインターネットを検索したりすることで、「印」の役割を知り、そのファイルがどう使われるのか調べることができるのです。</p>
-<h1 id="typesafe-precure2_warnings">注意点</h1>
+<h1 id="typesafe-precure2_warnings"><span class="link-to-here-outer"><a href="#typesafe-precure2_warnings" title="typesafe-precure2_warnings"><span class="link-to-here">Link to<br />
+here</span></a></span>注意点</h1>
 <p>いよいよ次の節で「定義を自動でまとめる問題」を<span class="ascii">Haskell</span>で解決した例を紹介いたしますが、その前にこの問題を解決することによって生じる、副作用について強調しておきましょう。 私の観測範囲内でですが、今までこの問題に対応した例を見たことがないのは、そうした副作用による悪影響が大きいと感じている人が多数派だからなのかも知れません。</p>
 <p>それは、前節でも触れましたが、「『自動でまとめられるファイル』がどのように使用されるか理解しにくくなる」ということです。<br />
 この問題は、確かに「『まとめたい定義（モジュールや関数、型など）』が書かれたファイルに、なんらかの印をつける」ことである程度緩和可能な問題ではありますが、それでも強く意識するべきでしょう。<br />
@@ -277,7 +320,8 @@
 ですが、いずれにしても忘れてしまうリスクがあることは変わらないでしょう。</p>
 <p>以上の通り、結局のところ、「定義を自動でまとめる」よう設定するか、単純にまとめたい定義を手で列挙するかどうかは、そうしたトレードオフを考慮しつつ落ち着いて考えるのを推奨します。<br />
 これから紹介する方法を採用する際も、ここであげた注意点については忘れないでください。</p>
-<h1 id="haskellでの解決事例---タイプセーフプリキュアにおけるcure-index.jsonの実装"><span class="ascii">Haskell</span>での解決事例 <span class="ascii">-</span> 「タイプセーフプリキュア！」における<code>cure-index.json</code>の実装</h1>
+<h1 id="haskellでの解決事例---タイプセーフプリキュアにおけるcure-index.jsonの実装"><span class="link-to-here-outer"><a href="#haskellでの解決事例---タイプセーフプリキュアにおけるcure-index.jsonの実装" title="haskellでの解決事例---タイプセーフプリキュアにおけるcure-index.jsonの実装"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>での解決事例 <span class="ascii">-</span> 「タイプセーフプリキュア！」における<code>cure-index.json</code>の実装</h1>
 <p>「<a href="https://github.com/igrep/typesafe-precure/">タイプセーフプリキュア！</a>」<small>（パッケージとしての名前は<a href="https://hackage.haskell.org/package/typesafe-precure"><span class="ascii">typesafe-precure</span></a>なので、以下「<span class="ascii">typesafe-precure</span>」と呼びます）</small>では、最近の更新により、コンパイル時に「<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/cure-index.json"><span class="ascii">cure-index.json</span></a>」と、「<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/pretty-cure-index.json"><span class="ascii">pretty-cure-index.json</span></a>」いうファイルを生成するようになりました。<br />
 次のような内容のファイルです。</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="fu">{</span></a>
@@ -331,7 +375,8 @@
 ライブラリーとしての<span class="ascii">typesafe-precure</span>では、これらの情報は一つ一つが<span class="ascii">Haskell</span>の型として定義<span class="ascii">[^detail-typesafe-precure]</span>されており、<code>cure-index.json</code>は、それらの情報をコンパイル時に「自動でまとめる」ことで作成されます。決して、<span class="ascii">JSON</span>から<span class="ascii">Haskell</span>の型を作っているわけではありません。<br />
 詳細は冒頭にも挙げましたが、<a href="https://qiita.com/igrep/items/5496fa405fae00b5a737">私の去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>や<a href="http://the.igreque.info/posts/2016/06-type-safe-precure.html">同年のプリキュア <span class="ascii">Advent Calendar</span>の記事</a>をご覧ください。<br />
 ここではそれを実現するために使用した、<span class="ascii">Haskell</span>で「定義を自動でまとめる」方法を紹介しましょう。</p>
-<h2 id="使用したghcについて">使用した<span class="ascii">GHC</span>について</h2>
+<h2 id="使用したghcについて"><span class="link-to-here-outer"><a href="#使用したghcについて" title="使用したghcについて"><span class="link-to-here">Link to<br />
+here</span></a></span>使用した<span class="ascii">GHC</span>について</h2>
 <p>…と、その前に、今回<span class="ascii">typesafe-precure</span>のビルドに使用した<span class="ascii">GHC</span>のバージョンを述べておきましょう。</p>
 <p><span class="ascii">typesafe-precure</span>は現在<span class="ascii">(ver. 0.5.0.1)</span>の時点において、通常<span class="ascii">GHC 8.0.2</span>でビルドされています。<br />
 特に<span class="ascii">CI</span>での確認はしていませんが、<span class="ascii">GHC 7.10</span>でもビルドできるはずです。<br />
@@ -340,7 +385,8 @@
 今回は「できない」としたことも、将来の<span class="ascii">GHC</span>ではできるようになっている（あるいは運悪くその逆もある）かもしれません。<br />
 あらかじめご了承ください。</p>
 <p>なお、各バージョンの<span class="ascii">GHC</span>に標準添付されているパッケージのバージョンについては、<a href="https://ghc.haskell.org/trac/ghc/wiki/Commentary/Libraries/VersionHistory"><span class="ascii">Commentary/Libraries/VersionHistory</span> – <span class="ascii">GHC</span></a>をご覧ください。</p>
-<h2 id="annでまとめたい型が書かれたモジュールに印を着ける"><span class="ascii">ANN</span>で「まとめたい型」が書かれたモジュールに「印」を着ける</h2>
+<h2 id="annでまとめたい型が書かれたモジュールに印を着ける"><span class="link-to-here-outer"><a href="#annでまとめたい型が書かれたモジュールに印を着ける" title="annでまとめたい型が書かれたモジュールに印を着ける"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">ANN</span>で「まとめたい型」が書かれたモジュールに「印」を着ける</h2>
 <p>まず、「『まとめたい定義（モジュールや関数、型など）』が書かれたファイルに、なんらかの印をつける」方法を考えましょう。<br />
 実は<span class="ascii">Haskell(GHC)</span>にもアノテーションがあります<small>（<span class="ascii">Java</span>のアノテーションと使い勝手が異なりますが）</small>。<br />
 <code>ANN</code>という<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch12.html#x19-18800012"><span class="ascii">GHC</span>のプラグマ</a>（<code>{-# ... #-}</code> という形式で表される、特別なコメント）を使用すると、下記のように、モジュールや型、名前が付いた値に対して、アノテーションを加えることができます<small>（例は<a href="https://qiita.com/philopon/items/85210cc8f23ae04ba6ec">アンッ<span class="ascii">!!!</span>アンッ<span class="ascii">!!!! - Qiita</span></a>から拝借しました）</small>。</p>
@@ -393,7 +439,8 @@
 <a class="sourceLine" id="cb13-4" data-line-number="4"></a>
 <a class="sourceLine" id="cb13-5" data-line-number="5"><span class="ot">{-# ANN module girls #-}</span></a></code></pre></div></li>
 </ol>
-<h3 id="stage-restrictionを避けるためにモジュールを分ける"><span class="ascii">Stage Restriction</span>を避けるためにモジュールを分ける</h3>
+<h3 id="stage-restrictionを避けるためにモジュールを分ける"><span class="link-to-here-outer"><a href="#stage-restrictionを避けるためにモジュールを分ける" title="stage-restrictionを避けるためにモジュールを分ける"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Stage Restriction</span>を避けるためにモジュールを分ける</h3>
 <p>先の手順で引用したコードをご覧になった方は、こんなことを疑問に思ったかも知れません。<br />
 中間データの値を定義するモジュールと、<code>ANN</code>で中間データの値を付与するモジュールとを分ける必要があるのか、と。<br />
 上記の例で言えば、一つのモジュール<span class="ascii">(</span><code>ACME.PreCure.Textbook.KirakiraALaMode.Types</code><span class="ascii">)</span>で<code>girls</code>を定義しつつ<code>ANN</code>で付与すればよいのではないか、ということです。<br />
@@ -427,7 +474,8 @@
 これがあるために、中間データの値を含めた名前（上記のコードの場合<code>girl</code>）は、<code>ANN</code>や<span class="ascii">Template Haskell</span>で参照するモジュールとは一旦別のモジュールとして定義して、<code>import</code>して再利用するしかありません。</p>
 <p>本来、「定義を自動でまとめる問題」に対応する目的の中には「モジュールに関わる情報（どのような定義で、どのように使用されるのか）をなるべくモジュールのファイルのみに集約させる」というものがありましたが、外部のファイルに書くボイラープレートが増えてしまい、この観点ではイマイチな実装になってしまいました。<br />
 この点については、後の節でよりよい方法を検討しましょう。</p>
-<h2 id="autoexporterでまとめたい型が書かれているモジュールがどのディレクトリー以下にあるか設定する"><span class="ascii">autoexporter</span>で「まとめたい型」が書かれているモジュールが、どのディレクトリー以下にあるか設定する</h2>
+<h2 id="autoexporterでまとめたい型が書かれているモジュールがどのディレクトリー以下にあるか設定する"><span class="link-to-here-outer"><a href="#autoexporterでまとめたい型が書かれているモジュールがどのディレクトリー以下にあるか設定する" title="autoexporterでまとめたい型が書かれているモジュールがどのディレクトリー以下にあるか設定する"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">autoexporter</span>で「まとめたい型」が書かれているモジュールが、どのディレクトリー以下にあるか設定する</h2>
 <p>前節までで紹介した方法により、<code>ANN</code>プラグマを使うことでプリキュアの情報が書かれたモジュールに、プリキュアの情報を「自動でまとめる」ための「印」を着けることができました。<br />
 続いて、<code>ANN</code>プラグマで「印」を着けたモジュールがどこにあるかを指定して、<span class="ascii">GHC</span>に自動で回収させる方法を述べましょう。 「<a href="#typesafe-precure2_requirement">解決に必要なもの</a>」の節で説明した、「対象となる『まとめたい定義（モジュールや関数、型など）』が書かれているファイルが、どのディレクトリー以下にあるか設定する」部分に当たります。</p>
 <p>次の節で説明しますが、<code>ANN</code>プラグマで付与した情報は、「<a href="https://qiita.com/philopon/items/85210cc8f23ae04ba6ec#template-haskell%E3%81%8B%E3%82%89">アンッ<span class="ascii">!!!</span>アンッ<span class="ascii">!!!!</span>」でも説明されている</a>とおり<code>reifyAnnotations</code>という<span class="ascii">Template Haskell</span>の関数を使えば取得することができますが、該当のモジュールを何らかの方法で集めなくてはなりません。<br />
@@ -481,7 +529,8 @@
 <p>実際のところ<code>OPTIONS_GHC -F</code>をもっとうまく使えば、<code>ACME.PreCure.Textbook</code>以下にあるモジュールを自動ですべて<code>import</code>するモジュールと、それを利用して<code>cure-index.json</code>などの書き出しを行うモジュールを、分けずに一つのモジュールで済ますこともできたでしょう。<br />
 今回は敢えて<code>autoexporter</code>を再利用することで、<code>ACME.PreCure.Textbook</code>以下にあるモジュールをすべて回収する処理を書かずに任せることにしました。<br />
 この件については後ほど再検討しましょう。</p>
-<h2 id="annプラグマで付与した定義情報からjsonを書き出す"><code>ANN</code>プラグマで付与した定義情報から、<span class="ascii">JSON</span>を書き出す</h2>
+<h2 id="annプラグマで付与した定義情報からjsonを書き出す"><span class="link-to-here-outer"><a href="#annプラグマで付与した定義情報からjsonを書き出す" title="annプラグマで付与した定義情報からjsonを書き出す"><span class="link-to-here">Link to<br />
+here</span></a></span><code>ANN</code>プラグマで付与した定義情報から、<span class="ascii">JSON</span>を書き出す</h2>
 <p>いよいよ、<code>autoexporter</code>を駆使して集めたモジュールから、<code>ANN</code>で付与したプリキュアの情報を取り出し、<span class="ascii">JSON</span>に変換して書き出しましょう。<br />
 詳細は<a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Index.hs"><code>ACME.PreCure.Index</code></a>モジュールや、<a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Index/Lib.hs"><code>ACME.PreCure.Index.Lib</code></a>モジュールのソースコードをご覧いただきたいのですが、ここでは簡単にアルゴリズムを解説します。</p>
 <ol type="1">
@@ -497,10 +546,12 @@
 <p>ともあれこうして、<span class="ascii">typesafe-precure</span>では<code>ACME.PreCure.Index</code>モジュールをコンパイルする度に、各モジュールに定義されたすべてのプリキュアに関する情報を集めて、<a href="https://github.com/igrep/typesafe-precure/tree/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/gen"><span class="ascii">gen</span>ディレクトリー</a>にある<code>cure-index.json</code>や<code>pretty-cure-index.json</code>というファイルに書き出すことができました。<br />
 「定義を自動でまとめる問題」、これにて一件落着です！🎉<br />
 なお、自動生成されるファイルを<span class="ascii">Git</span>で管理することはなるべく避けた方がよいことですが、<code>cure-index.json</code>の配布を簡単に行うため方策として用いることにしています。</p>
-<h1 id="うまくいかなかった方法-来年のタイプセーフプリキュアについてちょっとだけ">うまくいかなかった方法 （<span class="ascii">+</span> 来年の「タイプセーフプリキュア！」についてちょっとだけ）</h1>
+<h1 id="うまくいかなかった方法-来年のタイプセーフプリキュアについてちょっとだけ"><span class="link-to-here-outer"><a href="#うまくいかなかった方法-来年のタイプセーフプリキュアについてちょっとだけ" title="うまくいかなかった方法-来年のタイプセーフプリキュアについてちょっとだけ"><span class="link-to-here">Link to<br />
+here</span></a></span>うまくいかなかった方法 （<span class="ascii">+</span> 来年の「タイプセーフプリキュア！」についてちょっとだけ）</h1>
 <p><span class="ascii">typesafe-precure</span>における「定義を自動でまとめる問題」の解決方法はここまで述べたとおりですが、今後同じような問題に対応したくなったときのために、最初に思いついたけどうまくいかなかった方法や、後で思いついた別の解決方法をこの先の二つの節ででまとめておきます。<br />
 私や読者のみなさんがお仕事など、より重要なプロジェクトでこれらのアイディアを活かすことができれば幸いです。</p>
-<h2 id="型クラスのインスタンスから">型クラスのインスタンスから</h2>
+<h2 id="型クラスのインスタンスから"><span class="link-to-here-outer"><a href="#型クラスのインスタンスから" title="型クラスのインスタンスから"><span class="link-to-here">Link to<br />
+here</span></a></span>型クラスのインスタンスから</h2>
 <p>当初（実は今も大部分は）、<span class="ascii">typesafe-precure</span>には、<a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Profiles.hs"><code>ACME.PreCure.Textbook.KirakiraALaMode.Profiles</code></a>で定義しているような中間データはなく、各プリキュア（や、変身アイテムなど諸々）に対しては、直接型を宣言したり型クラスのインスタンスを実装したりしていました。<br />
 例えば下記のようなコードです<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>👇</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">data</span> <span class="dt">CurePeach</span> <span class="fu">=</span> <span class="dt">CurePeach</span></a>
@@ -527,10 +578,12 @@
 「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、<code>cure-index.json</code>に記録されていないのはそのためです。</p>
 <p>来年のプリキュアハッカソンやプリキュア<span class="ascii">Advent Calendar</span>では、<a href="https://hackage.haskell.org/package/haskell-src-exts"><span class="ascii">haskell-src-exts</span></a>という、<span class="ascii">Haskell</span>で<span class="ascii">Haskell</span>のソースコードをパースするライブラリーを使って、この大きな移行プロジェクトに取り組むことになるかと思います。<br />
 <span class="ascii">typesafe-precure</span>には技術的なネタが尽きませんね。</p>
-<h1 id="ほかにやればよかったかも知れない方法">ほかにやればよかったかも知れない方法</h1>
+<h1 id="ほかにやればよかったかも知れない方法"><span class="link-to-here-outer"><a href="#ほかにやればよかったかも知れない方法" title="ほかにやればよかったかも知れない方法"><span class="link-to-here">Link to<br />
+here</span></a></span>ほかにやればよかったかも知れない方法</h1>
 <p>同じことを繰り返しますが、これから紹介する方法も含めて「定義を自動でまとめる」問題の解決は、どんな方法を使うにしても、多かれ少なかれ凝ったメタプログラミングのテクニックを使わなければならなくなります。<br />
 <a href="#typesafe-precure2_warnings">注意点</a>の節で強調したとおり、そのコードベースを初めて読んだ人が迷子にならないよう配慮することは忘れないでください。</p>
-<h2 id="モジュールが持っている特定の名前の関数型を処理する">モジュールが持っている特定の名前の関数・型を処理する</h2>
+<h2 id="モジュールが持っている特定の名前の関数型を処理する"><span class="link-to-here-outer"><a href="#モジュールが持っている特定の名前の関数型を処理する" title="モジュールが持っている特定の名前の関数型を処理する"><span class="link-to-here">Link to<br />
+here</span></a></span>モジュールが持っている特定の名前の関数・型を処理する</h2>
 <p>その方法は、先の節でも紹介した<a href="https://hackage.haskell.org/package/hspec-discover"><code>hspec-discover</code></a>でも実際に行われている方法です。<br />
 <code>hspec-discover</code>は、<span class="ascii">GHC</span>のカスタムプリプロセッサーを利用して実行することで、テストが書かれたディレクトリーから<code>Spec</code>という名前で終わるすべてのテスト用モジュールを自動でまとめて、それらをすべて実行する<code>Spec.hs</code>を、自動で生成します。<br />
 <code>hspec-discover</code>の場合、<code>ANN</code>のようなアノテーションは一切使用せず、モジュールの名前やモジュールがエクスポートする名前に規約を設けることで「定義をまとめる対象」を検出しています。<br />
@@ -555,7 +608,8 @@
 <p>これなら、<code>Foo.Commands</code>モジュールにヒントがあることが、すぐに分かります。<br />
 <code>hspec-discover</code>のように、<span class="ascii">Template Haskell</span>を使わず直接ファイルシステムにあるファイルを開く方法とも、相性がいいはずです。</p>
 <p>ほかにもいろいろな方法を考えましたが、これ以上に有効でもなさそうだし、そろそろ時間もなくなってきたので、この辺でまとめたいと思います。</p>
-<h1 id="まとめ">まとめ</h1>
+<h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h1>
 <ul>
 <li>「定義を自動でまとめる」問題を解決することにより、モジュールに関わる情報<small>（どのような定義で、どのように使用されるのか）</small>をなるべくモジュールのファイルのみに集約させることができる</li>
 <li>「定義を自動でまとめる」問題を解決するには、下記のことをする
@@ -570,7 +624,8 @@
 <li>どのような方法であれ、「定義を自動でまとめる」問題を解決すると、「『「自動でまとめられるファイル』がどのように使用されるか理解しにくくなる」という別の問題が発生するので、気をつけよう</li>
 </ul>
 <p>それでは<span class="ascii">2018</span>年も<span class="ascii">Template Haskell</span>とプリキュアで<span class="ascii">Happy Hacking!!</span> ❤️❤️❤️</p>
-<h1 id="参考にしたページ">参考にしたページ</h1>
+<h1 id="参考にしたページ"><span class="link-to-here-outer"><a href="#参考にしたページ" title="参考にしたページ"><span class="link-to-here">Link to<br />
+here</span></a></span>参考にしたページ</h1>
 <p>（記事中で直接リンクを張っていないもののみ）</p>
 <ul>
 <li><a href="https://dev.classmethod.jp/server-side/java/various-spring-configuration/">第<span class="ascii">2</span>回 <span class="ascii">Spring</span>の様々な設定記述 – <span class="ascii">Annotation</span>も<span class="ascii">Java</span>もあるんだよ ｜ <span class="ascii">Developers.IO</span></a></li>

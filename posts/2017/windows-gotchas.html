@@ -151,7 +151,27 @@
 — <span class="ascii">Yuji Yamamoto:</span> 山本悠滋 <span class="ascii">(</span><span class="citation" data-cites="igrep"><span class="ascii">@igrep</span></span><span class="ascii">)</span> <a href="https://twitter.com/igrep/status/938056578934042626?ref_src=twsrc%5Etfw"><span class="ascii">2017</span>年<span class="ascii">12</span>月<span class="ascii">5</span>日</a>
 </blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-<h1 id="invalid-characterと言われたらchcp-65001しよう"><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#invalid-characterと言われたらchcp-65001しよう" title="invalid-characterと言われたらchcp-65001しよう"><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</a>
+<ul>
+<li><a href="#対策" title="対策">対策</a>
+<ul>
+<li><a href="#ユーザーとして出くわした場合" title="ユーザーとして出くわした場合">ユーザーとして出くわした場合</a></li>
+<li><a href="#それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合" title="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合">それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#permission-deniedと言われたらビルドし直そう" title="permission-deniedと言われたらビルドし直そう"><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</a></li>
+<li><a href="#cのライブラリーは-まぁ頑張れ" title="cのライブラリーは-まぁ頑張れ"><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</a></li>
+</ul>
+</div>
+</div>
+<h1 id="invalid-characterと言われたらchcp-65001しよう"><span class="link-to-here-outer"><a href="#invalid-characterと言われたらchcp-65001しよう" title="invalid-characterと言われたらchcp-65001しよう"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</h1>
 <p>恐らく一番高確率で遭遇する <span class="ascii">&amp;</span> 知らないと回避できないのがこれ。<br />
 あ、ほらまた<span class="ascii">hakyll</span>でビルドしたら起きた！</p>
 <pre><code>&gt; stack exec -- site rebuild
@@ -165,8 +185,10 @@
 <span class="ascii">UTF-8</span>と<span class="ascii">Windows-31J</span>は全然違う体系の文字コードなので、<span class="ascii">UTF-8</span>なファイルを<span class="ascii">Windows-31J</span>のファイルとして読もうとしてもうまくいかないわけです。<br />
 冒頭にあげた<code>invalid byte sequence</code>というエラーはまさにそうした場合に起こるエラーです。<br />
 ファイルの読み書きだけでなく標準入出力でもしばしば発生するので覚えておいてください。</p>
-<h2 id="対策">対策</h2>
-<h3 id="ユーザーとして出くわした場合">ユーザーとして出くわした場合</h3>
+<h2 id="対策"><span class="link-to-here-outer"><a href="#対策" title="対策"><span class="link-to-here">Link to<br />
+here</span></a></span>対策</h2>
+<h3 id="ユーザーとして出くわした場合"><span class="link-to-here-outer"><a href="#ユーザーとして出くわした場合" title="ユーザーとして出くわした場合"><span class="link-to-here">Link to<br />
+here</span></a></span>ユーザーとして出くわした場合</h3>
 <p>多くの場合、このエラーは以下のコマンドをあらかじめ実行しておけば回避できます。</p>
 <pre><code>&gt; chcp 65001
 &gt; stack exec -- site rebuild
@@ -182,7 +204,8 @@
 <p>なので私は<span class="ascii">MSYS2</span>を使う時は<code>C:\Windows\System32\</code>は<code>PATH</code>から抜いています。<br />
 私と同じような方は下記のようにフルパスで実行しましょう。</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合">それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</h3>
+<h3 id="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合"><span class="link-to-here-outer"><a href="#それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合" title="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合"><span class="link-to-here">Link to<br />
+here</span></a></span>それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</h3>
 <p>残念ながら、<code>chcp 65001</code>してもこのエラーが消えないことはあります<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
 私の推測なんですが、どうも<code>chcp 65001</code>は<code>chcp 65001</code>したコマンドプロンプト（とか<span class="ascii">bash</span>）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。</p>
 <p>そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。<br />
@@ -227,14 +250,16 @@
 つまり<span class="ascii">GHC</span>はデフォルトで<code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code>しているものと推測されます。<br />
 いずれにせよ、エラーでプログラムが異常終了しないだけマシですね。</p>
 <p>更に補足すると、<span class="ascii">GHC</span>の文字コードについてより詳しい情報は、<a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html"><span class="ascii">GHC.IO.Encoding</span>のドキュメント</a>をご覧ください。</p>
-<h1 id="permission-deniedと言われたらビルドし直そう"><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</h1>
+<h1 id="permission-deniedと言われたらビルドし直そう"><span class="link-to-here-outer"><a href="#permission-deniedと言われたらビルドし直そう" title="permission-deniedと言われたらビルドし直そう"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</h1>
 <p>雑なまとめと言いつつ最初の一つ目が長くなってしまいましたが、ここからは簡単に言います。<br />
 <span class="ascii">Windows</span>で<code>stack build</code>なり<code>ghc</code>なり<code>elm-make</code>なりとにかくいろいろ動かしていると、「<span class="ascii">Permission Denied</span>」と言ったエラー（あるいはこれと似たようなメッセージのエラー）に出遭います。<br />
 正直に言って私は原因はサッパリ分かってないのですが、このエラーは大抵の場合何度も同じコマンドを実行すれば再現しませんでした。<br />
 一度や二度ではめげず、繰り返すのがポイントです 😅<br />
 問題が起きているディレクトリーをウィルス対策ソフトのスキャン対象から外してみるとか、<span class="ascii">Dropbox</span>の同期を一時的に止めてみる、といったこともやってみるといいかもしれません。</p>
 <p>あ、あと、「<span class="ascii">Directory not empty</span>」みたいなのもあったかな。これは同類のはずです。</p>
-<h1 id="cのライブラリーは-まぁ頑張れ"><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</h1>
+<h1 id="cのライブラリーは-まぁ頑張れ"><span class="link-to-here-outer"><a href="#cのライブラリーは-まぁ頑張れ" title="cのライブラリーは-まぁ頑張れ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</h1>
 <p><span class="ascii">Pure Haskell</span>なライブラリーであれば大体<span class="ascii">OK</span>なんですが、残念ながら<span class="ascii">C</span>のライブラリー（<code>lib***</code>みたいな名前でよく<span class="ascii">OS</span>のパッケージマネージャーに登録されているやつですね）に依存したライブラリーは、<span class="ascii">Windows</span>でインストールするのは結構トラブることが多いです。<br />
 まぁ、これは<span class="ascii">Haskell</span>に限った話ではないでしょう。</p>
 <p>対応方法は私が知る限り完全にケースバイケースなので、ここでは知っている対応例をいくつか挙げておきましょう。</p>

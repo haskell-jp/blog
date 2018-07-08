@@ -57,7 +57,27 @@ The original article is the 4th article of <a href="https://qiita.com/advent-cal
 <p>Perhaps they’re helpful in other languages.</p>
 </blockquote>
 <p>Let me add more details.</p>
-<h1 id="chcp-65001-if-invalid-character">chcp 65001 if “Invalid character”</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#chcp-65001-if-invalid-character" title="chcp-65001-if-invalid-character">chcp 65001 if “Invalid character”</a>
+<ul>
+<li><a href="#workaround" title="workaround">Workaround</a>
+<ul>
+<li><a href="#if-you-encounter-as-a-user" title="if-you-encounter-as-a-user">If you encounter as a user</a></li>
+<li><a href="#if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc." title="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc.">If it still doesn’t work, or you’re the developer of the libraries etc.</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#rebuild-if-permission-denied" title="rebuild-if-permission-denied">Rebuild if “Permission Denied”</a></li>
+<li><a href="#try-hard-to-build-libraries-in-c" title="try-hard-to-build-libraries-in-c">Try hard to build libraries in C…</a></li>
+</ul>
+</div>
+</div>
+<h1 id="chcp-65001-if-invalid-character"><span class="link-to-here-outer"><a href="#chcp-65001-if-invalid-character" title="chcp-65001-if-invalid-character"><span class="link-to-here">Link to<br />
+here</span></a></span>chcp 65001 if “Invalid character”</h1>
 <p>You would have encountered this frequently, especially if you don’t know how to avoid/fix this.<br />
 Oh, it’s caused again by building with hakyll!</p>
 <pre><code>&gt; stack exec -- site rebuild
@@ -72,8 +92,10 @@ But it’s now soon becoming 2018 (when writing the original article). Most file
 It doesn’t work to read a UTF-8 file as a Windows-31J file because they’re very different encoding system.<br />
 The <code>invalid byte sequence</code> error, shown at the head of this section, is caused by that inconsistency.<br />
 Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.</p>
-<h2 id="workaround">Workaround</h2>
-<h3 id="if-you-encounter-as-a-user">If you encounter as a user</h3>
+<h2 id="workaround"><span class="link-to-here-outer"><a href="#workaround" title="workaround"><span class="link-to-here">Link to<br />
+here</span></a></span>Workaround</h2>
+<h3 id="if-you-encounter-as-a-user"><span class="link-to-here-outer"><a href="#if-you-encounter-as-a-user" title="if-you-encounter-as-a-user"><span class="link-to-here">Link to<br />
+here</span></a></span>If you encounter as a user</h3>
 <p>In many cases you can avoid these kind of errors by running the below command in advance.</p>
 <pre><code>&gt; chcp 65001
 &gt; stack exec -- site rebuild
@@ -89,7 +111,8 @@ The directory contains many incompatible commands whose names conflict with the 
 <p>So I’ve dropped <code>C:\Windows\System32\</code> from <code>PATH</code> when using MSYS2.<br />
 If you’ve done like me, run by full path:</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc.">If it still doesn’t work, or you’re the developer of the libraries etc.</h3>
+<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here-outer"><a href="#if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc." title="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here">Link to<br />
+here</span></a></span>If it still doesn’t work, or you’re the developer of the libraries etc.</h3>
 <p>Unfortunately, the error can often persist even after running <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.<br />
 According to my guess, the <code>chcp 65001</code> command doesn’t affect the grandchild processes of the Command Prompt (or bash etc.) on which the <code>chcp</code> is run (i.e. the child processes of the command you enter).</p>
 <p>If the error still happens you can either report to the developer, or fix it yourself!<br />
@@ -132,13 +155,15 @@ The last function call <code>mkLocaleEncoding TransliterateCodingFailure</code> 
 This makes me guess GHC executes <code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code> by default before printing out the compilation error.<br />
 Anyway, it’s good that the program doesn’t abort due to the error!</p>
 <p>As the last note of this section: Read <a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html">the document of GHC.IO.Encoding</a> for the details of how GHC handles various character encodings.</p>
-<h1 id="rebuild-if-permission-denied">Rebuild if “Permission Denied”</h1>
+<h1 id="rebuild-if-permission-denied"><span class="link-to-here-outer"><a href="#rebuild-if-permission-denied" title="rebuild-if-permission-denied"><span class="link-to-here">Link to<br />
+here</span></a></span>Rebuild if “Permission Denied”</h1>
 <p>I’ve made the first section too long for “Quick-and-dirty checklist”, but I’ll tell you in short from this section.<br />
 We often encounter some errors like “Permission Denied”, “Directory not empty” and similar ones when running <code>stack build</code>, <code>ghc</code>, <code>elm-make</code>, and any other commands written in Haskell.<br />
 To tell the truth, I’m completely not sure of the cause, but those errors disappear by running the same command several times.<br />
 The key is to repeat many times. Never give up only by once or twice 😅<br />
 Turning off your antivirus software’s scanning of the problematic directory, Dropbox’s synchronisation, etc. might also fix such errors.</p>
-<h1 id="try-hard-to-build-libraries-in-c">Try hard to build libraries in C…</h1>
+<h1 id="try-hard-to-build-libraries-in-c"><span class="link-to-here-outer"><a href="#try-hard-to-build-libraries-in-c" title="try-hard-to-build-libraries-in-c"><span class="link-to-here">Link to<br />
+here</span></a></span>Try hard to build libraries in C…</h1>
 <p>On Windows, it frequently troubles us to install libraries which depend on libraries written in C (registered as <code>lib***</code> in your OS’s package manager).<br />
 But this is not the case only for Haskell.</p>
 <p>The way to fix depends on the case, so let me give you some examples as external links (Sorry, all pages are written in Japanese!).</p>
@@ -217,8 +242,44 @@ As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environme
               <hr />
 <p><span class="ascii">Haskell</span><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>では各処理系で言語拡張を提供し，<code>LANGUAGE</code>プラグマというものを利用することで，言語拡張を利用することが許容されています．<span class="ascii">Haskell</span>のデファクト標準的な処理系<span class="ascii">GHC</span>も多くの言語拡張を提供しており，その拡張は<strong><span class="ascii">GHC</span>拡張</strong>と呼ばれています．</p>
 <p>今回は，この<span class="ascii">GHC</span>拡張の簡単な紹介と，個人的に良く使う拡張についての簡単な紹介を，全<span class="ascii">3</span>回に分けて行いたいと思います．対象としては，<span class="ascii">GHC</span>で<span class="ascii">Haskell</span>プログラミングをしたことがあり，通常の<span class="ascii">Haskell</span>の構文や動作方法が分かっている人を考えています．また，この記事はあくまで簡単な紹介に留めるもので，付随する留意点や詳細な機能説明は，大事な箇所は漏らさないよう注意するつもりですが，全てを網羅するつもりはありませんのでその点は注意してください．もし，実際に<span class="ascii">GHC</span>拡張を使用する際は，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/"><span class="ascii">GHC</span>のユーザーガイド</a>をよく読んでから使用するのが良いでしょう．</p>
-<h1 id="ghc拡張について"><span class="ascii">GHC</span>拡張について</h1>
-<h2 id="haskellの言語拡張"><span class="ascii">Haskell</span>の言語拡張</h2>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#ghc拡張について" title="ghc拡張について"><span class="ascii">GHC</span>拡張について</a>
+<ul>
+<li><a href="#haskellの言語拡張" title="haskellの言語拡張"><span class="ascii">Haskell</span>の言語拡張</a></li>
+<li><a href="#ghc拡張" title="ghc拡張"><span class="ascii">GHC</span>拡張</a></li>
+<li><a href="#ghc拡張の使い方" title="ghc拡張の使い方"><span class="ascii">GHC</span>拡張の使い方</a></li>
+</ul></li>
+<li><a href="#主要なghc拡張" title="主要なghc拡張">主要な<span class="ascii">GHC</span>拡張</a>
+<ul>
+<li><a href="#preludeの暗黙的な使用を抑制する" title="preludeの暗黙的な使用を抑制する"><span class="ascii">Prelude</span>の暗黙的な使用を抑制する</a></li>
+<li><a href="#便利な構文の導入" title="便利な構文の導入">便利な構文の導入</a>
+<ul>
+<li><a href="#新たなリテラル表記を可能にする" title="新たなリテラル表記を可能にする">新たなリテラル表記を可能にする</a></li>
+<li><a href="#空のデータ型に対するより強力なサポートを導入する" title="空のデータ型に対するより強力なサポートを導入する">空のデータ型に対するより強力なサポートを導入する</a></li>
+<li><a href="#新たな基本構文を導入する" title="新たな基本構文を導入する">新たな基本構文を導入する</a></li>
+<li><a href="#正格化に対するサポートを導入する" title="正格化に対するサポートを導入する">正格化に対するサポートを導入する</a></li>
+<li><a href="#パターンマッチをより柔軟に扱えるようにする" title="パターンマッチをより柔軟に扱えるようにする">パターンマッチをより柔軟に扱えるようにする</a></li>
+<li><a href="#レコードに対するサポートを強化する" title="レコードに対するサポートを強化する">レコードに対するサポートを強化する</a></li>
+<li><a href="#型演算子を導入する" title="型演算子を導入する">型演算子を導入する</a></li>
+<li><a href="#型クラスを拡張する" title="型クラスを拡張する">型クラスを拡張する</a></li>
+<li><a href="#型ワイルドカードをより柔軟に扱う" title="型ワイルドカードをより柔軟に扱う">型ワイルドカードをより柔軟に扱う</a></li>
+<li><a href="#新たな表記法の導入" title="新たな表記法の導入">新たな表記法の導入</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#次回予告" title="次回予告">次回予告</a></li>
+<li><a href="#参考文献" title="参考文献">参考文献</a></li>
+</ul>
+</div>
+</div>
+<h1 id="ghc拡張について"><span class="link-to-here-outer"><a href="#ghc拡張について" title="ghc拡張について"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">GHC</span>拡張について</h1>
+<h2 id="haskellの言語拡張"><span class="link-to-here-outer"><a href="#haskellの言語拡張" title="haskellの言語拡張"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>の言語拡張</h2>
 <p><span class="ascii">Haskell</span>には，言語拡張を取り込む方法が標準で提供されています．<span class="ascii">Haskell</span>標準では，コンパイラプラグマというものが策定されており，これを通してコンパイラに追加情報を提供することができます．コンパイラプラグマは<code>{-#</code>と<code>#-}</code>で囲まれ，字句的にはコメントとして扱われます．標準では，インラインプラグマや特殊化プラグマの他に，<code>LANGUAGE</code>プラグマというものが策定されており，このプラグマを通して言語拡張を指定することができます．</p>
 <p>例えば，実装によって<code>CPP</code>と<code>ScopedTypeVariables</code>という名前の言語拡張が提供されており，それを使いたい場合，次のような文をモジュールの開始前に指定することで，言語拡張が有効になります．</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="ot">{-# LANGUAGE CPP, ScopedTypeVariables #-}</span></a>
@@ -230,7 +291,8 @@ As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environme
 <a class="sourceLine" id="cb2-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></a></code></pre></div>
 <p>この機能を通して，多くの<span class="ascii">Haskell</span>処理系では言語拡張を提供しています．</p>
-<h2 id="ghc拡張"><span class="ascii">GHC</span>拡張</h2>
+<h2 id="ghc拡張"><span class="link-to-here-outer"><a href="#ghc拡張" title="ghc拡張"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">GHC</span>拡張</h2>
 <p><span class="ascii">Haskell</span>のデファクト標準な処理系<span class="ascii">GHC</span>も，多数の拡張を提供しており，この拡張が<span class="ascii">GHC</span>拡張と呼ばれるものです．<span class="ascii">GHC</span>拡張は，バージョン<span class="ascii">8.4.2</span>現在，以下の数が提供されています<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>．</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1">$ <span class="ex">ghc</span> --supported-extensions <span class="kw">|</span> <span class="fu">wc</span> -l</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="ex">235</span></a></code></pre></div>
@@ -247,7 +309,8 @@ As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environme
 <li><a href="https://prime.haskell.org/wiki/DoAndIfThenElse"><code>DoAndIfThenElse</code></a><span class="ascii">:</span> <code>if</code>式の構文を，<code>then</code>と<code>else</code>の前に<code>;</code>を許容するよう変更する拡張です．これにより，<code>do</code>式において<code>then</code>や<code>else</code>をインデントする必要がなくなります．</li>
 </ul>
 <p>歴史的経緯で生まれ，互換性のために残されているものの，現状使用が推奨されていない拡張もあります．他に実験的な拡張やかなり大胆な拡張も存在するため，<span class="ascii">GHC</span>拡張を使用する際は<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/"><span class="ascii">GHC</span>のユーザーガイド</a>をよく読んでから使用するのが良いでしょう．</p>
-<h2 id="ghc拡張の使い方"><span class="ascii">GHC</span>拡張の使い方</h2>
+<h2 id="ghc拡張の使い方"><span class="link-to-here-outer"><a href="#ghc拡張の使い方" title="ghc拡張の使い方"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">GHC</span>拡張の使い方</h2>
 <p><span class="ascii">GHC</span>で<span class="ascii">GHC</span>拡張を使用する方法は，<span class="ascii">Haskell</span>標準の<code>LANGUAGE</code>プラグマを使用する他に，幾つかあります．まず，<span class="ascii">GHC</span>にオプションを渡して有効にする方法です．例えば，<code>NoImplicitPrelude</code>拡張と<code>Strict</code>拡張を有効にした状態で<code>Main.hs</code>をコンパイルしたい場合，次のように書けます．</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="ex">ghc</span> -XNoImplicitPrelude -XStrict --make Main.hs</a></code></pre></div>
 <p><span class="ascii">GHC</span>では<code>-X</code>の後に拡張名を続けることで，言語拡張を有効にしてコンパイルすることができます．通常は，<code>LANGUAGE</code>プラグマを使用するのが良いですが，何らかの事情で<code>LANGUAGE</code>プラグマを使用できない場合や，デフォルトで有効にしたい言語拡張がある場合などに便利でしょう．特に<span class="ascii">GHCi</span>で言語拡張を有効にしたくなった場合，このオプションを<code>set</code>コマンドで指定すると良いでしょう．</p>
@@ -265,9 +328,11 @@ executable program1
   build-depends:      base
   main-is:            Main.hs
   default-extensions: NoImplicitPrelude, Strict</code></pre>
-<h1 id="主要なghc拡張">主要な<span class="ascii">GHC</span>拡張</h1>
+<h1 id="主要なghc拡張"><span class="link-to-here-outer"><a href="#主要なghc拡張" title="主要なghc拡張"><span class="link-to-here">Link to<br />
+here</span></a></span>主要な<span class="ascii">GHC</span>拡張</h1>
 <p>以下では，個人的にデフォルトで有効化して使っている拡張を幾つか紹介します．なお，<span class="ascii">GHC</span>のバージョンは<span class="ascii">8.4.2</span>で<span class="ascii">Haskell2010</span>モードで使用することを前提にしています．</p>
-<h2 id="preludeの暗黙的な使用を抑制する"><span class="ascii">Prelude</span>の暗黙的な使用を抑制する</h2>
+<h2 id="preludeの暗黙的な使用を抑制する"><span class="link-to-here-outer"><a href="#preludeの暗黙的な使用を抑制する" title="preludeの暗黙的な使用を抑制する"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Prelude</span>の暗黙的な使用を抑制する</h2>
 <p>この節では，以下の拡張を紹介します．</p>
 <ul>
 <li><code>NoImplicitPrelude</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NoImplicitPrelude">ユーザーガイド <span class="ascii">- NoImplicitPrelude</span>拡張</a></li>
@@ -297,8 +362,10 @@ executable program1
 <a class="sourceLine" id="cb8-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb8-7" data-line-number="7"><span class="fu">...</span></a></code></pre></div>
 <p>と書くことで，保守がかなりしやすくなります．</p>
-<h2 id="便利な構文の導入">便利な構文の導入</h2>
-<h3 id="新たなリテラル表記を可能にする">新たなリテラル表記を可能にする</h3>
+<h2 id="便利な構文の導入"><span class="link-to-here-outer"><a href="#便利な構文の導入" title="便利な構文の導入"><span class="link-to-here">Link to<br />
+here</span></a></span>便利な構文の導入</h2>
+<h3 id="新たなリテラル表記を可能にする"><span class="link-to-here-outer"><a href="#新たなリテラル表記を可能にする" title="新たなリテラル表記を可能にする"><span class="link-to-here">Link to<br />
+here</span></a></span>新たなリテラル表記を可能にする</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>BinaryLiterals</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-BinaryLiterals">ユーザーガイド <span class="ascii">- BinaryLiterals</span>拡張</a></li>
@@ -322,7 +389,8 @@ executable program1
 <a class="sourceLine" id="cb9-11" data-line-number="11"><span class="dt">SamplePZ</span></a>
 <a class="sourceLine" id="cb9-12" data-line-number="12"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">-</span> <span class="fl">100.10</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span></a>
 <a class="sourceLine" id="cb9-13" data-line-number="13"><span class="fu">***</span> <span class="dt">Exception</span><span class="fu">:</span> <span class="fu">...</span></a></code></pre></div>
-<h3 id="空のデータ型に対するより強力なサポートを導入する">空のデータ型に対するより強力なサポートを導入する</h3>
+<h3 id="空のデータ型に対するより強力なサポートを導入する"><span class="link-to-here-outer"><a href="#空のデータ型に対するより強力なサポートを導入する" title="空のデータ型に対するより強力なサポートを導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>空のデータ型に対するより強力なサポートを導入する</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>EmptyCase</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-EmptyCase">ユーザーガイド <span class="ascii">- EmptyCase</span>拡張</a></li>
@@ -352,7 +420,8 @@ executable program1
 <a class="sourceLine" id="cb14-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb14-10" data-line-number="10"><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Empty</span> <span class="kw">where</span></a>
 <a class="sourceLine" id="cb14-11" data-line-number="11">  showsPrec _ x <span class="fu">=</span> <span class="kw">case</span> x <span class="kw">of</span> {}</a></code></pre></div>
-<h3 id="新たな基本構文を導入する">新たな基本構文を導入する</h3>
+<h3 id="新たな基本構文を導入する"><span class="link-to-here-outer"><a href="#新たな基本構文を導入する" title="新たな基本構文を導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>新たな基本構文を導入する</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>TupleSections</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TupleSections">ユーザーガイド <span class="ascii">- TupleSections</span>拡張</a></li>
@@ -386,7 +455,8 @@ executable program1
 <a class="sourceLine" id="cb17-2" data-line-number="2">f <span class="fu">=</span> negate <span class="fu">.</span> \<span class="kw">case</span></a>
 <a class="sourceLine" id="cb17-3" data-line-number="3">  <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dv">0</span></a>
 <a class="sourceLine" id="cb17-4" data-line-number="4">  <span class="dt">Just</span> x  <span class="ot">-&gt;</span> x</a></code></pre></div>
-<h3 id="正格化に対するサポートを導入する">正格化に対するサポートを導入する</h3>
+<h3 id="正格化に対するサポートを導入する"><span class="link-to-here-outer"><a href="#正格化に対するサポートを導入する" title="正格化に対するサポートを導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>正格化に対するサポートを導入する</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>BangPatterns</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-BangPatterns">ユーザーガイド <span class="ascii">- BangPatterns</span>拡張</a></li>
@@ -418,7 +488,8 @@ executable program1
 <div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="ot">f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
 <a class="sourceLine" id="cb24-2" data-line-number="2">f <span class="fu">!</span>x <span class="fu">!</span>(z, y) <span class="fu">=</span> <span class="kw">let</span> <span class="fu">!</span>zy <span class="fu">=</span> z <span class="fu">*</span> y <span class="kw">in</span> <span class="kw">case</span> x <span class="fu">-</span> z <span class="kw">of</span> <span class="fu">!</span>z&#39; <span class="ot">-&gt;</span> z&#39; <span class="fu">^</span> z</a></code></pre></div>
 <p>注意して欲しいのは，このバンパターンは<code>seq</code>に置き換わるため，<span class="ascii">WHNF</span>までしか評価されないということです．つまり，<code>!(z, y)</code>というパターンは単なる<code>(z, y)</code>と完全に同じです．またトップレベルの束縛にバンパターンを付与することは許されておらず，遅延されるということにも注意が必要です．</p>
-<h3 id="パターンマッチをより柔軟に扱えるようにする">パターンマッチをより柔軟に扱えるようにする</h3>
+<h3 id="パターンマッチをより柔軟に扱えるようにする"><span class="link-to-here-outer"><a href="#パターンマッチをより柔軟に扱えるようにする" title="パターンマッチをより柔軟に扱えるようにする"><span class="link-to-here">Link to<br />
+here</span></a></span>パターンマッチをより柔軟に扱えるようにする</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>ViewPatterns</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ViewPatterns">ユーザーガイド <span class="ascii">- ViewPatterns</span>拡張</a></li>
@@ -477,7 +548,8 @@ executable program1
 <a class="sourceLine" id="cb33-2" data-line-number="2">f (<span class="dt">Pair</span> x (<span class="dt">Pair</span> y z)) <span class="fu">|</span> <span class="dt">True</span> <span class="ot">&lt;-</span> x, <span class="dt">True</span> <span class="ot">&lt;-</span> y, <span class="dt">True</span> <span class="ot">&lt;-</span> z <span class="fu">=</span> <span class="dt">True</span></a>
 <a class="sourceLine" id="cb33-3" data-line-number="3">f _                                                     <span class="fu">=</span> <span class="dt">False</span></a></code></pre></div>
 <p>パターンシノニムは，モジュールエクスポートを書く際にも注意が必要で，<code>module A (pattern Cons, pattern Nil) where ...</code>というように接頭に<code>pattern</code>をつける必要があります．</p>
-<h3 id="レコードに対するサポートを強化する">レコードに対するサポートを強化する</h3>
+<h3 id="レコードに対するサポートを強化する"><span class="link-to-here-outer"><a href="#レコードに対するサポートを強化する" title="レコードに対するサポートを強化する"><span class="link-to-here">Link to<br />
+here</span></a></span>レコードに対するサポートを強化する</h3>
 <p>この節では，以下の<span class="ascii">4</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>DuplicateRecordFields</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DuplicateRecordFields">ユーザーガイド <span class="ascii">- DuplicateRecordFields</span>拡張</a></li>
@@ -540,7 +612,8 @@ executable program1
 <a class="sourceLine" id="cb40-2" data-line-number="2">g <span class="dt">A</span>{ y <span class="fu">=</span> <span class="dt">False</span>, <span class="fu">..</span>} <span class="fu">=</span> <span class="fu">-</span>x</a>
 <a class="sourceLine" id="cb40-3" data-line-number="3">g <span class="dt">A</span>{<span class="fu">..</span>}             <span class="fu">=</span> x</a></code></pre></div>
 <p>コンストラクトの際も，この拡張は有効です．<code>let x = 1 in A { y = True, ..}</code>と書いた場合，<code>A { x = 1, y = True }</code>と書くのと同等になります．</p>
-<h3 id="型演算子を導入する">型演算子を導入する</h3>
+<h3 id="型演算子を導入する"><span class="link-to-here-outer"><a href="#型演算子を導入する" title="型演算子を導入する"><span class="link-to-here">Link to<br />
+here</span></a></span>型演算子を導入する</h3>
 <p>この節では，以下の拡張を紹介します．</p>
 <ul>
 <li><code>TypeOperators</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeOperators">ユーザーガイド <span class="ascii">- TypeOperators</span>拡張</a></li>
@@ -563,7 +636,8 @@ executable program1
 <a class="sourceLine" id="cb43-5" data-line-number="5">  ) <span class="kw">where</span></a>
 <a class="sourceLine" id="cb43-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb43-7" data-line-number="7"><span class="kw">type</span> a <span class="fu">+</span> b <span class="fu">=</span> <span class="dt">Either</span> a b</a></code></pre></div>
-<h3 id="型クラスを拡張する">型クラスを拡張する</h3>
+<h3 id="型クラスを拡張する"><span class="link-to-here-outer"><a href="#型クラスを拡張する" title="型クラスを拡張する"><span class="link-to-here">Link to<br />
+here</span></a></span>型クラスを拡張する</h3>
 <p>この節では，以下の<span class="ascii">4</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>MultiParamTypeClasses</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-MultiParamTypeClasses">ユーザーガイド <span class="ascii">- MultiParamTypeClasses</span>拡張</a></li>
@@ -625,7 +699,8 @@ executable program1
 <a class="sourceLine" id="cb50-3" data-line-number="3"><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">A</span> <span class="kw">where</span></a>
 <a class="sourceLine" id="cb50-4" data-line-number="4"><span class="ot">  (==) ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
 <a class="sourceLine" id="cb50-5" data-line-number="5">  <span class="dt">A</span> <span class="fu">==</span> <span class="dt">A</span> <span class="fu">=</span> <span class="dt">True</span></a></code></pre></div>
-<h3 id="型ワイルドカードをより柔軟に扱う">型ワイルドカードをより柔軟に扱う</h3>
+<h3 id="型ワイルドカードをより柔軟に扱う"><span class="link-to-here-outer"><a href="#型ワイルドカードをより柔軟に扱う" title="型ワイルドカードをより柔軟に扱う"><span class="link-to-here">Link to<br />
+here</span></a></span>型ワイルドカードをより柔軟に扱う</h3>
 <p>この節では，以下の拡張を紹介します．</p>
 <ul>
 <li><code>NamedWildCards</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NamedWildCards">ユーザーガイド <span class="ascii">- NamedWildCards</span>拡張</a></li>
@@ -638,7 +713,8 @@ executable program1
 <div class="sourceCode" id="cb52"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="co">-- Inferred type: (a, Maybe a1) -&gt; (a, Maybe a1)</span></a>
 <a class="sourceLine" id="cb52-2" data-line-number="2"><span class="ot">ignoreSecond ::</span> _a <span class="ot">-&gt;</span> _a</a>
 <a class="sourceLine" id="cb52-3" data-line-number="3">ignoreSecond (x, _) <span class="fu">=</span> (x, <span class="dt">Nothing</span>)</a></code></pre></div>
-<h3 id="新たな表記法の導入">新たな表記法の導入</h3>
+<h3 id="新たな表記法の導入"><span class="link-to-here-outer"><a href="#新たな表記法の導入" title="新たな表記法の導入"><span class="link-to-here">Link to<br />
+here</span></a></span>新たな表記法の導入</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
 <ul>
 <li><code>Arrows</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-Arrows">ユーザーガイド <span class="ascii">- Arrows</span>拡張</a></li>
@@ -713,10 +789,12 @@ executable program1
 <a class="sourceLine" id="cb60-11" data-line-number="11">    pure (d, e)</a>
 <a class="sourceLine" id="cb60-12" data-line-number="12">  pure c</a></code></pre></div>
 <p>という式に翻訳されます．<code>mdo</code>と<code>rec</code>の変換規則は，<a href="https://dl.acm.org/citation.cfm?doid=581690.581693">提案論文</a>にて確認が可能です．</p>
-<h1 id="次回予告">次回予告</h1>
+<h1 id="次回予告"><span class="link-to-here-outer"><a href="#次回予告" title="次回予告"><span class="link-to-here">Link to<br />
+here</span></a></span>次回予告</h1>
 <p>今回は，<span class="ascii">GHC</span>拡張の簡単な紹介と使い方について，それから個人的にデフォルトで有効化している，<span class="ascii">Prelude</span>の暗黙的なインポートを抑制する拡張，新たな構文を導入する拡張を紹介しました．</p>
 <p>次回は，他のデフォルトで有効化している拡張について紹介したいと思います．</p>
-<h1 id="参考文献">参考文献</h1>
+<h1 id="参考文献"><span class="link-to-here-outer"><a href="#参考文献" title="参考文献"><span class="link-to-here">Link to<br />
+here</span></a></span>参考文献</h1>
 <ul>
 <li><a href="https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/"><span class="ascii">GHC 8.4.2 User</span>’<span class="ascii">s Guide</span></a>
 <ul>
@@ -814,7 +892,20 @@ executable program1
 「<a href="http://syocy.hatenablog.com/entry/haskell-library-2016#%E3%83%86%E3%82%B9%E3%83%88"><span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span></a>」という記事でも紹介されているとおり、<span class="ascii">Haskell</span>にも様々なテスト用ライブラリーがあります。<br />
 今回は、「<span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span>」でも紹介されている<a href="https://hackage.haskell.org/package/silently"><span class="ascii">silently</span></a>というパッケージにインスパイアされた、新しいテスト用ライブラリーを作りました。<br />
 タイトルにも書きましたが<a href="https://hackage.haskell.org/package/main-tester"><span class="ascii">main-tester</span></a>といいます。</p>
-<h1 id="main-testerができること"><span class="ascii">main-tester</span>ができること</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#main-testerができること" title="main-testerができること"><span class="ascii">main-tester</span>ができること</a></li>
+<li><a href="#ほかのライブラリーとの違い" title="ほかのライブラリーとの違い">ほかのライブラリーとの違い</a></li>
+<li><a href="#使い方バグ報告" title="使い方バグ報告">使い方・バグ報告</a></li>
+</ul>
+</div>
+</div>
+<h1 id="main-testerができること"><span class="link-to-here-outer"><a href="#main-testerができること" title="main-testerができること"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">main-tester</span>ができること</h1>
 <p><span class="ascii">main-tester</span>は名前の通り、<code>main</code>関数のテストをサポートするライブラリーです。<br />
 <span class="ascii">Haskell</span>製のプログラムを起動すると最初に実行される、あの<code>main</code>関数です。</p>
 <p><code>main</code>関数は<code>IO ()</code>という型であるとおり、原則として必ず入出力を伴うので、自動テストがしにくい関数です。<br />
@@ -845,7 +936,8 @@ executable program1
 しかし、テストのために<code>PATH</code>を分離させる必要があったり、そのために<a href="https://github.com/commercialhaskell/stack/issues/2885"><code>stack exec</code>を使ったらめっちゃ遅い</a>という問題があったり、そもそも子プロセス呼び出しはそれだけでオーバーヘッドがあったりと、様々な問題があります。<br />
 物事をよりシンプルにするには、<code>main</code>関数を直接呼び出した方がよいでしょう。<br />
 <span class="ascii">main-tester</span>は、<span class="ascii">CLI</span>アプリケーションの<span class="ascii">E2E</span>テストにおける、そうした子プロセスの呼び出しの問題と、より大きな関数をテストしたいというニーズに応えるためのライブラリーなのです。</p>
-<h1 id="ほかのライブラリーとの違い">ほかのライブラリーとの違い</h1>
+<h1 id="ほかのライブラリーとの違い"><span class="link-to-here-outer"><a href="#ほかのライブラリーとの違い" title="ほかのライブラリーとの違い"><span class="link-to-here">Link to<br />
+here</span></a></span>ほかのライブラリーとの違い</h1>
 <p>「<span class="ascii">silently</span>というパッケージにインスパイアされた」と冒頭で申しましたとおり、前節で紹介した機能は、実はすでにほかのライブラリーに似たものがあります。<br />
 <span class="ascii">silently</span>に加え、<a href="https://hackage.haskell.org/package/imperative-edsl-0.7.1/docs/System-IO-Fake.html"><span class="ascii">imperative-edsl</span>というパッケージに含まれる、<code>System.IO.Fake</code>というモジュール</a>です<small>（ほかにもあったらすみません！🙇🙇🙇）</small>。<br />
 これらと<span class="ascii">main-tester</span>との違いは何でしょう？</p>
@@ -860,7 +952,8 @@ executable program1
 結果、<code>main</code>関数が標準出力・標準エラー出力に書き込んだ文字列を取得することができないのです。<br />
 「○○というエラーメッセージを出力して異常終了する」といったことをテストしたい場合、これでは使いづらいでしょう。<br />
 <strong>「<code>main</code>関数の<span class="ascii">E2E</span>テストを行うためのライブラリーである」</strong>という観点から、必須の機能であると判断し、実装しました。 ちなみに、<code>ExitCode</code>以外の例外についてはそのまま投げられます。仕様を単純にするために、これはユーザーのテストコードの中で処理することとしています。</p>
-<h1 id="使い方バグ報告">使い方・バグ報告</h1>
+<h1 id="使い方バグ報告"><span class="link-to-here-outer"><a href="#使い方バグ報告" title="使い方バグ報告"><span class="link-to-here">Link to<br />
+here</span></a></span>使い方・バグ報告</h1>
 <p>機能は非常にシンプルなので、使い方については<a href="https://hackage.haskell.org/package/main-tester-0.1.0.0/docs/Test-Main.html">ドキュメント</a>のサンプルコードを読めば大体わかるかなぁと思いますが、簡単にサンプルを載せておきましょう。</p>
 <p>例えばこんなソース👇のプログラムがあった場合、</p>
 <p><span class="ascii">ExampleMain.hs:</span></p>
@@ -1044,7 +1137,27 @@ executable program1
               <hr />
 <p>去年、<a href="/posts/2017/windows-gotchas.html"><span class="ascii">Windows</span>で<span class="ascii">Haskell</span>を扱う時によく遭遇するエラーと対処法</a>という記事で、<span class="ascii">Windows</span>ユーザーが<span class="ascii">Haskell</span>で開発したとき、あるいは<span class="ascii">Haskell</span>製のプログラムを使用した際によく遭遇するエラーやその回避方法を紹介しました。<br />
 今回は、そこに追記したい内容として、最近私がよく出遭うようになったエラーを紹介します。</p>
-<h1 id="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><code>openFile: does not exist (No such file or directory)</code>といわれたら短いパスに移そう</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう" title="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><code>openFile: does not exist (No such file or directory)</code>といわれたら短いパスに移そう</a>
+<ul>
+<li><a href="#回避方法" title="回避方法">回避方法</a>
+<ul>
+<li><a href="#長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする" title="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする">長いパスをより短くするために、カレントディレクトリーを変更して、相対パスを短くする。</a></li>
+<li><a href="#win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す" title="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="ascii">Win32 API</span>のユニコード版の関数に、<code>\\?\</code>というプレフィックスを着けた絶対パスを渡す。</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#おわりに" title="おわりに">おわりに</a></li>
+<li><a href="#参考url" title="参考url">参考<span class="ascii">URL</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><span class="link-to-here-outer"><a href="#openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう" title="openfile-does-not-exist-no-such-file-or-directoryといわれたら短いパスに移そう"><span class="link-to-here">Link to<br />
+here</span></a></span><code>openFile: does not exist (No such file or directory)</code>といわれたら短いパスに移そう</h1>
 <p><code>does not exist (No such file or directory)</code>というエラーは、本当に読んで字のごとく、開こうとしたファイルが存在しないためのエラーであることとがもちろん多いのですが、エラーメッセージに反して違う原因である場合もあります。</p>
 <p>例えば、最近私はとあるプロジェクトを数文字長い名前にリネームしたのですが、たったそれだけで、<code>stack test</code>した際必ず問題のエラーが発生するようになってしまいました。</p>
 <pre><code>$ stack test
@@ -1063,18 +1176,21 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <code>does not exist (No such file or directory)</code>なんてエラーメッセージで表されるのでわかりづらい！<small>（おそらく<span class="ascii">Windows</span>のエラーコードの出し方に問題があるんじゃないかと思います）</small></p>
 <p><span class="ascii">DOS</span>時代から残るこの制限、完全に時代錯誤なものでしかないのですが、<span class="ascii">Windows</span>でパッケージマネージャーなどが自動的に作ったパスを扱っていると、しばしば出くわすことがあります。<br />
 <span class="ascii">stack</span>においても、<a href="https://github.com/commercialhaskell/stack/issues/3285">こちらの<span class="ascii">Issue</span></a>で同じ問題が議論されていたり、<a href="https://github.com/commercialhaskell/stack/releases/tag/v1.6.5"><span class="ascii">ver. 1.6.5</span>の<span class="ascii">ChangeLog</span></a>でも言及されていたりと、至る所で格闘している跡があります。</p>
-<h2 id="回避方法">回避方法</h2>
+<h2 id="回避方法"><span class="link-to-here-outer"><a href="#回避方法" title="回避方法"><span class="link-to-here">Link to<br />
+here</span></a></span>回避方法</h2>
 <p>そんな<code>does not exist (No such file or directory)</code>ですが、残念ながら私が知る限り、プロジェクトなどのパスを（<code>C:\</code>などのよりルートに近い場所に置いて）より短くする以外の回避方法はありません。<br />
 <a href="https://github.com/haskell/haskell-ide-engine#installation-on-windows"><span class="ascii">haskell-ide-engine</span>のインストール方法のページ</a>曰く、（新しめの）<span class="ascii">Windows 10</span>であれば、グループポリシーを編集して、「<span class="ascii">Win32</span>の長いパスを有効にする」を「有効」にすれば回避できるとのことですが、残念ながら手元で試した限りうまくいきませんでした。何かやり方がまずかったのかもしれませんが。<br />
 いずれにしても、<code>stack build</code>コマンドなどを実行したときに問題のエラーに遭遇した場合、ビルドしたいもののパスをなんとかして短くする以上の方法はありません。<br />
 <code>C:\</code>直下をホームディレクトリのように使う人が今でもたくさんいるわけです。</p>
 <p>一方、あなたが問題のエラーが発生するプログラムを<strong>修正する</strong>ことができる立場にある場合、次の方法で回避できるかもしれません。</p>
-<h3 id="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする">長いパスをより短くするために、カレントディレクトリーを変更して、相対パスを短くする。</h3>
+<h3 id="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする"><span class="link-to-here-outer"><a href="#長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする" title="長いパスをより短くするためにカレントディレクトリーを変更して相対パスを短くする"><span class="link-to-here">Link to<br />
+here</span></a></span>長いパスをより短くするために、カレントディレクトリーを変更して、相対パスを短くする。</h3>
 <p>本件はあくまでも、<span class="ascii">Windows</span>の各種ファイル操作用<span class="ascii">API</span>の<span class="ascii">1</span>回の呼び出しで渡せる長さの制限ですので、制限を超えてしまうような場合はパスを分割すればよいのです。<br />
 <a href="https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitFileName"><span class="ascii">filepath</span>パッケージの<code>splitFileName</code>関数</a>や<a href="https://hackage.haskell.org/package/filepath-1.4.2/docs/System-FilePath-Posix.html#v:splitPath"><code>splitPath</code>関数</a>を駆使してパスを分割した上で、対象のファイルの親ディレクトリーまで<a href="https://hackage.haskell.org/package/directory-1.3.2.1/docs/System-Directory.html#v:setCurrentDirectory"><span class="ascii">directory</span>パッケージの<code>setCurrentDirectory</code>関数</a>で移動すれば、制限に引っかからないはずです<small>（時間の都合でこちらについては試すコードを用意しておりません。あしからず）</small>。</p>
 <p>残念ながらカレントディレクトリーはプロセス全体で共有される情報ですので、マルチスレッドなプログラムでは頭の痛い問題が出てきてしまいますが、一番確実に回避できる方法のはずです。<br />
 マルチスレッドである場合を考慮したくない場合は、次に紹介する方法を検討するとよいでしょう。</p>
-<h3 id="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="ascii">Win32 API</span>のユニコード版の関数に、<code>\\?\</code>というプレフィックスを着けた絶対パスを渡す。</h3>
+<h3 id="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="link-to-here-outer"><a href="#win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す" title="win32-apiのユニコード版の関数にというプレフィックスを着けた絶対パスを渡す"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Win32 API</span>のユニコード版の関数に、<code>\\?\</code>というプレフィックスを着けた絶対パスを渡す。</h3>
 <p>ここまでに出てきた、「<span class="ascii">Windows</span>の各種ファイル操作用<span class="ascii">API</span>」は、すべて「<span class="ascii">Win32 API</span>」と呼ばれる<span class="ascii">Windows</span>固有の<span class="ascii">API</span>群の一部です。<br />
 この「<span class="ascii">Win32 API</span>」に含まれる関数の多くは、「ユニコード版」とそうでないものに分かれます<small>（詳細は<a href="https://msdn.microsoft.com/ja-jp/library/windows/desktop/dd317766(v=vs.85).aspx"><span class="ascii">Conventions for Function Prototypes (Windows)</span></a>をご覧ください）</small>。</p>
 <p>このうち、「ユニコード版」の<span class="ascii">API</span>には、この制限を緩和する専用の機能が含まれています。<br />
@@ -1108,10 +1224,12 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <a class="sourceLine" id="cb2-22" data-line-number="22"></a>
 <a class="sourceLine" id="cb2-23" data-line-number="23">  putStrLn <span class="fu">$</span> <span class="st">&quot;path4: &quot;</span> <span class="fu">++</span> show path4</a>
 <a class="sourceLine" id="cb2-24" data-line-number="24">  createDirectoryIfMissing <span class="dt">True</span> path4</a></code></pre></div>
-<h1 id="おわりに">おわりに</h1>
+<h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
+here</span></a></span>おわりに</h1>
 <p>さて、またしても<span class="ascii">Windows</span>固有の面倒な問題を紹介することとなってしまいましたが、俗世の喜び（主にゲーム）と簡単にインストールできる<span class="ascii">GUI</span>に慣らされてしまった私は、今後も<span class="ascii">Windows</span>を使い続けるつもりです。<br />
 いろいろ困難は尽きませんがこれからも<span class="ascii">Windows</span>で<span class="ascii">Happy Haskell Life</span>を！🏁🏁🏁</p>
-<h1 id="参考url">参考<span class="ascii">URL</span></h1>
+<h1 id="参考url"><span class="link-to-here-outer"><a href="#参考url" title="参考url"><span class="link-to-here">Link to<br />
+here</span></a></span>参考<span class="ascii">URL</span></h1>
 <p>※本文中で言及していないもののみ</p>
 <ul>
 <li><a href="http://kkamegawa.hatenablog.jp/entry/2016/07/27/220014">プログラマ的に<span class="ascii">Windows 10 Anniversary Update</span>のうれしいところ <span class="ascii">- kkamegawa</span>’<span class="ascii">s weblog</span></a></li>
@@ -1184,9 +1302,22 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <li>そのほか、<span class="ascii">Haskell</span>に関する話題であれば何でも！</li>
 </ul>
 <p><strong>ただし、提案していただいたネタに関する知見の持ち主が居ないかもしれませんし、誰かの負担になるものなので必ず記事になるとは限りません。</strong> また、場合によっては既に記事があるため、既存の記事を薦められるかもしれません。</p>
-<h2 id="ネタを提案してくれる場合">ネタを提案してくれる場合</h2>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#ネタを提案してくれる場合" title="ネタを提案してくれる場合">ネタを提案してくれる場合</a></li>
+<li><a href="#書いてもいいよって場合" title="書いてもいいよって場合">書いてもいいよって場合</a></li>
+</ul>
+</div>
+</div>
+<h2 id="ネタを提案してくれる場合"><span class="link-to-here-outer"><a href="#ネタを提案してくれる場合" title="ネタを提案してくれる場合"><span class="link-to-here">Link to<br />
+here</span></a></span>ネタを提案してくれる場合</h2>
 <p><a href="https://github.com/haskell-jp/blog/issues/new?template=topic-request.md&amp;labels=Topic+Request">この<span class="ascii">Blog</span>のリポジトリの<span class="ascii">Issue</span></a>からお願いします。 既に提案されていたら、その<span class="ascii">Issue</span>に対して 👍 するといいと思います。</p>
-<h2 id="書いてもいいよって場合">書いてもいいよって場合</h2>
+<h2 id="書いてもいいよって場合"><span class="link-to-here-outer"><a href="#書いてもいいよって場合" title="書いてもいいよって場合"><span class="link-to-here">Link to<br />
+here</span></a></span>書いてもいいよって場合</h2>
 <p><code>TopicRequest</code> というラベルを作ったので、<a href="https://github.com/haskell-jp/blog/issues?q=is:issue+is:Aopen+label:%22Topic+Request%22"><span class="ascii">Issue</span>をそのラベルで検索</a>してください。 書いてもいいという提案があった場合は、<span class="ascii">Issue</span>に「書いてもいいよ」という旨をコメントしていただけるとバッティングが無くて助かります。</p>
 <p>それでは、今後は<span class="ascii">Haskell</span>に関するあなたの記事だけでなく、あなたが<span class="ascii">Haskell</span>について読みたい記事も募集していきますので、どしどし応募してください！ 🙏</p>
             </div>
@@ -1247,7 +1378,35 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
         <div class="row">
             <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<h2 id="はじめに">はじめに</h2>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#はじめに" title="はじめに">はじめに</a></li>
+<li><a href="#ch1" title="ch1"><span class="ascii">1.</span> 変更提案<span class="ascii">(proposal)</span></a>
+<ul>
+<li><a href="#概要" title="概要">概要</a></li>
+<li><a href="#変更提案の正確な手続き" title="変更提案の正確な手続き">変更提案の正確な手続き</a></li>
+<li><a href="#変更提案のおおまかな流れ" title="変更提案のおおまかな流れ">変更提案のおおまかな流れ</a></li>
+<li><a href="#変更提案の例" title="変更提案の例">変更提案の例</a></li>
+<li><a href="#いくつかのポイントなど" title="いくつかのポイントなど">いくつかのポイントなど</a></li>
+</ul></li>
+<li><a href="#ch2" title="ch2"><span class="ascii">2.</span> パッチ送付<span class="ascii">(patch)</span></a>
+<ul>
+<li><a href="#概要-1" title="概要-1">概要</a></li>
+<li><a href="#パッチ送付の正確な手続き" title="パッチ送付の正確な手続き">パッチ送付の正確な手続き</a></li>
+<li><a href="#パッチ送付のおおまかな流れ" title="パッチ送付のおおまかな流れ">パッチ送付のおおまかな流れ</a></li>
+<li><a href="#パッチ送付の例" title="パッチ送付の例">パッチ送付の例</a></li>
+<li><a href="#いくつかのポイントなど-1" title="いくつかのポイントなど-1">いくつかのポイントなど</a></li>
+</ul></li>
+<li><a href="#補足" title="補足">補足</a></li>
+</ul>
+</div>
+</div>
+<h2 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめに</h2>
 <p><span class="ascii">Haskell</span>のコンパイラの１つである<span class="ascii">GHC</span>は、オープンソースソフトウェア<span class="ascii">(OSS)</span>のプロジェクトとして今も活発に開発が進められています。 個人の経験や経歴や肩書きや権限などに関わらず、誰でも<span class="ascii">GHC</span>の開発にすぐに参加することができます。</p>
 <p>ここでは、<span class="ascii">GHC</span>に新しい変更を提案し実装するための、以下の手順例を紹介します。</p>
 <ol type="1">
@@ -1258,12 +1417,15 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 仮に提案やパッチが<span class="ascii">reject</span>判断されるとしても、<span class="ascii">GHC</span>の開発者と直接やり取りする良い機会が得られます。</p>
 <p>以下では、数値リテラルの構文を変更する単純な例をもとに、変更提案やパッチ送付の手順例を紹介します。<span class="ascii">(</span>文章だらけになってしまいましたがご容赦を 😊 <span class="ascii">)</span></p>
 <hr />
-<h2 id="ch1"><span class="ascii">1.</span> 変更提案<span class="ascii">(proposal)</span></h2>
-<h3 id="概要">概要</h3>
+<h2 id="ch1"><span class="link-to-here-outer"><a href="#ch1" title="ch1"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">1.</span> 変更提案<span class="ascii">(proposal)</span></h2>
+<h3 id="概要"><span class="link-to-here-outer"><a href="#概要" title="概要"><span class="link-to-here">Link to<br />
+here</span></a></span>概要</h3>
 <p><span class="ascii">GHC</span>は、コンパイラ本体やライブラリやツールチェーンなど多くの要素で構成されていますが、ここではコンパイラ本体への変更提案の手順について紹介します。</p>
 <p><span class="ascii">GHC</span>のコンパイラ本体の開発では、<a href="https://github.com/ghc-proposals/ghc-proposals#what-is-a-proposal">ユーザーに見える<span class="ascii">(user-visible)</span>振る舞い</a>等を変更<span class="ascii">(</span>追加・修正・削除など<span class="ascii">)</span>するための提案<span class="ascii">(proposal)</span>手順が定められています。 事前の調整や権限などを必要とせず、<span class="ascii">GitHub</span>への<span class="ascii">pull request</span>を通じて誰もが提案できます。</p>
 <p>なお、変更提案<span class="ascii">(</span>仕様<span class="ascii">)</span>のプロセスと、修正パッチ送付<span class="ascii">(</span>実装<span class="ascii">)</span>のプロセスは、分離されています。必ずしも、変更提案者が実装まで行う必要はありません。</p>
-<h3 id="変更提案の正確な手続き">変更提案の正確な手続き</h3>
+<h3 id="変更提案の正確な手続き"><span class="link-to-here-outer"><a href="#変更提案の正確な手続き" title="変更提案の正確な手続き"><span class="link-to-here">Link to<br />
+here</span></a></span>変更提案の正確な手続き</h3>
 <p>提案の具体的な手続きについては、以下に記載されています。よく読んでおきましょう。</p>
 <ul>
 <li><a href="https://github.com/ghc-proposals/ghc-proposals#ghc-proposals"><span class="ascii">https://github.com/ghc-proposals/ghc-proposals#ghc-proposals</span></a></li>
@@ -1272,7 +1434,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <ul>
 <li><a href="https://github.com/ghc-proposals/ghc-proposals/pulls"><span class="ascii">https://github.com/ghc-proposals/ghc-proposals/pulls</span></a></li>
 </ul>
-<h3 id="変更提案のおおまかな流れ">変更提案のおおまかな流れ</h3>
+<h3 id="変更提案のおおまかな流れ"><span class="link-to-here-outer"><a href="#変更提案のおおまかな流れ" title="変更提案のおおまかな流れ"><span class="link-to-here">Link to<br />
+here</span></a></span>変更提案のおおまかな流れ</h3>
 <p><a href="https://github.com/ghc-proposals/ghc-proposals#what-is-the-timeline-of-a-proposal">提案の流れ</a>は、ざくっと以下の通りです。</p>
 <ul>
 <li>提案の作成
@@ -1302,7 +1465,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <li>次は、コード修正パッチの作成・送付フェーズへ</li>
 </ul></li>
 </ul>
-<h3 id="変更提案の例">変更提案の例</h3>
+<h3 id="変更提案の例"><span class="link-to-here-outer"><a href="#変更提案の例" title="変更提案の例"><span class="link-to-here">Link to<br />
+here</span></a></span>変更提案の例</h3>
 <p>数値リテラルの構文を変更する場合の、具体的な変更提案の例を紹介します。</p>
 <ul>
 <li><a href="https://github.com/takenobu-hs/ghc-proposals/blob/0a694636560ca37d9b76e56bddc43c6bf1c9348a/proposals/0000-numeric-underscores.rst">変更提案の初版</a> <span class="ascii">|</span> <a href="https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0009-numeric-underscores.rst">最終的な変更提案</a></li>
@@ -1313,7 +1477,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <li><a href="https://github.com/ghc-proposals/ghc-proposals/pulls?q=is%3Aopen+is%3Apr"><span class="ascii">Open</span>中の提案</a></li>
 <li><a href="https://github.com/ghc-proposals/ghc-proposals/pulls?q=is%3Apr+is%3Aclosed"><span class="ascii">Close</span>済みの提案</a></li>
 </ul>
-<h3 id="いくつかのポイントなど">いくつかのポイントなど</h3>
+<h3 id="いくつかのポイントなど"><span class="link-to-here-outer"><a href="#いくつかのポイントなど" title="いくつかのポイントなど"><span class="link-to-here">Link to<br />
+here</span></a></span>いくつかのポイントなど</h3>
 <ul>
 <li>他の良い提案が参考になります <span class="ascii">(</span>同じ種類の提案や議論がうまく進んでいる提案などから、色々な観点を学べます。<span class="ascii">)</span></li>
 <li>数カ月単位で気長に根気よくやる<span class="ascii">(</span>開発者は全員がボランティアで忙しい。<span class="ascii">)</span></li>
@@ -1324,11 +1489,14 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 また、多くの提案は<span class="ascii">Accepted</span>に至らないこともあるので、結果を恥ずかしがる必要もありません。提案の結果に関わらず、提案とその議論自体が、他の開発者に新たな観点や気づき・刺激を提供できます。</p>
 <p>それでは、提案プロセスをお楽しみ！</p>
 <hr />
-<h2 id="ch2"><span class="ascii">2.</span> パッチ送付<span class="ascii">(patch)</span></h2>
-<h3 id="概要-1">概要</h3>
+<h2 id="ch2"><span class="link-to-here-outer"><a href="#ch2" title="ch2"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">2.</span> パッチ送付<span class="ascii">(patch)</span></h2>
+<h3 id="概要-1"><span class="link-to-here-outer"><a href="#概要-1" title="概要-1"><span class="link-to-here">Link to<br />
+here</span></a></span>概要</h3>
 <p><span class="ascii">GHC</span>への変更提案に対するコード修正は、パッチを作成して送付することにより行われます。 ここでは、コード開発ツールである<span class="ascii">Phabricator</span>の<span class="ascii">differential</span>機能を用いる、標準的なパッチ送付の手順について紹介します。</p>
 <p>なお、修正パッチは<span class="ascii">GitHub</span>の<span class="ascii">pull request</span>を通じても送付できますが、後のコードレビューのフェーズを考慮すると、<span class="ascii">Phabricator</span>を用いるこの手順が効率的です。</p>
-<h3 id="パッチ送付の正確な手続き">パッチ送付の正確な手続き</h3>
+<h3 id="パッチ送付の正確な手続き"><span class="link-to-here-outer"><a href="#パッチ送付の正確な手続き" title="パッチ送付の正確な手続き"><span class="link-to-here">Link to<br />
+here</span></a></span>パッチ送付の正確な手続き</h3>
 <p>パッチ作成から送付についての具体的な手続きについては以下に記載されています。</p>
 <ul>
 <li><a href="https://ghc.haskell.org/trac/ghc/wiki/WorkingConventions/FixingBugs"><span class="ascii">How to contribute a patch to GHC</span></a></li>
@@ -1338,7 +1506,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <ul>
 <li><a href="https://medium.com/@zw3rk/contributing-to-ghc-290653b63147"><span class="ascii">Contributing to GHC via Phabricator</span></a></li>
 </ul>
-<h3 id="パッチ送付のおおまかな流れ">パッチ送付のおおまかな流れ</h3>
+<h3 id="パッチ送付のおおまかな流れ"><span class="link-to-here-outer"><a href="#パッチ送付のおおまかな流れ" title="パッチ送付のおおまかな流れ"><span class="link-to-here">Link to<br />
+here</span></a></span>パッチ送付のおおまかな流れ</h3>
 <p>パッチ送付の流れは、ざくっと以下の通りです。</p>
 <ul>
 <li>パッチの作成
@@ -1374,7 +1543,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <li>レビューが完了して<span class="ascii">master</span>ブランチに取り込まれたら、<span class="ascii">proposals</span>の“<span class="ascii">implemented</span>”のフィールドに、実装済みの<span class="ascii">GHC</span>のバージョン番号を記載しておく <a href="https://github.com/ghc-proposals/ghc-proposals/commit/1974c2a45a782461084ea596ec839638d4ff0743#diff-ffb9f607b8f1e69494a276ae9afa8268"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
 </ul></li>
 </ul>
-<h3 id="パッチ送付の例">パッチ送付の例</h3>
+<h3 id="パッチ送付の例"><span class="link-to-here-outer"><a href="#パッチ送付の例" title="パッチ送付の例"><span class="link-to-here">Link to<br />
+here</span></a></span>パッチ送付の例</h3>
 <p>数値リテラルの構文を変更する場合の、具体的なパッチ送付の例を紹介します。</p>
 <ul>
 <li><a href="https://phabricator.haskell.org/D4235"><span class="ascii">https://phabricator.haskell.org/D4235</span></a></li>
@@ -1383,7 +1553,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <ul>
 <li><a href="https://phabricator.haskell.org/differential/"><span class="ascii">https://phabricator.haskell.org/differential/</span></a></li>
 </ul>
-<h3 id="いくつかのポイントなど-1">いくつかのポイントなど</h3>
+<h3 id="いくつかのポイントなど-1"><span class="link-to-here-outer"><a href="#いくつかのポイントなど-1" title="いくつかのポイントなど-1"><span class="link-to-here">Link to<br />
+here</span></a></span>いくつかのポイントなど</h3>
 <ul>
 <li>他の良いパッチが参考になります<span class="ascii">(</span>同じ種類の修正を探すと、修正方法や慣習や修正漏れなどを確認できます。<span class="ascii">)</span></li>
 <li><span class="ascii">build</span>確認と<span class="ascii">validation</span>確認は絶対に行う<span class="ascii">(</span>つたないコードは問題視されませんが、本来行うべき手順を行わないことは、開発全体にダメージを与えるとともに、個人の信用度に影響します。<span class="ascii">)</span></li>
@@ -1394,7 +1565,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <p>パッチ送付は、<span class="ascii">Phabricator</span>や<span class="ascii">git</span>の機能を用いて行うものです。操作ミスがあったところで、<span class="ascii">GHC</span>のリポジトリ本体に直ちに反映されるわけではありません。やり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。<span class="ascii">community</span>のためになる<span class="ascii">contribution</span>は常に歓迎されています。</p>
 <p>それでは、パッチ送付プロセスをお楽しみ！</p>
 <hr />
-<h2 id="補足">補足</h2>
+<h2 id="補足"><span class="link-to-here-outer"><a href="#補足" title="補足"><span class="link-to-here">Link to<br />
+here</span></a></span>補足</h2>
 <p>わからないことがあれば、<a href="https://mail.haskell.org/cgi-bin/mailman/listinfo/ghc-devs"><span class="ascii">ghc-devs</span>の<span class="ascii">ML</span></a>に問い合わせると親切に教えてもらえます。 もちろん、<a href="https://join-haskell-jp-slack.herokuapp.com/"><span class="ascii">Haskell-jp</span>の<span class="ascii">slack</span></a>の<span class="ascii">#questions</span>チャネルなどで尋ねるのも良いでしょう。</p>
 <p>なお、<span class="ascii">GHC</span>での開発作業については、<a href="https://ghc.haskell.org/trac/ghc/wiki/WorkingConventions"><span class="ascii">Working on GHC</span></a>も参考にどうぞ。<br />
 また、<span class="ascii">GHC</span>の開発フロー全体については、<a href="https://takenobu-hs.github.io/downloads/ghc_development_flow.pdf">こちら</a>も参考にどうぞ。<span class="ascii">GHC</span>関連のサイトの情報を力づくで検索するには、<a href="https://takenobu-hs.github.io/haskell-wiki-search/">こちら</a>もどうぞ。</p>
@@ -1464,11 +1636,29 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 現状、<span class="ascii">Haskell</span>はほかの著名なプログラミング言語ほど使用されていないためか、あまり脆弱性が報告されることはありません<small>（<span class="ascii">libc</span>など、ほかの言語の処理系も依存しているようなライブラリーの脆弱性は別として）</small>。<br />
 今回は、そんな中でも<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>というパッケージ</a>について、<a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security">ドキュメントにも書かれている</a>ため<strong>おそらく直ることがないであろう脆弱性</strong>と、その回避方法について紹介します。<br />
 <span class="ascii">hashdos</span>脆弱性自体は結構有名ですし、ドキュメントに書いてあることなので、ご存知の方には何を今更感があるかと思いますが、検索した限りこの問題について日本語で説明した記事は見当たらなかったので、ここで紹介します。</p>
-<h1 id="そもそもunordered-containersって">そもそも<span class="ascii">unordered-containers</span>って？</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#そもそもunordered-containersって" title="そもそもunordered-containersって">そもそも<span class="ascii">unordered-containers</span>って？</a>
+<ul>
+<li><a href="#どうやって高速化しているの" title="どうやって高速化しているの">どうやって高速化しているの？</a></li>
+</ul></li>
+<li><a href="#hashdos脆弱性とは" title="hashdos脆弱性とは"><span class="ascii">hashdos</span>脆弱性とは？</a></li>
+<li><a href="#なぜ直さないのか" title="なぜ直さないのか">なぜ直さないのか？</a></li>
+<li><a href="#回避方法" title="回避方法">回避方法</a></li>
+</ul>
+</div>
+</div>
+<h1 id="そもそもunordered-containersって"><span class="link-to-here-outer"><a href="#そもそもunordered-containersって" title="そもそもunordered-containersって"><span class="link-to-here">Link to<br />
+here</span></a></span>そもそも<span class="ascii">unordered-containers</span>って？</h1>
 <p>脆弱性の前に<span class="ascii">unordered-containers</span>パッケージについて簡単に紹介しましょう。<br />
 <a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>パッケージ</a>は、<span class="ascii">GHC</span>に標準で付いている<a href="https://hackage.haskell.org/package/containers"><span class="ascii">containers</span>パッケージ</a>よりも高速な連想配列（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html"><code>HashMap</code>型</a>）や集合（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html"><code>HashSet</code>型</a>）を提供してくれます。<br />
 <a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>ではなんと<span class="ascii">970</span>ものパッケージに依存されている</a>、超大人気汎用パッケージです。</p>
-<h2 id="どうやって高速化しているの">どうやって高速化しているの？</h2>
+<h2 id="どうやって高速化しているの"><span class="link-to-here-outer"><a href="#どうやって高速化しているの" title="どうやって高速化しているの"><span class="link-to-here">Link to<br />
+here</span></a></span>どうやって高速化しているの？</h2>
 <p><code>HashMap</code>という名前が示しているとおり、キーとなる値のハッシュ値を計算・利用することで高速化しています。<br />
 しかし、<span class="ascii">Java</span>言語などほかの言語によくある<code>HashMap</code>とは大きく異なり、内部ではハッシュテーブルを使用していません。<br />
 <a href="http://itpro.nikkeibp.co.jp/article/COLUMN/20091104/340002/?rt=nocnt">本物のプログラマは<span class="ascii">Haskell</span>を使う <span class="ascii">-</span> 第<span class="ascii">35</span>回　キーを使って値を参照する<span class="ascii">Map</span>型：<span class="ascii">ITpro</span></a>でも説明しているとおり、ハッシュテーブルはミュータブルな配列を内部で使用していることから、イミュータブルなデータ構造を使用して行う関数型プログラミングとは、相性が悪いのです<small>（<code>ST</code>モナドや<code>IO</code>モナドを利用した<a href="https://hackage.haskell.org/package/hashtables"><span class="ascii">hashtables</span>パッケージ</a>などを使えば、限られた範囲内でハッシュテーブルを使うこともできます）</small>。</p>
@@ -1477,7 +1667,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 こちらのスライドは<span class="ascii">Scala</span>での実装の話ですが、基本的には<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>も同じはずです。</p>
 <p>大雑把に言うと、<span class="ascii">Hash array mapped trie</span>を使った<code>HashMap</code>では、ハッシュテーブルと同様に、キーとなる値を<strong>ハッシュ関数で一旦固定長の整数に変換する</strong>ことで、キーが存在しているかどうかの確認を高速化しています。そのため、<span class="ascii">containers</span>パッケージよりも高速な処理ができるのです。<br />
 <span class="ascii">containers</span>パッケージの<code>Map</code>ではキーの存在を確認する際、キー全体を既存のキーと比較する必要があるため、特に長い文字列をキーとする場合は、処理が遅くなりがちだったのです。</p>
-<h1 id="hashdos脆弱性とは"><span class="ascii">hashdos</span>脆弱性とは？</h1>
+<h1 id="hashdos脆弱性とは"><span class="link-to-here-outer"><a href="#hashdos脆弱性とは" title="hashdos脆弱性とは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">hashdos</span>脆弱性とは？</h1>
 <p><span class="ascii">hashdos</span>脆弱性は<a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html"><span class="ascii">2011</span>年頃<span class="ascii">Ruby</span>や<span class="ascii">PHP</span>、<span class="ascii">Perl</span>など多くのプログラミング言語が影響を受けるとされた</a>、著名な脆弱性です。<br />
 ここでも簡単に仕組みを説明しましょう。</p>
 <p>前節で説明したとおり、<span class="ascii">Hash array mapped trie</span>もハッシュテーブルも、必ずキーを一旦固定長の整数に変換します。<br />
@@ -1487,7 +1678,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <p><span class="ascii">hashdos</span>脆弱性はこの性質を利用した<span class="ascii">DoS</span>攻撃です。<br />
 攻撃者は、あらかじめ対象のプログラムで使っているハッシュ関数が、「必ず同じハッシュ値」を返すキー<span class="ascii">(</span>大抵文字列でしょう）を大量に用意して、それを対象のプログラムに入力として与えることで、簡単に<span class="ascii">DoS</span>攻撃を仕掛けることができるのです。<br />
 <a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html">先ほど触れた徳丸先生の記事</a>では、<span class="ascii">PHP</span>のアプリケーションに対してわずか<span class="ascii">500KB</span>の<span class="ascii">form-data</span>を送るだけで<span class="ascii">CPU</span>時間を<span class="ascii">1</span>分も消費させることができたそうですから、その威力はすさまじいものと言えるでしょう。</p>
-<h1 id="なぜ直さないのか">なぜ直さないのか？</h1>
+<h1 id="なぜ直さないのか"><span class="link-to-here-outer"><a href="#なぜ直さないのか" title="なぜ直さないのか"><span class="link-to-here">Link to<br />
+here</span></a></span>なぜ直さないのか？</h1>
 <p><a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security"><span class="ascii">unordered-containers</span>の<span class="ascii">Developer Guide</span></a>には、次のように書かれています。</p>
 <blockquote>
 <p><span class="ascii">There</span>’<span class="ascii">s an uncomfortable trade-off with regards to security threats posed by e.g. denial of service attacks. Always using more secure hash function, like SipHash, would provide security by default. However, those functions would make the performance of the data structures no better than that of ordered containers, which defeats the purpose of this package.</span></p>
@@ -1496,7 +1688,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">containers</span>パッケージよりも高速な連想配列を作るために<span class="ascii">unordered-containers</span>パッケージを作ったのだから、それより遅くなっては存在価値がなくなってしまうのです。<br />
 従って、ユーザーが任意にキーを入力できるようなプログラムでは、<span class="ascii">unordered-containers</span>ではなく、<span class="ascii">containers</span>を使え、ということです。<br />
 このことは<span class="ascii">unordered-containers</span>が使用している<a href="https://hackage.haskell.org/package/hashable-1.2.6.1/docs/Data-Hashable.html#g:1"><span class="ascii">hashable</span>のドキュメント</a>にも書かれています。ある意味ノーガード戦法ですね。</p>
-<h1 id="回避方法">回避方法</h1>
+<h1 id="回避方法"><span class="link-to-here-outer"><a href="#回避方法" title="回避方法"><span class="link-to-here">Link to<br />
+here</span></a></span>回避方法</h1>
 <p>前節で触れたとおりですが、<strong>ユーザーが任意にキーを入力できるようなプログラム</strong>では、<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>や<code>HashSet</code>ではなく、<span class="ascii">containers</span>パッケージの<code>Map</code>や<code>Set</code>を使いましょう。<br />
 <span class="ascii">containers</span>パッケージにある<code>Map</code>や<code>Set</code>はハッシュ関数を一切使っていないので、ハッシュ値の衝突も起こらず、内部で逐次探索が必要なデータ構造を使ってもいません。<br />
 なので<span class="ascii">hashdos</span>攻撃に遭うことはないのです。</p>
@@ -1565,7 +1758,39 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <p>なんで<span class="ascii">12</span>日目の記事で「まとめ」をやっているのかって？ <span class="ascii">25</span>日を過ぎてから余ってた日付に登録しただけですよ。</p>
 <p><a href="https://qiita.com/advent-calendar/2017/calendars"><span class="ascii">Qiita</span></a>と<a href="https://adventar.org/calendars?year=2017"><span class="ascii">ADVENTAR</span></a>のアドベントカレンダーで投稿された、<span class="ascii">Haskell</span>に関する記事を集めてみました。 いちおう機械的に集めたので、それなりに拾えてると思いますが、もし「この記事が無いよ」とか、逆に「<span class="ascii">Haskell</span>ちゃうやんこの記事」ってのがあったら、<a href="https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md">ここから編集して</a><span class="ascii">PR</span>でも送ってください。</p>
 <p>ちなみに「<a href="https://scrapbox.io/miyamoen/Elm_Advent_Calendar_2017_%E3%81%BE%E3%81%A8%E3%82%81"><span class="ascii">Elm Advent Calendar 2017</span> まとめ</a>」という記事が面白かったので、その<span class="ascii">Haskell</span>版オマージュ<span class="ascii">(</span>パクリ<span class="ascii">)</span>です。</p>
-<h2 id="haskell-advent-calendar"><span class="ascii">Haskell Advent Calendar</span></h2>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#haskell-advent-calendar" title="haskell-advent-calendar"><span class="ascii">Haskell Advent Calendar</span></a></li>
+<li><a href="#記事を集めた" title="記事を集めた">記事を集めた</a></li>
+<li><a href="#記事たち" title="記事たち">記事たち</a>
+<ul>
+<li><a href="#ポエム" title="ポエム">ポエム</a></li>
+<li><a href="#入門してみた" title="入門してみた">入門してみた</a></li>
+<li><a href="#ノウハウ" title="ノウハウ">ノウハウ</a></li>
+<li><a href="#解説" title="解説">解説</a></li>
+<li><a href="#周辺ツールについて" title="周辺ツールについて">周辺ツールについて</a></li>
+<li><a href="#ライブラリ紹介" title="ライブラリ紹介">ライブラリ紹介</a></li>
+<li><a href="#作ってみた" title="作ってみた">作ってみた</a></li>
+<li><a href="#処理系" title="処理系">処理系</a></li>
+<li><a href="#言語機能" title="言語機能">言語機能</a></li>
+<li><a href="#型" title="型">型</a></li>
+<li><a href="#base" title="base"><span class="ascii">Base</span></a></li>
+<li><a href="#アルゴリズムとデータ構造" title="アルゴリズムとデータ構造">アルゴリズムとデータ構造</a></li>
+<li><a href="#数学科学" title="数学科学">数学・科学</a></li>
+<li><a href="#docker" title="docker"><span class="ascii">Docker</span></a></li>
+<li><a href="#eta" title="eta"><span class="ascii">Eta</span></a></li>
+<li><a href="#書籍紹介" title="書籍紹介">書籍紹介</a></li>
+<li><a href="#翻訳記事" title="翻訳記事">翻訳記事</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<h2 id="haskell-advent-calendar"><span class="link-to-here-outer"><a href="#haskell-advent-calendar" title="haskell-advent-calendar"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell Advent Calendar</span></h2>
 <p><span class="ascii">Qiita</span>の方では<span class="ascii">4</span>つもできましたね。</p>
 <ul>
 <li><a href="https://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a></li>
@@ -1579,24 +1804,28 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <li><a href="https://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a></li>
 </ul>
 <p>上記のカレンダーの記事以外も含めて、全部で<span class="ascii">104</span>記事もありました。 みんなすごいですね。</p>
-<h2 id="記事を集めた">記事を集めた</h2>
+<h2 id="記事を集めた"><span class="link-to-here-outer"><a href="#記事を集めた" title="記事を集めた"><span class="link-to-here">Link to<br />
+here</span></a></span>記事を集めた</h2>
 <p>超雑にスクレイパーを書いて<span class="ascii">Qiita</span>と<span class="ascii">ADVENTAR</span>のカレンダーをスクレイピングしてきました。 プログラムは以下のリポジトリにあります<span class="ascii">(</span>もちろん<span class="ascii">Haskell</span>で作ったよ<span class="ascii">)</span>。</p>
 <ul>
 <li><a href="https://github.com/matsubara0507/haskell-advent-calendar"><span class="ascii">matsubara0507/advent-calendar - GitHub</span></a></li>
 </ul>
 <p>カレンダーのタイトルか、記事のタイトルに「<span class="ascii">Haskell</span>」って単語が入っているやつだけ集めてます。 このプログラムの解説っぽい記事はそのうち自分のとこの記事として挙げる気がする<span class="ascii">(</span>たぶん<span class="ascii">)</span>。</p>
-<h2 id="記事たち">記事たち</h2>
+<h2 id="記事たち"><span class="link-to-here-outer"><a href="#記事たち" title="記事たち"><span class="link-to-here">Link to<br />
+here</span></a></span>記事たち</h2>
 <p>分類は温もりのある手作業でやってます。 自然言語処理系が出来れば機械的に分類できたかもしれませんが…</p>
 <p>分類違くね？というモノがあれば、<a href="https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md">ここから編集して</a><span class="ascii">PR</span>でも送ってください。</p>
 <p>それでは良いお年を。</p>
-<h3 id="ポエム">ポエム</h3>
+<h3 id="ポエム"><span class="link-to-here-outer"><a href="#ポエム" title="ポエム"><span class="link-to-here">Link to<br />
+here</span></a></span>ポエム</h3>
 <p><strong><a href="http://kakkun61.hatenablog.com/entry/2017/12/25/%E3%81%AA%E3%81%9C_Haskell_%E3%81%8C%E5%A5%BD%E3%81%8D%E3%81%AA%E3%81%AE%E3%81%8B">なぜ <span class="ascii">Haskell</span> が好きなのか <span class="ascii">-</span> 趣味はデバッグ……</a></strong><br />
 <span class="ascii">by kakkun61 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
 <p><strong><a href="https://qiita.com/Mizunashi_Mana/items/e82214dfae2765c6839a"><span class="ascii">Haskell</span>副作用ポエム <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by Mizunashi_Mana on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
 <p><strong><a href="https://qiita.com/ababup1192/items/b15cdace30b7fef3338c"><span class="ascii">Haskell</span>を勉強して感動したこと・難しいと思ってること <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by ababup1192 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
-<h3 id="入門してみた">入門してみた</h3>
+<h3 id="入門してみた"><span class="link-to-here-outer"><a href="#入門してみた" title="入門してみた"><span class="link-to-here">Link to<br />
+here</span></a></span>入門してみた</h3>
 <p><strong><a href="https://gist.github.com/sys9kdr/2484ed09f5cb7ea86beae8f5222d9a3c"><span class="ascii">Haskell</span>入門しようとして環境構築で失敗。 <span class="ascii">· GitHub</span></a></strong><br />
 <span class="ascii">by sys9kdr on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
 <p><strong><a href="https://qiita.com/lagenorhynque/items/f8b14ff70a26cfd27976"><span class="ascii">Clojurian</span>が<span class="ascii">Haskell</span>で<span class="ascii">Web API</span>開発に入門してみた <span class="ascii">- Qiita</span></a></strong><br />
@@ -1609,7 +1838,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by ryosukue on</span> <a href="http://qiita.com/advent-calendar/2017/nuco"><span class="ascii">Nuco Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
 <p><strong><a href="https://qiita.com/3nan/items/b89b7383ddb2bac5dda1"><span class="ascii">Haskell</span>をちょこっと紹介（フィボナッチ数列を書いてみる） <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by 3nan on</span> <a href="http://qiita.com/advent-calendar/2017/tecotec"><span class="ascii">TECOTEC Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
-<h3 id="ノウハウ">ノウハウ</h3>
+<h3 id="ノウハウ"><span class="link-to-here-outer"><a href="#ノウハウ" title="ノウハウ"><span class="link-to-here">Link to<br />
+here</span></a></span>ノウハウ</h3>
 <p><strong><a href="https://www.ncaq.net/2017/12/02/00/00/00/">私の<span class="ascii">Haskell</span>コーディングスタイルガイド<span class="ascii">,</span>改行出来るポイントを紹介 <span class="ascii">- ncaq</span></a></strong><br />
 <span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
 <p><strong><a href="https://www.ncaq.net/2017/12/03/00/00/00/">ゲーム販売<span class="ascii">web</span>アプリケーション<span class="ascii">SYAKERAKE</span>を支える技術<span class="ascii">,Haskell</span>と<span class="ascii">Yesod</span>で作られています <span class="ascii">- ncaq</span></a></strong><br />
@@ -1622,7 +1852,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by fumieval on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
 <p><strong><a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html"><span class="ascii">Windows</span>で<span class="ascii">Haskell</span>を扱う時によく遭遇するエラーと対処法 <span class="ascii">- Haskell-jp</span></a></strong><br />
 <span class="ascii">by igrep on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
-<h3 id="解説">解説</h3>
+<h3 id="解説"><span class="link-to-here-outer"><a href="#解説" title="解説"><span class="link-to-here">Link to<br />
+here</span></a></span>解説</h3>
 <p><strong><a href="http://syocy.hatenablog.com/entry/a-tour-of-go-in-haskell"><span class="ascii">A Tour of Go in Haskell</span>を作ったのと、<span class="ascii">Go</span>と<span class="ascii">Haskell</span>の比較 <span class="ascii">- syocy</span>’<span class="ascii">s diary</span></a></strong><br />
 <span class="ascii">by syocy on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
 <p><strong><a href="https://qiita.com/cyclone_t/items/8443ed5d4a77f87b1f1b"><span class="ascii">Servant</span>のハンドラに<span class="ascii">ReaderT</span>を適用する <span class="ascii">- Qiita</span></a></strong><br />
@@ -1633,7 +1864,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by yukiasai on</span> <a href="http://adventar.org/calendars/2360"><span class="ascii">RECRUIT MARKETING PARTNERS Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/13</span></p>
 <p><strong><a href="https://qiita.com/yukiasai/items/248294a871d40c0dcef6"><span class="ascii">Dokku</span>環境を構築して<span class="ascii">Haskell</span>のアプリケーションをデプロイする <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by yukiasai on</span> <a href="http://adventar.org/calendars/2324"><span class="ascii">Recruit Engineers Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/07</span></p>
-<h3 id="周辺ツールについて">周辺ツールについて</h3>
+<h3 id="周辺ツールについて"><span class="link-to-here-outer"><a href="#周辺ツールについて" title="周辺ツールについて"><span class="link-to-here">Link to<br />
+here</span></a></span>周辺ツールについて</h3>
 <p><strong><a href="https://qiita.com/usamik26/items/672ed3c4451402bfc275"><span class="ascii">Haskell Stack</span> とは何をするツールなのか <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by usamik26 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
 <p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-20-stack-ls-command.html"><span class="ascii">stack ls</span> コマンドが追加されます</a></strong><br />
@@ -1650,7 +1882,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
 <p><strong><a href="https://myuon.github.io/posts/haskell-project-setup/"><span class="ascii">Haskell</span>プロジェクトを始めるにあたって <span class="ascii">- The curse of</span> λ</a></strong><br />
 <span class="ascii">by myuon_myon on</span> <a href="http://qiita.com/advent-calendar/2017/myuon_myon_cs">一人<span class="ascii">Computer Science Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
-<h3 id="ライブラリ紹介">ライブラリ紹介</h3>
+<h3 id="ライブラリ紹介"><span class="link-to-here-outer"><a href="#ライブラリ紹介" title="ライブラリ紹介"><span class="link-to-here">Link to<br />
+here</span></a></span>ライブラリ紹介</h3>
 <p><strong><a href="https://qiita.com/jabaraster/items/e8ebbe6d25b535947aba"><span class="ascii">servant+persistent</span>を利用する <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by jabaraster on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
 <p><strong><a href="https://qiita.com/makoraru/items/596729de09d6aeb81e5a"><span class="ascii">Yampa</span>で<span class="ascii">Functional Reactive</span>な認知行動療法ボット <span class="ascii">- Qiita</span></a></strong><br />
@@ -1669,7 +1902,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by satosystems on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
 <p><strong><a href="https://qiita.com/masahiro_sakai/items/6a989d5b898a08f17821">部分構造の共有を観測する<span class="ascii">data-reify - Qiita</span></a></strong><br />
 <span class="ascii">by masahiro_sakai on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
-<h3 id="作ってみた">作ってみた</h3>
+<h3 id="作ってみた"><span class="link-to-here-outer"><a href="#作ってみた" title="作ってみた"><span class="link-to-here">Link to<br />
+here</span></a></span>作ってみた</h3>
 <p><strong><a href="https://matsubara0507.github.io/posts/2017-12-13-elm-and-haskell-for-elmer.html"><span class="ascii">Elm</span> と <span class="ascii">Haskell</span> で作る <span class="ascii">ToDo</span> アプリ</a></strong><br />
 <span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/elm"><span class="ascii">Elm Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
 <p><strong><a href="http://abc10946.hatenablog.com/entry/2017/12/18/014203"><span class="ascii">Haskell</span>に入門して<span class="ascii">1</span>年位経ったのでライフゲームを作ってみた話 <span class="ascii">- abc10946</span>の日記</a></strong><br />
@@ -1696,7 +1930,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by</span> エヌユル <span class="ascii">on</span> <a href="http://adventar.org/calendars/2105"><span class="ascii">Web</span>スクレイピング <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/19</span></p>
 <p><strong><a href="https://matsubara0507.github.io/posts/2017-12-02-re-adventar-slack-bot-part1.html"><span class="ascii">Re:</span> ゼロから作る <span class="ascii">ADVENTAR</span> の <span class="ascii">Slack Bot (Haskell</span> 編<span class="ascii">)</span></a></strong><br />
 <span class="ascii">by</span> ひげ <span class="ascii">on</span> <a href="http://adventar.org/calendars/2300">群馬大学電子計算機研究会 <span class="ascii">IGGG Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/02</span></p>
-<h3 id="処理系">処理系</h3>
+<h3 id="処理系"><span class="link-to-here-outer"><a href="#処理系" title="処理系"><span class="link-to-here">Link to<br />
+here</span></a></span>処理系</h3>
 <p><strong><a href="http://ilyaletre.hatenablog.com/entry/2017/12/10/195016"><span class="ascii">GHC</span>の中間言語<span class="ascii">Core</span>への脱糖を覗き見る <span class="ascii">- Hash</span> λ <span class="ascii">Bye</span></a></strong><br />
 <span class="ascii">by ilyaletre on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
 <p><strong><a href="http://fujiy.hatenablog.com/entry/type-inference-1"><span class="ascii">Haskell</span>の型システムを書く<span class="ascii">(1) -</span> 純粋技術メモ</a></strong><br />
@@ -1705,7 +1940,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by takoeight0821 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
 <p><strong><a href="https://uhideyuki.sakura.ne.jp/studs/index.cgi/ja/HindleyMilnerInHaskell">型システムを学ぼう！</a></strong><br />
 <span class="ascii">by unnohideyuki on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
-<h3 id="言語機能">言語機能</h3>
+<h3 id="言語機能"><span class="link-to-here-outer"><a href="#言語機能" title="言語機能"><span class="link-to-here">Link to<br />
+here</span></a></span>言語機能</h3>
 <p><strong><a href="https://matsubara0507.github.io/posts/2017-12-12-backpack-memo.html"><span class="ascii">Haskell Backpack</span> 覚え書き</a></strong><br />
 <span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
 <p><strong><a href="https://qiita.com/aiya000/items/b802531c58c161cd245f">にこ、希と一緒に学ぶ<span class="ascii">Haskell</span>（番外）「あまり知られていない<span class="ascii">GHC</span>拡張の紹介」 <span class="ascii">- Qiita</span></a></strong><br />
@@ -1718,7 +1954,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by khibino on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
 <p><strong><a href="https://qiita.com/thimura/items/0d289c231f9aceac61dc"><span class="ascii">GHC 8.2</span> 以前で <span class="ascii">FFI</span> を使う際に注意すること <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by thimura on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
-<h3 id="型">型</h3>
+<h3 id="型"><span class="link-to-here-outer"><a href="#型" title="型"><span class="link-to-here">Link to<br />
+here</span></a></span>型</h3>
 <p><strong><a href="https://qiita.com/junjihashimoto@github/items/31f245f5e0138e5fac7e">依存型の紹介と応用としての<span class="ascii">Clash</span>の紹介 <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by junjihashimoto@github on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
 <p><strong><a href="https://qiita.com/aiya000/items/81e8424c8a3ee23586a6">ことり、穂乃果と一緒に学ぶ<span class="ascii">Haskell</span>（入門）その<span class="ascii">6</span>「高階データ型」 <span class="ascii">- Qiita</span></a></strong><br />
@@ -1727,7 +1964,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by mod_poppo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
 <p><strong><a href="https://qiita.com/HirotoShioi/items/5474119ba3682448c109"><span class="ascii">Haskell</span>における型クラス制約の役割 <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by HirotoShioi on</span> <a href="http://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
-<h3 id="base"><span class="ascii">Base</span></h3>
+<h3 id="base"><span class="link-to-here-outer"><a href="#base" title="base"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Base</span></h3>
 <p><strong><a href="https://www.ncaq.net/2017/12/01/00/00/01/"><span class="ascii">Haskell</span>の<span class="ascii">State</span>の必要性が<span class="ascii">,</span>プログラミング言語の処理系を書いた時にわかったので<span class="ascii">,State</span>の良さを語ります <span class="ascii">- ncaq</span></a></strong><br />
 <span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
 <p><strong><a href="https://qiita.com/grainrigi/items/f45b586b4013ffc3814e"><span class="ascii">Haskell - $</span>の仕組みを覗いてみよう <span class="ascii">- Qiita</span></a></strong><br />
@@ -1740,7 +1978,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by mt_caret on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
 <p><strong><a href="https://qiita.com/Lugendre/items/6b4a8c8a9c85fcdcb292"><span class="ascii">Arrow</span>を理解する <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by Lugendre on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/08</span></p>
-<h3 id="アルゴリズムとデータ構造">アルゴリズムとデータ構造</h3>
+<h3 id="アルゴリズムとデータ構造"><span class="link-to-here-outer"><a href="#アルゴリズムとデータ構造" title="アルゴリズムとデータ構造"><span class="link-to-here">Link to<br />
+here</span></a></span>アルゴリズムとデータ構造</h3>
 <p><strong><a href="https://qiita.com/ryohji/items/d8bdba1648978c308cdd">探索問題を <span class="ascii">Haskell</span> で解く <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by ryohji on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
 <p><strong><a href="https://qiita.com/v97ug/items/d6dd50a2b6b84a9e4d41">巡回セールスマン問題を遺伝的アルゴリズムとデータ構造を使って<span class="ascii">Haskell</span>で解く！ <span class="ascii">- Qiita</span></a></strong><br />
@@ -1757,7 +1996,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by nobsun on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
 <p><strong><a href="http://zodi-g12.hatenablog.com/entry/2017/12/06/133951">コラッツの問題を<span class="ascii">Haskell</span>で書いてみた <span class="ascii">- Zodiac</span>の黙示録</a></strong><br />
 <span class="ascii">by zodi_G12 on</span> <a href="http://adventar.org/calendars/2377"><span class="ascii">IQ</span>が<span class="ascii">1 Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/06</span></p>
-<h3 id="数学科学">数学・科学</h3>
+<h3 id="数学科学"><span class="link-to-here-outer"><a href="#数学科学" title="数学科学"><span class="link-to-here">Link to<br />
+here</span></a></span>数学・科学</h3>
 <p><strong><a href="https://qiita.com/tezca686/items/855236ccdda584ee8ebb"><span class="ascii">[Haskell]</span> とびだせ！<span class="ascii">Hask</span>圏 <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by tezca686 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
 <p><strong><a href="https://qiita.com/makoraru/items/768089b2aab1dde47593">区間代数と無限小と無限大 <span class="ascii">- Qiita</span></a></strong><br />
@@ -1776,17 +2016,20 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by cutsea110 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
 <p><strong><a href="https://qiita.com/kyamaz/items/e49b07e05e871a22246c">量子プログラミングは<span class="ascii">Haskell</span>で <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by kyamaz on</span> <a href="http://qiita.com/advent-calendar/2017/quantum">量子コンピュータ <span class="ascii">Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
-<h3 id="docker"><span class="ascii">Docker</span></h3>
+<h3 id="docker"><span class="link-to-here-outer"><a href="#docker" title="docker"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Docker</span></h3>
 <p><strong><a href="https://qiita.com/t10471/items/4afa598e1be5d6c7cc1f"><span class="ascii">Haskell</span>でも<span class="ascii">Go</span>みたいにシングルバイナリでアプリケーションをデプロイしたい <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by t10471 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
 <p><strong><a href="https://qiita.com/algas/items/fde155abbc9d8ae3f8c9"><span class="ascii">Haskell on Docker</span> で <span class="ascii">Portable CLI</span> を作ろう <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by algas on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
-<h3 id="eta"><span class="ascii">Eta</span></h3>
+<h3 id="eta"><span class="link-to-here-outer"><a href="#eta" title="eta"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Eta</span></h3>
 <p><strong><a href="https://qiita.com/aiya000/items/881d5f7e04b1178e7764"><span class="ascii">Eta</span>で表現されるデータ型としての<span class="ascii">Java</span>クラスとその継承関係 <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by aiya000 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/25</span></p>
 <p><strong><a href="https://qiita.com/aiya000/items/7dc0cb8694de0675088e"><span class="ascii">Haskell (Eta)</span> で<span class="ascii">JavaFX</span>の<span class="ascii">EDSL</span>を作る雰囲気を醸し出す <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by aiya000 on</span> <a href="http://adventar.org/calendars/2546">プロ生ちゃん <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/25</span></p>
-<h3 id="書籍紹介">書籍紹介</h3>
+<h3 id="書籍紹介"><span class="link-to-here-outer"><a href="#書籍紹介" title="書籍紹介"><span class="link-to-here">Link to<br />
+here</span></a></span>書籍紹介</h3>
 <p><strong><a href="https://qiita.com/waddlaw/items/dd926462d398c4cbd019">これから <span class="ascii">Haskell</span> を学ぶ人のための書籍紹介 <span class="ascii">- Qiita</span></a></strong><br />
 <span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
 <p><strong><a href="https://qiita.com/Aruneko/items/e72f7c6ee49159751cba"><span class="ascii">2017</span>年に「すごい<span class="ascii">Haskell</span>たのしく学ぼう」を読む <span class="ascii">- Qiita</span></a></strong><br />
@@ -1795,7 +2038,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">by YoshikuniJujo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/24</span></p>
 <p><strong><a href="https://mt-caret.github.io/blog/posts/2017-12-01-book01.html"><span class="ascii">mt_caret.log -</span> 本<span class="ascii">1</span> “<span class="ascii">Haskell Programming from first principles</span>”</a></strong><br />
 <span class="ascii">by mt_caret on</span> <a href="http://adventar.org/calendars/2433">本 <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/01</span></p>
-<h3 id="翻訳記事">翻訳記事</h3>
+<h3 id="翻訳記事"><span class="link-to-here-outer"><a href="#翻訳記事" title="翻訳記事"><span class="link-to-here">Link to<br />
+here</span></a></span>翻訳記事</h3>
 <p><strong><a href="https://qiita.com/Pythonissam/items/ace180b1b78876f1c190"><span class="ascii">Haskell</span> で暗号学的ハッシュを扱う <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
 <span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
 <p><strong><a href="https://qiita.com/rounddelta/items/d767f36d544427a9c60d"><span class="ascii">Haskell</span> のアプリケーション向けに軽量の <span class="ascii">Docker</span>イメージ を作る <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
@@ -1884,7 +2128,27 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 — <span class="ascii">Yuji Yamamoto:</span> 山本悠滋 <span class="ascii">(</span><span class="citation" data-cites="igrep"><span class="ascii">@igrep</span></span><span class="ascii">)</span> <a href="https://twitter.com/igrep/status/938056578934042626?ref_src=twsrc%5Etfw"><span class="ascii">2017</span>年<span class="ascii">12</span>月<span class="ascii">5</span>日</a>
 </blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-<h1 id="invalid-characterと言われたらchcp-65001しよう"><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#invalid-characterと言われたらchcp-65001しよう" title="invalid-characterと言われたらchcp-65001しよう"><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</a>
+<ul>
+<li><a href="#対策" title="対策">対策</a>
+<ul>
+<li><a href="#ユーザーとして出くわした場合" title="ユーザーとして出くわした場合">ユーザーとして出くわした場合</a></li>
+<li><a href="#それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合" title="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合">それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#permission-deniedと言われたらビルドし直そう" title="permission-deniedと言われたらビルドし直そう"><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</a></li>
+<li><a href="#cのライブラリーは-まぁ頑張れ" title="cのライブラリーは-まぁ頑張れ"><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</a></li>
+</ul>
+</div>
+</div>
+<h1 id="invalid-characterと言われたらchcp-65001しよう"><span class="link-to-here-outer"><a href="#invalid-characterと言われたらchcp-65001しよう" title="invalid-characterと言われたらchcp-65001しよう"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</h1>
 <p>恐らく一番高確率で遭遇する <span class="ascii">&amp;</span> 知らないと回避できないのがこれ。<br />
 あ、ほらまた<span class="ascii">hakyll</span>でビルドしたら起きた！</p>
 <pre><code>&gt; stack exec -- site rebuild
@@ -1898,8 +2162,10 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <span class="ascii">UTF-8</span>と<span class="ascii">Windows-31J</span>は全然違う体系の文字コードなので、<span class="ascii">UTF-8</span>なファイルを<span class="ascii">Windows-31J</span>のファイルとして読もうとしてもうまくいかないわけです。<br />
 冒頭にあげた<code>invalid byte sequence</code>というエラーはまさにそうした場合に起こるエラーです。<br />
 ファイルの読み書きだけでなく標準入出力でもしばしば発生するので覚えておいてください。</p>
-<h2 id="対策">対策</h2>
-<h3 id="ユーザーとして出くわした場合">ユーザーとして出くわした場合</h3>
+<h2 id="対策"><span class="link-to-here-outer"><a href="#対策" title="対策"><span class="link-to-here">Link to<br />
+here</span></a></span>対策</h2>
+<h3 id="ユーザーとして出くわした場合"><span class="link-to-here-outer"><a href="#ユーザーとして出くわした場合" title="ユーザーとして出くわした場合"><span class="link-to-here">Link to<br />
+here</span></a></span>ユーザーとして出くわした場合</h3>
 <p>多くの場合、このエラーは以下のコマンドをあらかじめ実行しておけば回避できます。</p>
 <pre><code>&gt; chcp 65001
 &gt; stack exec -- site rebuild
@@ -1915,7 +2181,8 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 <p>なので私は<span class="ascii">MSYS2</span>を使う時は<code>C:\Windows\System32\</code>は<code>PATH</code>から抜いています。<br />
 私と同じような方は下記のようにフルパスで実行しましょう。</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合">それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</h3>
+<h3 id="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合"><span class="link-to-here-outer"><a href="#それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合" title="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合"><span class="link-to-here">Link to<br />
+here</span></a></span>それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</h3>
 <p>残念ながら、<code>chcp 65001</code>してもこのエラーが消えないことはあります<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
 私の推測なんですが、どうも<code>chcp 65001</code>は<code>chcp 65001</code>したコマンドプロンプト（とか<span class="ascii">bash</span>）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。</p>
 <p>そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。<br />
@@ -1960,14 +2227,16 @@ Building test suite &#39;a-little-longer-name-project-test&#39; for a-little-lon
 つまり<span class="ascii">GHC</span>はデフォルトで<code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code>しているものと推測されます。<br />
 いずれにせよ、エラーでプログラムが異常終了しないだけマシですね。</p>
 <p>更に補足すると、<span class="ascii">GHC</span>の文字コードについてより詳しい情報は、<a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html"><span class="ascii">GHC.IO.Encoding</span>のドキュメント</a>をご覧ください。</p>
-<h1 id="permission-deniedと言われたらビルドし直そう"><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</h1>
+<h1 id="permission-deniedと言われたらビルドし直そう"><span class="link-to-here-outer"><a href="#permission-deniedと言われたらビルドし直そう" title="permission-deniedと言われたらビルドし直そう"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</h1>
 <p>雑なまとめと言いつつ最初の一つ目が長くなってしまいましたが、ここからは簡単に言います。<br />
 <span class="ascii">Windows</span>で<code>stack build</code>なり<code>ghc</code>なり<code>elm-make</code>なりとにかくいろいろ動かしていると、「<span class="ascii">Permission Denied</span>」と言ったエラー（あるいはこれと似たようなメッセージのエラー）に出遭います。<br />
 正直に言って私は原因はサッパリ分かってないのですが、このエラーは大抵の場合何度も同じコマンドを実行すれば再現しませんでした。<br />
 一度や二度ではめげず、繰り返すのがポイントです 😅<br />
 問題が起きているディレクトリーをウィルス対策ソフトのスキャン対象から外してみるとか、<span class="ascii">Dropbox</span>の同期を一時的に止めてみる、といったこともやってみるといいかもしれません。</p>
 <p>あ、あと、「<span class="ascii">Directory not empty</span>」みたいなのもあったかな。これは同類のはずです。</p>
-<h1 id="cのライブラリーは-まぁ頑張れ"><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</h1>
+<h1 id="cのライブラリーは-まぁ頑張れ"><span class="link-to-here-outer"><a href="#cのライブラリーは-まぁ頑張れ" title="cのライブラリーは-まぁ頑張れ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</h1>
 <p><span class="ascii">Pure Haskell</span>なライブラリーであれば大体<span class="ascii">OK</span>なんですが、残念ながら<span class="ascii">C</span>のライブラリー（<code>lib***</code>みたいな名前でよく<span class="ascii">OS</span>のパッケージマネージャーに登録されているやつですね）に依存したライブラリーは、<span class="ascii">Windows</span>でインストールするのは結構トラブることが多いです。<br />
 まぁ、これは<span class="ascii">Haskell</span>に限った話ではないでしょう。</p>
 <p>対応方法は私が知る限り完全にケースバイケースなので、ここでは知っている対応例をいくつか挙げておきましょう。</p>

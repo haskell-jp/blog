@@ -142,8 +142,37 @@
 <p><span class="ascii">Haskell</span>には種<span class="ascii">(kind)</span>という仕組みがあります。大雑把に言ってしまえば、「型の型」を実現する仕組みです。この仕組みについて、あまり情報が出回っていないようなので、解説記事を残しておこうと思います。なお、前編と後編に分かれていて、この記事は後編になります。前編は<a href="10-about-kind-system-part1.html">こちら</a>になります。</p>
 <p>この記事は、<a href="http://lambdaconf.us/downloads/documents/lambdaconf_slfp.pdf"><span class="ascii">Ladder of Functional Programming</span></a> <span class="ascii">(</span><a href="http://qiita.com/lotz/items/0d68c8440d1f362d0c32">日本語訳</a><span class="ascii">)</span>の <strong><span class="ascii">FIRE LUBLINE(ADVANCED BEGINNER)</span></strong> を対象に、<a href="10-about-kind-system-part1.html"><span class="ascii">Part 1</span></a>の続きとして、種に付随する<span class="ascii">GHC</span>言語拡張やパッケージを紹介するものです。</p>
 <p>なお、特に断らない限り、対象として<span class="ascii">GHC8</span>系を設定しています。<code>stack</code>を使ってる方は<code>resolver</code>を<span class="ascii">LTS Haskell 7</span>以降に設定しておくことを推奨します。</p>
-<h2 id="様々な種">様々な種</h2>
-<h3 id="型制約の種">型制約の種</h3>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#様々な種" title="様々な種">様々な種</a>
+<ul>
+<li><a href="#型制約の種" title="型制約の種">型制約の種</a></li>
+<li><a href="#データ型の昇格" title="データ型の昇格">データ型の昇格</a></li>
+<li><a href="#型の分類" title="型の分類">型の分類</a></li>
+<li><a href="#この章のまとめ" title="この章のまとめ">この章のまとめ</a></li>
+</ul></li>
+<li><a href="#advanced-topics" title="advanced-topics"><span class="ascii">Advanced Topics</span></a>
+<ul>
+<li><a href="#もう一つの型の分類" title="もう一つの型の分類">もう一つの型の分類</a></li>
+<li><a href="#軽率多相" title="軽率多相">軽率多相</a></li>
+<li><a href="#トップレベル種注釈" title="トップレベル種注釈">トップレベル種注釈</a></li>
+<li><a href="#unliftedデータ型" title="unliftedデータ型"><span class="ascii">Unlifted</span>データ型</a></li>
+<li><a href="#type-in-type" title="type-in-type"><span class="ascii">Type in Type</span></a></li>
+<li><a href="#この章のまとめ-1" title="この章のまとめ-1">この章のまとめ</a></li>
+</ul></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+<li><a href="#参考文献" title="参考文献">参考文献</a></li>
+</ul>
+</div>
+</div>
+<h2 id="様々な種"><span class="link-to-here-outer"><a href="#様々な種" title="様々な種"><span class="link-to-here">Link to<br />
+here</span></a></span>様々な種</h2>
+<h3 id="型制約の種"><span class="link-to-here-outer"><a href="#型制約の種" title="型制約の種"><span class="link-to-here">Link to<br />
+here</span></a></span>型制約の種</h3>
 <p><a href="10-about-kind-system-part1.html">前回の記事</a>では、種の基本的な仕組みを紹介しました。全てのデータ型は<code>*</code>という種を持っており、データ宣言は<code>*</code>の種を持つ型を作る型コンストラクタを定義するのでした<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">newtype</span> <span class="dt">WrappedInt</span> <span class="fu">=</span> <span class="dt">WrappedInt</span> <span class="dt">Int</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">WrappedInt</span></a>
@@ -341,7 +370,8 @@
 <a class="sourceLine" id="cb17-15" data-line-number="15">undefined<span class="ot"> ::</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span><span class="ot"> a ::</span> a <span class="ot">=&gt;</span> <span class="dt">Proxy</span> a</a></code></pre></div>
 <p><code>((Monad m, Monoid a), Show a)</code>などが標準で扱えないのも、<code>(Monad m, Monoid a)</code>という形式のものは型制約種を持ってはいますが、標準で許容されている形式ではないからです。このような場合に、より柔軟に扱えるようにしてくれる拡張が、<code>ConstraintKinds</code>拡張です。</p>
 <p>型制約種<code>Constraint</code>について、馴染んでもらえたでしょうか？普段、この種や<code>ConstraintKinds</code>を明示的に使うような場面は少ないかもしれませんね。もし、型制約種について興味を持ったなら、<a href="http://hackage.haskell.org/package/constraints"><span class="ascii">constraints</span></a>というパッケージを見てみるのが良いでしょう。このパッケージは、型制約プログラミングに関する幾つかの有用な<span class="ascii">API</span>を提供しています。</p>
-<h3 id="データ型の昇格">データ型の昇格</h3>
+<h3 id="データ型の昇格"><span class="link-to-here-outer"><a href="#データ型の昇格" title="データ型の昇格"><span class="link-to-here">Link to<br />
+here</span></a></span>データ型の昇格</h3>
 <p>今までは、<code>*</code>や<code>Constraint</code>、<code>k1 -&gt; k2</code>といった、予め用意された特別な種を紹介してきました。<span class="ascii">GHC</span>上で、私たちが種を定義するような方法も、実は用意されています。それが、<code>DataKinds</code>という拡張です。<code>DataKinds</code>は基本的には簡単な拡張です。</p>
 <p>私たちは、以下のようなデータ宣言を使ってデータ型を定義することができました<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">data</span> <span class="dt">SimpleData</span> a <span class="fu">=</span> <span class="dt">SimpleData</span> a</a></code></pre></div>
@@ -494,7 +524,8 @@
 <a class="sourceLine" id="cb31-7" data-line-number="7"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>kind <span class="dt">B</span></a>
 <a class="sourceLine" id="cb31-8" data-line-number="8"><span class="dt">B</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">A</span> a</a></code></pre></div>
 <p><code>B</code>の例は、<code>'</code>を書いていないのに型に昇格できていますね。<code>DataKinds</code>は値と型の名前で被るものが無いようなものは<code>'</code>を書かなくていいようになっています。これは型から種へ昇格できる時は自然な動作でしたが、値から型の場合、今回でいう<code>A</code>のように型コンストラクタと値コンストラクタの名前が被ってしまうケースが出てきます。もちろん、データ型<code>B</code>が新しく宣言されてしまうような場合もあるでしょう。このように、型から種へは名前空間が一致しますが、値から型へは名前が被るのを避けるために<code>'</code>を付けるようにしているのです。なので、本質的には値から型へも、<code>'</code>を付けないで昇格させることが理想です。それを覚えておきながら、<code>DataKinds</code>拡張使用の際は、<code>'</code>を適切に付けていくのが良いでしょう。</p>
-<h3 id="型の分類">型の分類</h3>
+<h3 id="型の分類"><span class="link-to-here-outer"><a href="#型の分類" title="型の分類"><span class="link-to-here">Link to<br />
+here</span></a></span>型の分類</h3>
 <p>最後に、少し変わった型と、それにまつわる種の分類分けについてお話ししましょう。この見方は、より<span class="ascii">GHC</span>のプリミティブな部分に携わる時に、役にたつはずです。<span class="ascii">Haskell</span>標準では、種は<code>*</code>と<code>k1 -&gt; k2</code>しかありませんでした。<span class="ascii">GHC</span>では、それに型制約種<code>Constraint</code>が追加されてるのでしたね。そして、<code>DataKinds</code>拡張を使えば、データ型を種に昇格することもできました。しかし、結局値を持つ型は<code>*</code>という種を持つのでしたね。ですが、この制約には一部例外があります。それは、<span class="ascii">GHC</span>のプリミティブな値についてです。</p>
 <p>私たちは普段何気なく<code>Int</code>型や<code>Double</code>型を使用しています。しかしながら、これらは実際に実行するとき、メモリ上でどのような構造で保持されているのか考えたことはないでしょうか？ ここでは詳細な話はしませんが、幾つか基本的な<span class="ascii">GHC</span>での内部表現についてお話ししましょう。<span class="ascii">GHCi</span>で、この二つの型の情報を表示してみましょう。</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">import</span> <span class="dt">Prelude</span> (<span class="dt">Int</span>, <span class="dt">Double</span>)</a>
@@ -753,7 +784,8 @@
 </tr>
 </tbody>
 </table>
-<h3 id="この章のまとめ">この章のまとめ</h3>
+<h3 id="この章のまとめ"><span class="link-to-here-outer"><a href="#この章のまとめ" title="この章のまとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>この章のまとめ</h3>
 <p>この章では、型制約を表す種<code>Constraint</code>の紹介、型を種に、値を型に昇格する<code>DataKinds</code>拡張の紹介、そしてプリミティブ型の種と<span class="ascii">GHC</span>の型の大別について、お話ししました。</p>
 <p>型制約には型制約種<code>Constraint</code>という種がつくのでした。データ宣言が型コンストラクタと値コンストラクタを作るように、型クラスは型制約コンストラクタと型制約下でのメソッド群を作るものとみることができました。また、型制約は、<code>=&gt;</code>によって制約が満たされるか検査されるのでしたね。ただ、<span class="ascii">Haskell</span>標準では型制約は決まった形状でしか書けませんでした。そのため、<code>ConstraintKinds</code>拡張が用意されており、この拡張によって型制約種を持つものならば変数であろうと型制約のペアであろうと、型制約として扱えるようになるのでした。また、この拡張によって、型制約のエイリアスも書けるようになりました。</p>
 <p><code>DataKinds</code>はデータ型の型コンストラクタを種において使えるように、値コンストラクタを型において使えるようにするものでした。値コンストラクタは、昇格の際先頭に<code>'</code>をつけるのでした。また、<span class="ascii">Haskell</span>の種全般が、何かしらの型が昇格したものとみなせるという話もしましたね。<code>*</code>ですら、一つのデータ型でした。</p>
@@ -764,8 +796,10 @@
 <li><span class="ascii">lifted</span>型の値は、評価されるまではサンクを指すポインタとなっており、<code>undefined</code>などの評価すると例外になるようなものや無限ループでさえ値として持ち得るのでした。<span class="ascii">unlifted</span>型の値は、サンクを持たず、正格に評価されるのでした。</li>
 </ul>
 <p>以降では、少し高度な種に関する話題を紹介していきます。あまり知られてない機能や最近入った機能、まだ入ってない提案中のものなども紹介していきます。これらの話題は、最初に掲げた想定読者層から外れているのであまり詳しくは紹介しません。こんな話もあるんだぐらいに留めておいてもらえれば、良いでしょう。</p>
-<h2 id="advanced-topics"><span class="ascii">Advanced Topics</span></h2>
-<h3 id="もう一つの型の分類">もう一つの型の分類</h3>
+<h2 id="advanced-topics"><span class="link-to-here-outer"><a href="#advanced-topics" title="advanced-topics"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Advanced Topics</span></h2>
+<h3 id="もう一つの型の分類"><span class="link-to-here-outer"><a href="#もう一つの型の分類" title="もう一つの型の分類"><span class="link-to-here">Link to<br />
+here</span></a></span>もう一つの型の分類</h3>
 <p>今までは、種に関する基本的な話題を紹介しました。ここでは、種とは別の、もう一つの型に付属する種別情報を紹介しましょう。それは、<span class="ascii">type role</span>と呼ばれるものです。<span class="ascii">type role</span>は、<code>GeneralizedNewtypeDeriving</code>という拡張と、密接な関係があります。</p>
 <p>ここでは詳しく解説しませんが、<code>GeneralizedNewtypeDeriving</code>という拡張は、<code>newtype</code>で作った型のクラスインスタンス導出を簡略化するための拡張で、そのインスタンスを元の型のものを持ってきて実装します。この拡張は利便性を向上させますが、その導出が壊れるケースが出てきます。例えば次のケースです<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving, StandaloneDeriving, TypeFamilies #-}</span></a>
@@ -804,7 +838,8 @@
 <a class="sourceLine" id="cb48-2" data-line-number="2"><span class="kw">data</span> <span class="dt">T</span> a b c <span class="fu">=</span> <span class="dt">T</span> <span class="dt">Int</span> b</a></code></pre></div>
 <p><code>_</code>は推論に任せることを意味します。</p>
 <p><span class="ascii">type role</span>に興味があるならば、<a href="https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#roles"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.36 Roles</span></a>を読んでみると良いでしょう。また、歴史的経緯については、<a href="https://typesandkinds.wordpress.com/2013/08/15/roles-a-new-feature-of-ghc/"><span class="ascii">Roles: a new feature of GHC</span></a>に簡潔にまとまっています。</p>
-<h3 id="軽率多相">軽率多相</h3>
+<h3 id="軽率多相"><span class="link-to-here-outer"><a href="#軽率多相" title="軽率多相"><span class="link-to-here">Link to<br />
+here</span></a></span>軽率多相</h3>
 <p>前の章では、プリミティブ型の種を紹介しました。この種は<code>TYPE :: RuntimeRep -&gt; *</code>という型コンストラクタを昇格したものによって、作られているのでした。そして、<code>*</code>でさえ<code>TYPE 'LiftedRep</code>のエイリアスでしか無かったのでしたね。このような種の表現になったのは、実は最近のことです。昔はそれぞれの種は実行時の表現ごとに切り離されていました。<code>TYPE</code>を使って共通化されたのには、幾つかの歴史的経緯があり、 <strong>軽率多相<span class="ascii">(levity polymorphism)</span></strong> という話題と密接な関係があります。軽率多相は、種多相を少し制限したものです。種多相は任意の種を扱えるような種変数を許容しますが、軽率多相は実行時表現に関係するような範囲での種の多相を提供します。</p>
 <p>関数型コンストラクタ<code>(-&gt;)</code>の種は、<code>(-&gt;) :: * -&gt; * -&gt; *</code>であると話してきました。実際には、<code>(-&gt;) :: TYPE q -&gt; TYPE r -&gt; *</code>というような種を持っています。<code>TYPE</code>の引数の部分は、任意の<code>RuntimeRep</code>をとれるようになっています。確認してみましょう<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb49"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XTypeInType</span> <span class="fu">-</span><span class="dt">XKindSignatures</span></a>
@@ -837,7 +872,8 @@
 <a class="sourceLine" id="cb52-4" data-line-number="4"></a>
 <a class="sourceLine" id="cb52-5" data-line-number="5"><span class="kw">type</span> <span class="fu">*</span> <span class="fu">=</span> <span class="dt">TYPE</span> <span class="ch">'Boxed '</span><span class="dt">Lifted</span></a></code></pre></div>
 <p>もし、軽率多相に興味があるならば、原論文<a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/levity-1.pdf"><span class="ascii">Levity Polymorphism (extended version)</span></a>を読んでみるのがいいでしょう。この論文では、軽率多相に至るまでの<span class="ascii">GHC</span>での経緯と問題点、軽率多相の動機などが丁寧に解説されています。また、論文より説明が若干劣りますが<a href="https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#levity-polymorphism"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.12 Levity polymorphism</span></a>にも、<span class="ascii">GHC</span>での軽率多相についての仕組みが書かれています。</p>
-<h3 id="トップレベル種注釈">トップレベル種注釈</h3>
+<h3 id="トップレベル種注釈"><span class="link-to-here-outer"><a href="#トップレベル種注釈" title="トップレベル種注釈"><span class="link-to-here">Link to<br />
+here</span></a></span>トップレベル種注釈</h3>
 <p><code>KindSignatures</code>拡張は、種の注釈を書けるようにするようなものでした。<code>KindSignatures</code>は型パラメータの種を明示的に書くことができるようにする拡張でしたね。種が明示されないパラメータは、種推論によってその種が定まります。ですが、種推論は幾つか制約があり、その一つに再帰的データ型に対しては、単相的な再帰の種推論しか行えないというものがあります。以下のケースを見てください<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb53"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb53-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XPolyKinds</span></a>
 <a class="sourceLine" id="cb53-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">T</span> m a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a>
@@ -867,7 +903,8 @@
 <a class="sourceLine" id="cb56-2" data-line-number="2"><span class="kw">data</span> <span class="dt">T</span> m a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">MkT</span> (m a) (<span class="dt">T</span> <span class="dt">Maybe</span> (m a))</a></code></pre></div>
 <p>関数の型注釈などと同じスタイルで、非常に見やすいですね。</p>
 <p>トップレベル種注釈は、現在、<a href="https://github.com/ghc-proposals/ghc-proposals/pull/54"><span class="ascii">GHC Proposals - Pull Request #54</span></a>で提案されています。興味がある方は、<a href="https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#complete-user-supplied-kind-signatures-and-polymorphic-recursion"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.11.5 Complete user-supplied kind signatures and polymorphic recursion</span></a>と合わせて提案内容を見てみると良いでしょう。</p>
-<h3 id="unliftedデータ型"><span class="ascii">Unlifted</span>データ型</h3>
+<h3 id="unliftedデータ型"><span class="link-to-here-outer"><a href="#unliftedデータ型" title="unliftedデータ型"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Unlifted</span>データ型</h3>
 <p><span class="ascii">Haskell</span>のデータ型は、<span class="ascii">lifted</span>という枠組みの型でした。<span class="ascii">lifted</span>な型は、評価されるまではサンクになっているのでした。<span class="ascii">unlifted</span>な型は、<span class="ascii">GHC</span>で幾つかプリミティブ型として提供されているのでした。現在、<strong><span class="ascii">unlifted</span>データ型</strong>という拡張が提案されています。この拡張は、ユーザー定義の<span class="ascii">unlifted</span>な型を定義できるようにする拡張です。</p>
 <p>この拡張は、次のような新たなデータ宣言をできるようにするものです<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb57-1" data-line-number="1"><span class="kw">data</span> unlifted <span class="dt">UBool</span> <span class="fu">=</span> <span class="dt">UTrue</span> <span class="fu">|</span> <span class="dt">UFalse</span></a></code></pre></div>
@@ -880,7 +917,8 @@
 <a class="sourceLine" id="cb58-5" data-line-number="5">    <span class="dt">UFalse</span><span class="ot"> ::</span> <span class="dt">UBool</span></a></code></pre></div>
 <p>これにより、新たな構文を導入しなくても、<span class="ascii">unlifted</span>なデータ型を定義できるようになります。</p>
 <p><span class="ascii">unlifted</span>データ型について興味があるならば、<a href="https://ghc.haskell.org/trac/ghc/wiki/UnliftedDataTypes"><span class="ascii">GHC Wiki - UnliftedDataTypes</span></a>のページを見てみると良いでしょう。このページに、主な提案内容が書かれています。</p>
-<h3 id="type-in-type"><span class="ascii">Type in Type</span></h3>
+<h3 id="type-in-type"><span class="link-to-here-outer"><a href="#type-in-type" title="type-in-type"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Type in Type</span></h3>
 <p><code>TypeInType</code>拡張は、<code>DataKinds</code>拡張と<code>PolyKinds</code>拡張をより強力にした拡張です。例えば、以下のようなことができるようになります<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb59"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="fu">&gt;&gt;&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XTypeInType</span> <span class="fu">-</span>fprint<span class="fu">-</span>explicit<span class="fu">-</span>foralls</a>
 <a class="sourceLine" id="cb59-2" data-line-number="2"><span class="fu">&gt;&gt;&gt;</span> <span class="co">-- 型エイリアスを種として使えるようになる</span></a>
@@ -900,17 +938,20 @@
 <p>このように、型注釈でできたことが、種注釈でできるようになるわけです。</p>
 <p>ただし、この拡張は現状とても不安定であり、使用が推奨されているわけではありません。この拡張を使用する場合は、コンパイル時、内部でこの拡張の挙動をチェックするように<code>-dcore-lint</code>というフラグを使用することが推奨されています。将来的には、この拡張の範囲を型と種の範囲から、型と値の範囲、ひいては種と型と値の違いを取り払い、依存型というシステムに徐々に近づけていくことも視野に入れているようです。ただし、まずは種と型の範囲で安定的な機能を提供するのが、目的ということでしょう。</p>
 <p><code>TypeInType</code>拡張については、主に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#overview-of-type-in-type"><span class="ascii">GHC User</span>’<span class="ascii">s Guide - 9.11.3 Overview of Type-in-Type</span></a>に、その概要が書かれています。</p>
-<h3 id="この章のまとめ-1">この章のまとめ</h3>
+<h3 id="この章のまとめ-1"><span class="link-to-here-outer"><a href="#この章のまとめ-1" title="この章のまとめ-1"><span class="link-to-here">Link to<br />
+here</span></a></span>この章のまとめ</h3>
 <p>この章では、幾つかの種に関する話題をかいつまんで紹介しました。</p>
 <p><span class="ascii">type role</span>は、二つの型が同じ内部表現を持つ型かを判定するための、型変数が持つ種とは異なる情報でした。<span class="ascii">nominal/representational/phantom</span>の三種があり、データ宣言でどの<span class="ascii">type role</span>を割り当てるかが推論されるのでした。また、<code>RoleAnnotations</code>拡張によって明示的に指定することも可能なのでした。</p>
 <p>軽率多相<span class="ascii">(levity polymorphism)</span>は<span class="ascii">lifted/unlifted</span>の違いを吸収する多相でした。これによって、<span class="ascii">lifted/unlifted</span>の違いを問わない多相化された関数を書けるようになるのでした。ただし、全ての関数を制限なく軽率多相化することはできず、関数の引数が軽率多相化されているようなものは、機械語にうまく翻訳できないため書けないのでした。</p>
 <p>トップレベル種注釈は、既存の<span class="ascii">CUSK</span>という種注釈の方法に変わり、種注釈を分かりやすく書くための提案でした。再帰的データ型に対して種推論がうまく働かないという制約から、多相的な種を使用する場合、種推論に頼らず完全な種の情報を提供する必要があり、完全に情報が提供されるような種の注釈を<span class="ascii">GHC</span>では<span class="ascii">CUSK</span>と読んでいるのでした。しかし、<span class="ascii">CUSK</span>は一般的に見づらいため、それを解決するための提案でしたね。この提案されている構文は、関数の型注釈と同じスタイルで非常に分かりやすいですね。</p>
 <p><span class="ascii">unlifted</span>データ型は、<span class="ascii">unlifted</span>な型を定義できるようにするような拡張として提案されているものでした。この拡張により、ボックス型でかつ<span class="ascii">unlifted</span>なもの、つまりサンクを持たないボックス型を定義できるようになるのでした。現状、幾つか議論されるべき課題が残っていますが、近い将来導入されるかもしれません。</p>
 <p><code>TypeInType</code>は型と種の違いを取り払うような拡張でした。これにより、型エイリアスを種に昇格したり、<span class="ascii">RankN</span>の種注釈を書けるようになるのでした。ただし、現状は非常に不安定であり、使用には注意が必要です。</p>
-<h2 id="まとめ">まとめ</h2>
+<h2 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h2>
 <p>さて、<span class="ascii">Part 1</span>と合わせて、一通りの種に関する話題を紹介してきました。種の仕組みの紹介と<span class="ascii">5</span>つの大きな話題を取り扱ってきました。また、少し高度な話題を幾つか、駆け足で紹介しました。この二つの記事が、何かの役に立てば幸いです。</p>
 <p>もし、<span class="ascii">Advanced Topics</span>の内容について、詳細が知りたいという声が多ければ、<span class="ascii">Part 3</span>を書くかもしれませんが、ひとまずはこれで。では、良い<span class="ascii">Haskell</span>ライフをノシ</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><span class="link-to-here-outer"><a href="#参考文献" title="参考文献"><span class="link-to-here">Link to<br />
+here</span></a></span>参考文献</h2>
 <ul>
 <li><a href="https://www.haskell.org/onlinereport/haskell2010/haskell.html"><span class="ascii">Haskell 2010 Language Report</span></a><span class="ascii">: Haskell2010</span>の仕様書です。主に標準の仕組みを紹介する際に参照しました。
 <ul>

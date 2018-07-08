@@ -139,7 +139,56 @@
         <div class="row">
             <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<h2 id="はじめに">はじめに</h2>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#はじめに" title="はじめに">はじめに</a></li>
+<li><a href="#ch1" title="ch1"><span class="ascii">1. ghci</span>での対話操作による情報の出力方法</a>
+<ul>
+<li><a href="#型typeの情報の出力tコマンド" title="型typeの情報の出力tコマンド">型<span class="ascii">(type)</span>の情報の出力（<code>:t</code>コマンド）</a></li>
+<li><a href="#型typeの情報の入門者向けの出力t-dコマンド" title="型typeの情報の入門者向けの出力t-dコマンド">型<span class="ascii">(type)</span>の情報の入門者向けの出力（<code>:t +d</code>コマンド）</a></li>
+<li><a href="#型typeの情報の詳細出力t-vコマンド" title="型typeの情報の詳細出力t-vコマンド">型<span class="ascii">(type)</span>の情報の詳細出力（<code>:t +v</code>コマンド）</a></li>
+<li><a href="#種kindの情報の出力kコマンド" title="種kindの情報の出力kコマンド">種<span class="ascii">(kind)</span>の情報の出力（<code>:k</code>コマンド）</a></li>
+<li><a href="#名前の内容についての情報の出力iコマンド" title="名前の内容についての情報の出力iコマンド">名前の内容についての情報の出力（<code>:i</code>コマンド）</a></li>
+<li><a href="#その他ghciのいろいろなコマンド" title="その他ghciのいろいろなコマンド">その他、<span class="ascii">ghci</span>のいろいろなコマンド</a></li>
+</ul></li>
+<li><a href="#ch2" title="ch2"><span class="ascii">2.</span> コンパイル時における情報の出力方法</a>
+<ul>
+<li><a href="#コンパイル時の各ステージごとの中間コードの出力" title="コンパイル時の各ステージごとの中間コードの出力">コンパイル時の各ステージごとの中間コードの出力</a>
+<ul>
+<li><a href="#パーサー後" title="パーサー後">パーサー後</a></li>
+<li><a href="#リネーム後" title="リネーム後">リネーム後</a></li>
+<li><a href="#脱糖desugar後のcore言語コード" title="脱糖desugar後のcore言語コード">脱糖<span class="ascii">(Desugar)</span>後の、<span class="ascii">Core</span>言語コード</a></li>
+<li><a href="#stg中間言語での最適化最終コード" title="stg中間言語での最適化最終コード"><span class="ascii">STG</span>中間言語での最適化最終コード</a></li>
+<li><a href="#cmm中間言語での最適化最終コード" title="cmm中間言語での最適化最終コード"><span class="ascii">Cmm</span>中間言語での最適化最終コード</a></li>
+<li><a href="#最終アセンブリ命令列" title="最終アセンブリ命令列">最終アセンブリ命令列</a></li>
+</ul></li>
+<li><a href="#型情報の出力" title="型情報の出力">型情報の出力</a></li>
+<li><a href="#正格性情報の出力" title="正格性情報の出力">正格性情報の出力</a></li>
+<li><a href="#その他コンパイル時のいろいろなオプション" title="その他コンパイル時のいろいろなオプション">その他、コンパイル時のいろいろなオプション</a></li>
+</ul></li>
+<li><a href="#ch3" title="ch3"><span class="ascii">3.</span> 実行オブジェクトの実行時における情報の出力方法</a>
+<ul>
+<li><a href="#実行時の統計情報の出力" title="実行時の統計情報の出力">実行時の統計情報の出力</a></li>
+<li><a href="#時間プロファイルの出力" title="時間プロファイルの出力">時間プロファイルの出力</a></li>
+<li><a href="#空間プロファイルの出力" title="空間プロファイルの出力">空間プロファイルの出力</a></li>
+<li><a href="#実行時イベントの出力" title="実行時イベントの出力">実行時イベントの出力</a>
+<ul>
+<li><a href="#threadscopeによるgui表示" title="threadscopeによるgui表示"><span class="ascii">ThreadScope</span>による<span class="ascii">GUI</span>表示</a></li>
+<li><a href="#ghc-eventsによるテキスト表示" title="ghc-eventsによるテキスト表示"><span class="ascii">ghc-events</span>によるテキスト表示</a></li>
+</ul></li>
+<li><a href="#コードカバレッジの出力" title="コードカバレッジの出力">コードカバレッジの出力</a></li>
+<li><a href="#スタックトレースの出力" title="スタックトレースの出力">スタックトレースの出力</a></li>
+</ul></li>
+<li><a href="#補足" title="補足">補足</a></li>
+</ul>
+</div>
+</div>
+<h2 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめに</h2>
 <p><span class="ascii">Haskell</span>用コンパイラである<span class="ascii">GHC</span>は、驚くほど多彩な情報出力機能を標準で搭載しています。<br />
 出力できる情報は非常に沢山ありますが、ここでは、以下のいくつかの方法について簡単にまとめて紹介します。</p>
 <ol type="1">
@@ -150,7 +199,8 @@
 <p>なお、本記事では、<span class="ascii">stack</span>コマンド経由ではなく、素の<span class="ascii">GHC</span>を使う場合について説明しています。 <span class="ascii">stack</span>コマンドを使用する場合は、<code>ghc</code>コマンドではなく、<code>stack ghc --</code>コマンドの様に読み替えてください。<br />
 また、本記事の実行例は、<span class="ascii">GHC8.2.1</span>と<span class="ascii">Linux(ubuntu 16.04 LTS)</span>環境によるものです。</p>
 <hr />
-<h2 id="ch1"><span class="ascii">1. ghci</span>での対話操作による情報の出力方法</h2>
+<h2 id="ch1"><span class="link-to-here-outer"><a href="#ch1" title="ch1"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">1. ghci</span>での対話操作による情報の出力方法</h2>
 <p>ここでは、<span class="ascii">GHC</span>の対話環境（<span class="ascii">REPL</span>）である<span class="ascii">ghci</span>コマンドを用いた、情報の出力方法について紹介します。</p>
 <ul>
 <li>型<span class="ascii">(type)</span>の情報の出力（<code>:t</code>コマンド）</li>
@@ -161,7 +211,8 @@
 <li>その他いろいろなコマンド</li>
 </ul>
 <p>以下、各々の例について説明します。</p>
-<h3 id="型typeの情報の出力tコマンド">型<span class="ascii">(type)</span>の情報の出力（<code>:t</code>コマンド）</h3>
+<h3 id="型typeの情報の出力tコマンド"><span class="link-to-here-outer"><a href="#型typeの情報の出力tコマンド" title="型typeの情報の出力tコマンド"><span class="link-to-here">Link to<br />
+here</span></a></span>型<span class="ascii">(type)</span>の情報の出力（<code>:t</code>コマンド）</h3>
 <p><span class="ascii">GHC</span>の対話環境である<span class="ascii">ghci</span>上で、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type"><code>:t</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type"><code>:type</code></a>コマンド）を実行することにより、変数や関数などについての型の情報を表示できます。<br />
 以下は、<code>:t length</code>コマンドの実行例です。<br />
 <code>ghci</code>コマンドを起動してから、<code>:t length</code>コマンドを実行すると、</p>
@@ -170,7 +221,8 @@
 <p>次の様に出力されます。</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1">length<span class="ot"> ::</span> <span class="dt">Foldable</span> t <span class="ot">=&gt;</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
 <p>上の例では、「<span class="ascii">length</span>関数は、<code>t a</code>型の値を入力して、<code>Int</code>型の値を返す関数である」ことを示しています。 また、「型変数<code>t</code>は<code>Foldable</code>クラスに属する」ことを示しています。</p>
-<h3 id="型typeの情報の入門者向けの出力t-dコマンド">型<span class="ascii">(type)</span>の情報の入門者向けの出力（<code>:t +d</code>コマンド）</h3>
+<h3 id="型typeの情報の入門者向けの出力t-dコマンド"><span class="link-to-here-outer"><a href="#型typeの情報の入門者向けの出力t-dコマンド" title="型typeの情報の入門者向けの出力t-dコマンド"><span class="link-to-here">Link to<br />
+here</span></a></span>型<span class="ascii">(type)</span>の情報の入門者向けの出力（<code>:t +d</code>コマンド）</h3>
 <p><span class="ascii">GHC8.2</span>で導入された新しい機能です。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d"><code>:t +d</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+d"><code>:type +d</code></a>コマンド）を実行することにより、デフォルトの型を考慮して、型の情報を分かりやすく出力できます。<br />
 <code>:t +d length</code>コマンドを実行すると、</p>
@@ -178,7 +230,8 @@
 <p>次の様に出力されます。</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1">length<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
 <p>上の例では、<code>+d</code>オプションをつけない<code>:type</code>コマンドと比べると、<code>Foldable t =&gt; t a</code>の部分がリスト型として具体化されて出力されています。</p>
-<h3 id="型typeの情報の詳細出力t-vコマンド">型<span class="ascii">(type)</span>の情報の詳細出力（<code>:t +v</code>コマンド）</h3>
+<h3 id="型typeの情報の詳細出力t-vコマンド"><span class="link-to-here-outer"><a href="#型typeの情報の詳細出力t-vコマンド" title="型typeの情報の詳細出力t-vコマンド"><span class="link-to-here">Link to<br />
+here</span></a></span>型<span class="ascii">(type)</span>の情報の詳細出力（<code>:t +v</code>コマンド）</h3>
 <p><span class="ascii">GHC8.2</span>で導入された新しい機能です。<br />
 <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+v"><code>:t +v</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:type%20+v"><code>:type +v</code></a>コマンド）を実行することにより、型についての情報をより詳しく出力できます。<br />
 <code>:t +v length</code>コマンドを実行すると、</p>
@@ -186,14 +239,16 @@
 <p>次の様に出力されます。</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1">length<span class="ot"> ::</span> <span class="dt">Foldable</span> t <span class="ot">=&gt;</span> forall a<span class="fu">.</span> t a <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
 <p>上の例では、<code>+v</code>オプションをつけない<code>:type</code>コマンドと比べると、<code>forall a.</code>の部分が詳しく出力されています。</p>
-<h3 id="種kindの情報の出力kコマンド">種<span class="ascii">(kind)</span>の情報の出力（<code>:k</code>コマンド）</h3>
+<h3 id="種kindの情報の出力kコマンド"><span class="link-to-here-outer"><a href="#種kindの情報の出力kコマンド" title="種kindの情報の出力kコマンド"><span class="link-to-here">Link to<br />
+here</span></a></span>種<span class="ascii">(kind)</span>の情報の出力（<code>:k</code>コマンド）</h3>
 <p><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:kind"><code>:k</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:kind"><code>:kind</code></a>コマンド）を実行することにより、種（カインド）についての情報を出力できます。<br />
 <code>:k Maybe</code>コマンドを実行すると、</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>k <span class="dt">Maybe</span></a></code></pre></div>
 <p>次の様に出力されます。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="dt">Maybe</span><span class="ot"> ::</span> <span class="fu">*</span> <span class="ot">-&gt;</span> <span class="fu">*</span></a></code></pre></div>
 <p>上の例では、<code>Maybe</code>型は、<code>*</code>の種を入力し、<code>*</code>の種を返す型であることを出力します。</p>
-<h3 id="名前の内容についての情報の出力iコマンド">名前の内容についての情報の出力（<code>:i</code>コマンド）</h3>
+<h3 id="名前の内容についての情報の出力iコマンド"><span class="link-to-here-outer"><a href="#名前の内容についての情報の出力iコマンド" title="名前の内容についての情報の出力iコマンド"><span class="link-to-here">Link to<br />
+here</span></a></span>名前の内容についての情報の出力（<code>:i</code>コマンド）</h3>
 <p><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:info"><code>:i</code></a>コマンド（または省略しない形の<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:info"><code>:info</code></a>コマンド）を実行することにより、その名前の定義情報などを出力できます。<br />
 <code>:i length</code>コマンドを実行すると、</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>i length</a></code></pre></div>
@@ -204,7 +259,8 @@
 <a class="sourceLine" id="cb10-4" data-line-number="4">  <span class="fu">...</span></a>
 <a class="sourceLine" id="cb10-5" data-line-number="5">  	<span class="co">-- Defined in ‘Data.Foldable’</span></a></code></pre></div>
 <p>上の例では、<code>length</code>の定義内容（関数であり、<span class="ascii">Foldable</span>クラスに属しており、<span class="ascii">Data.Foldable</span>モジュール内で定義されていること）が出力されています。</p>
-<h3 id="その他ghciのいろいろなコマンド">その他、<span class="ascii">ghci</span>のいろいろなコマンド</h3>
+<h3 id="その他ghciのいろいろなコマンド"><span class="link-to-here-outer"><a href="#その他ghciのいろいろなコマンド" title="その他ghciのいろいろなコマンド"><span class="link-to-here">Link to<br />
+here</span></a></span>その他、<span class="ascii">ghci</span>のいろいろなコマンド</h3>
 <p>他にも<span class="ascii">ghci</span>のコマンドにより、様々な情報を対話的に出力させることが出来ます。</p>
 <ul>
 <li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-cmd-:show%20imports"><code>:show imports</code></a> <span class="ascii">: import</span>しているモジュールの一覧出力</li>
@@ -213,7 +269,8 @@
 <p><span class="ascii">ghci</span>のコマンドの詳細は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ghci.html#ghci-commands">こちら</a>を参照してください。<br />
 <span class="ascii">ghci</span>のコマンドや、型や種<span class="ascii">(</span>カインド<span class="ascii">)</span>については、<a href="https://employment.en-japan.com/engineerhub/entry/2017/08/25/110000#Haskell%E3%81%AE%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E5%9E%8B%E3%81%AB%E8%A6%AA%E3%81%97%E3%82%82%E3%81%86GHCi%E3%82%92%E3%82%82%E3%81%A3%E3%81%A8%E4%BD%BF%E3%81%84%E3%81%93%E3%81%AA%E3%81%97%E3%81%A4%E3%81%A4">こちら</a>や<a href="https://haskell.jp/blog/posts/2017/10-about-kind-system-part1.html">こちら</a>も参考になります。</p>
 <hr />
-<h2 id="ch2"><span class="ascii">2.</span> コンパイル時における情報の出力方法</h2>
+<h2 id="ch2"><span class="link-to-here-outer"><a href="#ch2" title="ch2"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">2.</span> コンパイル時における情報の出力方法</h2>
 <p>ここでは、<span class="ascii">GHC</span>のコンパイル時における、情報の出力方法について紹介します。</p>
 <ul>
 <li>コンパイル時の各ステージごとの中間コードの出力</li>
@@ -221,7 +278,8 @@
 <li>正格性情報の出力</li>
 </ul>
 <p>以下、各々の例について説明します。</p>
-<h3 id="コンパイル時の各ステージごとの中間コードの出力">コンパイル時の各ステージごとの中間コードの出力</h3>
+<h3 id="コンパイル時の各ステージごとの中間コードの出力"><span class="link-to-here-outer"><a href="#コンパイル時の各ステージごとの中間コードの出力" title="コンパイル時の各ステージごとの中間コードの出力"><span class="link-to-here">Link to<br />
+here</span></a></span>コンパイル時の各ステージごとの中間コードの出力</h3>
 <p><span class="ascii">GHC</span>は、コンパイル時に、中間言語変換などの<a href="https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/HscMain">複数のパイプラインステージ</a>を経ながら、最終的にアセンブリコードを生成します。<br />
 コンパイル時に<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#dumping-out-compiler-intermediate-structures">情報出力用のオプション</a>を指定することにより、それらの各ステージごとの中間コードを出力できます。</p>
 <p>例えば、以下の単純なソースの場合について例を示します。</p>
@@ -232,7 +290,8 @@
 <a class="sourceLine" id="cb11-5" data-line-number="5"><span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
 <a class="sourceLine" id="cb11-6" data-line-number="6">f1 x y <span class="fu">=</span> x <span class="fu">+</span> y</a></code></pre></div>
 <p>以下、<span class="ascii">GHC</span>のコンパイル・パイプラインにおける、パーサーやリネームなどの各ステージ後のコード出力例を示します。</p>
-<h4 id="パーサー後">パーサー後</h4>
+<h4 id="パーサー後"><span class="link-to-here-outer"><a href="#パーサー後" title="パーサー後"><span class="link-to-here">Link to<br />
+here</span></a></span>パーサー後</h4>
 <p><span class="ascii">GHC</span>のコンパイルにおける、パーサーのステージ直後のコードを出力するには、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#ghc-flag--ddump-parsed"><code>-ddump-parsed</code></a>オプションを指定します。</p>
 <pre><code>$ ghc  -ddump-parsed Func1.hs </code></pre>
 <p>パーサー後のコードが、以下の様に出力されます。</p>
@@ -243,7 +302,8 @@
 <a class="sourceLine" id="cb13-5" data-line-number="5"><span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
 <a class="sourceLine" id="cb13-6" data-line-number="6">f1 x y <span class="fu">=</span> x <span class="fu">+</span> y</a></code></pre></div>
 <p>上の例では、元のソースと同じコードが表示されました。</p>
-<h4 id="リネーム後">リネーム後</h4>
+<h4 id="リネーム後"><span class="link-to-here-outer"><a href="#リネーム後" title="リネーム後"><span class="link-to-here">Link to<br />
+here</span></a></span>リネーム後</h4>
 <p>以下は、リネームのステージ直後のコードを出力する、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#ghc-flag--ddump-rn"><code>-ddump-rn</code></a>オプションの例です。</p>
 <pre><code>$ ghc -fforce-recomp -ddump-rn Func1.hs </code></pre>
 <p>以下の様に出力されます。</p>
@@ -255,7 +315,8 @@
 <p>上の例では、ユニークな識別子に変換されたコードが出力されています。<br />
 なお、上の例では、ソースファイルの最終更新時刻が、オブジェクトファイルよりも古い場合でも強制的に再コンパイルさせる<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/separate_compilation.html?highlight=#ghc-flag--fforce-recomp"><code>-fforce-recomp</code></a>を指定しています。</p>
 <p>以下、いくつかのステージ後の中間コードの出力例を、続けて示します。</p>
-<h4 id="脱糖desugar後のcore言語コード">脱糖<span class="ascii">(Desugar)</span>後の、<span class="ascii">Core</span>言語コード</h4>
+<h4 id="脱糖desugar後のcore言語コード"><span class="link-to-here-outer"><a href="#脱糖desugar後のcore言語コード" title="脱糖desugar後のcore言語コード"><span class="link-to-here">Link to<br />
+here</span></a></span>脱糖<span class="ascii">(Desugar)</span>後の、<span class="ascii">Core</span>言語コード</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-ds Func1.hs</code></pre>
 <div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" data-line-number="1">  <span class="fu">:</span></a>
 <a class="sourceLine" id="cb17-2" data-line-number="2"><span class="ot">f1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
@@ -266,7 +327,8 @@
 <a class="sourceLine" id="cb17-7" data-line-number="7">  <span class="fu">:</span></a></code></pre></div>
 <p>上の例では、<span class="ascii">Haskell</span>言語の構文から、<span class="ascii">GHC</span>の内部表現の１つである<span class="ascii">Core</span>言語に変換されたコードが出力されています。<br />
 <span class="ascii">Core</span>言語は、非常にシンプルな要素で構成された関数型言語です。</p>
-<h4 id="stg中間言語での最適化最終コード"><span class="ascii">STG</span>中間言語での最適化最終コード</h4>
+<h4 id="stg中間言語での最適化最終コード"><span class="link-to-here-outer"><a href="#stg中間言語での最適化最終コード" title="stg中間言語での最適化最終コード"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">STG</span>中間言語での最適化最終コード</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-stg Func1.hs</code></pre>
 <div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" data-line-number="1">  <span class="fu">:</span></a>
 <a class="sourceLine" id="cb19-2" data-line-number="2">Func1.f1<span class="ot"> ::</span> <span class="dt">GHC.Types.Int</span> <span class="ot">-&gt;</span> <span class="dt">GHC.Types.Int</span> <span class="ot">-&gt;</span> <span class="dt">GHC.Types.Int</span></a>
@@ -279,7 +341,8 @@
 <a class="sourceLine" id="cb19-9" data-line-number="9">  <span class="fu">:</span></a></code></pre></div>
 <p>上の例では、さらに、<span class="ascii">GHC</span>の内部表現の１つである<span class="ascii">STG</span>言語に変換されたコードが出力されています。<br />
 <span class="ascii">STG</span>言語は、非常にシンプルな要素で構成された、<span class="ascii">GHC</span>の動作モデルと結びついた関数型言語です。</p>
-<h4 id="cmm中間言語での最適化最終コード"><span class="ascii">Cmm</span>中間言語での最適化最終コード</h4>
+<h4 id="cmm中間言語での最適化最終コード"><span class="link-to-here-outer"><a href="#cmm中間言語での最適化最終コード" title="cmm中間言語での最適化最終コード"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Cmm</span>中間言語での最適化最終コード</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-opt-cmm Func1.hs</code></pre>
 <div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" data-line-number="1">  <span class="fu">:</span></a>
 <a class="sourceLine" id="cb21-2" data-line-number="2">Func1.f1_entry() <span class="fu">//</span>  [<span class="dt">R3</span>, <span class="dt">R2</span>]</a>
@@ -299,7 +362,8 @@
 <a class="sourceLine" id="cb21-16" data-line-number="16">  <span class="fu">:</span></a></code></pre></div>
 <p>上の例では、さらに、<span class="ascii">GHC</span>の内部表現の１つである<span class="ascii">Cmm</span>言語に変換されたコードが出力されています。<br />
 <span class="ascii">Cmm(C minus minus)</span>言語は、<span class="ascii">C</span>言語とアセンブリ言語の中間的な位置づけの、手続き型言語です。</p>
-<h4 id="最終アセンブリ命令列">最終アセンブリ命令列</h4>
+<h4 id="最終アセンブリ命令列"><span class="link-to-here-outer"><a href="#最終アセンブリ命令列" title="最終アセンブリ命令列"><span class="link-to-here">Link to<br />
+here</span></a></span>最終アセンブリ命令列</h4>
 <pre><code>$ ghc -O -fforce-recomp -ddump-asm Func1.hs</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" data-line-number="1">  <span class="fu">:</span></a>
 <a class="sourceLine" id="cb23-2" data-line-number="2"><span class="fu">.</span>globl Func1.f1_info</a>
@@ -319,7 +383,8 @@
 </ul>
 <p>中間コードの出力方法の詳細は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/debugging.html?highlight=#dumping-out-compiler-intermediate-structures">こちら</a>を参照してください。<br />
 中間言語については、<a href="http://www.kotha.net/hperf/ghc.html">こちら</a>も参考になります。</p>
-<h3 id="型情報の出力">型情報の出力</h3>
+<h3 id="型情報の出力"><span class="link-to-here-outer"><a href="#型情報の出力" title="型情報の出力"><span class="link-to-here">Link to<br />
+here</span></a></span>型情報の出力</h3>
 <p>コンパイル時に得られる型情報を出力することが出来ます。<br />
 例えば、以下の単純なソースの場合について例を示します。</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="fu">$</span> cat Func2.hs</a>
@@ -343,7 +408,8 @@
 <a class="sourceLine" id="cb26-8" data-line-number="8"><span class="dt">Dependent</span> packages<span class="fu">:</span> [base<span class="fu">-</span><span class="fl">4.10</span><span class="fu">.</span><span class="fl">0.0</span>, ghc<span class="fu">-</span>prim<span class="fu">-</span><span class="fl">0.5</span><span class="fu">.</span><span class="fl">1.0</span>,</a>
 <a class="sourceLine" id="cb26-9" data-line-number="9">                     integer<span class="fu">-</span>gmp<span class="fu">-</span><span class="fl">1.0</span><span class="fu">.</span><span class="fl">1.0</span>]</a></code></pre></div>
 <p>それぞれの型の情報が出力されています。</p>
-<h3 id="正格性情報の出力">正格性情報の出力</h3>
+<h3 id="正格性情報の出力"><span class="link-to-here-outer"><a href="#正格性情報の出力" title="正格性情報の出力"><span class="link-to-here">Link to<br />
+here</span></a></span>正格性情報の出力</h3>
 <p>コンパイル時に得られる正格性についての情報を出力することが出来ます。<br />
 例えば、以下の単純なソースの場合について例を示します。<br />
 少し恣意的な例ですが、関数<span class="ascii">f3</span>の第１引数は正格（かつ関数内で使用されている）、第<span class="ascii">2</span>引数は非正格（かつ関数内で使用されている）、第<span class="ascii">3</span>引数は非正格（かつ関数内で使用されていない）という場合の例です。</p>
@@ -372,7 +438,8 @@
 第<span class="ascii">2</span>引数は、<code>&lt;L,1*U(U)&gt;</code>の部分により表されています。 <code>L</code>は引数が非正格（<span class="ascii">non-strict</span>）であることを示しています。 <code>1*U(U)</code>は、引数が関数内で使用<span class="ascii">(Use)</span>されていることを示しています。<br />
 第<span class="ascii">3</span>引数は、<code>&lt;L,A&gt;</code>の部分により表されています。 <code>L</code>は引数が非正格（<span class="ascii">non-strict</span>）であることを示しています。 <code>A</code>は、引数が関数内で不使用（<span class="ascii">Absence</span>）であることを示しています。</p>
 <p>正格性解析については、<a href="https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/Demand">こちら</a>も参考になります。</p>
-<h3 id="その他コンパイル時のいろいろなオプション">その他、コンパイル時のいろいろなオプション</h3>
+<h3 id="その他コンパイル時のいろいろなオプション"><span class="link-to-here-outer"><a href="#その他コンパイル時のいろいろなオプション" title="その他コンパイル時のいろいろなオプション"><span class="link-to-here">Link to<br />
+here</span></a></span>その他、コンパイル時のいろいろなオプション</h3>
 <p>他にも、コンパイル時に様々な情報を出力させることが出来ます。</p>
 <ul>
 <li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using-warnings.html?highlight=#ghc-flag--Wall"><code>-Wall</code></a> <span class="ascii">:</span> コンパイル時に<span class="ascii">Warning</span>情報を出力</li>
@@ -380,7 +447,8 @@
 </ul>
 <p>コンパイル時のオプションの詳細は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/flags.html#flag-reference">こちら</a>を参照してください。</p>
 <hr />
-<h2 id="ch3"><span class="ascii">3.</span> 実行オブジェクトの実行時における情報の出力方法</h2>
+<h2 id="ch3"><span class="link-to-here-outer"><a href="#ch3" title="ch3"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">3.</span> 実行オブジェクトの実行時における情報の出力方法</h2>
 <p>ここでは、<span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時に情報を出力する方法を紹介します。</p>
 <ul>
 <li>実行時の統計情報の出力</li>
@@ -391,7 +459,8 @@
 <li>スタックトレースの出力</li>
 </ul>
 <p>以下、各々の例について説明します。</p>
-<h3 id="実行時の統計情報の出力">実行時の統計情報の出力</h3>
+<h3 id="実行時の統計情報の出力"><span class="link-to-here-outer"><a href="#実行時の統計情報の出力" title="実行時の統計情報の出力"><span class="link-to-here">Link to<br />
+here</span></a></span>実行時の統計情報の出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時の統計情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="fu">$</span> cat Prog1.hs</a>
@@ -430,7 +499,8 @@
   Productivity  99.3% of total user, 99.3% of total elapsed</code></pre>
 <p>上の例では、全体の実行時間やヒープの割当量や<span class="ascii">GC</span>の概況等が出力されています。</p>
 <p>表示内容の詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html?highlight=#rts-options-to-produce-runtime-statistics">こちら</a>を参照してください。</p>
-<h3 id="時間プロファイルの出力">時間プロファイルの出力</h3>
+<h3 id="時間プロファイルの出力"><span class="link-to-here-outer"><a href="#時間プロファイルの出力" title="時間プロファイルの出力"><span class="link-to-here">Link to<br />
+here</span></a></span>時間プロファイルの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時の時間プロファイル情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="fu">$</span> cat Prog2.hs</a>
@@ -472,7 +542,8 @@ main        Main             Prog2.hs:5:1-15     0.0   21.3
 <p>上の例では、<span class="ascii">main</span>や<span class="ascii">f1</span>や<span class="ascii">f2</span>などについて、関数ごとの実行時間が出力されています。</p>
 <p>時間プロファイルの表示内容の詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#profiling">こちら</a>を参照してください。<br />
 時間プロファイルについては、<a href="http://book.realworldhaskell.org/read/profiling-and-optimization.html#id677833">こちら</a>や、<a href="http://itpro.nikkeibp.co.jp/article/COLUMN/20110201/356705/">こちら</a>も参考になります。</p>
-<h3 id="空間プロファイルの出力">空間プロファイルの出力</h3>
+<h3 id="空間プロファイルの出力"><span class="link-to-here-outer"><a href="#空間プロファイルの出力" title="空間プロファイルの出力"><span class="link-to-here">Link to<br />
+here</span></a></span>空間プロファイルの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時の空間プロファイル情報、つまり、ヒープメモリの使用状況等を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="fu">$</span> cat Prog3.hs</a>
@@ -500,7 +571,8 @@ main        Main             Prog2.hs:5:1-15     0.0   21.3
 <p><img src="../../img/2017/12-rts-space-profile.png" /></p>
 <p>空間プロファイルの表示内容の詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#profiling-memory-usage">こちら</a>を参照してください。<br />
 空間プロファイルについては、<a href="http://book.realworldhaskell.org/read/profiling-and-optimization.html#id678078">こちら</a>や、<a href="https://medium.com/@maoe/ghc%E3%83%92%E3%83%BC%E3%83%97%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0%E3%81%AE%E6%89%8B%E5%BC%95%E3%81%8D-md-bb8d180230f6">こちら</a>も参考になります。</p>
-<h3 id="実行時イベントの出力">実行時イベントの出力</h3>
+<h3 id="実行時イベントの出力"><span class="link-to-here-outer"><a href="#実行時イベントの出力" title="実行時イベントの出力"><span class="link-to-here">Link to<br />
+here</span></a></span>実行時イベントの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時のイベント情報を出力できます。<br />
 実行時のイベントとは、<span class="ascii">GHC</span>のランタイムシステム（<span class="ascii">RTS</span>）におけるスレッドスケジューラや<span class="ascii">GC</span>などの動作情報や、ユーザー指定による動作情報です。<br />
 例えば、以下のソースの場合について例を示します。</p>
@@ -526,7 +598,8 @@ main        Main             Prog2.hs:5:1-15     0.0   21.3
 <pre><code>$ ./Prog4 +RTS -l</code></pre>
 <p>これにより、実行時のイベント情報が、<code>Prog4.eventlog</code>ファイルにバイナリ形式で出力されます。<br />
 バイナリ形式の出力を表示するには２種類の方法があります。 <span class="ascii">Threadscope</span>コマンドにより<span class="ascii">GUI</span>で表示する方法と、<span class="ascii">ghc-events</span>コマンドによりテキスト形式で表示する方法です。 どちらも、コマンドを別途インストールする必要があります。</p>
-<h4 id="threadscopeによるgui表示"><span class="ascii">ThreadScope</span>による<span class="ascii">GUI</span>表示</h4>
+<h4 id="threadscopeによるgui表示"><span class="link-to-here-outer"><a href="#threadscopeによるgui表示" title="threadscopeによるgui表示"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">ThreadScope</span>による<span class="ascii">GUI</span>表示</h4>
 <p>以下は、１つめの方法である<span class="ascii">ThreadScope</span>を用いた表示例です。<br />
 まず、<a href="https://github.com/haskell/ThreadScope/releases/">こちら</a>から<code>threadscope</code>のバイナリを入手するか、以下の方法により、<code>threadscope</code>コマンドをインストールしてください。</p>
 <pre><code>$ stack install threadScope</code></pre>
@@ -535,7 +608,8 @@ main        Main             Prog2.hs:5:1-15     0.0   21.3
 <p>以下の様に<span class="ascii">GUI</span>が起動し、スレッドの稼動状態や<span class="ascii">GC</span>の状態を可視化できます。</p>
 <p><img src="../../img/2017/12-rts-threadscope.png" /></p>
 <p>上の例では、緑の部分がスレッドの稼働中、橙の部分が<span class="ascii">GC</span>の稼働中を表しています。 また、同時に１つスレッドのみが稼働していることが分かります（物理<span class="ascii">CPU</span>が１個に制限されたハードウェアでの実行例です。）</p>
-<h4 id="ghc-eventsによるテキスト表示"><span class="ascii">ghc-events</span>によるテキスト表示</h4>
+<h4 id="ghc-eventsによるテキスト表示"><span class="link-to-here-outer"><a href="#ghc-eventsによるテキスト表示" title="ghc-eventsによるテキスト表示"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">ghc-events</span>によるテキスト表示</h4>
 <p>以下は、２つめの方法である<span class="ascii">ghc-events</span>を用いた表示例です。<br />
 まず、以下の方法により、<code>ghc-events</code>コマンドをインストールしてください。</p>
 <pre><code>$ stack install ghc-events</code></pre>
@@ -577,7 +651,8 @@ Events:
 <p>上の例では、スレッドの生成や停止の状況が詳細に出力されています。</p>
 <p>実行時イベントログ機能の詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=#profiling">こちら</a>を参照してください。<br />
 実行時イベントログ機能については、<a href="http://chimera.labs.oreilly.com/books/1230000000929/ch15.html">こちら</a>も参考になります。</p>
-<h3 id="コードカバレッジの出力">コードカバレッジの出力</h3>
+<h3 id="コードカバレッジの出力"><span class="link-to-here-outer"><a href="#コードカバレッジの出力" title="コードカバレッジの出力"><span class="link-to-here">Link to<br />
+here</span></a></span>コードカバレッジの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時のコードカバレッジ情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="fu">$</span> cat Prog5.hs</a>
@@ -623,7 +698,8 @@ hpc_index.html  hpc_index_exp.html</code></pre>
 <p>上の例では、<span class="ascii">f4</span>は、評価（実行）されていないパスである事が分かります。</p>
 <p>コードカバレッジの詳細については、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html?highlight=coverage#observing-code-coverage">こちら</a>を参照してください。<br />
 コードカバレッジについては、<a href="http://book.realworldhaskell.org/read/testing-and-quality-assurance.html#id629497">こちら</a>も参考になります。</p>
-<h3 id="スタックトレースの出力">スタックトレースの出力</h3>
+<h3 id="スタックトレースの出力"><span class="link-to-here-outer"><a href="#スタックトレースの出力" title="スタックトレースの出力"><span class="link-to-here">Link to<br />
+here</span></a></span>スタックトレースの出力</h3>
 <p><span class="ascii">GHC</span>によりコンパイルされた実行オブジェクトについて、実行時のエラー発生時のスタックトレース情報を出力できます。<br />
 例えば、以下のソースの場合について例を示します。</p>
 <div class="sourceCode" id="cb58"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="fu">$</span> cat Prog6.hs</a>
@@ -660,7 +736,8 @@ hpc_index.html  hpc_index_exp.html</code></pre>
 スタックトレースについては、<a href="http://d.hatena.ne.jp/kazu-yamamoto/20130205/1360051153">こちら</a>も参考になります。</p>
 <p>その他、実行時のオプションの詳細は、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html">こちら</a>を参照してください。</p>
 <hr />
-<h2 id="補足">補足</h2>
+<h2 id="補足"><span class="link-to-here-outer"><a href="#補足" title="補足"><span class="link-to-here">Link to<br />
+here</span></a></span>補足</h2>
 <p>さらに、以下の様に、コンパイラ自身についての、情報を出力する方法もあります。</p>
 <ul>
 <li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/using.html?highlight=#ghc-flag---version"><code>ghc --version</code></a> <span class="ascii">: GHC</span>のバージョンを出力</li>

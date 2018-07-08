@@ -143,7 +143,20 @@
 「<a href="http://syocy.hatenablog.com/entry/haskell-library-2016#%E3%83%86%E3%82%B9%E3%83%88"><span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span></a>」という記事でも紹介されているとおり、<span class="ascii">Haskell</span>にも様々なテスト用ライブラリーがあります。<br />
 今回は、「<span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span>」でも紹介されている<a href="https://hackage.haskell.org/package/silently"><span class="ascii">silently</span></a>というパッケージにインスパイアされた、新しいテスト用ライブラリーを作りました。<br />
 タイトルにも書きましたが<a href="https://hackage.haskell.org/package/main-tester"><span class="ascii">main-tester</span></a>といいます。</p>
-<h1 id="main-testerができること"><span class="ascii">main-tester</span>ができること</h1>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#main-testerができること" title="main-testerができること"><span class="ascii">main-tester</span>ができること</a></li>
+<li><a href="#ほかのライブラリーとの違い" title="ほかのライブラリーとの違い">ほかのライブラリーとの違い</a></li>
+<li><a href="#使い方バグ報告" title="使い方バグ報告">使い方・バグ報告</a></li>
+</ul>
+</div>
+</div>
+<h1 id="main-testerができること"><span class="link-to-here-outer"><a href="#main-testerができること" title="main-testerができること"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">main-tester</span>ができること</h1>
 <p><span class="ascii">main-tester</span>は名前の通り、<code>main</code>関数のテストをサポートするライブラリーです。<br />
 <span class="ascii">Haskell</span>製のプログラムを起動すると最初に実行される、あの<code>main</code>関数です。</p>
 <p><code>main</code>関数は<code>IO ()</code>という型であるとおり、原則として必ず入出力を伴うので、自動テストがしにくい関数です。<br />
@@ -174,7 +187,8 @@
 しかし、テストのために<code>PATH</code>を分離させる必要があったり、そのために<a href="https://github.com/commercialhaskell/stack/issues/2885"><code>stack exec</code>を使ったらめっちゃ遅い</a>という問題があったり、そもそも子プロセス呼び出しはそれだけでオーバーヘッドがあったりと、様々な問題があります。<br />
 物事をよりシンプルにするには、<code>main</code>関数を直接呼び出した方がよいでしょう。<br />
 <span class="ascii">main-tester</span>は、<span class="ascii">CLI</span>アプリケーションの<span class="ascii">E2E</span>テストにおける、そうした子プロセスの呼び出しの問題と、より大きな関数をテストしたいというニーズに応えるためのライブラリーなのです。</p>
-<h1 id="ほかのライブラリーとの違い">ほかのライブラリーとの違い</h1>
+<h1 id="ほかのライブラリーとの違い"><span class="link-to-here-outer"><a href="#ほかのライブラリーとの違い" title="ほかのライブラリーとの違い"><span class="link-to-here">Link to<br />
+here</span></a></span>ほかのライブラリーとの違い</h1>
 <p>「<span class="ascii">silently</span>というパッケージにインスパイアされた」と冒頭で申しましたとおり、前節で紹介した機能は、実はすでにほかのライブラリーに似たものがあります。<br />
 <span class="ascii">silently</span>に加え、<a href="https://hackage.haskell.org/package/imperative-edsl-0.7.1/docs/System-IO-Fake.html"><span class="ascii">imperative-edsl</span>というパッケージに含まれる、<code>System.IO.Fake</code>というモジュール</a>です<small>（ほかにもあったらすみません！🙇🙇🙇）</small>。<br />
 これらと<span class="ascii">main-tester</span>との違いは何でしょう？</p>
@@ -189,7 +203,8 @@
 結果、<code>main</code>関数が標準出力・標準エラー出力に書き込んだ文字列を取得することができないのです。<br />
 「○○というエラーメッセージを出力して異常終了する」といったことをテストしたい場合、これでは使いづらいでしょう。<br />
 <strong>「<code>main</code>関数の<span class="ascii">E2E</span>テストを行うためのライブラリーである」</strong>という観点から、必須の機能であると判断し、実装しました。 ちなみに、<code>ExitCode</code>以外の例外についてはそのまま投げられます。仕様を単純にするために、これはユーザーのテストコードの中で処理することとしています。</p>
-<h1 id="使い方バグ報告">使い方・バグ報告</h1>
+<h1 id="使い方バグ報告"><span class="link-to-here-outer"><a href="#使い方バグ報告" title="使い方バグ報告"><span class="link-to-here">Link to<br />
+here</span></a></span>使い方・バグ報告</h1>
 <p>機能は非常にシンプルなので、使い方については<a href="https://hackage.haskell.org/package/main-tester-0.1.0.0/docs/Test-Main.html">ドキュメント</a>のサンプルコードを読めば大体わかるかなぁと思いますが、簡単にサンプルを載せておきましょう。</p>
 <p>例えばこんなソース👇のプログラムがあった場合、</p>
 <p><span class="ascii">ExampleMain.hs:</span></p>
