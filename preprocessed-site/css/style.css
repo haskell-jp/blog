@@ -85,3 +85,66 @@ ul.social-buttons li {
   margin-top: -60px;
   padding-top: 60px;
 }
+
+#table-of-contents-outer {
+  margin-bottom: 4ex;
+}
+
+#table-of-contents {
+  display: inline-block;
+  border: solid 1px black;
+  background-color: lightgray;
+  margin-left: 5%;
+  margin-right: 10%;
+  padding: 0.5em 1em;
+  font-size: 80%;
+}
+
+#table-of-contents .table-of-contents-title {
+  font: normal x-large serif;
+  margin-bottom: 1ex;
+}
+
+#table-of-contents a {
+  font-family: sans;
+  text-decoration: none;
+}
+
+#table-of-contents a:hover {
+  text-decoration: underline;
+}
+
+#table-of-contents ul {
+  padding-left: 1em;
+}
+
+#table-of-contents code {
+  color: black;
+  background-color: transparent;
+}
+
+span.link-to-here-outer {
+  display: inline-block;
+  font: bold 8pt sans;
+  vertical-align: middle;
+  width: 50pt;
+  margin-left: -50pt;
+}
+
+.link-to-here-outer a {
+  text-decoration: none;
+  color: white;
+}
+
+span.link-to-here {
+  display: inline-block;
+  visibility: hidden;
+  padding: 5pt;
+  background-color: #606060;
+  vertical-align: middle;
+}
+
+span.link-to-here-outer:hover a .link-to-here {
+  visibility: visible;
+}
+
