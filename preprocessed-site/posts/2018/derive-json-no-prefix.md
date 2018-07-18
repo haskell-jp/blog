@@ -1,8 +1,8 @@
 ---
-title:  レコードラベルにprefixを着けざるを得ない人達に送るライブラリーderiveJsonNoPrefixをリリースしました
+title:  deriveJsonNoPrefixをリリースしました
 headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
-subHeading: 標準のレコードがつらいときのワークアラウンドです
+subHeading: レコードラベルにprefixを着けざるを得ない人達に送るライブラリーです
 author: Yuji Yamamoto
 postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
 date: July 18, 2018
@@ -46,7 +46,7 @@ data SomeRecord = SomeRecord
   , min :: Double
   } deriving (Eq, Show)
 
-$(deriveToJSON ''SomeRecord)
+$(deriveToJSON defaultOptions ''SomeRecord)
 ```
 
 しかし、こんなレコード型は定義すべきではありません。  
@@ -98,6 +98,9 @@ import Data.Aeson.DeriveNoPrefix
 
 $(deriveJsonNoTypeNamePrefix ''SomeRecord)
 ```
+
+👆 の`deriveJsonNoTypeNamePrefix` は [deriveJSON](https://hackage.haskell.org/package/aeson-1.3.1.0/docs/Data-Aeson-TH.html)と同様に、`ToJSON`と`FromJSON`のインスタンス、両方を生成します。  
+もちろん、`FromJSON`のインスタンスを生成するときのオプションとしても、プレフィックスを削除するための`fieldLabelModifier`を渡してくれます！
 
 ## 同じ問題を解決するほかのライブラリー
 
