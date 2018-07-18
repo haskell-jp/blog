@@ -99,7 +99,7 @@ import Data.Aeson.DeriveNoPrefix
 $(deriveJsonNoTypeNamePrefix ''SomeRecord)
 ```
 
-👆 の`deriveJsonNoTypeNamePrefix` は [deriveJSON](https://hackage.haskell.org/package/aeson-1.3.1.0/docs/Data-Aeson-TH.html)と同様に、`ToJSON`と`FromJSON`のインスタンス、両方を生成します。  
+👆 の`deriveJsonNoTypeNamePrefix` は [deriveJSON](https://hackage.haskell.org/package/aeson/docs/Data-Aeson-TH.html#v:deriveJSON)と同様に、`ToJSON`と`FromJSON`のインスタンス、両方を生成します。  
 もちろん、`FromJSON`のインスタンスを生成するときのオプションとしても、プレフィックスを削除するための`fieldLabelModifier`を渡してくれます！
 
 ## 同じ問題を解決するほかのライブラリー
