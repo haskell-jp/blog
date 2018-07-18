@@ -8,8 +8,146 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2018-05-25T00:00:00Z</updated>
+    <updated>2018-07-18T00:00:00Z</updated>
     <entry>
+    <title>deriveJsonNoPrefixをリリースしました</title>
+    <link href="https://haskell.jp/blog/posts/2018/derive-json-no-prefix.html" />
+    <id>https://haskell.jp/blog/posts/2018/derive-json-no-prefix.html</id>
+    <published>2018-07-18T00:00:00Z</published>
+    <updated>2018-07-18T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>前回の更新からちょっと時間が空いてしまいました 💦<br />
+小ネタです。掲題の通り<a href="http://hackage.haskell.org/package/deriveJsonNoPrefix"><span class="ascii">deriveJsonNoPrefix</span></a>というパッケージをリリースしました。<br />
+地味に有用だと思うので、<a href="https://gitlab.com/igrep/deriveJsonNoPrefix/blob/master/README.md"><span class="ascii">README</span></a>をやや意訳気味に翻訳して記事にします。<br />
+十分に単純なので、仕様が変わることもまさかないでしょうし。</p>
+<p>以下、<a href="https://gitlab.com/igrep/deriveJsonNoPrefix/blob/6114e0fc55cf5b57a771871e53971a51592f618b/README.md">こちらのコミットの時点の<span class="ascii">README</span></a>の翻訳です。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#derivejsonnoprefix" title="derivejsonnoprefix"><span class="ascii">deriveJsonNoPrefix</span></a>
+<ul>
+<li><a href="#例" title="例">例</a></li>
+<li><a href="#同じ問題を解決するほかのライブラリー" title="同じ問題を解決するほかのライブラリー">同じ問題を解決するほかのライブラリー</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<h1 id="derivejsonnoprefix"><span class="link-to-here-outer"><a href="#derivejsonnoprefix" title="derivejsonnoprefix"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">deriveJsonNoPrefix</span></h1>
+<p>プレフィックスに優しい<code>ToJSON</code>と<code>FromJSON</code>のインスタンスを定義する<span class="ascii">Template Haskell</span>のマクロを提供します。</p>
+<h2 id="例"><span class="link-to-here-outer"><a href="#例" title="例"><span class="link-to-here">Link to<br />
+here</span></a></span>例</h2>
+<p>こんな感じの<span class="ascii">JSON</span>を作りたいとしましょう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ID STRING&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="dt">&quot;max&quot;</span><span class="fu">:</span> <span class="fl">0.789</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="dt">&quot;min&quot;</span><span class="fu">:</span> <span class="fl">0.123</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="fu">}</span></a></code></pre></div>
+<p>きっと<a href="http://hackage.haskell.org/package/aeson/docs/Data-Aeson.html#t:ToJSON"><span class="ascii">ToJSON</span></a>（おそらくそれに加えて<a href="http://hackage.haskell.org/package/aeson/docs/Data-Aeson.html#t:FromJSON"><span class="ascii">FromJSON</span></a>も）のインスタンスを自動的に定義するための、次のようなレコード型を定義したくなるでしょう。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw">import</span> <span class="dt">Data.Aeson.TH</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="fu">=</span> <span class="dt">SomeRecord</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">  {<span class="ot"> id ::</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">  ,<span class="ot"> max ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">  ,<span class="ot"> min ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="fu">$</span>(deriveToJSON defaultOptions <span class="ch">&#39;&#39;</span><span class="dt">SomeRecord</span>)</a></code></pre></div>
+<p>しかし、こんなレコード型は定義すべきではありません。<br />
+<code>id</code>も<code>max</code>も<code>min</code>も、<code>Prelude</code>に定義済みなのですから！</p>
+<p>この問題を回避するために、レコードラベルに型の名前をプレフィックスとして加える、ということをわれわれはよくやります。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="fu">=</span> <span class="dt">SomeRecord</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  {<span class="ot"> someRecordId ::</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">  ,<span class="ot"> someRecordMax ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  ,<span class="ot"> someRecordMin ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a></code></pre></div>
+<p>そして、<code>deriveToJSON</code>にデフォルトと異なるオプションを渡して実行します。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1">deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="fu">=</span> firstLower <span class="fu">.</span> drop (length <span class="st">&quot;SomeRecord&quot;</span>) } <span class="ch">&#39;&#39;</span><span class="dt">SomeRecord</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">firstLower (x<span class="fu">:</span>xs) <span class="fu">=</span> toLower x <span class="fu">:</span> xs</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">firstLower _ <span class="fu">=</span> error <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
+<p><code>fieldLabelModifier</code>オプションは文字通り、対象のレコードを<span class="ascii">JSON</span>に変換するとき、あるいは<span class="ascii">JSON</span>から対象のレコードの値に変換する時、レコードのラベルを変換する関数を設定するために使います。<br />
+👆の場合、プレフィックスである<code>SomeRecord</code>の文字数分レコードラベルから<code>drop</code>して、先頭の文字<small>（<code>someRecordId</code>で言えば<code>Id</code>の<code>I</code>に相当します）</small>を小文字に変換しているのがわかるでしょうか？</p>
+<p>そう、これが<code>deriveToJsonNoTypeNamePrefix</code>がやっていることとほぼ同等のことです。<br />
+<code>deriveToJsonNoTypeNamePrefix</code>は、実質次のように定義されています。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="ot">deriveToJsonNoTypeNamePrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">deriveToJsonNoTypeNamePrefix deriver name <span class="fu">=</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">  deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="fu">=</span> dropPrefix name } name</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="ot">dropPrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">dropPrefix name <span class="fu">=</span> firstLower <span class="fu">.</span> drop (length <span class="fu">$</span> nameBase name)</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">firstLower (x<span class="fu">:</span>xs) <span class="fu">=</span> toLower x <span class="fu">:</span> xs</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10">firstLower _ <span class="fu">=</span> error <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
+<p>結果、これからは<code>fieldLabelModifier</code>をもう自分で定義する必要がありません！🙌</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">import</span> <span class="dt">Data.Aeson.DeriveNoPrefix</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="fu">$</span>(deriveJsonNoTypeNamePrefix <span class="ch">&#39;&#39;</span><span class="dt">SomeRecord</span>)</a></code></pre></div>
+<p>👆 の<code>deriveJsonNoTypeNamePrefix</code> は <a href="https://hackage.haskell.org/package/aeson/docs/Data-Aeson-TH.html#v:deriveJSON"><span class="ascii">deriveJSON</span></a>と同様に、<code>ToJSON</code>と<code>FromJSON</code>のインスタンス、両方を生成します。<br />
+もちろん、<code>FromJSON</code>のインスタンスを生成するときのオプションとしても、プレフィックスを削除するための<code>fieldLabelModifier</code>を渡してくれます！</p>
+<h2 id="同じ問題を解決するほかのライブラリー"><span class="link-to-here-outer"><a href="#同じ問題を解決するほかのライブラリー" title="同じ問題を解決するほかのライブラリー"><span class="link-to-here">Link to<br />
+here</span></a></span>同じ問題を解決するほかのライブラリー</h2>
+<ul>
+<li><a href="https://hackage.haskell.org/package/extensible"><span class="ascii">extensible</span></a><span class="ascii">.</span></li>
+<li>など、<code>ToJSON</code>・<code>FromJSON</code>のインスタンスが定義された<span class="ascii">extensible record</span>を提供するライブラリー</li>
+</ul>
+<p>なので、そうした<span class="ascii">extensible record</span>を提供するライブラリーが学習コストや依存関係などの事情で「重たい」と感じたときにこのパッケージを使ってください。</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2018/windows-gotchas-en.html" style="margin-left: auto;" lang="en">Errors and the workarounds frequently encountered when dealing with Haskell on Windows</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>Errors and the workarounds frequently encountered when dealing with Haskell on Windows</title>
     <link href="https://haskell.jp/blog/posts/2018/windows-gotchas-en.html" />
     <id>https://haskell.jp/blog/posts/2018/windows-gotchas-en.html</id>
@@ -189,6 +327,9 @@ As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environme
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2018/derive-json-no-prefix.html" lang="ja">deriveJsonNoPrefixをリリースしました</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2073,205 +2214,6 @@ here</span></a></span>翻訳記事</h3>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2017/windows-gotchas.html" style="margin-left: auto;" lang="ja">WindowsでHaskellを扱う時によく遭遇するエラーと対処法</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>WindowsでHaskellを扱う時によく遭遇するエラーと対処法</title>
-    <link href="https://haskell.jp/blog/posts/2017/windows-gotchas.html" />
-    <id>https://haskell.jp/blog/posts/2017/windows-gotchas.html</id>
-    <published>2017-12-25T00:00:00Z</published>
-    <updated>2017-12-25T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>この記事は、<a href="https://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017</span></a><span class="ascii">14</span>日目の記事です。<br />
-枠が空いていたので埋めるために登録しました。<br />
-長くかかった割には実験自体は失敗気味な、<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">昨日のこちらの記事</a>よりは有用な情報じゃないかと思います。<br />
-ほかの言語でもありそうな話ですしね。</p>
-<p>すごく簡潔にまとめるとこの間の下記のツイートに収まるのですが、もう少し丁寧に補足するために書きます。</p>
-<blockquote class="twitter-tweet" data-lang="ja">
-<p lang="ja" dir="ltr">
-学んだことをまとめると<br><span class="ascii">- Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう<br><span class="ascii">- Permission Denied</span>と言われたらビルドし直そう<br><span class="ascii">-</span> 日本語のパスが混ざらないよう気をつけよう<br><span class="ascii">- C</span>のライブラリーはものによる<br>ですか。多分 <a href="https://twitter.com/hashtag/haskell?src=hash&amp;ref_src=twsrc%5Etfw"><span class="ascii">#haskell</span></a> 以外でも有益な話。
-</p>
-— <span class="ascii">Yuji Yamamoto:</span> 山本悠滋 <span class="ascii">(</span><span class="citation" data-cites="igrep"><span class="ascii">@igrep</span></span><span class="ascii">)</span> <a href="https://twitter.com/igrep/status/938056578934042626?ref_src=twsrc%5Etfw"><span class="ascii">2017</span>年<span class="ascii">12</span>月<span class="ascii">5</span>日</a>
-</blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#invalid-characterと言われたらchcp-65001しよう" title="invalid-characterと言われたらchcp-65001しよう"><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</a>
-<ul>
-<li><a href="#対策" title="対策">対策</a>
-<ul>
-<li><a href="#ユーザーとして出くわした場合" title="ユーザーとして出くわした場合">ユーザーとして出くわした場合</a></li>
-<li><a href="#それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合" title="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合">それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#permission-deniedと言われたらビルドし直そう" title="permission-deniedと言われたらビルドし直そう"><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</a></li>
-<li><a href="#cのライブラリーは-まぁ頑張れ" title="cのライブラリーは-まぁ頑張れ"><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</a></li>
-</ul>
-</div>
-</div>
-<h1 id="invalid-characterと言われたらchcp-65001しよう"><span class="link-to-here-outer"><a href="#invalid-characterと言われたらchcp-65001しよう" title="invalid-characterと言われたらchcp-65001しよう"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Invalid character</span>と言われたら<span class="ascii">chcp 65001</span>しよう</h1>
-<p>恐らく一番高確率で遭遇する <span class="ascii">&amp;</span> 知らないと回避できないのがこれ。<br />
-あ、ほらまた<span class="ascii">hakyll</span>でビルドしたら起きた！</p>
-<pre><code>&gt; stack exec -- site rebuild
-...
-  [ERROR] preprocessed-site\posts/2017/01-first.md: hGetContents: invalid argument (invalid byte sequence)</code></pre>
-<p><span class="ascii">GHC</span>がファイルを読み書きする時に使う<a href="https://www.stackage.org/haddock/lts-10.0/base-4.10.1.0/System-IO.html#t:Handle"><code>Handle</code></a>というオブジェクトには、文字コードの情報が含まれています。</p>
-<p>これは<span class="ascii">Ruby</span>の<a href="https://docs.ruby-lang.org/ja/latest/class/IO.html"><code>IO</code></a>や<span class="ascii">Perl</span>のファイルハンドラーにあるような仕組みと大体似ていて、<code>Handle</code>といったデータの「入り口」を表すオブジェクトに文字コードを紐付けることで、外から入ってくる文字列の文字コードを確実に内部の統一された文字コードに変換してくれます。<br />
-<span class="ascii">Haskell</span>の<code>Char</code>型の場合は<span class="ascii">UTF-32</span>（この場合その言い方でよかったっけ？）のはずです。</p>
-<p>この<code>Handle</code>に紐付ける文字コード、当然のごとくデフォルトでは<span class="ascii">OS</span>のロケール設定に従って設定されるようになってまして、日本語版の<span class="ascii">Windows</span>ではそう、<span class="ascii">Windows-31J</span>（またの名を<span class="ascii">CP932</span>）ですね。<br />
-でも今はもうすぐ<span class="ascii">2018</span>年。あなたが「メモ帳」でプログラムを書く人でもない限り、新しく作るファイルの大半は<span class="ascii">UTF-8</span>でしょう。<br />
-<span class="ascii">UTF-8</span>と<span class="ascii">Windows-31J</span>は全然違う体系の文字コードなので、<span class="ascii">UTF-8</span>なファイルを<span class="ascii">Windows-31J</span>のファイルとして読もうとしてもうまくいかないわけです。<br />
-冒頭にあげた<code>invalid byte sequence</code>というエラーはまさにそうした場合に起こるエラーです。<br />
-ファイルの読み書きだけでなく標準入出力でもしばしば発生するので覚えておいてください。</p>
-<h2 id="対策"><span class="link-to-here-outer"><a href="#対策" title="対策"><span class="link-to-here">Link to<br />
-here</span></a></span>対策</h2>
-<h3 id="ユーザーとして出くわした場合"><span class="link-to-here-outer"><a href="#ユーザーとして出くわした場合" title="ユーザーとして出くわした場合"><span class="link-to-here">Link to<br />
-here</span></a></span>ユーザーとして出くわした場合</h3>
-<p>多くの場合、このエラーは以下のコマンドをあらかじめ実行しておけば回避できます。</p>
-<pre><code>&gt; chcp 65001
-&gt; stack exec -- site rebuild
-... 動くはず！</code></pre>
-<p>これは、現在開いているコマンドプロンプトで一時的に文字コードを切り替えるコマンドです。<br />
-<code>65001</code>という数字が<span class="ascii">UTF-8</span>を指しているようです。<br />
-もとに戻したい場合は<code>chcp 932</code>と実行しましょう。</p>
-<pre><code>&gt; chcp 932</code></pre>
-<p>どうやら「<span class="ascii">CP932</span>」の「<span class="ascii">932</span>」はここで出てくる「<span class="ascii">932</span>」と同じものを指しているようですね！</p>
-<p>どういう仕様なのか分かりませんが、このコマンド、<span class="ascii">MSYS2</span>の<span class="ascii">bash</span>でも使用できます。<br />
-ただし<code>chcp</code>コマンドは<code>C:\Windows\System32\</code>という、<span class="ascii">MSYS2</span>ユーザーにとってはあまり<code>PATH</code>に入れたくない場所に入っています。<br />
-このディレクトリーには、<code>find.exe</code>など、<span class="ascii">Unix</span>な方が好んで使うコマンドと同じ名前の非互換なコマンドがゴロゴロ転がっているのです！</p>
-<p>なので私は<span class="ascii">MSYS2</span>を使う時は<code>C:\Windows\System32\</code>は<code>PATH</code>から抜いています。<br />
-私と同じような方は下記のようにフルパスで実行しましょう。</p>
-<pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合"><span class="link-to-here-outer"><a href="#それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合" title="それでもダメな場合あるいはライブラリーなどの開発者として出くわした場合"><span class="link-to-here">Link to<br />
-here</span></a></span>それでもダメな場合、あるいはライブラリーなどの開発者として出くわした場合</h3>
-<p>残念ながら、<code>chcp 65001</code>してもこのエラーが消えないことはあります<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
-私の推測なんですが、どうも<code>chcp 65001</code>は<code>chcp 65001</code>したコマンドプロンプト（とか<span class="ascii">bash</span>）の孫プロセス（つまり、あなたが入力したコマンドの子プロセス）には届かないことがあるようです。</p>
-<p>そんなときは、実際にエラーが起きているコマンドの開発元にバグ報告するか、自分で直してみましょう。<br />
-バグ報告する場合は、「<code>chcp 932</code>してから実行してみて」とお願いすると、バグ報告を受けた開発者も再現しやすくて助かるかも知れません（残念ながら私はやったことがありません）。<br />
-自分で直す場合、いろいろ方法はありますが、対象の<code>Handle</code>オブジェクトの文字コードを変えることで対処するのが、一番直接的で確実でしょう。</p>
-<p>この問題は<code>Handle</code>に設定された文字コードと実際にやりとりされる文字列の文字コードに食い違いが発生しているため起こるものなのですから、適切な文字コードに変えてしまえばいいのです。<br />
-状況にもよりますがエラーが起きた<code>Handle</code>が普通の<span class="ascii">UTF-8</span>なファイルを読み書きするものである場合、下記のようにすれば、問題は回避できるはずです。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">hSetEncoding handle utf8</a></code></pre></div>
-<p>それから、<a href="https://github.com/haskell/haddock/pull/566">実際に私が<span class="ascii">haddock</span>のバグを直した時</a>を例に標準出力（または標準エラー出力）でこのエラーが発生した時の対応も紹介しておきます。<br />
-コードだけ貼り付けると、下記のようにすれば少なくともエラーが起こらないようにすることはできます（<a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">このコミット</a>とほぼ同じ内容です）。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="ot">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="ot">#endif</span></a>
-<a class="sourceLine" id="cb6-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="fu">...</span></a>
-<a class="sourceLine" id="cb6-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="ot">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13">  liftIO <span class="fu">$</span> hSetEncoding stdout <span class="fu">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="ot">#endif</span></a></code></pre></div>
-<p><span class="ascii">Windows</span>でしか使用できないモジュールを<code>import</code>している関係上、<span class="ascii">CPP</span>のマクロが混ざって読みにくいですが、重要な部分だけ切り出すと、</p>
-<pre><code>hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure</code></pre>
-<p>とすればよいのです。</p>
-<p>一つ一つ解説しましょう。<br />
-まず<code>hSetEncoding</code>は先ほども触れたとおり指定した<code>Handle</code>の文字コードを変更する関数です。<br />
-そして<code>stdout</code>は名前の通り標準出力を表す<code>Handle</code>です。<br />
-最後の<code>mkLocaleEncoding TransliterateCodingFailure</code>ですが、これは<span class="ascii">Windows</span>で設定された文字コード（<code>chcp</code>された文字コードと同じ）を作って、「もし（<span class="ascii">Unicode</span>から、あるいは<span class="ascii">Unicode</span>に）変換できない文字があった場合、エラーにせず、それっぽい文字に変換する」という設定で返す、という意味です。</p>
-<p>結果、<code>chcp 932</code>な状態で<span class="ascii">GHC</span>のエラーメッセージにも使われる</p>
-<pre><code>↓この文字
-• No instance for (Transformation Nagisa CardCommune_Mepple)
-↑</code></pre>
-<p>が、</p>
-<pre><code>? No instance for (Transformation Nagisa CardCommune_Mepple)</code></pre>
-<p>のように、クエスチョンマークに変換されるようになります。そう、日本語の<span class="ascii">Windows</span>で<span class="ascii">GHC</span>をお使いの方は一度は目にした「<span class="ascii">?</span>」ではないでしょうか😅<br />
-つまり<span class="ascii">GHC</span>はデフォルトで<code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code>しているものと推測されます。<br />
-いずれにせよ、エラーでプログラムが異常終了しないだけマシですね。</p>
-<p>更に補足すると、<span class="ascii">GHC</span>の文字コードについてより詳しい情報は、<a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html"><span class="ascii">GHC.IO.Encoding</span>のドキュメント</a>をご覧ください。</p>
-<h1 id="permission-deniedと言われたらビルドし直そう"><span class="link-to-here-outer"><a href="#permission-deniedと言われたらビルドし直そう" title="permission-deniedと言われたらビルドし直そう"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Permission Denied</span>と言われたらビルドし直そう</h1>
-<p>雑なまとめと言いつつ最初の一つ目が長くなってしまいましたが、ここからは簡単に言います。<br />
-<span class="ascii">Windows</span>で<code>stack build</code>なり<code>ghc</code>なり<code>elm-make</code>なりとにかくいろいろ動かしていると、「<span class="ascii">Permission Denied</span>」と言ったエラー（あるいはこれと似たようなメッセージのエラー）に出遭います。<br />
-正直に言って私は原因はサッパリ分かってないのですが、このエラーは大抵の場合何度も同じコマンドを実行すれば再現しませんでした。<br />
-一度や二度ではめげず、繰り返すのがポイントです 😅<br />
-問題が起きているディレクトリーをウィルス対策ソフトのスキャン対象から外してみるとか、<span class="ascii">Dropbox</span>の同期を一時的に止めてみる、といったこともやってみるといいかもしれません。</p>
-<p>あ、あと、「<span class="ascii">Directory not empty</span>」みたいなのもあったかな。これは同類のはずです。</p>
-<h1 id="cのライブラリーは-まぁ頑張れ"><span class="link-to-here-outer"><a href="#cのライブラリーは-まぁ頑張れ" title="cのライブラリーは-まぁ頑張れ"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">C</span>のライブラリーは… まぁ、頑張れ。</h1>
-<p><span class="ascii">Pure Haskell</span>なライブラリーであれば大体<span class="ascii">OK</span>なんですが、残念ながら<span class="ascii">C</span>のライブラリー（<code>lib***</code>みたいな名前でよく<span class="ascii">OS</span>のパッケージマネージャーに登録されているやつですね）に依存したライブラリーは、<span class="ascii">Windows</span>でインストールするのは結構トラブることが多いです。<br />
-まぁ、これは<span class="ascii">Haskell</span>に限った話ではないでしょう。</p>
-<p>対応方法は私が知る限り完全にケースバイケースなので、ここでは知っている対応例をいくつか挙げておきましょう。</p>
-<ul>
-<li><span class="ascii">HDBC-sqlite3:</span>
-<ul>
-<li><a href="https://qiita.com/igrep/items/d947ab871eb5b20b57e4"><span class="ascii">Windows</span>版<span class="ascii">stack</span>でも<span class="ascii">HDBC-sqlite3</span>をビルドする <span class="ascii">- Qiita</span></a></li>
-<li><a href="http://hiratara.hatenadiary.jp/entry/2017/01/29/110100"><span class="ascii">MSYS2</span>で<span class="ascii">HDBC-sqlite3</span>をコンパイル <span class="ascii">-</span> 北海道苫小牧市出身の初老<span class="ascii">PG</span>が書くブログ</a></li>
-</ul></li>
-<li><a href="https://teratail.com/questions/102462"><span class="ascii">Haskell - Haskell</span>にて<span class="ascii">stack</span>で<span class="ascii">iconv</span>パッケージを利用する方法【<span class="ascii">Windows</span>環境】<span class="ascii">(102462)</span>｜<span class="ascii">teratail</span></a></li>
-</ul>
-<p>以上です！<br />
-それでは<span class="ascii">2018</span>年も<span class="ascii">Haskell on Windows 10</span>で<span class="ascii">Happy Hacking!! WSL</span>なんて知らないぜ！🏁🏁🏁</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>敢えて脚注に書きますが、<a href="http://eta-lang.org/"><span class="ascii">Eta</span></a>のコンパイラーをビルドしている時（のはず）、<code>chcp 65001</code>でもダメで<code>chcp 20127</code>ならうまくいったことがあります。<br />
-<code>chcp 20127</code>は<span class="ascii">US-ASCII</span>に切り替えるためのコマンドですが、やっぱり<span class="ascii">Eta</span>の開発者の手元（？）ではそうなっているからなのでしょうか…？<a href="#fnref1" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2017/advent-calendar-2017.html" lang="ja">Haskell Advent Calendar 2017 まとめ</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2017/typesafe-precure2.html" style="margin-left: auto;" lang="ja">タイプセーフプリキュア！を支える技術 その2</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
