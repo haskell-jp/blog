@@ -350,7 +350,7 @@ PerlやRubyなどの構文で言えば、`/.../`の中は別世界ですよね�
 また、もう少し小さいサンプルとして、プリキュアハッカソンの成果発表でデモをした時点のコミットも載せておきます。  
 👇のコマンドを実行すれば、[こちらのコミット時点のパーサー](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/app/migrate2cure-index.hs#L101-L118)で、[同時点のTypes.hs](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/Dokidoki/Types.hs#L19-L23)から、`cure-index.json`で使用する[`Girl`](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Index/Types.hs#L44-L46)という型の値を取り出すことができます！
 
-```
+```haskell
 > git clone https://github.com/igrep/typesafe-precure
 > cd typesafe-precure
 > git checkout 73948fb4a82baaf4e33900d77326791c7703f786
