@@ -124,7 +124,7 @@ transformees =
 以下は「魔法つかいプリキュア！」のルートに当たるモジュール[`MahoGirls.hs`](https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Textbook/MahoGirls.hs)からの抜粋です。
 
 
-```
+```haskell
 module ACME.PreCure.Textbook.MahoGirls where
 
 import ACME.PreCure.Textbook.MahoGirls.Profiles
