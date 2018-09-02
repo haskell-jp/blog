@@ -356,7 +356,15 @@ PerlやRubyなどの構文で言えば、`/.../`の中は別世界ですよね�
 > git checkout 73948fb4a82baaf4e33900d77326791c7703f786
 > stack build :migrate2cure-index
 > stack exec migrate2cure-index
-hoge
+
+... 略 ...
+
+-- src/ACME/PreCure/Textbook/Dokidoki --
+Girl {girlId = "\"Mana\"", girlNameEn = "\"Mana\" ++ error \"Need family name!\"", girlNameJa = "girlName"}
+Girl {girlId = "\"Rikka\"", girlNameEn = "\"Rikka\" ++ error \"Need family name!\"", girlNameJa = "girlName"}
+Girl {girlId = "\"Alice\"", girlNameEn = "\"Alice\" ++ error \"Need family name!\"", girlNameJa = "girlName"}
+Girl {girlId = "\"Makoto\"", girlNameEn = "\"Makoto\" ++ error \"Need family name!\"", girlNameJa = "girlName"}
+Girl {girlId = "\"Aguri\"", girlNameEn = "\"Aguri\" ++ error \"Need family name!\"", girlNameJa = "girlName"}
 ```
 
 # その他の似たソリューション
