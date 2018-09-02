@@ -1,5 +1,5 @@
 ---
-title: substring-parserでcure-index.jsonを移行した話
+title: substring-parserで「タイプセーフプリキュア！」を移行した話
 headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: ～タイプセーフプリキュア！を支える技術 その3～
