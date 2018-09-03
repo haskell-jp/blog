@@ -57,7 +57,7 @@ $ stack exec ghci -- -interactive-print="Text.Show.Unicode.uprint"
 
 - [igreque : Info -> Haskellでプリキュアを作ってみた](http://the.igreque.info/posts/2016/06-type-safe-precure.html)
 
-## cure-index.json とは？
+## cure-index.jsonとは？
 
 そんな「タイプセーフプリキュア！」ですが、前述のQiitaの記事の最後で「typesafe-precureは現状非常に冗長で、非実用的な実装になってしまっています」と述べているとおり、ほかのプリキュア実装と異なり、~~実用性を度外視して~~「設定の正しさ」を最優先事項とした結果、変身時の台詞や浄化技（「必殺技」ともしばしば呼ばれます）の台詞を取得するのに、非常に冗長なコードが必要になってしまいました。  
 それではせっかくYouTubeやらWikipediaやらBlu-rayやらを見直してせっせと集めた情報が勿体ないので、集めた情報を、コンパイル時にJSONとして出力することにしました。  
@@ -145,7 +145,7 @@ $(declareTransformees transformees)
 修正前との違いにおける要点を繰り返しましょう。修正後の各`Textbook`モジュールでは、
 
 - プリキュアの情報を、
-    - cure-index.json として書き出すためのデータ
+    - cure-index.jsonとして書き出すためのデータ
     - Template Haskellで型や型クラスのインスタンスとして生成するためのデータ
 - **両方で扱えるようにするために、専用の型の値として保存**
 
