@@ -333,8 +333,9 @@ substring-parserはどのようにして、任意のパーサーコンビネー�
 1. とりあえず先頭からマッチさせてみる。
 1. 失敗したら先頭の一文字をスキップして、次の文字からまたマッチさせてみる。
 
-という手順を繰り返すだけです。  
-結果として文字列の先頭にある「マッチさせたくない文字列」をスキップすることができるのです。  
+という手順を繰り返すだけです。 
+結果として文字列の先頭にある「マッチさせたくない文字列」をスキップすることができるのです。
+
 ⚠️残念ながら決して効率のいい方法ではないので、真面目なパーサーを書くときはおすすめしません！  
 あくまでも今回のような、書き捨てだけど、それなりに複雑な文字列を解析する必要がある場合のみ使うべきでしょう。
 
@@ -390,9 +391,11 @@ Python 2に依存しているのがちょっとつらいところでしょうか
 ## [refactorio](https://github.com/SuperpowersCorp/refactorio)
 
 [SuperPowers Corp](https://www.superpowerscorp.com/)という会社が開発中の、lensをはじめとするHaskellのパワーを集大成させた、ソースコードの一括置換ツールです。  
-`ByteString -> ByteString`という型のHaskellの関数を渡すことで、指定したディレクトリーのファイルすべてに対して関数を適用し、書き換えます。  
+`ByteString -> ByteString`という型のHaskellの関数を渡すことで、指定したディレクトリーのファイルすべてに対して関数を適用し、書き換えます。
+
 加えて、`--haskell`や`--html`、`--javascript`など、各言語に特化したオプションを渡すと、各言語のソースコードを修正するlensベースのmoduleをimportした状態で、関数を作れるようにしてくれます。  
-具体的には、例えば`--haskell`オプションを渡すと、[haskell-src-exts](https://hackage.haskell.org/package/haskell-src-exts)と[haskell-src-exts-prisms](https://hackage.haskell.org/package/haskell-src-exts-prisms)パッケージのモジュールをimportすることで、HaskellのASTの各トークンに対応した`Prism`などが使えるようになります。  
+具体的には、例えば`--haskell`オプションを渡すと、[haskell-src-exts](https://hackage.haskell.org/package/haskell-src-exts)と[haskell-src-exts-prisms](https://hackage.haskell.org/package/haskell-src-exts-prisms)パッケージのモジュールをimportすることで、HaskellのASTの各トークンに対応した`Prism`などが使えるようになります。
+
 後は[`biplate`](https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate)などlensライブラリーのコンビネーターと組み合わせれば、一気にHaskellのソースコードを編集することができます。
 「任意のデータ構造に対するjQuery」とも言われるlensライブラリーのパワーを存分に生かしたツールなのです。
 
