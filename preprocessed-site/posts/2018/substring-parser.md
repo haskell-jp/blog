@@ -117,8 +117,8 @@ transformees =
   ]
 ```
 
-`mkTransformee`関数で作っている`Transformee`型の値は、`cure-index.json`の一部として、JSONに変換する中間データです。もちろん`ToJSON`のインスタンスになっております。  
-このように新しい各`Textbook`モジュールでは、直接Haskellのソースコードとしてプリキュアの設定を書く代わりに、**一旦JSONに変換する用の中間データを設けることで、`cure-index.json`に収録しやすい状態に**しています。
+`mkTransformee`関数で作っている`Transformee`型の値は、cure-index.jsonの一部として、JSONに変換する中間データです。もちろん`ToJSON`のインスタンスになっております。  
+このように新しい各`Textbook`モジュールでは、直接Haskellのソースコードとしてプリキュアの設定を書く代わりに、**一旦JSONに変換する用の中間データを設けることで、cure-index.jsonに収録しやすい状態に**しています。
 
 こうして作られた`Transformee`などの中間データ用の値は、各`Textbook`モジュールのルートに当たるモジュールで、型クラスのインスタンス宣言を行ったり、`ANN`という機能でモジュールに紐付けられます。  
 以下は「魔法つかいプリキュア！」のルートに当たるモジュール[`MahoGirls.hs`](https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Textbook/MahoGirls.hs)からの抜粋です。
@@ -145,7 +145,7 @@ $(declareTransformees transformees)
 修正前との違いにおける要点を繰り返しましょう。修正後の各`Textbook`モジュールでは、
 
 - プリキュアの情報を、
-    - `cure-index.json` として書き出すためのデータ
+    - cure-index.json として書き出すためのデータ
     - Template Haskellで型や型クラスのインスタンスとして生成するためのデータ
 - **両方で扱えるようにするために、専用の型の値として保存**
 
@@ -307,7 +307,7 @@ PerlやRubyなどの構文で言えば、`/.../`の中は別世界ですよね�
 
 ### ソースコードの書き換えと`substring-parser`
 
-さて、今回の目的は「『タイプセーフプリキュア！』のソースコードの書式を書き換えることで、全シリーズのプリキュアの情報を`cure-index.json`に収録する」ことでした。  
+さて、今回の目的は「『タイプセーフプリキュア！』のソースコードの書式を書き換えることで、全シリーズのプリキュアの情報をcure-index.jsonに収録する」ことでした。  
 そのためには、各`Textbook`モジュールのソースコードにおいて**途中**に含まれている、プリキュアを表す型の定義や、型クラスのインスタンス宣言を集める必要があります。  
 しかもそれらは、一つの定義が行をまたいでいたりまたいでなかったりするので、よくある行単位で処理するツールを使うのも、なかなか難しいと思います。  
 また、抽出したいデータ構造も多様かつそこそこに複雑で、中には再帰的なデータ構造もあります。正規表現を用いてのパースも、かなり困難なことでしょう。  
@@ -348,7 +348,7 @@ PerlやRubyなどの構文で言えば、`/.../`の中は別世界ですよね�
 ご興味のある方はご覧になってみてください。
 
 また、もう少し小さいサンプルとして、プリキュアハッカソンの成果発表でデモをした時点のコミットも載せておきます。  
-👇のコマンドを実行すれば、[こちらのコミット時点のパーサー](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/app/migrate2cure-index.hs#L101-L118)で、[同時点のTypes.hs](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/Dokidoki/Types.hs#L19-L23)から、`cure-index.json`で使用する[`Girl`](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Index/Types.hs#L44-L46)という型の値を取り出すことができます！
+👇のコマンドを実行すれば、[こちらのコミット時点のパーサー](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/app/migrate2cure-index.hs#L101-L118)で、[同時点のTypes.hs](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/Dokidoki/Types.hs#L19-L23)から、cure-index.jsonで使用する[`Girl`](https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Index/Types.hs#L44-L46)という型の値を取り出すことができます！
 
 ```haskell
 > git clone https://github.com/igrep/typesafe-precure
@@ -403,7 +403,7 @@ Python 2に依存しているのがちょっとつらいところでしょうか
 # 次のゴール
 
 「タイプセーフプリキュア！」の開発は、これからもプリキュアハッカソンの前後とプリキュアAdvent Calendarの前後を中心に、今後も続ける予定です。  
-先にも触れましたが、次回は今回完成させた`cure-index.json`を使用することで、[かつてrubicureで作ったユナイトプリキュア](http://the.igreque.info/posts/2014-12-25-unite-precure.vim.html)を「ユナイトプリキュア」を「ディナイトプリキュア」として書き直すかも知れません。  
+先にも触れましたが、次回は今回完成させたcure-index.jsonを使用することで、[かつてrubicureで作ったユナイトプリキュア](http://the.igreque.info/posts/2014-12-25-unite-precure.vim.html)を「ユナイトプリキュア」を「ディナイトプリキュア」として書き直すかも知れません。  
 ただ、それ以外にももうちょっとHaskellで遊びたいことがあるので、後回しにするかも知れません。  
 Vim script、あんまり書きたくないんですよね...😥
 
