@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="substring-parserで「タイプセーフプリキュア！」を移行した話">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="substring-parserで「タイプセーフプリキュア！」を移行した話 - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2018/substring-parser.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---先日私は[プリキュアハッカソン NewStage](https://cure-hack.connpass.com/event/91157/)というちょっと変わったイベントで、「[タイプセーフプリキュア！](https://github.com/igrep/typesafe-precure)」の最近の更新について発表いたしました。  今回は[その際使用したスライド](http://the.ig" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>substring-parserで「タイプセーフプリキュア！」を移行した話 - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join-haskell-jp-slack.herokuapp.com/">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>substring-parserで「タイプセーフプリキュア！」を移行した話</h1>
+                      <h2 class="subheading">～タイプセーフプリキュア！を支える技術 その3～</h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on September 4, 2018</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>先日私は<a href="https://cure-hack.connpass.com/event/91157/">プリキュアハッカソン <span class="ascii">NewStage</span></a>というちょっと変わったイベントで、「<a href="https://github.com/igrep/typesafe-precure">タイプセーフプリキュア！</a>」の最近の更新について発表いたしました。<br />
+今回は<a href="http://the.igreque.info/slides/2018-08-18-substring-parser.html">その際使用したスライド</a>を、ブログ記事として拡大して共有させていただきたいと思います！</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#予告編はじめにまとめ" title="予告編はじめにまとめ">予告編（はじめにまとめ）</a></li>
+<li><a href="#これまでのあらすじ" title="これまでのあらすじ">これまでのあらすじ</a>
+<ul>
+<li><a href="#タイプセーフプリキュアとは" title="タイプセーフプリキュアとは">「タイプセーフプリキュア！」とは？</a></li>
+<li><a href="#cure-index.jsonとは" title="cure-index.jsonとは"><span class="ascii">cure-index.json</span>とは？</a></li>
+</ul></li>
+<li><a href="#今回のプリキュアハッカソンに向けて行ったこと" title="今回のプリキュアハッカソンに向けて行ったこと">今回のプリキュアハッカソンに向けて行ったこと</a>
+<ul>
+<li><a href="#修正前の書式" title="修正前の書式">🔴修正<strong>前</strong>の書式</a></li>
+<li><a href="#修正後の書式" title="修正後の書式">🔵修正<strong>後</strong>の書式</a></li>
+<li><a href="#どうやって修正する" title="どうやって修正する">どうやって修正する？</a>
+<ul>
+<li><a href="#パーサーコンビネーターとは" title="パーサーコンビネーターとは">パーサーコンビネーターとは</a></li>
+<li><a href="#パーサーコンビネーターが正規表現より良いところ悪いところ" title="パーサーコンビネーターが正規表現より良いところ悪いところ">パーサーコンビネーターが正規表現より良いところ・悪いところ</a>
+<ul>
+<li><a href="#パーツとしてパーサーを組み合わせるのが簡単" title="パーツとしてパーサーを組み合わせるのが簡単">👍パーツとしてパーサーを組み合わせるのが簡単</a></li>
+<li><a href="#パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単" title="パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単">👍パースした結果を、文字列から複雑なデータ構造に割り当てるのが簡単</a></li>
+<li><a href="#パースした結果に基づいてパーサーの挙動を変えることができる" title="パースした結果に基づいてパーサーの挙動を変えることができる">👍パースした結果に基づいて、パーサーの挙動を変えることができる</a></li>
+<li><a href="#記述が冗長" title="記述が冗長">👎記述が冗長</a></li>
+<li><a href="#ユーザーからの入力として直接受け取ることは難しい" title="ユーザーからの入力として直接受け取ることは難しい">👎ユーザーからの入力として直接受け取ることは難しい。</a></li>
+<li><a href="#正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる" title="正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる">👎正規表現でいうところの <code>*</code> にあたる<code>many</code>が、必ず強欲なマッチになる</a></li>
+<li><a href="#文字列の先頭からのマッチしかできない" title="文字列の先頭からのマッチしかできない">👎文字列の先頭からのマッチしかできない</a></li>
+</ul></li>
+<li><a href="#ソースコードの書き換えとsubstring-parser" title="ソースコードの書き換えとsubstring-parser">ソースコードの書き換えと<span class="ascii">substring-parser</span></a>
+<ul>
+<li><a href="#substring-parserの仕組み" title="substring-parserの仕組み"><span class="ascii">substring-parser</span>の仕組み</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#結果できたもの" title="結果できたもの">結果、できたもの</a></li>
+</ul></li>
+<li><a href="#その他の似たソリューション" title="その他の似たソリューション">その他の似たソリューション</a>
+<ul>
+<li><a href="#codemod" title="codemod"><span class="ascii">codemod</span></a></li>
+<li><a href="#jscodeshift" title="jscodeshift"><span class="ascii">jscodeshift</span></a></li>
+<li><a href="#refactorio" title="refactorio"><span class="ascii">refactorio</span></a></li>
+</ul></li>
+<li><a href="#次のゴール" title="次のゴール">次のゴール</a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="予告編はじめにまとめ"><span class="link-to-here-outer"><a href="#予告編はじめにまとめ" title="予告編はじめにまとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>予告編（はじめにまとめ）</h1>
+<ul>
+<li><span class="ascii">Haskell</span>界に伝わる伝説のアイテム「パーサーコンビネーター」を応用して、「タイプセーフプリキュア！」の古いソースコードを半自動で変換しました。</li>
+<li>「パーサーコンビネーター」は正規表現よりいいところたくさんですが、文字列の先頭からのマッチしかできないのがつらいです。
+<ul>
+<li><a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを書いて、対応しました。</li>
+</ul></li>
+<li>パーサーコンビネーター最高！ ✌️😆✌️</li>
+</ul>
+<h1 id="これまでのあらすじ"><span class="link-to-here-outer"><a href="#これまでのあらすじ" title="これまでのあらすじ"><span class="link-to-here">Link to<br />
+here</span></a></span>これまでのあらすじ</h1>
+<h2 id="タイプセーフプリキュアとは"><span class="link-to-here-outer"><a href="#タイプセーフプリキュアとは" title="タイプセーフプリキュアとは"><span class="link-to-here">Link to<br />
+here</span></a></span>「タイプセーフプリキュア！」とは？</h2>
+<p><a href="https://github.com/sue445/rubicure"><span class="ascii">rubicure</span></a>や<a href="https://github.com/kan/p5-acme-prettycure"><span class="ascii">ACME::PrettyCure</span></a>のような「<a href="https://qiita.com/sue445/items/b41a4f5bdca46f1736c3">プリキュア実装</a>」の<span class="ascii">1</span>つです。<br />
+詳しくはこれから挙げる過去の記事をご覧ください、と言いたいところですが、よくよく見たら「プリキュア実装」が何かを明記してる記事ではないようなので😅、ここで軽く説明しましょう。<br />
+「プリキュア実装」とは一言で言うと「プリキュアやプリキュアに変身する女の子たち、変身時の台詞など諸々のプリキュアの設定をソースコードに収録したライブラリー」です。</p>
+<p>例えば、今回取り上げます私の「タイプセーフプリキュア！」は（もちろん）<span class="ascii">Haskell</span>で書かれたプリキュア実装で、次のように書くことで、キュアアンジュが変身する際の台詞を取得することができます。<br />
+<small>（出力されるリストは、手で整形しています）</small></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">&gt;</span> <span class="kw">import</span> <span class="dt">ACME.PreCure</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">-- キュアアンジュには、薬師寺さあやが「ミライクリスタル・ブルー」を</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co">-- セットした「プリハート」を使うことで変身します。</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="fu">&gt;</span> transformationSpeech <span class="dt">Saaya</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalBlue</span>)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">[ <span class="st">&quot;ミライクリスタル！&quot;</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">, <span class="st">&quot;ハートキラっと！&quot;</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">, <span class="st">&quot;は～ぎゅ～～！&quot;</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">, <span class="st">&quot;ぎゅ～！&quot;</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">, <span class="st">&quot;ぎゅ～～！&quot;</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">, <span class="st">&quot;輝く未来をー、抱きしめて！&quot;</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">, <span class="st">&quot;みんなを癒す！知恵のプリキュア！キュアアンジュ！&quot;</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">]</a></code></pre></div>
+<p><span class="ascii">GHCi</span>で上記のコードを試す場合は、下記のコードで<span class="ascii">typesafe-precure</span>と<a href="https://github.com/haskell-jp/unicode-show"><span class="ascii">unicode-show</span></a>をインストールした上で起動するとよいでしょう。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1">$ <span class="ex">stack</span> build typesafe-precure unicode-show</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">$ <span class="ex">stack</span> exec ghci -- -interactive-print=<span class="st">&quot;Text.Show.Unicode.uprint&quot;</span></a></code></pre></div>
+<p>その他の機能や、使っている<span class="ascii">GHC</span>の拡張などについては下記の記事をご覧ください。</p>
+<ul>
+<li><a href="http://the.igreque.info/posts/2016/06-type-safe-precure.html"><span class="ascii">igreque : Info -&gt; Haskell</span>でプリキュアを作ってみた</a></li>
+<li><a href="https://qiita.com/igrep/items/5496fa405fae00b5a737">「タイプセーフプリキュア！」を支える技術 <span class="ascii">- Qiita</span></a></li>
+</ul>
+<h2 id="cure-index.jsonとは"><span class="link-to-here-outer"><a href="#cure-index.jsonとは" title="cure-index.jsonとは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">cure-index.json</span>とは？</h2>
+<p>そんな「タイプセーフプリキュア！」ですが、前述の<span class="ascii">Qiita</span>の記事の最後で「<span class="ascii">typesafe-precure</span>は現状非常に冗長で、非実用的な実装になってしまっています」と述べているとおり、ほかのプリキュア実装と異なり、<del>実用性を度外視して</del>「設定の正しさ」を最優先事項とした結果、変身時の台詞や浄化技（「必殺技」ともしばしば呼ばれます）の台詞を取得するのに、非常に冗長なコードが必要になってしまいました。<br />
+それではせっかく<span class="ascii">YouTube</span>やら<span class="ascii">Wikipedia</span>やら<span class="ascii">Blu-ray</span>やらを見直してせっせと集めた情報が勿体ないので、集めた情報を、コンパイル時に<span class="ascii">JSON</span>として出力することにしました。<br />
+そうして生まれたのが<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/cure-index.json"><span class="ascii">cure-index.json</span></a>とそれをプリティープリントした<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/pretty-cure-index.json"><span class="ascii">pretty-cure-index.json</span></a>です。<br />
+将来的には、<a href="http://the.igreque.info/posts/2014-12-25-unite-precure.vim.html">かつて<span class="ascii">rubicure</span>で作ったユナイトプリキュア</a>を書き直すのに使用しようかと考えています。</p>
+<p>作るに当たって新たに「タイプセーフプリキュア！」のソースコードに仕込んだ仕組みについては、<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>をご覧ください。<br />
+<span class="ascii">Template Haskell</span>や<span class="ascii">GHC</span>の<code>ANN</code>という機能を濫用することで達成しました。😎</p>
+<h1 id="今回のプリキュアハッカソンに向けて行ったこと"><span class="link-to-here-outer"><a href="#今回のプリキュアハッカソンに向けて行ったこと" title="今回のプリキュアハッカソンに向けて行ったこと"><span class="link-to-here">Link to<br />
+here</span></a></span>今回のプリキュアハッカソンに向けて行ったこと</h1>
+<p>従来の<span class="ascii">cure-index.json</span>には、最新作である「<span class="ascii">HUG</span>っと！プリキュア」と、その一つ前の作品である「キラキラ☆プリキュアアラモード」の情報しか収録されていませんでした。<br />
+前述の<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>でも触れましたが、収録のためにはプリキュアの設定の書式を大幅に変更しなければならず、面倒なのでひとまず後回しにしていたのです。</p>
+<p>そこで今年のプリキュアハッカソンにて発表するのによいネタだろうと思い、あの手この手を使って、全シリーズを<span class="ascii">cure-index.json</span>に含める対応を行いました<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>🎉。</p>
+<h2 id="修正前の書式"><span class="link-to-here-outer"><a href="#修正前の書式" title="修正前の書式"><span class="link-to-here">Link to<br />
+here</span></a></span>🔴修正<strong>前</strong>の書式</h2>
+<p>それでは、具体的にどんな修正を行ったのか紹介しましょう。<br />
+修正前は、プリキュアの設定を収録した各モジュール（<code>ACME.PreCure.Textbook</code>以下にあるので、今後は「<strong>各<code>Textbook</code>モジュール</strong>」と呼びます）には<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/MahoGirls/Types.hs#L71">👇こんな感じの<span class="ascii">Types.hs</span>がたくさん</a>ありました。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">data</span> <span class="dt">CureMiracle</span> <span class="fu">=</span> <span class="dt">CureMiracle</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">transformedInstance</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  [t| CureMiracle |]</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  cureName_Miracle</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">  introducesHerselfAs_Miracle</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">  variation_Dia</a></code></pre></div>
+<p>上記はキュアミラクルを表す型の定義と、その日本語での名前、変身時の名乗りといったプロフィールを設定しているコードです。<br />
+このほかにも、プリキュアに変身する女の子の設定や、変身の際に必要な変身アイテムなどの型定義がたくさんあります。<br />
+<code>transformedInstance</code>で始まる行は、<span class="ascii">Template Haskell</span>を使った、型クラスのインスタンス宣言です。<br />
+<a href="https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Types/TH.hs#L151-L158"><code>transformedInstance</code>というマクロ</a>が、<a href="https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Types.hs#L15-L19"><code>Transformed</code>という型クラス</a>のインスタンスを生成することで、プリキュアを表す型と、日本語での名前、変身時の名乗りを実際に紐付けているのです。<br />
+<small>（実際の日本語での名前はご覧のとおり<code>cureName_Miracle</code>といった変数に束縛されております。<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/MahoGirls/Words.hs#L18"><span class="ascii">Words.hs</span></a>というファイルから参照しています）</small></p>
+<p>修正前はこのように、あくまでも<span class="ascii">Haskell</span>のソースコードとして、プリキュアの設定を書いていたため、このままでは<span class="ascii">cure-index.json</span>のデータとして扱うのが難しい状態でした。</p>
+<h2 id="修正後の書式"><span class="link-to-here-outer"><a href="#修正後の書式" title="修正後の書式"><span class="link-to-here">Link to<br />
+here</span></a></span>🔵修正<strong>後</strong>の書式</h2>
+<p>そのため、今回修正した後の各<code>Textbook</code>モジュールでは、<a href="https://github.com/igrep/typesafe-precure/blob/fd5f89797372f616a551e07251c0fcd2ca1531c2/src/ACME/PreCure/Textbook/MahoGirls/Profiles.hs#L20">👇こんな感じの<span class="ascii">Profiles.hs</span></a>で、各種の設定を宣言することにしました。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="ot">transformees ::</span> [<span class="dt">Transformee</span>]</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">transformees <span class="fu">=</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  [ mkTransformee</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">      <span class="st">&quot;Cure Miracle&quot;</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">      <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">      cureName_Miracle</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">      variation_Dia</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">      introducesHerselfAs_Miracle</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  , <span class="fu">...</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">  ]</a></code></pre></div>
+<p><code>mkTransformee</code>関数で作っている<code>Transformee</code>型の値は、<span class="ascii">cure-index.json</span>の一部として、<span class="ascii">JSON</span>に変換する中間データです。もちろん<code>ToJSON</code>のインスタンスになっております。<br />
+このように新しい各<code>Textbook</code>モジュールでは、直接<span class="ascii">Haskell</span>のソースコードとしてプリキュアの設定を書く代わりに、<strong>一旦<span class="ascii">JSON</span>に変換する用の中間データを設けることで、<span class="ascii">cure-index.json</span>に収録しやすい状態に</strong>しています。</p>
+<p>こうして作られた<code>Transformee</code>などの中間データ用の値は、各<code>Textbook</code>モジュールのルートに当たるモジュールで、型クラスのインスタンス宣言を行ったり、<code>ANN</code>という機能でモジュールに紐付けられます。<br />
+以下は「魔法つかいプリキュア！」のルートに当たるモジュール<a href="https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Textbook/MahoGirls.hs"><code>MahoGirls.hs</code></a>からの抜粋です。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls.Profiles</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="fu">...</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="ot">{-# ANN module transformees #-}</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="fu">$</span>(declareTransformees transformees)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="fu">...</span></a></code></pre></div>
+<p><code>Profiles.hs</code>で定義した<code>transformees</code>というリストを、<code>ANN</code>で<code>MahoGirls</code>モジュールに紐付け、<code>declareTransformees</code>という<span class="ascii">Template Haskell</span>のマクロで型宣言やインスタンス宣言を生成するのに使っています。<br />
+<code>ANN</code>については<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">前回の「タイプセーフプリキュア！を支える技術」</a>をご覧ください<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
+<p>修正前との違いにおける要点を繰り返しましょう。修正後の各<code>Textbook</code>モジュールでは、</p>
+<ul>
+<li>プリキュアの情報を、
+<ul>
+<li><span class="ascii">cure-index.json</span>として書き出すためのデータ</li>
+<li><span class="ascii">Template Haskell</span>で型や型クラスのインスタンスとして生成するためのデータ</li>
+</ul></li>
+<li><strong>両方で扱えるようにするために、専用の型の値として保存</strong></li>
+</ul>
+<p>するようにしています。</p>
+<h2 id="どうやって修正する"><span class="link-to-here-outer"><a href="#どうやって修正する" title="どうやって修正する"><span class="link-to-here">Link to<br />
+here</span></a></span>どうやって修正する？</h2>
+<p>それではここからは、各<code>Textbook</code>モジュールの書式を、どうやって前節で説明したような、「修正前」から「修正後」の書式に移行したのか説明します。</p>
+<p>当然、手で修正するには大変な量です。<br />
+従来より「タイプセーフプリキュア！」では<span class="ascii">TV</span>シリーズ<span class="ascii">15</span>作品に加えてキュアエコーが出てくる映画もサポートしているため、各<code>Textbook</code>モジュールは<span class="ascii">16</span>作品分存在しています。<br />
+すでに「修正後」の書式に移行済みの「<span class="ascii">HUG</span>っと！プリキュア」と「キラキラ☆プリキュアアラモード」を除いても、<span class="ascii">14</span>作品分書き換えないといけません。<br />
+シリーズごとに定義されている型やインスタンス宣言の数にはばらつきがありますが、すべて移行してから数えてみたところ、型の数だけで<span class="ascii">313</span>個、変身や浄化技のインスタンス宣言だけで<span class="ascii">211</span>個ありました。<br />
+プリキュアやプリキュアに変身する女の子、変身アイテムだけでなく、それぞれの変種も別の型として定義しているため、実際のプリキュアの数よりも遙かに多いのです😵。<br />
+<span class="ascii">Vim</span>のマクロなどを駆使すれば決して人間の手でも移行できない規模ではありませんが、そこは「タイプセーフプリキュア！」です。<br />
+始まって以来私が<span class="ascii">GHC</span>の拡張を始めいろいろな技術を試すための実験場としても機能していたので、ここは是非ちょっと凝ったことをしてぱーっと書き換えてみたいものでしょう😏。<br />
+そこで思いついたのがパーサーコンビネーター、並びに拙作のライブラリー<a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>だったのです💡！</p>
+<h3 id="パーサーコンビネーターとは"><span class="link-to-here-outer"><a href="#パーサーコンビネーターとは" title="パーサーコンビネーターとは"><span class="link-to-here">Link to<br />
+here</span></a></span>パーサーコンビネーターとは</h3>
+<p><span class="ascii">substring-parser</span>の紹介の前に、パーサーコンビネーターについて簡単に紹介しておきましょう。<br />
+<small>（「すでに知ってるよ！」という方はこの節は飛ばした方が良いかと思います）</small><br />
+パーサーコンビネーターは、例えば正規表現のような、文字列を解析する技術の一つです。<br />
+<span class="ascii">Haskell</span>の<a href="http://hackage.haskell.org/package/megaparsec"><span class="ascii">megaparsec</span></a>や<a href="http://hackage.haskell.org/package/attoparsec"><span class="ascii">attoparsec</span></a>をはじめ、多くのプログラミング言語にライブラリーとして提供されています。</p>
+<p>実装はいろいろありますが、本質的にパーサーコンビネーターは「文字列を受け取って『文字列を解析した結果』と、『残りの文字列』を返す関数」として表現されます。<br />
+加えて、それらを簡単に組み合わせるための<span class="ascii">API</span>を提供することで、複雑な文字列から複雑なデータ構造を抽出できるようにしてくれます。</p>
+<p>実際のパーサーコンビネーターのライブラリーを単純化して例を挙げましょう。<br />
+例えば、通例パーサーコンビネーターのライブラリーは<code>decimal</code>という、「<span class="ascii">10</span>進数の文字列を受け取って、整数を返すパーサー」を提供していることが多いです。</p>
+<p><code>parse</code>関数に、解析したい文字列と一緒に渡すことで、「文字列を解析した結果」と、「残りの文字列」を取得することができます。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="fu">&gt;</span> parse decimal <span class="st">&quot;123abc&quot;</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>)</a></code></pre></div>
+<p>👆上記の例では「解析したい文字列」として<code>123abc</code>を渡したので、パースした結果の整数<code>123</code>と、その残りの文字列<code>&quot;abc&quot;</code>を返しています。</p>
+<p>これだけではつまらないので、ほかのパーサーの例も挙げましょう。<br />
+👇今度は「文字 セミコロン <code>;</code> を受け取って、そのまま返すパーサー」です。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="fu">&gt;</span> parse (char <span class="ch">';'</span>) <span class="st">&quot;;aaa&quot;</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">(<span class="ch">';'</span>, <span class="st">&quot;aaa&quot;</span>)</a></code></pre></div>
+<p>「パースした結果」がセミコロン <code>;</code> で、「残りの文字列」が<code>&quot;aaa&quot;</code>となっていますね。</p>
+<p>それでは以上<span class="ascii">2</span>つのパーサーを組み合わせて、<strong><span class="ascii">10</span>進数の文字列を受け取った後、セミコロンを受け取り、整数を返すパーサー</strong>を作ってみましょう。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="fu">&gt;</span> decimalAndSemicolon <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    n <span class="ot">&lt;-</span> decimal</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    char <span class="ch">';'</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">    return n</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="fu">&gt;</span> parse decimalAndSemicolon <span class="st">&quot;123;abc&quot;</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>) <span class="co">-- 結果にセミコロンが含まれてない点に注意</span></a></code></pre></div>
+<p><span class="ascii">Haskell</span>におけるパーサーコンビネーターのライブラリーは、パーサーを<code>Monad</code>として提供することで、上記のように<code>do</code>記法でパーサーを組み合わせることができるようになっています。<br />
+ここでは詳細は割愛しますが、</p>
+<ol type="1">
+<li><code>decimal</code>で整数をパースしたあと、</li>
+<li><code>char ';'</code> で文字セミコロン <code>;</code>をパース（でも結果は無視）し</li>
+<li>パースした結果として「<code>decimal</code>がパースした整数」<code>n</code>を返す</li>
+</ol>
+<p>という処理を行っているのがわかるでしょうか？</p>
+<p>ちなみに、パーサーコンビネーターに慣れた読者の方なら、いわゆる<span class="ascii">Applicative</span>スタイルを使って、次のようにも書けると気づくでしょう。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" data-line-number="1">decimalAndSemicolon <span class="fu">=</span> decimal <span class="fu">&lt;*</span> char <span class="ch">';'</span></a></code></pre></div>
+<p>これならパースした結果をいちいち変数に束縛する必要もなく、より簡潔に書くことができますね！</p>
+<p>パーサーコンビネーターのパワーを実感していただくために、もう一つ例を紹介します。<br />
+<code>many</code>という関数にパーサーコンビネーターを渡すと、「受け取ったパーサーコンビネーターで失敗するまで繰り返しパースして、その結果をリストとして返す」パーサーが作れます。<br />
+例えば先ほどの「<span class="ascii">10</span>進数の文字列を受け取った後、セミコロンを受け取り、整数を返すパーサー」から、「セミコロンが末尾に着けられた整数のリストを返すパーサー」を作ることができます。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" data-line-number="1">parse (many decimalAndSemicolon) <span class="st">&quot;12;34;56;&quot;</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">([<span class="dv">12</span>, <span class="dv">34</span>, <span class="dv">56</span>], <span class="st">&quot;&quot;</span>)</a></code></pre></div>
+<p>このようにパーサーコンビネーターは、小さなパーサーをどんどん組み合わせることで、複雑な文字列から複雑なデータ構造を取り出すパーサーを、クールに作れるようにしてくれます。</p>
+<h3 id="パーサーコンビネーターが正規表現より良いところ悪いところ"><span class="link-to-here-outer"><a href="#パーサーコンビネーターが正規表現より良いところ悪いところ" title="パーサーコンビネーターが正規表現より良いところ悪いところ"><span class="link-to-here">Link to<br />
+here</span></a></span>パーサーコンビネーターが正規表現より良いところ・悪いところ</h3>
+<p>そんなパーサーコンビネーターについて、正規表現と比べた場合の長所短所を明確にしておきましょう。<br />
+まずはよいところから。</p>
+<h4 id="パーツとしてパーサーを組み合わせるのが簡単"><span class="link-to-here-outer"><a href="#パーツとしてパーサーを組み合わせるのが簡単" title="パーツとしてパーサーを組み合わせるのが簡単"><span class="link-to-here">Link to<br />
+here</span></a></span>👍パーツとしてパーサーを組み合わせるのが簡単</h4>
+<p>前節で示したように、複雑なパーサーも、小さなパーサーの組み合わせからコツコツと作れるようになっています。</p>
+<h4 id="パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単"><span class="link-to-here-outer"><a href="#パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単" title="パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単"><span class="link-to-here">Link to<br />
+here</span></a></span>👍パースした結果を、文字列から複雑なデータ構造に割り当てるのが簡単</h4>
+<p>さっきの<code>decimal</code>は、パースした結果を直接整数<span class="ascii">(</span><code>Int</code><span class="ascii">)</span>として返していたことにお気づきでしょうか？<br />
+正規表現で欲しい文字列からデータ構造を取り出したい際は、通常グルーピング機能を使うことになりますが、必ず一旦文字列として取り出すことになります。<br />
+それに対してパーサーコンビネーターには、取り出した文字列を対象のデータ構造に変換する仕組みが組み込まれています。<br />
+再帰的なパーサーを書いて再帰的なデータ構造に割り当てるのも楽ちんです。</p>
+<h4 id="パースした結果に基づいてパーサーの挙動を変えることができる"><span class="link-to-here-outer"><a href="#パースした結果に基づいてパーサーの挙動を変えることができる" title="パースした結果に基づいてパーサーの挙動を変えることができる"><span class="link-to-here">Link to<br />
+here</span></a></span>👍パースした結果に基づいて、パーサーの挙動を変えることができる</h4>
+<p>今回の例にはありませんでしたが、例えばパースして取り出した整数の数だけ、続きの文字列を繰り返しパースする、といったことも簡単にできます。</p>
+<p>一方、正規表現と比べて悪いところもあります。</p>
+<h4 id="記述が冗長"><span class="link-to-here-outer"><a href="#記述が冗長" title="記述が冗長"><span class="link-to-here">Link to<br />
+here</span></a></span>👎記述が冗長</h4>
+<p>正規表現はいわゆる「外部<span class="ascii">DSL</span>」、すなわちプログラミング言語から独立した構文で提供されています。<br />
+<span class="ascii">Perl</span>や<span class="ascii">Ruby</span>などの構文で言えば、<code>/.../</code>の中は別世界ですよね。<br />
+パーサーコンビネーターは、本質的に「文字列を受け取って『文字列を解析した結果』と、『残りの文字列』を返す関数」であるとおり、あくまでプログラミング言語標準の関数<small>（のうち、文字列の解析に特化したもの）</small>として提供されます。「内部<span class="ascii">DSL</span>」なんて呼ばれることもあります。</p>
+<p>そのため、正規表現とは異なり、あくまでもプログラミング言語の構文の中で使えなければならないため、使用できる文字列に限りがあり、必然的に長くなります。<br />
+例えば先ほどの<code>many</code>は正規表現で言うところの<code>*</code><small>（<span class="ascii">0</span>回以上の量指定子）</small>とちょっと似てますが、正規表現の方が<span class="ascii">3</span>文字も短いですよね。</p>
+<p>しかしながら、冗長であることはメリットにもなり得ます👍。<br />
+<code>*</code>をはじめ、正規表現の特殊な機能を使うには、専用の記号（メタキャラクター）をその数だけ覚えなければなりません。<br />
+片やパーサーコンビネーターは<code>many</code>のような機能も普通の関数として提供されるため、冗長である分分かりやすい名前をつけやすいのです。</p>
+<h4 id="ユーザーからの入力として直接受け取ることは難しい"><span class="link-to-here-outer"><a href="#ユーザーからの入力として直接受け取ることは難しい" title="ユーザーからの入力として直接受け取ることは難しい"><span class="link-to-here">Link to<br />
+here</span></a></span>👎ユーザーからの入力として直接受け取ることは難しい。</h4>
+<p>パーサーコンビネーターは先ほども触れた「内部<span class="ascii">DSL</span>」です。<br />
+つまり、プログラミング言語の普通の関数として使用されるものです。<br />
+したがって、例えば正規表現をエディターの検索機能に利用すると言ったような、「ユーザーからの入力として受け取る」と言ったことは、不可能ではないものの、正規表現に比べれば難しいです。</p>
+<h4 id="正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる"><span class="link-to-here-outer"><a href="#正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる" title="正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる"><span class="link-to-here">Link to<br />
+here</span></a></span>👎正規表現でいうところの <code>*</code> にあたる<code>many</code>が、必ず強欲なマッチになる</h4>
+<p>こちらについてはちょっと難しいので後述します。</p>
+<h4 id="文字列の先頭からのマッチしかできない"><span class="link-to-here-outer"><a href="#文字列の先頭からのマッチしかできない" title="文字列の先頭からのマッチしかできない"><span class="link-to-here">Link to<br />
+here</span></a></span>👎文字列の先頭からのマッチしかできない</h4>
+<p>この問題は、パーサーコンビネーターをベター正規表現として使おうと思った場合に、しばしばパーサー作りを面倒くさくします。<br />
+パーサーコンビネーターは、原理上必ず文字列の先頭から解析するよう作られています。<br />
+例えば先ほど紹介したパーサー<code>decimal</code>の場合、</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="fu">&gt;</span> parse decimal <span class="st">&quot;abc123&quot;</span></a></code></pre></div>
+<p>と書いても、<code>&quot;abc123&quot;</code>は先頭が「<span class="ascii">10</span>進数の文字列」ではないので、失敗してしまいます<small>（実際の戻り値はライブラリーによって異なります。試してみましょう！）</small>。</p>
+<p>パーサーコンビネーターはそもそもの用途が<span class="ascii">0</span>からプログラミング言語などのマシンリーダブルな構文を作るところにあるので、妥当と言えば妥当な制限です。<br />
+その場合は必ず、文字列を頭から読んでパースすることになるでしょうから。</p>
+<p>とはいえ、これは正規表現で例えるなら、常に先頭に<code>\A</code> <span class="ascii">(</span>あるいは <code>^</code><span class="ascii">)</span>を付けなければならない、あるいは自動的に付いてしまう、というような制限です。<br />
+正規表現は行の中にある一部の文字列を抽出したり置換したりするのによく使われるので、役に立たないケースがたくさん出てきてしまいます。</p>
+<p>パーサーコンビネーターでこの問題に対応するには、マッチさせたい文字列に到達するまで、スキップするための処理を書かないといけません。<br />
+残念ながらこれは、正規表現で言うところの <code>\A.*(本当にマッチさせたい文字列)</code> と書けばよい話<strong>ではありません</strong>。<br />
+<code>\A(マッチさせたくない文字列)*(本当にマッチさせたい文字列)</code> という書き方をしなければならないのです。<br />
+なぜなら、先ほど触れた「正規表現でいうところの <code>*</code> にあたる<code>many</code>が強欲なマッチになる」という問題があるためです。<br />
+正規表現で言うところの<code>\A.*(本当にマッチさせたい文字列)</code>を書くと、<code>.*</code>が「マッチさせたくない文字列」だけでなく「本当にマッチさせたい文字列」までマッチしてしまい、結果肝心の「本当にマッチさせたい文字列」を扱うことができなくなってしまうのです。</p>
+<h3 id="ソースコードの書き換えとsubstring-parser"><span class="link-to-here-outer"><a href="#ソースコードの書き換えとsubstring-parser" title="ソースコードの書き換えとsubstring-parser"><span class="link-to-here">Link to<br />
+here</span></a></span>ソースコードの書き換えと<span class="ascii">substring-parser</span></h3>
+<p>さて、今回の目的は「『タイプセーフプリキュア！』のソースコードの書式を書き換えることで、全シリーズのプリキュアの情報を<span class="ascii">cure-index.json</span>に収録する」ことでした。<br />
+そのためには、各<code>Textbook</code>モジュールのソースコードにおいて<strong>途中</strong>に含まれている、プリキュアを表す型の定義や、型クラスのインスタンス宣言を集める必要があります。<br />
+しかもそれらは、一つの定義が行をまたいでいたりまたいでなかったりするので、よくある行単位で処理するツールを使うのも、なかなか難しいと思います。<br />
+また、抽出したいデータ構造も多様かつそこそこに複雑で、中には再帰的なデータ構造もあります。正規表現を用いてのパースも、かなり困難なことでしょう。<br />
+とはいえパーサーコンビネーターを通常のとおりに使うと、これまでに述べたとおり、「文字列の先頭からしかマッチできない」という制限が、考えることを複雑にします。</p>
+<p>こうした状況は今回の問題に限らず、このように、ソースコードの多くの類似箇所を書き換える場面において、しばしば発生するでしょう。<br />
+そこで今回は<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>こうした問題全般に対応するライブラリーとして、<a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを作りました。</p>
+<p><span class="ascii">substring-parser</span>を使えば、任意のパーサーコンビネーター<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>を<strong>文字列の中間でも</strong>マッチさせることができます。<br />
+残念ながらドキュメントらしいドキュメントが全く書けてない状況ではありますが、一応動きます。<br />
+<a href="https://gitlab.com/igrep/substring-parser/blob/master/test/Spec.hs"><span class="ascii">Spec.hs</span></a>が動作を知る際の参考になるかも知れません。</p>
+<h4 id="substring-parserの仕組み"><span class="link-to-here-outer"><a href="#substring-parserの仕組み" title="substring-parserの仕組み"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">substring-parser</span>の仕組み</h4>
+<p><span class="ascii">substring-parser</span>はどのようにして、任意のパーサーコンビネーターを文字列の中間でもマッチできるようにしているのでしょう？<br />
+仕組みは単純です。<br />
+引数として受け取ったパーサーを、</p>
+<ol type="1">
+<li>とりあえず先頭からマッチさせてみる。</li>
+<li>失敗したら先頭の一文字をスキップして、次の文字からまたマッチさせてみる。</li>
+</ol>
+<p>という手順を繰り返すだけです。 結果として文字列の先頭にある「マッチさせたくない文字列」をスキップすることができるのです。</p>
+<p>⚠️残念ながら決して効率のいい方法ではないので、真面目なパーサーを書くときはおすすめしません！<br />
+あくまでも今回のような、書き捨てだけど、それなりに複雑な文字列を解析する必要がある場合のみ使うべきでしょう。</p>
+<h2 id="結果できたもの"><span class="link-to-here-outer"><a href="#結果できたもの" title="結果できたもの"><span class="link-to-here">Link to<br />
+here</span></a></span>結果、できたもの</h2>
+<p>ここまで説明した<span class="ascii">substring-parser</span>を駆使することで、私は無事、各<code>Textbook</code>モジュールを半自動で古い書式から新しい書式に書き換えることに成功しました。<br />
+<small>（残念ながら古い<code>Textbook</code>モジュールには存在しない情報を補ったり、体裁を整えたりする必要があったため、完全に自動で書き換えられたわけではありません）</small><br />
+<a href="https://github.com/igrep/typesafe-precure/pull/25"><span class="ascii">typesafe-precure#25</span></a>という大きな<span class="ascii">Pull request</span>に、移行したもののほぼすべてが刻まれています。</p>
+<p>なお、上記の<span class="ascii">Pull request</span>では消してしまってますが、実際に実行した、移行用スクリプトは<a href="https://github.com/igrep/typesafe-precure/blob/ed038aa57a4df6b1fcc23fb071253888ebd7d477/app/migrate2cure-index.hs"><span class="ascii">typesafe-precure/app/migrate2cure-index.hs</span></a>にあります。<br />
+ご興味のある方はご覧になってみてください。</p>
+<p>また、もう少し小さいサンプルとして、プリキュアハッカソンの成果発表でデモをした時点のコミットも載せておきます。<br />
+👇のコマンドを実行すれば、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/app/migrate2cure-index.hs#L101-L118">こちらのコミット時点のパーサー</a>で、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/Dokidoki/Types.hs#L19-L23">同時点の<span class="ascii">Types.hs</span></a>から、<span class="ascii">cure-index.json</span>で使用する<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Index/Types.hs#L44-L46"><code>Girl</code></a>という型の値を取り出すことができます！</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="fu">&gt;</span> git clone https<span class="fu">://</span>github<span class="fu">.</span>com<span class="fu">/</span>igrep<span class="fu">/</span>typesafe<span class="fu">-</span>precure</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="fu">&gt;</span> cd typesafe<span class="fu">-</span>precure</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="fu">&gt;</span> git checkout 73948fb4a82baaf4e33900d77326791c7703f786</a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="fu">&gt;</span> stack build <span class="fu">:</span>migrate2cure<span class="fu">-</span>index</a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="fu">&gt;</span> stack exec migrate2cure<span class="fu">-</span>index</a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="fu">...</span> 略 <span class="fu">...</span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co">-- src/ACME/PreCure/Textbook/Dokidoki --</span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Mana\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Mana\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Rikka\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Rikka\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Alice\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Alice\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Makoto\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Makoto\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Aguri\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Aguri\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a></code></pre></div>
+<h1 id="その他の似たソリューション"><span class="link-to-here-outer"><a href="#その他の似たソリューション" title="その他の似たソリューション"><span class="link-to-here">Link to<br />
+here</span></a></span>その他の似たソリューション</h1>
+<p>今回は、自前で作ったライブラリーと一から書いたパーサーを組み合わせることで「ソースコードの多くの類似箇所を書き換える」問題に対応しましたが、似たようなことを行うツールはほかにもあります。<br />
+いずれも私はほぼ使ったことがないので詳しい解説はできませんが、軽く紹介しておきます。</p>
+<h2 id="codemod"><span class="link-to-here-outer"><a href="#codemod" title="codemod"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://github.com/facebook/codemod"><span class="ascii">codemod</span></a></h2>
+<p><span class="ascii">Facebook</span>製の一括置換ツールです。指定したディレクトリーのファイル群を、正規表現で一括置換できます。<br />
+ここまで書くと<code>perl</code>や<code>sed</code>、<code>awk</code>などで十分できそうにも聞こえますが、修正前後の状態を色つきで見ながら対話的に修正できるそうです。<br />
+正規表現での単純な修正が気に入らなければ、その場で該当箇所だけをエディタで修正できるとのこと。<br />
+<span class="ascii">Python 2</span>に依存しているのがちょっとつらいところでしょうか…😨。</p>
+<h2 id="jscodeshift"><span class="link-to-here-outer"><a href="#jscodeshift" title="jscodeshift"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://github.com/facebook/jscodeshift"><span class="ascii">jscodeshift</span></a></h2>
+<p>同じく<span class="ascii">Facebook</span>が作った、名前のとおり<span class="ascii">JavaScript</span>に特化したソースコードの修正ツールです。<br />
+こちらは正規表現は使用せず、「<span class="ascii">Transform module</span>」と呼ばれる、<span class="ascii">JavaScript</span>の<span class="ascii">AST</span>を変換するための専用のスクリプトを実行することで修正するそうです。<br />
+様々な状況に特化した「<span class="ascii">Transform module</span>」を別パッケージとしても提供しているようです。</p>
+<p>📝以上の<span class="ascii">2</span>つについては「<a href="https://www.webprofessional.jp/getting-started-with-codemods/"><span class="ascii">JavaScript</span>疲れに効く！ <span class="ascii">codemod</span>と<span class="ascii">JSCodeshift</span>でリファクタリングが捗る <span class="ascii">- WPJ</span></a>」も参考にしました。</p>
+<h2 id="refactorio"><span class="link-to-here-outer"><a href="#refactorio" title="refactorio"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://github.com/SuperpowersCorp/refactorio"><span class="ascii">refactorio</span></a></h2>
+<p><a href="https://www.superpowerscorp.com/"><span class="ascii">SuperPowers Corp</span></a>という会社が開発中の、<span class="ascii">lens</span>をはじめとする<span class="ascii">Haskell</span>のパワーを集大成させた、ソースコードの一括置換ツールです。<br />
+<code>ByteString -&gt; ByteString</code>という型の<span class="ascii">Haskell</span>の関数を渡すことで、指定したディレクトリーのファイルすべてに対して関数を適用し、書き換えます。</p>
+<p>加えて、<code>--haskell</code>や<code>--html</code>、<code>--javascript</code>など、各言語に特化したオプションを渡すと、各言語のソースコードを修正する<span class="ascii">lens</span>ベースの<span class="ascii">module</span>を<span class="ascii">import</span>した状態で、関数を作れるようにしてくれます。<br />
+具体的には、例えば<code>--haskell</code>オプションを渡すと、<a href="https://hackage.haskell.org/package/haskell-src-exts"><span class="ascii">haskell-src-exts</span></a>と<a href="https://hackage.haskell.org/package/haskell-src-exts-prisms"><span class="ascii">haskell-src-exts-prisms</span></a>パッケージのモジュールを<span class="ascii">import</span>することで、<span class="ascii">Haskell</span>の<span class="ascii">AST</span>の各トークンに対応した<code>Prism</code>などが使えるようになります。</p>
+<p>後は<a href="https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate"><code>biplate</code></a>など<span class="ascii">lens</span>ライブラリーのコンビネーターと組み合わせれば、一気に<span class="ascii">Haskell</span>のソースコードを編集することができます。 「任意のデータ構造に対する<span class="ascii">jQuery</span>」とも言われる<span class="ascii">lens</span>ライブラリーのパワーを存分に生かしたツールなのです。</p>
+<p>残念なところは、今でも開発中である点と、<span class="ascii">lens</span>ライブラリーに習熟していなければ使いこなせないという点でしょうか。<br />
+よく使う<code>Lens</code>型や<code>Prism</code>型だけでなく、<code>Traversal</code>も使えなければなりません。<br />
+特に<a href="https://github.com/SuperpowersCorp/refactorio#haskell-via-haskell-src-exts-and-haskell-src-exts-prisms">サンプル</a>で紹介されているような<a href="https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate"><code>biplate</code></a>を使った場合において、指定した<code>Prism</code>がマッチしなかった場合、何事もなかったかのようにソースが書き換えられないため、デバッグが面倒なところもつらいです。</p>
+<h1 id="次のゴール"><span class="link-to-here-outer"><a href="#次のゴール" title="次のゴール"><span class="link-to-here">Link to<br />
+here</span></a></span>次のゴール</h1>
+<p>「タイプセーフプリキュア！」の開発は、これからもプリキュアハッカソンの前後とプリキュア<span class="ascii">Advent Calendar</span>の前後を中心に、今後も続ける予定です。<br />
+先にも触れましたが、次回は今回完成させた<span class="ascii">cure-index.json</span>を使用することで、<a href="http://the.igreque.info/posts/2014-12-25-unite-precure.vim.html">かつて<span class="ascii">rubicure</span>で作ったユナイトプリキュア</a>を「ユナイトプリキュア」を「ディナイトプリキュア」として書き直すかも知れません。<br />
+ただ、それ以外にももうちょっと<span class="ascii">Haskell</span>で遊びたいことがあるので、後回しにするかも知れません。<br />
+<span class="ascii">Vim script</span>、あんまり書きたくないんですよね…😥</p>
+<h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h1>
+<ul>
+<li><span class="ascii">Haskell</span>界に伝わる伝説のアイテム「パーサーコンビネーター」を応用して、「タイプセーフプリキュア！」の古いソースコードを半自動で変換しました。</li>
+<li>「パーサーコンビネーター」は正規表現よりいいところたくさんですが、文字列の先頭からのマッチしかできないのがつらいです。
+<ul>
+<li><a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを書いて、対応しました。</li>
+</ul></li>
+<li>パーサーコンビネーター最高！ ✌️😆✌️</li>
+</ul>
+<p>それではこの秋もパーサーコンビネーターで<span class="ascii">Happy Haskell Hacking!!</span>✌️✌️✌️</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>プリキュアハッカソンは「ハッカソン」の名を冠してはいるものの、実態としてはプリキュアの映画を観ながら好き勝手に開発するというゆるい会です。<br />
+また、そもそもそれほど時間もないので、私は当日の<span class="ascii">3</span>～<span class="ascii">4</span>週間ほど前から今回の対応を始めておりました。「今回のプリキュアハッカソンに<strong>向けて</strong>行ったこと」なる見出しなのは、そのためです。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>当時は各<code>Textbook</code>モジュールの<code>Types.hs</code>というファイルで<code>ANN</code>や<code>declareTransformees</code>などを使っていましたが、現在は「ルートに当たるモジュール」で行うことにしました。ファイル数を減らすのと、<span class="ascii">export</span>する識別子を型に絞ることで、<code>transformeesHugtto</code>のような、あまりかっこよくない識別子を隠す、というのがその目的です。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>実際には、前職時代に同様の問題に遭遇した際作成しました。今後も必要になったときにちょっとずつ開発していく予定です。<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p>一応<a href="http://hackage.haskell.org/package/parsers"><code>parsers</code></a>パッケージを使って様々なパーサーコンビネーターのライブラリーをサポートするように作りましたが、現状<a href="http://hackage.haskell.org/package/attoparsec"><code>attoparsec</code></a>でのみテストしています。用途を考えれば多分十分じゃないかと思っています。<a href="#fnref4" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2018/derive-json-no-prefix.html" style="margin-left: auto;" lang="ja">deriveJsonNoPrefixをリリースしました</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2018</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>

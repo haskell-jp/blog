@@ -8,8 +8,426 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2018-07-18T00:00:00Z</updated>
+    <updated>2018-09-04T00:00:00Z</updated>
     <entry>
+    <title>substring-parserで「タイプセーフプリキュア！」を移行した話</title>
+    <link href="https://haskell.jp/blog/posts/2018/substring-parser.html" />
+    <id>https://haskell.jp/blog/posts/2018/substring-parser.html</id>
+    <published>2018-09-04T00:00:00Z</published>
+    <updated>2018-09-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>先日私は<a href="https://cure-hack.connpass.com/event/91157/">プリキュアハッカソン <span class="ascii">NewStage</span></a>というちょっと変わったイベントで、「<a href="https://github.com/igrep/typesafe-precure">タイプセーフプリキュア！</a>」の最近の更新について発表いたしました。<br />
+今回は<a href="http://the.igreque.info/slides/2018-08-18-substring-parser.html">その際使用したスライド</a>を、ブログ記事として拡大して共有させていただきたいと思います！</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#予告編はじめにまとめ" title="予告編はじめにまとめ">予告編（はじめにまとめ）</a></li>
+<li><a href="#これまでのあらすじ" title="これまでのあらすじ">これまでのあらすじ</a>
+<ul>
+<li><a href="#タイプセーフプリキュアとは" title="タイプセーフプリキュアとは">「タイプセーフプリキュア！」とは？</a></li>
+<li><a href="#cure-index.jsonとは" title="cure-index.jsonとは"><span class="ascii">cure-index.json</span>とは？</a></li>
+</ul></li>
+<li><a href="#今回のプリキュアハッカソンに向けて行ったこと" title="今回のプリキュアハッカソンに向けて行ったこと">今回のプリキュアハッカソンに向けて行ったこと</a>
+<ul>
+<li><a href="#修正前の書式" title="修正前の書式">🔴修正<strong>前</strong>の書式</a></li>
+<li><a href="#修正後の書式" title="修正後の書式">🔵修正<strong>後</strong>の書式</a></li>
+<li><a href="#どうやって修正する" title="どうやって修正する">どうやって修正する？</a>
+<ul>
+<li><a href="#パーサーコンビネーターとは" title="パーサーコンビネーターとは">パーサーコンビネーターとは</a></li>
+<li><a href="#パーサーコンビネーターが正規表現より良いところ悪いところ" title="パーサーコンビネーターが正規表現より良いところ悪いところ">パーサーコンビネーターが正規表現より良いところ・悪いところ</a>
+<ul>
+<li><a href="#パーツとしてパーサーを組み合わせるのが簡単" title="パーツとしてパーサーを組み合わせるのが簡単">👍パーツとしてパーサーを組み合わせるのが簡単</a></li>
+<li><a href="#パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単" title="パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単">👍パースした結果を、文字列から複雑なデータ構造に割り当てるのが簡単</a></li>
+<li><a href="#パースした結果に基づいてパーサーの挙動を変えることができる" title="パースした結果に基づいてパーサーの挙動を変えることができる">👍パースした結果に基づいて、パーサーの挙動を変えることができる</a></li>
+<li><a href="#記述が冗長" title="記述が冗長">👎記述が冗長</a></li>
+<li><a href="#ユーザーからの入力として直接受け取ることは難しい" title="ユーザーからの入力として直接受け取ることは難しい">👎ユーザーからの入力として直接受け取ることは難しい。</a></li>
+<li><a href="#正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる" title="正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる">👎正規表現でいうところの <code>*</code> にあたる<code>many</code>が、必ず強欲なマッチになる</a></li>
+<li><a href="#文字列の先頭からのマッチしかできない" title="文字列の先頭からのマッチしかできない">👎文字列の先頭からのマッチしかできない</a></li>
+</ul></li>
+<li><a href="#ソースコードの書き換えとsubstring-parser" title="ソースコードの書き換えとsubstring-parser">ソースコードの書き換えと<span class="ascii">substring-parser</span></a>
+<ul>
+<li><a href="#substring-parserの仕組み" title="substring-parserの仕組み"><span class="ascii">substring-parser</span>の仕組み</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#結果できたもの" title="結果できたもの">結果、できたもの</a></li>
+</ul></li>
+<li><a href="#その他の似たソリューション" title="その他の似たソリューション">その他の似たソリューション</a>
+<ul>
+<li><a href="#codemod" title="codemod"><span class="ascii">codemod</span></a></li>
+<li><a href="#jscodeshift" title="jscodeshift"><span class="ascii">jscodeshift</span></a></li>
+<li><a href="#refactorio" title="refactorio"><span class="ascii">refactorio</span></a></li>
+</ul></li>
+<li><a href="#次のゴール" title="次のゴール">次のゴール</a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="予告編はじめにまとめ"><span class="link-to-here-outer"><a href="#予告編はじめにまとめ" title="予告編はじめにまとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>予告編（はじめにまとめ）</h1>
+<ul>
+<li><span class="ascii">Haskell</span>界に伝わる伝説のアイテム「パーサーコンビネーター」を応用して、「タイプセーフプリキュア！」の古いソースコードを半自動で変換しました。</li>
+<li>「パーサーコンビネーター」は正規表現よりいいところたくさんですが、文字列の先頭からのマッチしかできないのがつらいです。
+<ul>
+<li><a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを書いて、対応しました。</li>
+</ul></li>
+<li>パーサーコンビネーター最高！ ✌️😆✌️</li>
+</ul>
+<h1 id="これまでのあらすじ"><span class="link-to-here-outer"><a href="#これまでのあらすじ" title="これまでのあらすじ"><span class="link-to-here">Link to<br />
+here</span></a></span>これまでのあらすじ</h1>
+<h2 id="タイプセーフプリキュアとは"><span class="link-to-here-outer"><a href="#タイプセーフプリキュアとは" title="タイプセーフプリキュアとは"><span class="link-to-here">Link to<br />
+here</span></a></span>「タイプセーフプリキュア！」とは？</h2>
+<p><a href="https://github.com/sue445/rubicure"><span class="ascii">rubicure</span></a>や<a href="https://github.com/kan/p5-acme-prettycure"><span class="ascii">ACME::PrettyCure</span></a>のような「<a href="https://qiita.com/sue445/items/b41a4f5bdca46f1736c3">プリキュア実装</a>」の<span class="ascii">1</span>つです。<br />
+詳しくはこれから挙げる過去の記事をご覧ください、と言いたいところですが、よくよく見たら「プリキュア実装」が何かを明記してる記事ではないようなので😅、ここで軽く説明しましょう。<br />
+「プリキュア実装」とは一言で言うと「プリキュアやプリキュアに変身する女の子たち、変身時の台詞など諸々のプリキュアの設定をソースコードに収録したライブラリー」です。</p>
+<p>例えば、今回取り上げます私の「タイプセーフプリキュア！」は（もちろん）<span class="ascii">Haskell</span>で書かれたプリキュア実装で、次のように書くことで、キュアアンジュが変身する際の台詞を取得することができます。<br />
+<small>（出力されるリストは、手で整形しています）</small></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">&gt;</span> <span class="kw">import</span> <span class="dt">ACME.PreCure</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">-- キュアアンジュには、薬師寺さあやが「ミライクリスタル・ブルー」を</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co">-- セットした「プリハート」を使うことで変身します。</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="fu">&gt;</span> transformationSpeech <span class="dt">Saaya</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalBlue</span>)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">[ <span class="st">&quot;ミライクリスタル！&quot;</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">, <span class="st">&quot;ハートキラっと！&quot;</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">, <span class="st">&quot;は～ぎゅ～～！&quot;</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">, <span class="st">&quot;ぎゅ～！&quot;</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">, <span class="st">&quot;ぎゅ～～！&quot;</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">, <span class="st">&quot;輝く未来をー、抱きしめて！&quot;</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">, <span class="st">&quot;みんなを癒す！知恵のプリキュア！キュアアンジュ！&quot;</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">]</a></code></pre></div>
+<p><span class="ascii">GHCi</span>で上記のコードを試す場合は、下記のコードで<span class="ascii">typesafe-precure</span>と<a href="https://github.com/haskell-jp/unicode-show"><span class="ascii">unicode-show</span></a>をインストールした上で起動するとよいでしょう。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1">$ <span class="ex">stack</span> build typesafe-precure unicode-show</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">$ <span class="ex">stack</span> exec ghci -- -interactive-print=<span class="st">&quot;Text.Show.Unicode.uprint&quot;</span></a></code></pre></div>
+<p>その他の機能や、使っている<span class="ascii">GHC</span>の拡張などについては下記の記事をご覧ください。</p>
+<ul>
+<li><a href="http://the.igreque.info/posts/2016/06-type-safe-precure.html"><span class="ascii">igreque : Info -&gt; Haskell</span>でプリキュアを作ってみた</a></li>
+<li><a href="https://qiita.com/igrep/items/5496fa405fae00b5a737">「タイプセーフプリキュア！」を支える技術 <span class="ascii">- Qiita</span></a></li>
+</ul>
+<h2 id="cure-index.jsonとは"><span class="link-to-here-outer"><a href="#cure-index.jsonとは" title="cure-index.jsonとは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">cure-index.json</span>とは？</h2>
+<p>そんな「タイプセーフプリキュア！」ですが、前述の<span class="ascii">Qiita</span>の記事の最後で「<span class="ascii">typesafe-precure</span>は現状非常に冗長で、非実用的な実装になってしまっています」と述べているとおり、ほかのプリキュア実装と異なり、<del>実用性を度外視して</del>「設定の正しさ」を最優先事項とした結果、変身時の台詞や浄化技（「必殺技」ともしばしば呼ばれます）の台詞を取得するのに、非常に冗長なコードが必要になってしまいました。<br />
+それではせっかく<span class="ascii">YouTube</span>やら<span class="ascii">Wikipedia</span>やら<span class="ascii">Blu-ray</span>やらを見直してせっせと集めた情報が勿体ないので、集めた情報を、コンパイル時に<span class="ascii">JSON</span>として出力することにしました。<br />
+そうして生まれたのが<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/cure-index.json"><span class="ascii">cure-index.json</span></a>とそれをプリティープリントした<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/pretty-cure-index.json"><span class="ascii">pretty-cure-index.json</span></a>です。<br />
+将来的には、<a href="http://the.igreque.info/posts/2014-12-25-unite-precure.vim.html">かつて<span class="ascii">rubicure</span>で作ったユナイトプリキュア</a>を書き直すのに使用しようかと考えています。</p>
+<p>作るに当たって新たに「タイプセーフプリキュア！」のソースコードに仕込んだ仕組みについては、<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>をご覧ください。<br />
+<span class="ascii">Template Haskell</span>や<span class="ascii">GHC</span>の<code>ANN</code>という機能を濫用することで達成しました。😎</p>
+<h1 id="今回のプリキュアハッカソンに向けて行ったこと"><span class="link-to-here-outer"><a href="#今回のプリキュアハッカソンに向けて行ったこと" title="今回のプリキュアハッカソンに向けて行ったこと"><span class="link-to-here">Link to<br />
+here</span></a></span>今回のプリキュアハッカソンに向けて行ったこと</h1>
+<p>従来の<span class="ascii">cure-index.json</span>には、最新作である「<span class="ascii">HUG</span>っと！プリキュア」と、その一つ前の作品である「キラキラ☆プリキュアアラモード」の情報しか収録されていませんでした。<br />
+前述の<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>でも触れましたが、収録のためにはプリキュアの設定の書式を大幅に変更しなければならず、面倒なのでひとまず後回しにしていたのです。</p>
+<p>そこで今年のプリキュアハッカソンにて発表するのによいネタだろうと思い、あの手この手を使って、全シリーズを<span class="ascii">cure-index.json</span>に含める対応を行いました<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>🎉。</p>
+<h2 id="修正前の書式"><span class="link-to-here-outer"><a href="#修正前の書式" title="修正前の書式"><span class="link-to-here">Link to<br />
+here</span></a></span>🔴修正<strong>前</strong>の書式</h2>
+<p>それでは、具体的にどんな修正を行ったのか紹介しましょう。<br />
+修正前は、プリキュアの設定を収録した各モジュール（<code>ACME.PreCure.Textbook</code>以下にあるので、今後は「<strong>各<code>Textbook</code>モジュール</strong>」と呼びます）には<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/MahoGirls/Types.hs#L71">👇こんな感じの<span class="ascii">Types.hs</span>がたくさん</a>ありました。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">data</span> <span class="dt">CureMiracle</span> <span class="fu">=</span> <span class="dt">CureMiracle</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">transformedInstance</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  [t| CureMiracle |]</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  cureName_Miracle</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">  introducesHerselfAs_Miracle</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">  variation_Dia</a></code></pre></div>
+<p>上記はキュアミラクルを表す型の定義と、その日本語での名前、変身時の名乗りといったプロフィールを設定しているコードです。<br />
+このほかにも、プリキュアに変身する女の子の設定や、変身の際に必要な変身アイテムなどの型定義がたくさんあります。<br />
+<code>transformedInstance</code>で始まる行は、<span class="ascii">Template Haskell</span>を使った、型クラスのインスタンス宣言です。<br />
+<a href="https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Types/TH.hs#L151-L158"><code>transformedInstance</code>というマクロ</a>が、<a href="https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Types.hs#L15-L19"><code>Transformed</code>という型クラス</a>のインスタンスを生成することで、プリキュアを表す型と、日本語での名前、変身時の名乗りを実際に紐付けているのです。<br />
+<small>（実際の日本語での名前はご覧のとおり<code>cureName_Miracle</code>といった変数に束縛されております。<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/MahoGirls/Words.hs#L18"><span class="ascii">Words.hs</span></a>というファイルから参照しています）</small></p>
+<p>修正前はこのように、あくまでも<span class="ascii">Haskell</span>のソースコードとして、プリキュアの設定を書いていたため、このままでは<span class="ascii">cure-index.json</span>のデータとして扱うのが難しい状態でした。</p>
+<h2 id="修正後の書式"><span class="link-to-here-outer"><a href="#修正後の書式" title="修正後の書式"><span class="link-to-here">Link to<br />
+here</span></a></span>🔵修正<strong>後</strong>の書式</h2>
+<p>そのため、今回修正した後の各<code>Textbook</code>モジュールでは、<a href="https://github.com/igrep/typesafe-precure/blob/fd5f89797372f616a551e07251c0fcd2ca1531c2/src/ACME/PreCure/Textbook/MahoGirls/Profiles.hs#L20">👇こんな感じの<span class="ascii">Profiles.hs</span></a>で、各種の設定を宣言することにしました。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="ot">transformees ::</span> [<span class="dt">Transformee</span>]</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">transformees <span class="fu">=</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  [ mkTransformee</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">      <span class="st">&quot;Cure Miracle&quot;</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">      <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">      cureName_Miracle</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">      variation_Dia</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">      introducesHerselfAs_Miracle</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  , <span class="fu">...</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">  ]</a></code></pre></div>
+<p><code>mkTransformee</code>関数で作っている<code>Transformee</code>型の値は、<span class="ascii">cure-index.json</span>の一部として、<span class="ascii">JSON</span>に変換する中間データです。もちろん<code>ToJSON</code>のインスタンスになっております。<br />
+このように新しい各<code>Textbook</code>モジュールでは、直接<span class="ascii">Haskell</span>のソースコードとしてプリキュアの設定を書く代わりに、<strong>一旦<span class="ascii">JSON</span>に変換する用の中間データを設けることで、<span class="ascii">cure-index.json</span>に収録しやすい状態に</strong>しています。</p>
+<p>こうして作られた<code>Transformee</code>などの中間データ用の値は、各<code>Textbook</code>モジュールのルートに当たるモジュールで、型クラスのインスタンス宣言を行ったり、<code>ANN</code>という機能でモジュールに紐付けられます。<br />
+以下は「魔法つかいプリキュア！」のルートに当たるモジュール<a href="https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Textbook/MahoGirls.hs"><code>MahoGirls.hs</code></a>からの抜粋です。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls.Profiles</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="fu">...</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="ot">{-# ANN module transformees #-}</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="fu">$</span>(declareTransformees transformees)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="fu">...</span></a></code></pre></div>
+<p><code>Profiles.hs</code>で定義した<code>transformees</code>というリストを、<code>ANN</code>で<code>MahoGirls</code>モジュールに紐付け、<code>declareTransformees</code>という<span class="ascii">Template Haskell</span>のマクロで型宣言やインスタンス宣言を生成するのに使っています。<br />
+<code>ANN</code>については<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">前回の「タイプセーフプリキュア！を支える技術」</a>をご覧ください<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
+<p>修正前との違いにおける要点を繰り返しましょう。修正後の各<code>Textbook</code>モジュールでは、</p>
+<ul>
+<li>プリキュアの情報を、
+<ul>
+<li><span class="ascii">cure-index.json</span>として書き出すためのデータ</li>
+<li><span class="ascii">Template Haskell</span>で型や型クラスのインスタンスとして生成するためのデータ</li>
+</ul></li>
+<li><strong>両方で扱えるようにするために、専用の型の値として保存</strong></li>
+</ul>
+<p>するようにしています。</p>
+<h2 id="どうやって修正する"><span class="link-to-here-outer"><a href="#どうやって修正する" title="どうやって修正する"><span class="link-to-here">Link to<br />
+here</span></a></span>どうやって修正する？</h2>
+<p>それではここからは、各<code>Textbook</code>モジュールの書式を、どうやって前節で説明したような、「修正前」から「修正後」の書式に移行したのか説明します。</p>
+<p>当然、手で修正するには大変な量です。<br />
+従来より「タイプセーフプリキュア！」では<span class="ascii">TV</span>シリーズ<span class="ascii">15</span>作品に加えてキュアエコーが出てくる映画もサポートしているため、各<code>Textbook</code>モジュールは<span class="ascii">16</span>作品分存在しています。<br />
+すでに「修正後」の書式に移行済みの「<span class="ascii">HUG</span>っと！プリキュア」と「キラキラ☆プリキュアアラモード」を除いても、<span class="ascii">14</span>作品分書き換えないといけません。<br />
+シリーズごとに定義されている型やインスタンス宣言の数にはばらつきがありますが、すべて移行してから数えてみたところ、型の数だけで<span class="ascii">313</span>個、変身や浄化技のインスタンス宣言だけで<span class="ascii">211</span>個ありました。<br />
+プリキュアやプリキュアに変身する女の子、変身アイテムだけでなく、それぞれの変種も別の型として定義しているため、実際のプリキュアの数よりも遙かに多いのです😵。<br />
+<span class="ascii">Vim</span>のマクロなどを駆使すれば決して人間の手でも移行できない規模ではありませんが、そこは「タイプセーフプリキュア！」です。<br />
+始まって以来私が<span class="ascii">GHC</span>の拡張を始めいろいろな技術を試すための実験場としても機能していたので、ここは是非ちょっと凝ったことをしてぱーっと書き換えてみたいものでしょう😏。<br />
+そこで思いついたのがパーサーコンビネーター、並びに拙作のライブラリー<a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>だったのです💡！</p>
+<h3 id="パーサーコンビネーターとは"><span class="link-to-here-outer"><a href="#パーサーコンビネーターとは" title="パーサーコンビネーターとは"><span class="link-to-here">Link to<br />
+here</span></a></span>パーサーコンビネーターとは</h3>
+<p><span class="ascii">substring-parser</span>の紹介の前に、パーサーコンビネーターについて簡単に紹介しておきましょう。<br />
+<small>（「すでに知ってるよ！」という方はこの節は飛ばした方が良いかと思います）</small><br />
+パーサーコンビネーターは、例えば正規表現のような、文字列を解析する技術の一つです。<br />
+<span class="ascii">Haskell</span>の<a href="http://hackage.haskell.org/package/megaparsec"><span class="ascii">megaparsec</span></a>や<a href="http://hackage.haskell.org/package/attoparsec"><span class="ascii">attoparsec</span></a>をはじめ、多くのプログラミング言語にライブラリーとして提供されています。</p>
+<p>実装はいろいろありますが、本質的にパーサーコンビネーターは「文字列を受け取って『文字列を解析した結果』と、『残りの文字列』を返す関数」として表現されます。<br />
+加えて、それらを簡単に組み合わせるための<span class="ascii">API</span>を提供することで、複雑な文字列から複雑なデータ構造を抽出できるようにしてくれます。</p>
+<p>実際のパーサーコンビネーターのライブラリーを単純化して例を挙げましょう。<br />
+例えば、通例パーサーコンビネーターのライブラリーは<code>decimal</code>という、「<span class="ascii">10</span>進数の文字列を受け取って、整数を返すパーサー」を提供していることが多いです。</p>
+<p><code>parse</code>関数に、解析したい文字列と一緒に渡すことで、「文字列を解析した結果」と、「残りの文字列」を取得することができます。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="fu">&gt;</span> parse decimal <span class="st">&quot;123abc&quot;</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>)</a></code></pre></div>
+<p>👆上記の例では「解析したい文字列」として<code>123abc</code>を渡したので、パースした結果の整数<code>123</code>と、その残りの文字列<code>&quot;abc&quot;</code>を返しています。</p>
+<p>これだけではつまらないので、ほかのパーサーの例も挙げましょう。<br />
+👇今度は「文字 セミコロン <code>;</code> を受け取って、そのまま返すパーサー」です。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="fu">&gt;</span> parse (char <span class="ch">&#39;;&#39;</span>) <span class="st">&quot;;aaa&quot;</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">(<span class="ch">&#39;;&#39;</span>, <span class="st">&quot;aaa&quot;</span>)</a></code></pre></div>
+<p>「パースした結果」がセミコロン <code>;</code> で、「残りの文字列」が<code>&quot;aaa&quot;</code>となっていますね。</p>
+<p>それでは以上<span class="ascii">2</span>つのパーサーを組み合わせて、<strong><span class="ascii">10</span>進数の文字列を受け取った後、セミコロンを受け取り、整数を返すパーサー</strong>を作ってみましょう。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="fu">&gt;</span> decimalAndSemicolon <span class="fu">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    n <span class="ot">&lt;-</span> decimal</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    char <span class="ch">&#39;;&#39;</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">    return n</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="fu">&gt;</span> parse decimalAndSemicolon <span class="st">&quot;123;abc&quot;</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>) <span class="co">-- 結果にセミコロンが含まれてない点に注意</span></a></code></pre></div>
+<p><span class="ascii">Haskell</span>におけるパーサーコンビネーターのライブラリーは、パーサーを<code>Monad</code>として提供することで、上記のように<code>do</code>記法でパーサーを組み合わせることができるようになっています。<br />
+ここでは詳細は割愛しますが、</p>
+<ol type="1">
+<li><code>decimal</code>で整数をパースしたあと、</li>
+<li><code>char ';'</code> で文字セミコロン <code>;</code>をパース（でも結果は無視）し</li>
+<li>パースした結果として「<code>decimal</code>がパースした整数」<code>n</code>を返す</li>
+</ol>
+<p>という処理を行っているのがわかるでしょうか？</p>
+<p>ちなみに、パーサーコンビネーターに慣れた読者の方なら、いわゆる<span class="ascii">Applicative</span>スタイルを使って、次のようにも書けると気づくでしょう。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" data-line-number="1">decimalAndSemicolon <span class="fu">=</span> decimal <span class="fu">&lt;*</span> char <span class="ch">&#39;;&#39;</span></a></code></pre></div>
+<p>これならパースした結果をいちいち変数に束縛する必要もなく、より簡潔に書くことができますね！</p>
+<p>パーサーコンビネーターのパワーを実感していただくために、もう一つ例を紹介します。<br />
+<code>many</code>という関数にパーサーコンビネーターを渡すと、「受け取ったパーサーコンビネーターで失敗するまで繰り返しパースして、その結果をリストとして返す」パーサーが作れます。<br />
+例えば先ほどの「<span class="ascii">10</span>進数の文字列を受け取った後、セミコロンを受け取り、整数を返すパーサー」から、「セミコロンが末尾に着けられた整数のリストを返すパーサー」を作ることができます。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" data-line-number="1">parse (many decimalAndSemicolon) <span class="st">&quot;12;34;56;&quot;</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">([<span class="dv">12</span>, <span class="dv">34</span>, <span class="dv">56</span>], <span class="st">&quot;&quot;</span>)</a></code></pre></div>
+<p>このようにパーサーコンビネーターは、小さなパーサーをどんどん組み合わせることで、複雑な文字列から複雑なデータ構造を取り出すパーサーを、クールに作れるようにしてくれます。</p>
+<h3 id="パーサーコンビネーターが正規表現より良いところ悪いところ"><span class="link-to-here-outer"><a href="#パーサーコンビネーターが正規表現より良いところ悪いところ" title="パーサーコンビネーターが正規表現より良いところ悪いところ"><span class="link-to-here">Link to<br />
+here</span></a></span>パーサーコンビネーターが正規表現より良いところ・悪いところ</h3>
+<p>そんなパーサーコンビネーターについて、正規表現と比べた場合の長所短所を明確にしておきましょう。<br />
+まずはよいところから。</p>
+<h4 id="パーツとしてパーサーを組み合わせるのが簡単"><span class="link-to-here-outer"><a href="#パーツとしてパーサーを組み合わせるのが簡単" title="パーツとしてパーサーを組み合わせるのが簡単"><span class="link-to-here">Link to<br />
+here</span></a></span>👍パーツとしてパーサーを組み合わせるのが簡単</h4>
+<p>前節で示したように、複雑なパーサーも、小さなパーサーの組み合わせからコツコツと作れるようになっています。</p>
+<h4 id="パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単"><span class="link-to-here-outer"><a href="#パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単" title="パースした結果を文字列から複雑なデータ構造に割り当てるのが簡単"><span class="link-to-here">Link to<br />
+here</span></a></span>👍パースした結果を、文字列から複雑なデータ構造に割り当てるのが簡単</h4>
+<p>さっきの<code>decimal</code>は、パースした結果を直接整数<span class="ascii">(</span><code>Int</code><span class="ascii">)</span>として返していたことにお気づきでしょうか？<br />
+正規表現で欲しい文字列からデータ構造を取り出したい際は、通常グルーピング機能を使うことになりますが、必ず一旦文字列として取り出すことになります。<br />
+それに対してパーサーコンビネーターには、取り出した文字列を対象のデータ構造に変換する仕組みが組み込まれています。<br />
+再帰的なパーサーを書いて再帰的なデータ構造に割り当てるのも楽ちんです。</p>
+<h4 id="パースした結果に基づいてパーサーの挙動を変えることができる"><span class="link-to-here-outer"><a href="#パースした結果に基づいてパーサーの挙動を変えることができる" title="パースした結果に基づいてパーサーの挙動を変えることができる"><span class="link-to-here">Link to<br />
+here</span></a></span>👍パースした結果に基づいて、パーサーの挙動を変えることができる</h4>
+<p>今回の例にはありませんでしたが、例えばパースして取り出した整数の数だけ、続きの文字列を繰り返しパースする、といったことも簡単にできます。</p>
+<p>一方、正規表現と比べて悪いところもあります。</p>
+<h4 id="記述が冗長"><span class="link-to-here-outer"><a href="#記述が冗長" title="記述が冗長"><span class="link-to-here">Link to<br />
+here</span></a></span>👎記述が冗長</h4>
+<p>正規表現はいわゆる「外部<span class="ascii">DSL</span>」、すなわちプログラミング言語から独立した構文で提供されています。<br />
+<span class="ascii">Perl</span>や<span class="ascii">Ruby</span>などの構文で言えば、<code>/.../</code>の中は別世界ですよね。<br />
+パーサーコンビネーターは、本質的に「文字列を受け取って『文字列を解析した結果』と、『残りの文字列』を返す関数」であるとおり、あくまでプログラミング言語標準の関数<small>（のうち、文字列の解析に特化したもの）</small>として提供されます。「内部<span class="ascii">DSL</span>」なんて呼ばれることもあります。</p>
+<p>そのため、正規表現とは異なり、あくまでもプログラミング言語の構文の中で使えなければならないため、使用できる文字列に限りがあり、必然的に長くなります。<br />
+例えば先ほどの<code>many</code>は正規表現で言うところの<code>*</code><small>（<span class="ascii">0</span>回以上の量指定子）</small>とちょっと似てますが、正規表現の方が<span class="ascii">3</span>文字も短いですよね。</p>
+<p>しかしながら、冗長であることはメリットにもなり得ます👍。<br />
+<code>*</code>をはじめ、正規表現の特殊な機能を使うには、専用の記号（メタキャラクター）をその数だけ覚えなければなりません。<br />
+片やパーサーコンビネーターは<code>many</code>のような機能も普通の関数として提供されるため、冗長である分分かりやすい名前をつけやすいのです。</p>
+<h4 id="ユーザーからの入力として直接受け取ることは難しい"><span class="link-to-here-outer"><a href="#ユーザーからの入力として直接受け取ることは難しい" title="ユーザーからの入力として直接受け取ることは難しい"><span class="link-to-here">Link to<br />
+here</span></a></span>👎ユーザーからの入力として直接受け取ることは難しい。</h4>
+<p>パーサーコンビネーターは先ほども触れた「内部<span class="ascii">DSL</span>」です。<br />
+つまり、プログラミング言語の普通の関数として使用されるものです。<br />
+したがって、例えば正規表現をエディターの検索機能に利用すると言ったような、「ユーザーからの入力として受け取る」と言ったことは、不可能ではないものの、正規表現に比べれば難しいです。</p>
+<h4 id="正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる"><span class="link-to-here-outer"><a href="#正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる" title="正規表現でいうところの-にあたるmanyが必ず強欲なマッチになる"><span class="link-to-here">Link to<br />
+here</span></a></span>👎正規表現でいうところの <code>*</code> にあたる<code>many</code>が、必ず強欲なマッチになる</h4>
+<p>こちらについてはちょっと難しいので後述します。</p>
+<h4 id="文字列の先頭からのマッチしかできない"><span class="link-to-here-outer"><a href="#文字列の先頭からのマッチしかできない" title="文字列の先頭からのマッチしかできない"><span class="link-to-here">Link to<br />
+here</span></a></span>👎文字列の先頭からのマッチしかできない</h4>
+<p>この問題は、パーサーコンビネーターをベター正規表現として使おうと思った場合に、しばしばパーサー作りを面倒くさくします。<br />
+パーサーコンビネーターは、原理上必ず文字列の先頭から解析するよう作られています。<br />
+例えば先ほど紹介したパーサー<code>decimal</code>の場合、</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="fu">&gt;</span> parse decimal <span class="st">&quot;abc123&quot;</span></a></code></pre></div>
+<p>と書いても、<code>&quot;abc123&quot;</code>は先頭が「<span class="ascii">10</span>進数の文字列」ではないので、失敗してしまいます<small>（実際の戻り値はライブラリーによって異なります。試してみましょう！）</small>。</p>
+<p>パーサーコンビネーターはそもそもの用途が<span class="ascii">0</span>からプログラミング言語などのマシンリーダブルな構文を作るところにあるので、妥当と言えば妥当な制限です。<br />
+その場合は必ず、文字列を頭から読んでパースすることになるでしょうから。</p>
+<p>とはいえ、これは正規表現で例えるなら、常に先頭に<code>\A</code> <span class="ascii">(</span>あるいは <code>^</code><span class="ascii">)</span>を付けなければならない、あるいは自動的に付いてしまう、というような制限です。<br />
+正規表現は行の中にある一部の文字列を抽出したり置換したりするのによく使われるので、役に立たないケースがたくさん出てきてしまいます。</p>
+<p>パーサーコンビネーターでこの問題に対応するには、マッチさせたい文字列に到達するまで、スキップするための処理を書かないといけません。<br />
+残念ながらこれは、正規表現で言うところの <code>\A.*(本当にマッチさせたい文字列)</code> と書けばよい話<strong>ではありません</strong>。<br />
+<code>\A(マッチさせたくない文字列)*(本当にマッチさせたい文字列)</code> という書き方をしなければならないのです。<br />
+なぜなら、先ほど触れた「正規表現でいうところの <code>*</code> にあたる<code>many</code>が強欲なマッチになる」という問題があるためです。<br />
+正規表現で言うところの<code>\A.*(本当にマッチさせたい文字列)</code>を書くと、<code>.*</code>が「マッチさせたくない文字列」だけでなく「本当にマッチさせたい文字列」までマッチしてしまい、結果肝心の「本当にマッチさせたい文字列」を扱うことができなくなってしまうのです。</p>
+<h3 id="ソースコードの書き換えとsubstring-parser"><span class="link-to-here-outer"><a href="#ソースコードの書き換えとsubstring-parser" title="ソースコードの書き換えとsubstring-parser"><span class="link-to-here">Link to<br />
+here</span></a></span>ソースコードの書き換えと<span class="ascii">substring-parser</span></h3>
+<p>さて、今回の目的は「『タイプセーフプリキュア！』のソースコードの書式を書き換えることで、全シリーズのプリキュアの情報を<span class="ascii">cure-index.json</span>に収録する」ことでした。<br />
+そのためには、各<code>Textbook</code>モジュールのソースコードにおいて<strong>途中</strong>に含まれている、プリキュアを表す型の定義や、型クラスのインスタンス宣言を集める必要があります。<br />
+しかもそれらは、一つの定義が行をまたいでいたりまたいでなかったりするので、よくある行単位で処理するツールを使うのも、なかなか難しいと思います。<br />
+また、抽出したいデータ構造も多様かつそこそこに複雑で、中には再帰的なデータ構造もあります。正規表現を用いてのパースも、かなり困難なことでしょう。<br />
+とはいえパーサーコンビネーターを通常のとおりに使うと、これまでに述べたとおり、「文字列の先頭からしかマッチできない」という制限が、考えることを複雑にします。</p>
+<p>こうした状況は今回の問題に限らず、このように、ソースコードの多くの類似箇所を書き換える場面において、しばしば発生するでしょう。<br />
+そこで今回は<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>こうした問題全般に対応するライブラリーとして、<a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを作りました。</p>
+<p><span class="ascii">substring-parser</span>を使えば、任意のパーサーコンビネーター<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>を<strong>文字列の中間でも</strong>マッチさせることができます。<br />
+残念ながらドキュメントらしいドキュメントが全く書けてない状況ではありますが、一応動きます。<br />
+<a href="https://gitlab.com/igrep/substring-parser/blob/master/test/Spec.hs"><span class="ascii">Spec.hs</span></a>が動作を知る際の参考になるかも知れません。</p>
+<h4 id="substring-parserの仕組み"><span class="link-to-here-outer"><a href="#substring-parserの仕組み" title="substring-parserの仕組み"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">substring-parser</span>の仕組み</h4>
+<p><span class="ascii">substring-parser</span>はどのようにして、任意のパーサーコンビネーターを文字列の中間でもマッチできるようにしているのでしょう？<br />
+仕組みは単純です。<br />
+引数として受け取ったパーサーを、</p>
+<ol type="1">
+<li>とりあえず先頭からマッチさせてみる。</li>
+<li>失敗したら先頭の一文字をスキップして、次の文字からまたマッチさせてみる。</li>
+</ol>
+<p>という手順を繰り返すだけです。 結果として文字列の先頭にある「マッチさせたくない文字列」をスキップすることができるのです。</p>
+<p>⚠️残念ながら決して効率のいい方法ではないので、真面目なパーサーを書くときはおすすめしません！<br />
+あくまでも今回のような、書き捨てだけど、それなりに複雑な文字列を解析する必要がある場合のみ使うべきでしょう。</p>
+<h2 id="結果できたもの"><span class="link-to-here-outer"><a href="#結果できたもの" title="結果できたもの"><span class="link-to-here">Link to<br />
+here</span></a></span>結果、できたもの</h2>
+<p>ここまで説明した<span class="ascii">substring-parser</span>を駆使することで、私は無事、各<code>Textbook</code>モジュールを半自動で古い書式から新しい書式に書き換えることに成功しました。<br />
+<small>（残念ながら古い<code>Textbook</code>モジュールには存在しない情報を補ったり、体裁を整えたりする必要があったため、完全に自動で書き換えられたわけではありません）</small><br />
+<a href="https://github.com/igrep/typesafe-precure/pull/25"><span class="ascii">typesafe-precure#25</span></a>という大きな<span class="ascii">Pull request</span>に、移行したもののほぼすべてが刻まれています。</p>
+<p>なお、上記の<span class="ascii">Pull request</span>では消してしまってますが、実際に実行した、移行用スクリプトは<a href="https://github.com/igrep/typesafe-precure/blob/ed038aa57a4df6b1fcc23fb071253888ebd7d477/app/migrate2cure-index.hs"><span class="ascii">typesafe-precure/app/migrate2cure-index.hs</span></a>にあります。<br />
+ご興味のある方はご覧になってみてください。</p>
+<p>また、もう少し小さいサンプルとして、プリキュアハッカソンの成果発表でデモをした時点のコミットも載せておきます。<br />
+👇のコマンドを実行すれば、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/app/migrate2cure-index.hs#L101-L118">こちらのコミット時点のパーサー</a>で、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/Dokidoki/Types.hs#L19-L23">同時点の<span class="ascii">Types.hs</span></a>から、<span class="ascii">cure-index.json</span>で使用する<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Index/Types.hs#L44-L46"><code>Girl</code></a>という型の値を取り出すことができます！</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="fu">&gt;</span> git clone https<span class="fu">://</span>github<span class="fu">.</span>com<span class="fu">/</span>igrep<span class="fu">/</span>typesafe<span class="fu">-</span>precure</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="fu">&gt;</span> cd typesafe<span class="fu">-</span>precure</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="fu">&gt;</span> git checkout 73948fb4a82baaf4e33900d77326791c7703f786</a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="fu">&gt;</span> stack build <span class="fu">:</span>migrate2cure<span class="fu">-</span>index</a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="fu">&gt;</span> stack exec migrate2cure<span class="fu">-</span>index</a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="fu">...</span> 略 <span class="fu">...</span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="co">-- src/ACME/PreCure/Textbook/Dokidoki --</span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Mana\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Mana\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Rikka\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Rikka\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Alice\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Alice\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Makoto\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Makoto\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="dt">Girl</span> {girlId <span class="fu">=</span> <span class="st">&quot;\&quot;Aguri\&quot;&quot;</span>, girlNameEn <span class="fu">=</span> <span class="st">&quot;\&quot;Aguri\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="fu">=</span> <span class="st">&quot;girlName&quot;</span>}</a></code></pre></div>
+<h1 id="その他の似たソリューション"><span class="link-to-here-outer"><a href="#その他の似たソリューション" title="その他の似たソリューション"><span class="link-to-here">Link to<br />
+here</span></a></span>その他の似たソリューション</h1>
+<p>今回は、自前で作ったライブラリーと一から書いたパーサーを組み合わせることで「ソースコードの多くの類似箇所を書き換える」問題に対応しましたが、似たようなことを行うツールはほかにもあります。<br />
+いずれも私はほぼ使ったことがないので詳しい解説はできませんが、軽く紹介しておきます。</p>
+<h2 id="codemod"><span class="link-to-here-outer"><a href="#codemod" title="codemod"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://github.com/facebook/codemod"><span class="ascii">codemod</span></a></h2>
+<p><span class="ascii">Facebook</span>製の一括置換ツールです。指定したディレクトリーのファイル群を、正規表現で一括置換できます。<br />
+ここまで書くと<code>perl</code>や<code>sed</code>、<code>awk</code>などで十分できそうにも聞こえますが、修正前後の状態を色つきで見ながら対話的に修正できるそうです。<br />
+正規表現での単純な修正が気に入らなければ、その場で該当箇所だけをエディタで修正できるとのこと。<br />
+<span class="ascii">Python 2</span>に依存しているのがちょっとつらいところでしょうか…😨。</p>
+<h2 id="jscodeshift"><span class="link-to-here-outer"><a href="#jscodeshift" title="jscodeshift"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://github.com/facebook/jscodeshift"><span class="ascii">jscodeshift</span></a></h2>
+<p>同じく<span class="ascii">Facebook</span>が作った、名前のとおり<span class="ascii">JavaScript</span>に特化したソースコードの修正ツールです。<br />
+こちらは正規表現は使用せず、「<span class="ascii">Transform module</span>」と呼ばれる、<span class="ascii">JavaScript</span>の<span class="ascii">AST</span>を変換するための専用のスクリプトを実行することで修正するそうです。<br />
+様々な状況に特化した「<span class="ascii">Transform module</span>」を別パッケージとしても提供しているようです。</p>
+<p>📝以上の<span class="ascii">2</span>つについては「<a href="https://www.webprofessional.jp/getting-started-with-codemods/"><span class="ascii">JavaScript</span>疲れに効く！ <span class="ascii">codemod</span>と<span class="ascii">JSCodeshift</span>でリファクタリングが捗る <span class="ascii">- WPJ</span></a>」も参考にしました。</p>
+<h2 id="refactorio"><span class="link-to-here-outer"><a href="#refactorio" title="refactorio"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://github.com/SuperpowersCorp/refactorio"><span class="ascii">refactorio</span></a></h2>
+<p><a href="https://www.superpowerscorp.com/"><span class="ascii">SuperPowers Corp</span></a>という会社が開発中の、<span class="ascii">lens</span>をはじめとする<span class="ascii">Haskell</span>のパワーを集大成させた、ソースコードの一括置換ツールです。<br />
+<code>ByteString -&gt; ByteString</code>という型の<span class="ascii">Haskell</span>の関数を渡すことで、指定したディレクトリーのファイルすべてに対して関数を適用し、書き換えます。</p>
+<p>加えて、<code>--haskell</code>や<code>--html</code>、<code>--javascript</code>など、各言語に特化したオプションを渡すと、各言語のソースコードを修正する<span class="ascii">lens</span>ベースの<span class="ascii">module</span>を<span class="ascii">import</span>した状態で、関数を作れるようにしてくれます。<br />
+具体的には、例えば<code>--haskell</code>オプションを渡すと、<a href="https://hackage.haskell.org/package/haskell-src-exts"><span class="ascii">haskell-src-exts</span></a>と<a href="https://hackage.haskell.org/package/haskell-src-exts-prisms"><span class="ascii">haskell-src-exts-prisms</span></a>パッケージのモジュールを<span class="ascii">import</span>することで、<span class="ascii">Haskell</span>の<span class="ascii">AST</span>の各トークンに対応した<code>Prism</code>などが使えるようになります。</p>
+<p>後は<a href="https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate"><code>biplate</code></a>など<span class="ascii">lens</span>ライブラリーのコンビネーターと組み合わせれば、一気に<span class="ascii">Haskell</span>のソースコードを編集することができます。 「任意のデータ構造に対する<span class="ascii">jQuery</span>」とも言われる<span class="ascii">lens</span>ライブラリーのパワーを存分に生かしたツールなのです。</p>
+<p>残念なところは、今でも開発中である点と、<span class="ascii">lens</span>ライブラリーに習熟していなければ使いこなせないという点でしょうか。<br />
+よく使う<code>Lens</code>型や<code>Prism</code>型だけでなく、<code>Traversal</code>も使えなければなりません。<br />
+特に<a href="https://github.com/SuperpowersCorp/refactorio#haskell-via-haskell-src-exts-and-haskell-src-exts-prisms">サンプル</a>で紹介されているような<a href="https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate"><code>biplate</code></a>を使った場合において、指定した<code>Prism</code>がマッチしなかった場合、何事もなかったかのようにソースが書き換えられないため、デバッグが面倒なところもつらいです。</p>
+<h1 id="次のゴール"><span class="link-to-here-outer"><a href="#次のゴール" title="次のゴール"><span class="link-to-here">Link to<br />
+here</span></a></span>次のゴール</h1>
+<p>「タイプセーフプリキュア！」の開発は、これからもプリキュアハッカソンの前後とプリキュア<span class="ascii">Advent Calendar</span>の前後を中心に、今後も続ける予定です。<br />
+先にも触れましたが、次回は今回完成させた<span class="ascii">cure-index.json</span>を使用することで、<a href="http://the.igreque.info/posts/2014-12-25-unite-precure.vim.html">かつて<span class="ascii">rubicure</span>で作ったユナイトプリキュア</a>を「ユナイトプリキュア」を「ディナイトプリキュア」として書き直すかも知れません。<br />
+ただ、それ以外にももうちょっと<span class="ascii">Haskell</span>で遊びたいことがあるので、後回しにするかも知れません。<br />
+<span class="ascii">Vim script</span>、あんまり書きたくないんですよね…😥</p>
+<h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h1>
+<ul>
+<li><span class="ascii">Haskell</span>界に伝わる伝説のアイテム「パーサーコンビネーター」を応用して、「タイプセーフプリキュア！」の古いソースコードを半自動で変換しました。</li>
+<li>「パーサーコンビネーター」は正規表現よりいいところたくさんですが、文字列の先頭からのマッチしかできないのがつらいです。
+<ul>
+<li><a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを書いて、対応しました。</li>
+</ul></li>
+<li>パーサーコンビネーター最高！ ✌️😆✌️</li>
+</ul>
+<p>それではこの秋もパーサーコンビネーターで<span class="ascii">Happy Haskell Hacking!!</span>✌️✌️✌️</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>プリキュアハッカソンは「ハッカソン」の名を冠してはいるものの、実態としてはプリキュアの映画を観ながら好き勝手に開発するというゆるい会です。<br />
+また、そもそもそれほど時間もないので、私は当日の<span class="ascii">3</span>～<span class="ascii">4</span>週間ほど前から今回の対応を始めておりました。「今回のプリキュアハッカソンに<strong>向けて</strong>行ったこと」なる見出しなのは、そのためです。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>当時は各<code>Textbook</code>モジュールの<code>Types.hs</code>というファイルで<code>ANN</code>や<code>declareTransformees</code>などを使っていましたが、現在は「ルートに当たるモジュール」で行うことにしました。ファイル数を減らすのと、<span class="ascii">export</span>する識別子を型に絞ることで、<code>transformeesHugtto</code>のような、あまりかっこよくない識別子を隠す、というのがその目的です。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>実際には、前職時代に同様の問題に遭遇した際作成しました。今後も必要になったときにちょっとずつ開発していく予定です。<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p>一応<a href="http://hackage.haskell.org/package/parsers"><code>parsers</code></a>パッケージを使って様々なパーサーコンビネーターのライブラリーをサポートするように作りましたが、現状<a href="http://hackage.haskell.org/package/attoparsec"><code>attoparsec</code></a>でのみテストしています。用途を考えれば多分十分じゃないかと思っています。<a href="#fnref4" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2018/derive-json-no-prefix.html" style="margin-left: auto;" lang="ja">deriveJsonNoPrefixをリリースしました</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>deriveJsonNoPrefixをリリースしました</title>
     <link href="https://haskell.jp/blog/posts/2018/derive-json-no-prefix.html" />
     <id>https://haskell.jp/blog/posts/2018/derive-json-no-prefix.html</id>
@@ -130,6 +548,9 @@ here</span></a></span>同じ問題を解決するほかのライブラリー</h2
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2018/substring-parser.html" lang="ja">substring-parserで「タイプセーフプリキュア！」を移行した話</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -1852,368 +2273,6 @@ here</span></a></span>回避方法</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2017/advent-calendar-2017.html" style="margin-left: auto;" lang="ja">Haskell Advent Calendar 2017 まとめ</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>Haskell Advent Calendar 2017 まとめ</title>
-    <link href="https://haskell.jp/blog/posts/2017/advent-calendar-2017.html" />
-    <id>https://haskell.jp/blog/posts/2017/advent-calendar-2017.html</id>
-    <published>2017-12-31T00:00:00Z</published>
-    <updated>2017-12-31T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>これは <a href="https://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell Advent Calendar</span> その<span class="ascii">4</span></a> の<span class="ascii">12</span>日目の記事です。</p>
-<p>なんで<span class="ascii">12</span>日目の記事で「まとめ」をやっているのかって？ <span class="ascii">25</span>日を過ぎてから余ってた日付に登録しただけですよ。</p>
-<p><a href="https://qiita.com/advent-calendar/2017/calendars"><span class="ascii">Qiita</span></a>と<a href="https://adventar.org/calendars?year=2017"><span class="ascii">ADVENTAR</span></a>のアドベントカレンダーで投稿された、<span class="ascii">Haskell</span>に関する記事を集めてみました。 いちおう機械的に集めたので、それなりに拾えてると思いますが、もし「この記事が無いよ」とか、逆に「<span class="ascii">Haskell</span>ちゃうやんこの記事」ってのがあったら、<a href="https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md">ここから編集して</a><span class="ascii">PR</span>でも送ってください。</p>
-<p>ちなみに「<a href="https://scrapbox.io/miyamoen/Elm_Advent_Calendar_2017_%E3%81%BE%E3%81%A8%E3%82%81"><span class="ascii">Elm Advent Calendar 2017</span> まとめ</a>」という記事が面白かったので、その<span class="ascii">Haskell</span>版オマージュ<span class="ascii">(</span>パクリ<span class="ascii">)</span>です。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#haskell-advent-calendar" title="haskell-advent-calendar"><span class="ascii">Haskell Advent Calendar</span></a></li>
-<li><a href="#記事を集めた" title="記事を集めた">記事を集めた</a></li>
-<li><a href="#記事たち" title="記事たち">記事たち</a>
-<ul>
-<li><a href="#ポエム" title="ポエム">ポエム</a></li>
-<li><a href="#入門してみた" title="入門してみた">入門してみた</a></li>
-<li><a href="#ノウハウ" title="ノウハウ">ノウハウ</a></li>
-<li><a href="#解説" title="解説">解説</a></li>
-<li><a href="#周辺ツールについて" title="周辺ツールについて">周辺ツールについて</a></li>
-<li><a href="#ライブラリ紹介" title="ライブラリ紹介">ライブラリ紹介</a></li>
-<li><a href="#作ってみた" title="作ってみた">作ってみた</a></li>
-<li><a href="#処理系" title="処理系">処理系</a></li>
-<li><a href="#言語機能" title="言語機能">言語機能</a></li>
-<li><a href="#型" title="型">型</a></li>
-<li><a href="#base" title="base"><span class="ascii">Base</span></a></li>
-<li><a href="#アルゴリズムとデータ構造" title="アルゴリズムとデータ構造">アルゴリズムとデータ構造</a></li>
-<li><a href="#数学科学" title="数学科学">数学・科学</a></li>
-<li><a href="#docker" title="docker"><span class="ascii">Docker</span></a></li>
-<li><a href="#eta" title="eta"><span class="ascii">Eta</span></a></li>
-<li><a href="#書籍紹介" title="書籍紹介">書籍紹介</a></li>
-<li><a href="#翻訳記事" title="翻訳記事">翻訳記事</a></li>
-</ul></li>
-</ul>
-</div>
-</div>
-<h2 id="haskell-advent-calendar"><span class="link-to-here-outer"><a href="#haskell-advent-calendar" title="haskell-advent-calendar"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell Advent Calendar</span></h2>
-<p><span class="ascii">Qiita</span>の方では<span class="ascii">4</span>つもできましたね。</p>
-<ul>
-<li><a href="https://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a></li>
-<li><a href="https://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a></li>
-<li><a href="https://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a></li>
-<li><a href="https://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a></li>
-</ul>
-<p>まぁしかし、残念ながらどのカレンダーも埋まってないため<a href="https://qiita.com/advent-calendar/2017/ranking/subscriptions">ランキング</a>圏外となってしまいましたが<span class="ascii">(</span>笑<span class="ascii">)</span></p>
-<p>加えて何故か、<span class="ascii">25</span>日が過ぎてからその<span class="ascii">5</span>のカレンダーができるという、なかなか面白い事案が発生しました。</p>
-<ul>
-<li><a href="https://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a></li>
-</ul>
-<p>上記のカレンダーの記事以外も含めて、全部で<span class="ascii">104</span>記事もありました。 みんなすごいですね。</p>
-<h2 id="記事を集めた"><span class="link-to-here-outer"><a href="#記事を集めた" title="記事を集めた"><span class="link-to-here">Link to<br />
-here</span></a></span>記事を集めた</h2>
-<p>超雑にスクレイパーを書いて<span class="ascii">Qiita</span>と<span class="ascii">ADVENTAR</span>のカレンダーをスクレイピングしてきました。 プログラムは以下のリポジトリにあります<span class="ascii">(</span>もちろん<span class="ascii">Haskell</span>で作ったよ<span class="ascii">)</span>。</p>
-<ul>
-<li><a href="https://github.com/matsubara0507/haskell-advent-calendar"><span class="ascii">matsubara0507/advent-calendar - GitHub</span></a></li>
-</ul>
-<p>カレンダーのタイトルか、記事のタイトルに「<span class="ascii">Haskell</span>」って単語が入っているやつだけ集めてます。 このプログラムの解説っぽい記事はそのうち自分のとこの記事として挙げる気がする<span class="ascii">(</span>たぶん<span class="ascii">)</span>。</p>
-<h2 id="記事たち"><span class="link-to-here-outer"><a href="#記事たち" title="記事たち"><span class="link-to-here">Link to<br />
-here</span></a></span>記事たち</h2>
-<p>分類は温もりのある手作業でやってます。 自然言語処理系が出来れば機械的に分類できたかもしれませんが…</p>
-<p>分類違くね？というモノがあれば、<a href="https://github.com/haskell-jp/blog/edit/master/preprocessed-site/posts/2017/advent-calendar-2017.md">ここから編集して</a><span class="ascii">PR</span>でも送ってください。</p>
-<p>それでは良いお年を。</p>
-<h3 id="ポエム"><span class="link-to-here-outer"><a href="#ポエム" title="ポエム"><span class="link-to-here">Link to<br />
-here</span></a></span>ポエム</h3>
-<p><strong><a href="http://kakkun61.hatenablog.com/entry/2017/12/25/%E3%81%AA%E3%81%9C_Haskell_%E3%81%8C%E5%A5%BD%E3%81%8D%E3%81%AA%E3%81%AE%E3%81%8B">なぜ <span class="ascii">Haskell</span> が好きなのか <span class="ascii">-</span> 趣味はデバッグ……</a></strong><br />
-<span class="ascii">by kakkun61 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
-<p><strong><a href="https://qiita.com/Mizunashi_Mana/items/e82214dfae2765c6839a"><span class="ascii">Haskell</span>副作用ポエム <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by Mizunashi_Mana on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
-<p><strong><a href="https://qiita.com/ababup1192/items/b15cdace30b7fef3338c"><span class="ascii">Haskell</span>を勉強して感動したこと・難しいと思ってること <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by ababup1192 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
-<h3 id="入門してみた"><span class="link-to-here-outer"><a href="#入門してみた" title="入門してみた"><span class="link-to-here">Link to<br />
-here</span></a></span>入門してみた</h3>
-<p><strong><a href="https://gist.github.com/sys9kdr/2484ed09f5cb7ea86beae8f5222d9a3c"><span class="ascii">Haskell</span>入門しようとして環境構築で失敗。 <span class="ascii">· GitHub</span></a></strong><br />
-<span class="ascii">by sys9kdr on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
-<p><strong><a href="https://qiita.com/lagenorhynque/items/f8b14ff70a26cfd27976"><span class="ascii">Clojurian</span>が<span class="ascii">Haskell</span>で<span class="ascii">Web API</span>開発に入門してみた <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by lagenorhynque on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
-<p><strong><a href="https://qiita.com/hitsujisanmeme/items/e14972cfd349c1149d58">美術の人が考える <span class="ascii">Haskell - Qiita</span></a></strong><br />
-<span class="ascii">by hitsujisanmeme on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
-<p><strong><a href="https://qiita.com/brackss1/items/9f9466f160391dc53bba"><span class="ascii">Haskell</span>入門者がライブラリを触っちゃう<span class="ascii">!? - Qiita</span></a></strong><br />
-<span class="ascii">by brackss1 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
-<p><strong><a href="https://qiita.com/ryosukue/items/cf14d817a7067dfd2094"><span class="ascii">Ubuntu</span>、<span class="ascii">Haskell</span>で<span class="ascii">web</span>アプリ手始め <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by ryosukue on</span> <a href="http://qiita.com/advent-calendar/2017/nuco"><span class="ascii">Nuco Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
-<p><strong><a href="https://qiita.com/3nan/items/b89b7383ddb2bac5dda1"><span class="ascii">Haskell</span>をちょこっと紹介（フィボナッチ数列を書いてみる） <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by 3nan on</span> <a href="http://qiita.com/advent-calendar/2017/tecotec"><span class="ascii">TECOTEC Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
-<h3 id="ノウハウ"><span class="link-to-here-outer"><a href="#ノウハウ" title="ノウハウ"><span class="link-to-here">Link to<br />
-here</span></a></span>ノウハウ</h3>
-<p><strong><a href="https://www.ncaq.net/2017/12/02/00/00/00/">私の<span class="ascii">Haskell</span>コーディングスタイルガイド<span class="ascii">,</span>改行出来るポイントを紹介 <span class="ascii">- ncaq</span></a></strong><br />
-<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
-<p><strong><a href="https://www.ncaq.net/2017/12/03/00/00/00/">ゲーム販売<span class="ascii">web</span>アプリケーション<span class="ascii">SYAKERAKE</span>を支える技術<span class="ascii">,Haskell</span>と<span class="ascii">Yesod</span>で作られています <span class="ascii">- ncaq</span></a></strong><br />
-<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
-<p><strong><a href="https://www.ncaq.net/2017/12/04/00/00/00/"><span class="ascii">Stackage Server</span>のちょっとした便利な使い方<span class="ascii">,Hoogle</span>をブラウザのカスタム検索エンジンに追加しましょう<span class="ascii">,</span>よく使うパッケージをブックマークする時は<span class="ascii">PackageR</span>の<span class="ascii">URL</span>にしましょう <span class="ascii">- ncaq</span></a></strong><br />
-<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
-<p><strong><a href="http://d.hatena.ne.jp/kazu-yamamoto/20171212/1513050147"><span class="ascii">go</span>な関数</a></strong><br />
-<span class="ascii">by kazu_yamamoto on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
-<p><strong><a href="http://fumieval.hatenablog.com/entry/2017/12/19/203500"><span class="ascii">Haskell</span>の<span class="ascii">ABC(Haskell Advent Calendar 6th) -</span> モナドとわたしとコモナド</a></strong><br />
-<span class="ascii">by fumieval on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
-<p><strong><a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html"><span class="ascii">Windows</span>で<span class="ascii">Haskell</span>を扱う時によく遭遇するエラーと対処法 <span class="ascii">- Haskell-jp</span></a></strong><br />
-<span class="ascii">by igrep on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
-<h3 id="解説"><span class="link-to-here-outer"><a href="#解説" title="解説"><span class="link-to-here">Link to<br />
-here</span></a></span>解説</h3>
-<p><strong><a href="http://syocy.hatenablog.com/entry/a-tour-of-go-in-haskell"><span class="ascii">A Tour of Go in Haskell</span>を作ったのと、<span class="ascii">Go</span>と<span class="ascii">Haskell</span>の比較 <span class="ascii">- syocy</span>’<span class="ascii">s diary</span></a></strong><br />
-<span class="ascii">by syocy on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
-<p><strong><a href="https://qiita.com/cyclone_t/items/8443ed5d4a77f87b1f1b"><span class="ascii">Servant</span>のハンドラに<span class="ascii">ReaderT</span>を適用する <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by cyclone_t on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
-<p><strong><a href="https://qiita.com/wgag/items/11a6e667011d530832e8">スーパーモナドについて <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by wgag on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/10</span></p>
-<p><strong><a href="https://tech.recruit-mp.co.jp/dev-tools/post-13981/"><span class="ascii">CircleCI2.0</span>で<span class="ascii">Haskell</span>のテストを実行する – <span class="ascii">PSYENCE:MEDIA</span></a></strong><br />
-<span class="ascii">by yukiasai on</span> <a href="http://adventar.org/calendars/2360"><span class="ascii">RECRUIT MARKETING PARTNERS Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/13</span></p>
-<p><strong><a href="https://qiita.com/yukiasai/items/248294a871d40c0dcef6"><span class="ascii">Dokku</span>環境を構築して<span class="ascii">Haskell</span>のアプリケーションをデプロイする <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by yukiasai on</span> <a href="http://adventar.org/calendars/2324"><span class="ascii">Recruit Engineers Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/07</span></p>
-<h3 id="周辺ツールについて"><span class="link-to-here-outer"><a href="#周辺ツールについて" title="周辺ツールについて"><span class="link-to-here">Link to<br />
-here</span></a></span>周辺ツールについて</h3>
-<p><strong><a href="https://qiita.com/usamik26/items/672ed3c4451402bfc275"><span class="ascii">Haskell Stack</span> とは何をするツールなのか <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by usamik26 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
-<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-20-stack-ls-command.html"><span class="ascii">stack ls</span> コマンドが追加されます</a></strong><br />
-<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/08</span></p>
-<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-24-stack163.html"><span class="ascii">stack v1.6.3</span> がリリースされました。</a></strong><br />
-<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
-<p><strong><a href="https://qiita.com/ogata-k/items/23d70250ec42359b6bb5"><span class="ascii">Haskell</span>や周辺ツールについてのリンク集 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by ogata-k on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
-<p><strong><a href="https://qiita.com/ogata-k/items/2b21326b2b7351bfc28c"><span class="ascii">Haskell</span>の<span class="ascii">stack</span>によるプロジェクトについて <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by ogata-k on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
-<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-27-haddock-grid-table.html"><span class="ascii">haddock</span> に <span class="ascii">Grid Table</span> 記法が追加されました</a></strong><br />
-<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
-<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-23-stack161.html">カスタムスナップショットの紹介</a></strong><br />
-<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
-<p><strong><a href="https://myuon.github.io/posts/haskell-project-setup/"><span class="ascii">Haskell</span>プロジェクトを始めるにあたって <span class="ascii">- The curse of</span> λ</a></strong><br />
-<span class="ascii">by myuon_myon on</span> <a href="http://qiita.com/advent-calendar/2017/myuon_myon_cs">一人<span class="ascii">Computer Science Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
-<h3 id="ライブラリ紹介"><span class="link-to-here-outer"><a href="#ライブラリ紹介" title="ライブラリ紹介"><span class="link-to-here">Link to<br />
-here</span></a></span>ライブラリ紹介</h3>
-<p><strong><a href="https://qiita.com/jabaraster/items/e8ebbe6d25b535947aba"><span class="ascii">servant+persistent</span>を利用する <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by jabaraster on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
-<p><strong><a href="https://qiita.com/makoraru/items/596729de09d6aeb81e5a"><span class="ascii">Yampa</span>で<span class="ascii">Functional Reactive</span>な認知行動療法ボット <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by makoraru on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
-<p><strong><a href="https://nnwww.github.io/blog/post/haskell_ml/"><span class="ascii">Haskell</span>で機械学習を実装しようと思った過去の自分へ</a></strong><br />
-<span class="ascii">by _Nnwww on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
-<p><strong><a href="https://qiita.com/cyclone_t/items/52ad44cfbb4603e123f3"><span class="ascii">Haskell</span>・<span class="ascii">Servant+Persistent/Esqueleto</span>で作る実用<span class="ascii">WebAPI (1) Servant</span>の基本 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by cyclone_t on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
-<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-09-extensible-effects-step-by-step.html"><span class="ascii">Extensible Effects</span> ステップ・バイ・ステップ</a></strong><br />
-<span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
-<p><strong><a href="https://qiita.com/Mizunashi_Mana/items/115855bf2af9b9970198"><span class="ascii">Haskell</span>のパーサライブラリまとめ <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by Mizunashi_Mana on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
-<p><strong><a href="https://www.zaneli.com/blog/20171213"><span class="ascii">Haskell</span>入門者<span class="ascii">LT</span>会で自作ライブラリ<span class="ascii">network-voicetext</span>の話をしてきた <span class="ascii">|</span> ザネリは列車を見送った</a></strong><br />
-<span class="ascii">by zaneli@github on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
-<p><strong><a href="https://qiita.com/satosystems/items/32bf104a041c8cc13809"><span class="ascii">Haskell</span> と <span class="ascii">SQLite - Qiita</span></a></strong><br />
-<span class="ascii">by satosystems on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
-<p><strong><a href="https://qiita.com/masahiro_sakai/items/6a989d5b898a08f17821">部分構造の共有を観測する<span class="ascii">data-reify - Qiita</span></a></strong><br />
-<span class="ascii">by masahiro_sakai on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
-<h3 id="作ってみた"><span class="link-to-here-outer"><a href="#作ってみた" title="作ってみた"><span class="link-to-here">Link to<br />
-here</span></a></span>作ってみた</h3>
-<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-13-elm-and-haskell-for-elmer.html"><span class="ascii">Elm</span> と <span class="ascii">Haskell</span> で作る <span class="ascii">ToDo</span> アプリ</a></strong><br />
-<span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/elm"><span class="ascii">Elm Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
-<p><strong><a href="http://abc10946.hatenablog.com/entry/2017/12/18/014203"><span class="ascii">Haskell</span>に入門して<span class="ascii">1</span>年位経ったのでライフゲームを作ってみた話 <span class="ascii">- abc10946</span>の日記</a></strong><br />
-<span class="ascii">by ABC10946 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
-<p><strong><a href="http://d.hatena.ne.jp/wvogel00/20171222/1513924995">仕事で<span class="ascii">Haskell</span>を使いたいなら外堀から</a></strong><br />
-<span class="ascii">by hxf_vogel on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
-<p><strong><a href="http://blog.nakaji.me/slack-api-bloodhound-servant/"><span class="ascii">slack-api + bloodhound + servant</span> で<span class="ascii">bot+</span>αを作る</a></strong><br />
-<span class="ascii">by nakaji-dayo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
-<p><strong><a href="http://secret-garden.hatenablog.com/entry/2017/12/16/000000">【<span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017</span>】<span class="ascii">Vim</span> から <span class="ascii">Hoogle</span> の検索が出来るプラグインをつくった【<span class="ascii">16</span>日目】 <span class="ascii">- Secret Garden(Instrumental)</span></a></strong><br />
-<span class="ascii">by pink_bangbi on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
-<p><strong><a href="https://qiita.com/rounddelta/items/807866bdaa81c3057ac0">お天気<span class="ascii">Bot</span> で理解する <span class="ascii">Haskell</span> の便利パッケージ <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/25</span></p>
-<p><strong><a href="https://qiita.com/arowM/items/e59442120ad3c1071c57"><span class="ascii">Haskell ochintin-daicho</span> で年末調整プログラミング <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by arowM on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
-<p><strong><a href="https://qiita.com/lotz/items/1aa6cf18aa193f40c647">作って学ぶ<span class="ascii">Bitcoin</span>！ゼロから作る<span class="ascii">SPV</span>ウォレット <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by lotz on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
-<p><strong><a href="http://tune.hateblo.jp/entry/2017/12/27/031803">優秀な秘書を雇いました<span class="ascii">!!! - Creatable a =&gt; a -&gt; IO b</span></a></strong><br />
-<span class="ascii">by tokiwoousaka@github on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
-<p><strong><a href="https://qiita.com/satosystems/items/c1c0feef87345a9df69d"><span class="ascii">Haskell</span> における遅延ファイル読み込みとリソースリーク <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by satosystems on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/23</span></p>
-<p><strong><a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">タイプセーフプリキュア！を支える技術 その<span class="ascii">2 - Haskell-jp</span></a></strong><br />
-<span class="ascii">by igrep on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/24</span></p>
-<p><strong><a href="https://www.ncaq.net/2017/12/19/00/00/00/"><span class="ascii">Haskell</span>による<span class="ascii">web</span>スクレイピングの方法を<span class="ascii">dic-nico-intersection-pixiv</span>を例に書く <span class="ascii">- ncaq</span></a></strong><br />
-<span class="ascii">by</span> エヌユル <span class="ascii">on</span> <a href="http://adventar.org/calendars/2105"><span class="ascii">Web</span>スクレイピング <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/19</span></p>
-<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-02-re-adventar-slack-bot-part1.html"><span class="ascii">Re:</span> ゼロから作る <span class="ascii">ADVENTAR</span> の <span class="ascii">Slack Bot (Haskell</span> 編<span class="ascii">)</span></a></strong><br />
-<span class="ascii">by</span> ひげ <span class="ascii">on</span> <a href="http://adventar.org/calendars/2300">群馬大学電子計算機研究会 <span class="ascii">IGGG Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/02</span></p>
-<h3 id="処理系"><span class="link-to-here-outer"><a href="#処理系" title="処理系"><span class="link-to-here">Link to<br />
-here</span></a></span>処理系</h3>
-<p><strong><a href="http://ilyaletre.hatenablog.com/entry/2017/12/10/195016"><span class="ascii">GHC</span>の中間言語<span class="ascii">Core</span>への脱糖を覗き見る <span class="ascii">- Hash</span> λ <span class="ascii">Bye</span></a></strong><br />
-<span class="ascii">by ilyaletre on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
-<p><strong><a href="http://fujiy.hatenablog.com/entry/type-inference-1"><span class="ascii">Haskell</span>の型システムを書く<span class="ascii">(1) -</span> 純粋技術メモ</a></strong><br />
-<span class="ascii">by fujiy on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
-<p><strong><a href="https://qiita.com/takoeight0821/items/9a1c3eb5b0f292026596"><span class="ascii">GHC</span>での中置演算子のパース <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by takoeight0821 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
-<p><strong><a href="https://uhideyuki.sakura.ne.jp/studs/index.cgi/ja/HindleyMilnerInHaskell">型システムを学ぼう！</a></strong><br />
-<span class="ascii">by unnohideyuki on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
-<h3 id="言語機能"><span class="link-to-here-outer"><a href="#言語機能" title="言語機能"><span class="link-to-here">Link to<br />
-here</span></a></span>言語機能</h3>
-<p><strong><a href="https://matsubara0507.github.io/posts/2017-12-12-backpack-memo.html"><span class="ascii">Haskell Backpack</span> 覚え書き</a></strong><br />
-<span class="ascii">by matsubara0507 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/12</span></p>
-<p><strong><a href="https://qiita.com/aiya000/items/b802531c58c161cd245f">にこ、希と一緒に学ぶ<span class="ascii">Haskell</span>（番外）「あまり知られていない<span class="ascii">GHC</span>拡張の紹介」 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by aiya000 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
-<p><strong><a href="https://qiita.com/ruicc/items/e2879c44eba77b1e7170"><span class="ascii">Levity polymorphism</span>について軽く <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by ruicc on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
-<p><strong><a href="https://qiita.com/ryoppy/items/7156d587da2e6ae7e605"><span class="ascii">Kind</span>について <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by ryoppy on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/11</span></p>
-<p><strong><a href="http://khibino.hatenadiary.jp/entry/2017/12/18/081814"><span class="ascii">OverloadedLabels</span> と <span class="ascii">Haskell Relational Record - khibino blog</span></a></strong><br />
-<span class="ascii">by khibino on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
-<p><strong><a href="https://qiita.com/thimura/items/0d289c231f9aceac61dc"><span class="ascii">GHC 8.2</span> 以前で <span class="ascii">FFI</span> を使う際に注意すること <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by thimura on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
-<h3 id="型"><span class="link-to-here-outer"><a href="#型" title="型"><span class="link-to-here">Link to<br />
-here</span></a></span>型</h3>
-<p><strong><a href="https://qiita.com/junjihashimoto@github/items/31f245f5e0138e5fac7e">依存型の紹介と応用としての<span class="ascii">Clash</span>の紹介 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by junjihashimoto@github on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
-<p><strong><a href="https://qiita.com/aiya000/items/81e8424c8a3ee23586a6">ことり、穂乃果と一緒に学ぶ<span class="ascii">Haskell</span>（入門）その<span class="ascii">6</span>「高階データ型」 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by aiya000 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/24</span></p>
-<p><strong><a href="https://qiita.com/mod_poppo/items/50ad2c0ee66171cc1ee9">型を実行時に作る：怖くないリフレクション <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by mod_poppo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/19</span></p>
-<p><strong><a href="https://qiita.com/HirotoShioi/items/5474119ba3682448c109"><span class="ascii">Haskell</span>における型クラス制約の役割 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by HirotoShioi on</span> <a href="http://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
-<h3 id="base"><span class="link-to-here-outer"><a href="#base" title="base"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Base</span></h3>
-<p><strong><a href="https://www.ncaq.net/2017/12/01/00/00/01/"><span class="ascii">Haskell</span>の<span class="ascii">State</span>の必要性が<span class="ascii">,</span>プログラミング言語の処理系を書いた時にわかったので<span class="ascii">,State</span>の良さを語ります <span class="ascii">- ncaq</span></a></strong><br />
-<span class="ascii">by ncaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
-<p><strong><a href="https://qiita.com/grainrigi/items/f45b586b4013ffc3814e"><span class="ascii">Haskell - $</span>の仕組みを覗いてみよう <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by grainrigi on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/08</span></p>
-<p><strong><a href="https://blog.b123400.net/functor/"><span class="ascii">Mapping things</span></a></strong><br />
-<span class="ascii">by b123400 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/10</span></p>
-<p><strong><a href="https://qiita.com/elipmoc101/items/4590210c9946ee2fd4c5"><span class="ascii">Maybe</span>自作から学ぶ<span class="ascii">Haskell</span>！ <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by elipmoc101 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/16</span></p>
-<p><strong><a href="https://keiorogiken.wordpress.com/2017/12/24/list%E3%81%A7%E9%81%8A%E3%81%B6/"><span class="ascii">List</span>で遊ぶ <span class="ascii">|</span> 慶應義塾大学ロボット技術研究会</a></strong><br />
-<span class="ascii">by mt_caret on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
-<p><strong><a href="https://qiita.com/Lugendre/items/6b4a8c8a9c85fcdcb292"><span class="ascii">Arrow</span>を理解する <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by Lugendre on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/08</span></p>
-<h3 id="アルゴリズムとデータ構造"><span class="link-to-here-outer"><a href="#アルゴリズムとデータ構造" title="アルゴリズムとデータ構造"><span class="link-to-here">Link to<br />
-here</span></a></span>アルゴリズムとデータ構造</h3>
-<p><strong><a href="https://qiita.com/ryohji/items/d8bdba1648978c308cdd">探索問題を <span class="ascii">Haskell</span> で解く <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by ryohji on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
-<p><strong><a href="https://qiita.com/v97ug/items/d6dd50a2b6b84a9e4d41">巡回セールスマン問題を遺伝的アルゴリズムとデータ構造を使って<span class="ascii">Haskell</span>で解く！ <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by v97ug on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/15</span></p>
-<p><strong><a href="https://qiita.com/as_capabl/items/39e55e7a035dea4dc93a">いつから<span class="ascii">Haskell</span>の<span class="ascii">5</span>行クイックソートが遅いと錯覚していた？ <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by as_capabl on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
-<p><strong><a href="https://qiita.com/rst76/items/a7dd81b522a09d1b9986">キューの効率的な実装 または私は如何にして<span class="ascii">Haskell</span>を止めて<span class="ascii">F#</span>を愛するようになったか <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by rst76 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/21</span></p>
-<p><strong><a href="http://autotaker.hatenablog.com/entry/2017/12/21/125153">永続リアルタイムキューの<span class="ascii">Haskell</span>実装と計算量解析 <span class="ascii">- autotaker</span>’<span class="ascii">s blog</span></a></strong><br />
-<span class="ascii">by autotaker1984 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
-<p><strong><a href="https://qiita.com/Aruneko/items/dee20161358e7c39e27a"><span class="ascii">Zipper</span>に挑む <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by Aruneko on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
-<p><strong><a href="https://qiita.com/nobsun/items/27fe53516cbb90ba02e2"><span class="ascii">Tree:</span> 親子関係の付け替え <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by nobsun on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
-<p><strong><a href="http://zodi-g12.hatenablog.com/entry/2017/12/06/133951">コラッツの問題を<span class="ascii">Haskell</span>で書いてみた <span class="ascii">- Zodiac</span>の黙示録</a></strong><br />
-<span class="ascii">by zodi_G12 on</span> <a href="http://adventar.org/calendars/2377"><span class="ascii">IQ</span>が<span class="ascii">1 Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/06</span></p>
-<h3 id="数学科学"><span class="link-to-here-outer"><a href="#数学科学" title="数学科学"><span class="link-to-here">Link to<br />
-here</span></a></span>数学・科学</h3>
-<p><strong><a href="https://qiita.com/tezca686/items/855236ccdda584ee8ebb"><span class="ascii">[Haskell]</span> とびだせ！<span class="ascii">Hask</span>圏 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by tezca686 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/14</span></p>
-<p><strong><a href="https://qiita.com/makoraru/items/768089b2aab1dde47593">区間代数と無限小と無限大 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by makoraru on</span> <a href="http://qiita.com/advent-calendar/2017/haskell3"><span class="ascii">Haskell (</span>その<span class="ascii">3) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
-<p><strong><a href="https://qiita.com/as_capabl/items/2031fe28e577e77dc269">しりとりの圏の回答、または定理証明<span class="ascii">Haskell</span>を少しだけ <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by as_capabl on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
-<p><strong><a href="https://qiita.com/hiratara/items/6265b5d4791144bee33b">しりとりの圏の実装<span class="ascii">(</span>未完<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by hiratara on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
-<p><strong><a href="https://qiita.com/kyamaz/items/67ec5c7d39e62c1de91d">量子コンピューターにはモナドがよく似合う <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by kyamaz on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
-<p><strong><a href="https://qiita.com/makoraru/items/ab891a60d4dfe4bbf649"><span class="ascii">Haskell</span>と層 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by makoraru on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/20</span></p>
-<p><strong><a href="https://qiita.com/NaOHaq/items/ba490cc1e1ab890cb399"><span class="ascii">Haskell</span>上で有限体を使って遊ぶ <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by NaOHaq on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/22</span></p>
-<p><strong><a href="https://qiita.com/cutsea110/items/69889a99d30b627bc04a"><span class="ascii">somehow-morphisms on fixed point written in Haskell - Qiita</span></a></strong><br />
-<span class="ascii">by cutsea110 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
-<p><strong><a href="https://qiita.com/kyamaz/items/e49b07e05e871a22246c">量子プログラミングは<span class="ascii">Haskell</span>で <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by kyamaz on</span> <a href="http://qiita.com/advent-calendar/2017/quantum">量子コンピュータ <span class="ascii">Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
-<h3 id="docker"><span class="link-to-here-outer"><a href="#docker" title="docker"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Docker</span></h3>
-<p><strong><a href="https://qiita.com/t10471/items/4afa598e1be5d6c7cc1f"><span class="ascii">Haskell</span>でも<span class="ascii">Go</span>みたいにシングルバイナリでアプリケーションをデプロイしたい <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by t10471 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell2"><span class="ascii">Haskell (</span>その<span class="ascii">2) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/09</span></p>
-<p><strong><a href="https://qiita.com/algas/items/fde155abbc9d8ae3f8c9"><span class="ascii">Haskell on Docker</span> で <span class="ascii">Portable CLI</span> を作ろう <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by algas on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
-<h3 id="eta"><span class="link-to-here-outer"><a href="#eta" title="eta"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Eta</span></h3>
-<p><strong><a href="https://qiita.com/aiya000/items/881d5f7e04b1178e7764"><span class="ascii">Eta</span>で表現されるデータ型としての<span class="ascii">Java</span>クラスとその継承関係 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by aiya000 on</span> <a href="http://qiita.com/advent-calendar/2017/haskell"><span class="ascii">Haskell Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/25</span></p>
-<p><strong><a href="https://qiita.com/aiya000/items/7dc0cb8694de0675088e"><span class="ascii">Haskell (Eta)</span> で<span class="ascii">JavaFX</span>の<span class="ascii">EDSL</span>を作る雰囲気を醸し出す <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by aiya000 on</span> <a href="http://adventar.org/calendars/2546">プロ生ちゃん <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/25</span></p>
-<h3 id="書籍紹介"><span class="link-to-here-outer"><a href="#書籍紹介" title="書籍紹介"><span class="link-to-here">Link to<br />
-here</span></a></span>書籍紹介</h3>
-<p><strong><a href="https://qiita.com/waddlaw/items/dd926462d398c4cbd019">これから <span class="ascii">Haskell</span> を学ぶ人のための書籍紹介 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
-<p><strong><a href="https://qiita.com/Aruneko/items/e72f7c6ee49159751cba"><span class="ascii">2017</span>年に「すごい<span class="ascii">Haskell</span>たのしく学ぼう」を読む <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by Aruneko on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/13</span></p>
-<p><strong><a href="https://qiita.com/YoshikuniJujo/items/0708f108bf53a216a61a">拙書「<span class="ascii">Haskell</span> 教養としての関数型プログラミング」の紹介 <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by YoshikuniJujo on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/24</span></p>
-<p><strong><a href="https://mt-caret.github.io/blog/posts/2017-12-01-book01.html"><span class="ascii">mt_caret.log -</span> 本<span class="ascii">1</span> “<span class="ascii">Haskell Programming from first principles</span>”</a></strong><br />
-<span class="ascii">by mt_caret on</span> <a href="http://adventar.org/calendars/2433">本 <span class="ascii">Advent Calendar 2017 - Adventar</span></a> <span class="ascii">12/01</span></p>
-<h3 id="翻訳記事"><span class="link-to-here-outer"><a href="#翻訳記事" title="翻訳記事"><span class="link-to-here">Link to<br />
-here</span></a></span>翻訳記事</h3>
-<p><strong><a href="https://qiita.com/Pythonissam/items/ace180b1b78876f1c190"><span class="ascii">Haskell</span> で暗号学的ハッシュを扱う <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/02</span></p>
-<p><strong><a href="https://qiita.com/rounddelta/items/d767f36d544427a9c60d"><span class="ascii">Haskell</span> のアプリケーション向けに軽量の <span class="ascii">Docker</span>イメージ を作る <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/03</span></p>
-<p><strong><a href="https://qiita.com/rounddelta/items/8b7d2a200a932e761fa3"><span class="ascii">Haskell</span> 初心者へのアドバイス <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/04</span></p>
-<p><strong><a href="https://qiita.com/rounddelta/items/31b835b493abf5be3549">将来も使えるテストスイート <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/05</span></p>
-<p><strong><a href="https://qiita.com/rounddelta/items/27c12237d9ef1c5569ba"><span class="ascii">VS Code</span> で <span class="ascii">Ghcid</span> を使う <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/06</span></p>
-<p><strong><a href="https://qiita.com/rounddelta/items/4584f5486c1061c93f0b"><span class="ascii">HLint</span> のルールを理解する <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/07</span></p>
-<p><strong><a href="https://qiita.com/Pythonissam/items/41f8121795f5d8954802"><span class="ascii">SPJ</span> の憂鬱 <span class="ascii">(</span>和訳<span class="ascii">) - Qiita</span></a></strong><br />
-<span class="ascii">by rounddelta on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/17</span></p>
-<p><strong><a href="https://qiita.com/reotasosan/items/d9fdfab10e24eabfefda"><span class="ascii">SPJ</span>と<span class="ascii">Haskell</span>のエコシステム（和訳） <span class="ascii">- Qiita</span></a></strong><br />
-<span class="ascii">by reotasosan on</span> <a href="http://qiita.com/advent-calendar/2017/haskell4"><span class="ascii">Haskell (</span>その<span class="ascii">4) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/18</span></p>
-<p><strong><a href="https://haskell.e-bigmoon.com/posts/2017-12-27-haskell-performance-debugging"><span class="ascii">Haskell</span> のパフォーマンスをデバッグする</a></strong><br />
-<span class="ascii">by waddlaw on</span> <a href="http://qiita.com/advent-calendar/2017/haskell5"><span class="ascii">Haskell (</span>その<span class="ascii">5) Advent Calendar 2017 - Qiita</span></a> <span class="ascii">12/01</span></p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2018/unordered-containers-hash-dos.html" lang="ja">hashdos脆弱性とunordered-containers</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2017/windows-gotchas.html" style="margin-left: auto;" lang="ja">WindowsでHaskellを扱う時によく遭遇するエラーと対処法</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
