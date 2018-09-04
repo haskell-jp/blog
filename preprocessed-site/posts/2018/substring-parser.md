@@ -53,7 +53,7 @@ $ stack build typesafe-precure unicode-show
 $ stack exec ghci -- -interactive-print="Text.Show.Unicode.uprint"
 ```
 
-その他の機能や、使っているGHCの拡張などについては下記の記事をご覧ください。
+その他の機能については下記の記事をご覧ください。
 
 - [igreque : Info -> Haskellでプリキュアを作ってみた](http://the.igreque.info/posts/2016/06-type-safe-precure.html)
 
