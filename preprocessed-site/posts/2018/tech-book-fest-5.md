@@ -55,6 +55,18 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 <blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">10/8 の <a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B8?src=hash&amp;ref_src=twsrc%5Etfw">#技術書典</a> 5 で Haskell の入門書を出します！ 今までの本は実用までが遠すぎる！ 既に動く状態のサンプルをいじり倒して「いきなり」Haskell の世界に飛びこもう！ 初めての人もかつて挫折した人も、興味ある人はサークルチェックをよろしくね！ <a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B8?src=hash&amp;ref_src=twsrc%5Etfw">#技術書典</a> <a href="https://t.co/xcLj6W1OKK">https://t.co/xcLj6W1OKK</a> <a href="https://t.co/xBlmy6Ig0Z">pic.twitter.com/xBlmy6Ig0Z</a></p>&mdash; チェシャ猫@技術書典5 か14 (@y_taka_23) <a href="https://twitter.com/y_taka_23/status/1039284633815461888?ref_src=twsrc%5Etfw">2018年9月10日</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
+# か36 — 鴨川書房
+
+[カタログ](https://techbookfest.org/event/tbf05/circle/32370012)
+
+## Data A la carte vol. 1
+
+<blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">あと技術書典5に、鴨川書房というサークル名で合同本を出品します。HaskellによるNN実装(<a href="https://twitter.com/lotz84_?ref_src=twsrc%5Etfw">@lotz84_</a>) や、FPGAでのauto encoder実装に関する苦労話等が掲載される予定です。ぜひに🙏……</p>&mdash; ✨🤩😝🤪パリピ🤭🤢🤮✨ (@chaoticCats) <a href="https://twitter.com/chaoticCats/status/1027501210494853120?ref_src=twsrc%5Etfw">2018年8月9日</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">形態素解析ライブラリnagisaについては，技術書典の合同本に寄稿してもらえるよう作成者に依頼中なので興味ある方は是非(表紙は鋭意作成中)。 <a href="https://t.co/zUtngAS23t">pic.twitter.com/zUtngAS23t</a></p>&mdash; ✨🤩😝🤪パリピ🤭🤢🤮✨ (@chaoticCats) <a href="https://twitter.com/chaoticCats/status/1042018372207108099?ref_src=twsrc%5Etfw">2018年9月18日</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
 # か38 — だめぽラボ
 
 ## 代数的数を作る 多項式の根と因数分解のアルゴリズム
@@ -147,18 +159,6 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 > [カタログ](https://techbookfest.org/event/tbf05/circle/43260001)より
 
 <blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">技術書典5の「か74」で、矢澤にこ先輩が簡単なHaskellで代数（半群・モノイド・群・環・体）を教えてくれる本を頒布します。<br>よろしくお願いします🐕<a href="https://t.co/KBFxqX69m3">https://t.co/KBFxqX69m3</a><br>☝サークルページ<a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B8?src=hash&amp;ref_src=twsrc%5Etfw">#技術書典</a> <a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B85?src=hash&amp;ref_src=twsrc%5Etfw">#技術書典5</a> <a href="https://t.co/HvD5ql4gFl">pic.twitter.com/HvD5ql4gFl</a></p>&mdash; あいや🤘🙄🤘技術書典5@か74 (@public_ai000ya) <a href="https://twitter.com/public_ai000ya/status/1045946096327962624?ref_src=twsrc%5Etfw">2018年9月29日</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-# か36 — 鴨川書房
-
-[カタログ](https://techbookfest.org/event/tbf05/circle/32370012)
-
-## Data A la carte vol. 1
-
-<blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">あと技術書典5に、鴨川書房というサークル名で合同本を出品します。HaskellによるNN実装(<a href="https://twitter.com/lotz84_?ref_src=twsrc%5Etfw">@lotz84_</a>) や、FPGAでのauto encoder実装に関する苦労話等が掲載される予定です。ぜひに🙏……</p>&mdash; ✨🤩😝🤪パリピ🤭🤢🤮✨ (@chaoticCats) <a href="https://twitter.com/chaoticCats/status/1027501210494853120?ref_src=twsrc%5Etfw">2018年8月9日</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-<blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">形態素解析ライブラリnagisaについては，技術書典の合同本に寄稿してもらえるよう作成者に依頼中なので興味ある方は是非(表紙は鋭意作成中)。 <a href="https://t.co/zUtngAS23t">pic.twitter.com/zUtngAS23t</a></p>&mdash; ✨🤩😝🤪パリピ🤭🤢🤮✨ (@chaoticCats) <a href="https://twitter.com/chaoticCats/status/1042018372207108099?ref_src=twsrc%5Etfw">2018年9月18日</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 # それでは当日に
