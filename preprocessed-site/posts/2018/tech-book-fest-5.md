@@ -34,6 +34,8 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 
 # か14 — Dodgson Labs
 
+[カタログ](https://techbookfest.org/event/tbf05/circle/28670003)
+
 ## いきなりHaskell 〜もう挫折しないための12講〜（仮）
 
 - 同人誌
@@ -69,6 +71,8 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 
 # か38 — だめぽラボ
 
+[カタログ](https://techbookfest.org/event/tbf05/circle/37190001)
+
 ## 代数的数を作る 多項式の根と因数分解のアルゴリズム
 
 - 同人誌
@@ -91,6 +95,8 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 私のサークルです。新刊落としました……
 
 ## 手続きHaskell
+
+[カタログ](https://techbookfest.org/event/tbf05/circle/45000003)
 
 - 同人誌
 - 28ページ
@@ -139,6 +145,8 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 # か74 — 大宇宙銀河No.1-Haskeller-にこにー
+
+[カタログ](https://techbookfest.org/event/tbf05/circle/43260001)
 
 ## 矢澤にこ先輩といっしょに代数！
 
