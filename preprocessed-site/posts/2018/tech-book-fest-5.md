@@ -16,7 +16,7 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 
 # 技術書典とは？
 
-![](../../img/2018/tech-book-fest-5-banner.png)
+<img src="../../img/2018/tech-book-fest-5-banner.png" alt="技術書典 5 バナー" style="width: 100%;">
 
 （バナー画像は技術書典5サイトよりの引用です。）
 
