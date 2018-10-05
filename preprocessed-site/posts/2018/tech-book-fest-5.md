@@ -32,31 +32,6 @@ Haskellを題材にした同人誌もいくつかあるようですのでまと�
 
 事前準備の重要性が高まった今回、Haskeller向けにHaskellサークルをまとめてみました。
 
-# か14 — Dodgson Labs
-
-[カタログ](https://techbookfest.org/event/tbf05/circle/28670003)
-
-## いきなりHaskell 〜もう挫折しないための12講〜（仮）
-
-- 同人誌
-- 60ページ
-- ¥1000
-
-> 今までとは一味違うHaskellの入門書を頒布します！
->
-> みなさんご存知の通り、よくあるプログラミング言語の入門書では、文法や言語機能の解説から始まって、CLIツール作成、フレームワークの使い方、と進んでいきます。
->
-> しかし、リッチなWebアプリが巷に溢れる現代、この形式では「実用的」なアプリまでの距離は得てして遠くなりがちです。特にHaskellの場合、やたら「難しい言語」という風評が流れていたり、理論的な側面ばかりがフィーチャーされていることもあって、「実用」までが果てしなく長く、数多の入門者がモチベーション切れで挫折しています。
->
-> そこで本書では、思い切ってこの順序を逆にしてみました。最初からある程度完成したアプリケーションを立ち上げて動かしてみて、さらにそこに改造を加えていくチュートリアル形式で、自然とHaskellが「使える」ようになる構成にしてあります。
->
-> さあ、初めての人も一度挫折した人も、本書で「いきなり」Haskellを楽しんでみませんか？
->
-> [カタログ](https://techbookfest.org/event/tbf05/circle/28670003)より
-
-<blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">10/8 の <a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B8?src=hash&amp;ref_src=twsrc%5Etfw">#技術書典</a> 5 で Haskell の入門書を出します！ 今までの本は実用までが遠すぎる！ 既に動く状態のサンプルをいじり倒して「いきなり」Haskell の世界に飛びこもう！ 初めての人もかつて挫折した人も、興味ある人はサークルチェックをよろしくね！ <a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B8?src=hash&amp;ref_src=twsrc%5Etfw">#技術書典</a> <a href="https://t.co/xcLj6W1OKK">https://t.co/xcLj6W1OKK</a> <a href="https://t.co/xBlmy6Ig0Z">pic.twitter.com/xBlmy6Ig0Z</a></p>&mdash; チェシャ猫@技術書典5 か14 (@y_taka_23) <a href="https://twitter.com/y_taka_23/status/1039284633815461888?ref_src=twsrc%5Etfw">2018年9月10日</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
 # か36 — 鴨川書房
 
 [カタログ](https://techbookfest.org/event/tbf05/circle/32370012)
