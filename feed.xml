@@ -8,8 +8,220 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2018-09-04T00:00:00Z</updated>
+    <updated>2018-10-05T00:00:00Z</updated>
     <entry>
+    <title>技術書典 5 での Haskell 関連サークルのまとめ</title>
+    <link href="https://haskell.jp/blog/posts/2018/tech-book-fest-5.html" />
+    <id>https://haskell.jp/blog/posts/2018/tech-book-fest-5.html</id>
+    <published>2018-10-05T00:00:00Z</published>
+    <updated>2018-10-05T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>こんにちは<span class="ascii">kakkun61</span>こと岡本和樹です。</p>
+<p>来たる<span class="ascii">10</span>月<span class="ascii">8</span>日（月・祝）に池袋にて技術系同人誌即売会「技術書典<span class="ascii">5</span>」が開催されます。</p>
+<p><span class="ascii">Haskell</span>を題材にした同人誌もいくつかあるようですのでまとめてみました。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#技術書典とは" title="技術書典とは">技術書典とは？</a></li>
+<li><a href="#か36-鴨川書房" title="か36-鴨川書房">か<span class="ascii">36</span> — 鴨川書房</a>
+<ul>
+<li><a href="#data-a-la-carte-vol.1" title="data-a-la-carte-vol.1"><span class="ascii">Data A la carte vol. 1</span></a></li>
+</ul></li>
+<li><a href="#か38-だめぽラボ" title="か38-だめぽラボ">か<span class="ascii">38</span> — だめぽラボ</a>
+<ul>
+<li><a href="#代数的数を作る-多項式の根と因数分解のアルゴリズム" title="代数的数を作る-多項式の根と因数分解のアルゴリズム">代数的数を作る 多項式の根と因数分解のアルゴリズム</a></li>
+</ul></li>
+<li><a href="#か61-趣味はデバッグ" title="か61-趣味はデバッグ">か<span class="ascii">61</span> — 趣味はデバッグ……</a>
+<ul>
+<li><a href="#手続きhaskell" title="手続きhaskell">手続き<span class="ascii">Haskell</span></a></li>
+<li><a href="#haskellで作るwebアプリケーション-遠回りして学ぶyesod入門" title="haskellで作るwebアプリケーション-遠回りして学ぶyesod入門"><span class="ascii">Haskell</span>で作る<span class="ascii">Web</span>アプリケーション 遠回りして学ぶ<span class="ascii">Yesod</span>入門</a></li>
+</ul></li>
+<li><a href="#か74-大宇宙銀河no.1-haskeller-にこにー" title="か74-大宇宙銀河no.1-haskeller-にこにー">か<span class="ascii">74</span> — 大宇宙銀河<span class="ascii">No.1-Haskeller-</span>にこにー</a>
+<ul>
+<li><a href="#矢澤にこ先輩といっしょに代数" title="矢澤にこ先輩といっしょに代数">矢澤にこ先輩といっしょに代数！</a></li>
+</ul></li>
+<li><a href="#それでは当日に" title="それでは当日に">それでは当日に</a></li>
+</ul>
+</div>
+</div>
+<h1 id="技術書典とは"><span class="link-to-here-outer"><a href="#技術書典とは" title="技術書典とは"><span class="link-to-here">Link to<br />
+here</span></a></span>技術書典とは？</h1>
+<p><img src="../../img/2018/tech-book-fest-5-banner.png" alt="技術書典 5 バナー" style="width: 100%;"></p>
+<p>（バナー画像は技術書典<span class="ascii">5</span>サイトよりの引用です。）</p>
+<p>技術書典とは技術系同人誌即売会としておそらく日本最大のもので、今回で<span class="ascii">6</span>回目の開催となります。（ニコニコ超会議内での超技術書典があったのでナンバリングがずれています。）</p>
+<ul>
+<li><a href="https://techbookfest.org/event/tbf05">サイト</a></li>
+<li><a href="https://blog.techbookfest.org/">ブログ</a></li>
+<li><a href="https://twitter.com/techbookfest"><span class="ascii">Twitter</span></a></li>
+</ul>
+<p>これまでは秋葉原での開催でしたが、今回はなんと場所を<span class="ascii">3</span>倍の広さに拡張して池袋で開催されます。</p>
+<p>それにともないサークル数もどどんと<span class="ascii">470</span>超となり、<span class="ascii">1</span>サークル<span class="ascii">45</span>秒で回っても全サークルは見て回れないことになります。</p>
+<p>事前準備の重要性が高まった今回、<span class="ascii">Haskeller</span>向けに<span class="ascii">Haskell</span>サークルをまとめてみました。</p>
+<h1 id="か36-鴨川書房"><span class="link-to-here-outer"><a href="#か36-鴨川書房" title="か36-鴨川書房"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">36</span> — 鴨川書房</h1>
+<p><a href="https://techbookfest.org/event/tbf05/circle/32370012">カタログ</a></p>
+<h2 id="data-a-la-carte-vol.1"><span class="link-to-here-outer"><a href="#data-a-la-carte-vol.1" title="data-a-la-carte-vol.1"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Data A la carte vol. 1</span></h2>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+あと技術書典<span class="ascii">5</span>に、鴨川書房というサークル名で合同本を出品します。<span class="ascii">Haskell</span>による<span class="ascii">NN</span>実装<span class="ascii">(</span><a href="https://twitter.com/lotz84_?ref_src=twsrc%5Etfw"><span class="citation" data-cites="lotz84_"><span class="ascii">@lotz84_</span></span></a><span class="ascii">)</span> や、<span class="ascii">FPGA</span>での<span class="ascii">auto encoder</span>実装に関する苦労話等が掲載される予定です。ぜひに🙏……
+</p>
+— ✨🤩😝🤪パリピ🤭🤢🤮✨ <span class="ascii">(</span><span class="citation" data-cites="chaoticCats"><span class="ascii">@chaoticCats</span></span><span class="ascii">)</span> <a href="https://twitter.com/chaoticCats/status/1027501210494853120?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">8</span>月<span class="ascii">9</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+形態素解析ライブラリ<span class="ascii">nagisa</span>については，技術書典の合同本に寄稿してもらえるよう作成者に依頼中なので興味ある方は是非<span class="ascii">(</span>表紙は鋭意作成中<span class="ascii">)</span>。 <a href="https://t.co/zUtngAS23t"><span class="ascii">pic.twitter.com/zUtngAS23t</span></a>
+</p>
+— ✨🤩😝🤪パリピ🤭🤢🤮✨ <span class="ascii">(</span><span class="citation" data-cites="chaoticCats"><span class="ascii">@chaoticCats</span></span><span class="ascii">)</span> <a href="https://twitter.com/chaoticCats/status/1042018372207108099?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">9</span>月<span class="ascii">18</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="か38-だめぽラボ"><span class="link-to-here-outer"><a href="#か38-だめぽラボ" title="か38-だめぽラボ"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">38</span> — だめぽラボ</h1>
+<p><a href="https://techbookfest.org/event/tbf05/circle/37190001">カタログ</a></p>
+<h2 id="代数的数を作る-多項式の根と因数分解のアルゴリズム"><span class="link-to-here-outer"><a href="#代数的数を作る-多項式の根と因数分解のアルゴリズム" title="代数的数を作る-多項式の根と因数分解のアルゴリズム"><span class="link-to-here">Link to<br />
+here</span></a></span>代数的数を作る 多項式の根と因数分解のアルゴリズム</h2>
+<ul>
+<li>同人誌</li>
+<li><span class="ascii">268</span>ページ</li>
+<li><span class="ascii">¥2500</span></li>
+</ul>
+<p><a href="https://blog.miz-ar.info/2018/09/techbookfest5/">ブログの告知記事</a></p>
+<blockquote>
+<p>代数的数（整数係数多項式の根として表される数）を実装するためのアルゴリズムを解説します。代数的数を使うと、ルートを含むような数に関して、浮動小数点数の誤差に煩わされることなく正確な演算が行えます。<span class="ascii">Haskell</span>によるサンプルコードを掲載しています。</p>
+<p>この本は、<span class="ascii">Web</span>連載していた「週刊 代数的実数を作る」 <span class="ascii">https://miz-ar.info/math/algebraic-real/</span> の書籍化です。本文の加筆修正の他、「付録<span class="ascii">A</span> ユークリッドの互除法と拡張された互除法」「付録<span class="ascii">B</span> 部分分数分解」を追加しています。</p>
+<p><a href="https://techbookfest.org/event/tbf05/circle/37190001">カタログ</a>より</p>
+</blockquote>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+技術書典<span class="ascii">5</span> か<span class="ascii">38</span>で「代数的数を作る 多項式の根と因数分解のアルゴリズム」を頒布します。よろしくお願いします。 <a href="https://t.co/HkLF1YFDuN"><span class="ascii">https://t.co/HkLF1YFDuN</span></a> <a href="https://t.co/V17ZIj2Iub"><span class="ascii">pic.twitter.com/V17ZIj2Iub</span></a>
+</p>
+— だめぽラボ<span class="ascii">@</span>技術書典<span class="ascii">5</span> か<span class="ascii">38 (</span><span class="citation" data-cites="mod_poppo"><span class="ascii">@mod_poppo</span></span><span class="ascii">)</span> <a href="https://twitter.com/mod_poppo/status/1045885679232737281?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">9</span>月<span class="ascii">29</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="か61-趣味はデバッグ"><span class="link-to-here-outer"><a href="#か61-趣味はデバッグ" title="か61-趣味はデバッグ"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">61</span> — 趣味はデバッグ……</h1>
+<p>私のサークルです。新刊落としました……</p>
+<h2 id="手続きhaskell"><span class="link-to-here-outer"><a href="#手続きhaskell" title="手続きhaskell"><span class="link-to-here">Link to<br />
+here</span></a></span>手続き<span class="ascii">Haskell</span></h2>
+<p><a href="https://techbookfest.org/event/tbf05/circle/45000003">カタログ</a></p>
+<ul>
+<li>同人誌</li>
+<li><span class="ascii">28</span>ページ</li>
+<li><span class="ascii">¥500</span></li>
+<li><a href="http://doujin.kakkun61.com/procedural-haskell"><span class="ascii">http://doujin.kakkun61.com/procedural-haskell</span></a></li>
+</ul>
+<blockquote>
+<p><span class="ascii">Haskell</span>での手続きプログラミングの側面について解説します。</p>
+<p>対象読者 <span class="ascii">- Haskell</span>入門書程度が読める <span class="ascii">-</span> 特に読めるが書こうとすると悩む人に読んでほしいです <span class="ascii">-</span> 手続きプログラミングのプログラマー <span class="ascii">-</span> 厳密に本書を読むためには<span class="ascii">Haskell</span>を読めた方がよいですが、手続きプログラミングですのでプログラマーなら雰囲気で読めると思います</p>
+<p>書かれてあること <span class="ascii">-</span> 書き換え可能な変数 <span class="ascii">-</span> 手続きプログラミング的な制御構造 <span class="ascii">-</span> 配列 <span class="ascii">-</span> サンプルプログラム <span class="ascii">-</span> 手続き的な実装と<span class="ascii">Haskell</span>的な実装の対比</p>
+<p>電子版（<span class="ascii">PDF</span>）はこちらで販売中です。 <span class="ascii">https://kakkun61.booth.pm/items/829369</span></p>
+<p><a href="https://techbookfest.org/event/tbf05/circle/45000003">カタログ</a>より</p>
+</blockquote>
+<h2 id="haskellで作るwebアプリケーション-遠回りして学ぶyesod入門"><span class="link-to-here-outer"><a href="#haskellで作るwebアプリケーション-遠回りして学ぶyesod入門" title="haskellで作るwebアプリケーション-遠回りして学ぶyesod入門"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>で作る<span class="ascii">Web</span>アプリケーション 遠回りして学ぶ<span class="ascii">Yesod</span>入門</h2>
+<ul>
+<li>商業誌</li>
+<li><span class="ascii">76</span>ページ</li>
+<li><span class="ascii">¥1500</span></li>
+<li><a href="https://nextpublishing.jp/book/9979.html"><span class="ascii">https://nextpublishing.jp/book/9979.html</span></a></li>
+</ul>
+<blockquote>
+<p>【<span class="ascii">Haskell</span>のウェブアプリケーションフレームワーク<span class="ascii">Yesod</span>の入門書！】</p>
+<p>本書は、<span class="ascii">Haskell</span>の入門書レベルの知識をもつ読者を対象とした、ウェブアプリケーションフレームワーク<span class="ascii">Yesod</span>の入門書です。比較的学習コストの高い<span class="ascii">Yesod</span>ですが、本書を通じて<span class="ascii">Yesod</span>の基本的な知識と<span class="ascii">Haskell</span>でのウェブアプリケーション開発に挑んで見ましょう！ 〈本書の対象読者〉 <span class="ascii">Haskell</span>の入門書は既に読みこなしているプログラマ <span class="ascii">Haskell</span>でウェブアプリを作ってみたいプログラマ</p>
+<p><a href="https://nextpublishing.jp/book/9979.html">出版社ページ</a>より</p>
+</blockquote>
+<p>ちなみにこんな本を作るつもりでした。欲しい方いらっしゃったら次で書けとお伝えください。はげみになります。</p>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+技術書典<span class="ascii">5</span>にサークル「趣味はデバッグ……」として参加申込をしました！ <span class="ascii">|</span> 技術書典 <a href="https://t.co/nD4eBo9622"><span class="ascii">https://t.co/nD4eBo9622</span></a> 「自作静的型付け言語を作ってそれに対して型推論する方法を解説する」書籍を作るぞ！
+</p>
+— <span class="ascii">kakkun61@</span>技術書典<span class="ascii">5</span> か<span class="ascii">61 (</span><span class="citation" data-cites="kakkun61"><span class="ascii">@kakkun61</span></span><span class="ascii">)</span> <a href="https://twitter.com/kakkun61/status/1009271813107474432?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">6</span>月<span class="ascii">20</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="か74-大宇宙銀河no.1-haskeller-にこにー"><span class="link-to-here-outer"><a href="#か74-大宇宙銀河no.1-haskeller-にこにー" title="か74-大宇宙銀河no.1-haskeller-にこにー"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">74</span> — 大宇宙銀河<span class="ascii">No.1-Haskeller-</span>にこにー</h1>
+<p><a href="https://techbookfest.org/event/tbf05/circle/43260001">カタログ</a></p>
+<h2 id="矢澤にこ先輩といっしょに代数"><span class="link-to-here-outer"><a href="#矢澤にこ先輩といっしょに代数" title="矢澤にこ先輩といっしょに代数"><span class="link-to-here">Link to<br />
+here</span></a></span>矢澤にこ先輩といっしょに代数！</h2>
+<ul>
+<li>同人誌</li>
+<li><span class="ascii">84</span>ページ</li>
+<li><span class="ascii">¥1000</span></li>
+</ul>
+<p><a href="http://aiya000.github.io/posts/2018-09-12-techbookfest5.html">ブログの告知記事</a></p>
+<blockquote>
+<p>ゆるふわにこまき数学！</p>
+<p>以下のような人に向けて、頒布します。</p>
+<ul>
+<li>数学・代数の雰囲気をゆるく知りたい</li>
+<li>軽い<span class="ascii">Haskell</span>を知りたい</li>
+<li>なんでもいいから技術系にこまきが読みたい</li>
+</ul>
+<p><a href="https://techbookfest.org/event/tbf05/circle/43260001">カタログ</a>より</p>
+</blockquote>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+技術書典<span class="ascii">5</span>の「か<span class="ascii">74</span>」で、矢澤にこ先輩が簡単な<span class="ascii">Haskell</span>で代数（半群・モノイド・群・環・体）を教えてくれる本を頒布します。<br>よろしくお願いします🐕<a href="https://t.co/KBFxqX69m3"><span class="ascii">https://t.co/KBFxqX69m3</span></a><br>☝サークルページ<a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B8?src=hash&amp;ref_src=twsrc%5Etfw"><span class="ascii">#</span>技術書典</a> <a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B85?src=hash&amp;ref_src=twsrc%5Etfw"><span class="ascii">#</span>技術書典<span class="ascii">5</span></a> <a href="https://t.co/HvD5ql4gFl"><span class="ascii">pic.twitter.com/HvD5ql4gFl</span></a>
+</p>
+— あいや🤘🙄🤘技術書典<span class="ascii">5@</span>か<span class="ascii">74 (</span><span class="citation" data-cites="public_ai000ya"><span class="ascii">@public_ai000ya</span></span><span class="ascii">)</span> <a href="https://twitter.com/public_ai000ya/status/1045946096327962624?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">9</span>月<span class="ascii">29</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="それでは当日に"><span class="link-to-here-outer"><a href="#それでは当日に" title="それでは当日に"><span class="link-to-here">Link to<br />
+here</span></a></span>それでは当日に</h1>
+<p>当日は安全に配慮しつつ楽しんでいきましょう！！</p>
+<p><span class="ascii">1000</span>円札と<span class="ascii">500</span>円玉の準備はしっかりとね。</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2018/substring-parser.html" style="margin-left: auto;" lang="ja">substring-parserで「タイプセーフプリキュア！」を移行した話</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>substring-parserで「タイプセーフプリキュア！」を移行した話</title>
     <link href="https://haskell.jp/blog/posts/2018/substring-parser.html" />
     <id>https://haskell.jp/blog/posts/2018/substring-parser.html</id>
@@ -410,6 +622,9 @@ here</span></a></span>まとめ</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2018/tech-book-fest-5.html" lang="ja">技術書典 5 での Haskell 関連サークルのまとめ</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2149,130 +2364,6 @@ here</span></a></span>補足</h2>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2018/unordered-containers-hash-dos.html" style="margin-left: auto;" lang="ja">hashdos脆弱性とunordered-containers</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>hashdos脆弱性とunordered-containers</title>
-    <link href="https://haskell.jp/blog/posts/2018/unordered-containers-hash-dos.html" />
-    <id>https://haskell.jp/blog/posts/2018/unordered-containers-hash-dos.html</id>
-    <published>2018-01-21T00:00:00Z</published>
-    <updated>2018-01-21T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>あらゆるソフトウェアに脆弱性は存在し得ます。<br />
-<span class="ascii">Haskell</span>は高度な型システムを駆使することで、脆弱性を根本的に回避したプログラムを作ることを可能にします<small>（脆弱性を防ぐためだけのものではないですが、興味のある人は<a href="http://www.kotha.net/ghcguide_ja/7.6.2/safe-haskell.html"><span class="ascii">Safe Haskell</span></a>についても調べてみるといいでしょう）</small>。<br />
-しかし、だからといって、型を設計する段階で脆弱性を回避できるよう気をつけなければいけないことには変わりませんし、<span class="ascii">GHC</span>が生成した実行ファイル、使用するライブラリーに絶対に脆弱性がないとは言えません。<br />
-現状、<span class="ascii">Haskell</span>はほかの著名なプログラミング言語ほど使用されていないためか、あまり脆弱性が報告されることはありません<small>（<span class="ascii">libc</span>など、ほかの言語の処理系も依存しているようなライブラリーの脆弱性は別として）</small>。<br />
-今回は、そんな中でも<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>というパッケージ</a>について、<a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security">ドキュメントにも書かれている</a>ため<strong>おそらく直ることがないであろう脆弱性</strong>と、その回避方法について紹介します。<br />
-<span class="ascii">hashdos</span>脆弱性自体は結構有名ですし、ドキュメントに書いてあることなので、ご存知の方には何を今更感があるかと思いますが、検索した限りこの問題について日本語で説明した記事は見当たらなかったので、ここで紹介します。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#そもそもunordered-containersって" title="そもそもunordered-containersって">そもそも<span class="ascii">unordered-containers</span>って？</a>
-<ul>
-<li><a href="#どうやって高速化しているの" title="どうやって高速化しているの">どうやって高速化しているの？</a></li>
-</ul></li>
-<li><a href="#hashdos脆弱性とは" title="hashdos脆弱性とは"><span class="ascii">hashdos</span>脆弱性とは？</a></li>
-<li><a href="#なぜ直さないのか" title="なぜ直さないのか">なぜ直さないのか？</a></li>
-<li><a href="#回避方法" title="回避方法">回避方法</a></li>
-</ul>
-</div>
-</div>
-<h1 id="そもそもunordered-containersって"><span class="link-to-here-outer"><a href="#そもそもunordered-containersって" title="そもそもunordered-containersって"><span class="link-to-here">Link to<br />
-here</span></a></span>そもそも<span class="ascii">unordered-containers</span>って？</h1>
-<p>脆弱性の前に<span class="ascii">unordered-containers</span>パッケージについて簡単に紹介しましょう。<br />
-<a href="https://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span>パッケージ</a>は、<span class="ascii">GHC</span>に標準で付いている<a href="https://hackage.haskell.org/package/containers"><span class="ascii">containers</span>パッケージ</a>よりも高速な連想配列（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashMap-Lazy.html"><code>HashMap</code>型</a>）や集合（<a href="https://hackage.haskell.org/package/unordered-containers-0.2.8.0/docs/Data-HashSet.html"><code>HashSet</code>型</a>）を提供してくれます。<br />
-<a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>ではなんと<span class="ascii">970</span>ものパッケージに依存されている</a>、超大人気汎用パッケージです。</p>
-<h2 id="どうやって高速化しているの"><span class="link-to-here-outer"><a href="#どうやって高速化しているの" title="どうやって高速化しているの"><span class="link-to-here">Link to<br />
-here</span></a></span>どうやって高速化しているの？</h2>
-<p><code>HashMap</code>という名前が示しているとおり、キーとなる値のハッシュ値を計算・利用することで高速化しています。<br />
-しかし、<span class="ascii">Java</span>言語などほかの言語によくある<code>HashMap</code>とは大きく異なり、内部ではハッシュテーブルを使用していません。<br />
-<a href="http://itpro.nikkeibp.co.jp/article/COLUMN/20091104/340002/?rt=nocnt">本物のプログラマは<span class="ascii">Haskell</span>を使う <span class="ascii">-</span> 第<span class="ascii">35</span>回　キーを使って値を参照する<span class="ascii">Map</span>型：<span class="ascii">ITpro</span></a>でも説明しているとおり、ハッシュテーブルはミュータブルな配列を内部で使用していることから、イミュータブルなデータ構造を使用して行う関数型プログラミングとは、相性が悪いのです<small>（<code>ST</code>モナドや<code>IO</code>モナドを利用した<a href="https://hackage.haskell.org/package/hashtables"><span class="ascii">hashtables</span>パッケージ</a>などを使えば、限られた範囲内でハッシュテーブルを使うこともできます）</small>。</p>
-<p>ハッシュテーブルを使用しない代わりに、<span class="ascii">unordered-containers</span>では内部で<a href="https://en.wikipedia.org/wiki/Hash_array_mapped_trie"><span class="ascii">Hash array mapped trie</span></a>という特殊な木を使っています。<br />
-どのような構造かは、<a href="http://keens.github.io/slide/HAMT/"><span class="ascii">HAMT ~</span> イミュータブルで高速なハッシュマップ <span class="ascii">~ |</span> κ<span class="ascii">een</span>の<span class="ascii">Happy Hac</span>κ<span class="ascii">ing Blog</span></a>に詳しく書かれています。<br />
-こちらのスライドは<span class="ascii">Scala</span>での実装の話ですが、基本的には<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>も同じはずです。</p>
-<p>大雑把に言うと、<span class="ascii">Hash array mapped trie</span>を使った<code>HashMap</code>では、ハッシュテーブルと同様に、キーとなる値を<strong>ハッシュ関数で一旦固定長の整数に変換する</strong>ことで、キーが存在しているかどうかの確認を高速化しています。そのため、<span class="ascii">containers</span>パッケージよりも高速な処理ができるのです。<br />
-<span class="ascii">containers</span>パッケージの<code>Map</code>ではキーの存在を確認する際、キー全体を既存のキーと比較する必要があるため、特に長い文字列をキーとする場合は、処理が遅くなりがちだったのです。</p>
-<h1 id="hashdos脆弱性とは"><span class="link-to-here-outer"><a href="#hashdos脆弱性とは" title="hashdos脆弱性とは"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">hashdos</span>脆弱性とは？</h1>
-<p><span class="ascii">hashdos</span>脆弱性は<a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html"><span class="ascii">2011</span>年頃<span class="ascii">Ruby</span>や<span class="ascii">PHP</span>、<span class="ascii">Perl</span>など多くのプログラミング言語が影響を受けるとされた</a>、著名な脆弱性です。<br />
-ここでも簡単に仕組みを説明しましょう。</p>
-<p>前節で説明したとおり、<span class="ascii">Hash array mapped trie</span>もハッシュテーブルも、必ずキーを一旦固定長の整数に変換します。<br />
-文字列など、ハッシュ関数を適用されるキーとなる値は、当然固定長の整数よりも幅広い値を取り得るので、違う文字列同士でも、同じハッシュ値をとることがあります。<br />
-この、違う値であるはずのキーが同じハッシュ値をとってしまった状態を「ハッシュ値の衝突」と呼びます。<br />
-ハッシュ値の衝突が発生した場合、ハッシュテーブルや<span class="ascii">Hash array mapped trie</span>といったハッシュ値を利用した連想配列は、（単純な）配列やリストなど、やむを得ず逐次探索が必要なデータ構造を内部で使用しなければならなくなります。</p>
-<p><span class="ascii">hashdos</span>脆弱性はこの性質を利用した<span class="ascii">DoS</span>攻撃です。<br />
-攻撃者は、あらかじめ対象のプログラムで使っているハッシュ関数が、「必ず同じハッシュ値」を返すキー<span class="ascii">(</span>大抵文字列でしょう）を大量に用意して、それを対象のプログラムに入力として与えることで、簡単に<span class="ascii">DoS</span>攻撃を仕掛けることができるのです。<br />
-<a href="https://blog.tokumaru.org/2011/12/webdoshashdos.html">先ほど触れた徳丸先生の記事</a>では、<span class="ascii">PHP</span>のアプリケーションに対してわずか<span class="ascii">500KB</span>の<span class="ascii">form-data</span>を送るだけで<span class="ascii">CPU</span>時間を<span class="ascii">1</span>分も消費させることができたそうですから、その威力はすさまじいものと言えるでしょう。</p>
-<h1 id="なぜ直さないのか"><span class="link-to-here-outer"><a href="#なぜ直さないのか" title="なぜ直さないのか"><span class="link-to-here">Link to<br />
-here</span></a></span>なぜ直さないのか？</h1>
-<p><a href="https://github.com/tibbe/unordered-containers/blob/60ced060304840ed0bf368249ed6eb4e43d4cefc/docs/developer-guide.md#security"><span class="ascii">unordered-containers</span>の<span class="ascii">Developer Guide</span></a>には、次のように書かれています。</p>
-<blockquote>
-<p><span class="ascii">There</span>’<span class="ascii">s an uncomfortable trade-off with regards to security threats posed by e.g. denial of service attacks. Always using more secure hash function, like SipHash, would provide security by default. However, those functions would make the performance of the data structures no better than that of ordered containers, which defeats the purpose of this package.</span></p>
-</blockquote>
-<p>要するに、「セキュリティー上問題はあるけど、<span class="ascii">SipHash</span>のような安全なハッシュ関数を使ったら<span class="ascii">containers</span>パッケージよりも速度が出なかった。それではこのパッケージの意味がない」ということです。<br />
-<span class="ascii">containers</span>パッケージよりも高速な連想配列を作るために<span class="ascii">unordered-containers</span>パッケージを作ったのだから、それより遅くなっては存在価値がなくなってしまうのです。<br />
-従って、ユーザーが任意にキーを入力できるようなプログラムでは、<span class="ascii">unordered-containers</span>ではなく、<span class="ascii">containers</span>を使え、ということです。<br />
-このことは<span class="ascii">unordered-containers</span>が使用している<a href="https://hackage.haskell.org/package/hashable-1.2.6.1/docs/Data-Hashable.html#g:1"><span class="ascii">hashable</span>のドキュメント</a>にも書かれています。ある意味ノーガード戦法ですね。</p>
-<h1 id="回避方法"><span class="link-to-here-outer"><a href="#回避方法" title="回避方法"><span class="link-to-here">Link to<br />
-here</span></a></span>回避方法</h1>
-<p>前節で触れたとおりですが、<strong>ユーザーが任意にキーを入力できるようなプログラム</strong>では、<span class="ascii">unordered-containers</span>パッケージの<code>HashMap</code>や<code>HashSet</code>ではなく、<span class="ascii">containers</span>パッケージの<code>Map</code>や<code>Set</code>を使いましょう。<br />
-<span class="ascii">containers</span>パッケージにある<code>Map</code>や<code>Set</code>はハッシュ関数を一切使っていないので、ハッシュ値の衝突も起こらず、内部で逐次探索が必要なデータ構造を使ってもいません。<br />
-なので<span class="ascii">hashdos</span>攻撃に遭うことはないのです。</p>
-<p>ただし、実際のところ、<a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>で<span class="ascii">970</span>ものパッケージに依存されている</a><span class="ascii">unordered-containers</span>です。<br />
-その中には<span class="ascii">JSON</span>のパーサーである<span class="ascii">aeson</span>も含まれているので、もしかしたら現状回避するのは非常に困難なのかもしれません。😱<br />
-次回は、この問題について試しに攻撃用のコードを書いて速度の低下をチェックして報告する話を書くかもしれません…。😰</p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2018/ghc-proposal-and-patch.html" lang="ja">GHCへの変更提案とパッチ送付の手順例</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2017/advent-calendar-2017.html" style="margin-left: auto;" lang="ja">Haskell Advent Calendar 2017 まとめ</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>

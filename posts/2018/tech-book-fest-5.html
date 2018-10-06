@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="技術書典 5 での Haskell 関連サークルのまとめ">
+    
+      <meta name="author" content="Kazuki Okamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="技術書典 5 での Haskell 関連サークルのまとめ - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2018/tech-book-fest-5.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="こんにちはkakkun61こと岡本和樹です。来たる10月8日（月・祝）に池袋にて技術系同人誌即売会「技術書典5」が開催されます。Haskellを題材にした同人誌もいくつかあるようですのでまとめてみました。# 技術書典とは？&lt;img src=&quot;../../img/2018/tech-book-fest-5-banner.png&quot; alt=&quot;技術書典 5 バナー&q" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>技術書典 5 での Haskell 関連サークルのまとめ - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join-haskell-jp-slack.herokuapp.com/">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>技術書典 5 での Haskell 関連サークルのまとめ</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a> on October 5, 2018</span><span class="meta">Tags: 書籍</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>こんにちは<span class="ascii">kakkun61</span>こと岡本和樹です。</p>
+<p>来たる<span class="ascii">10</span>月<span class="ascii">8</span>日（月・祝）に池袋にて技術系同人誌即売会「技術書典<span class="ascii">5</span>」が開催されます。</p>
+<p><span class="ascii">Haskell</span>を題材にした同人誌もいくつかあるようですのでまとめてみました。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#技術書典とは" title="技術書典とは">技術書典とは？</a></li>
+<li><a href="#か36-鴨川書房" title="か36-鴨川書房">か<span class="ascii">36</span> — 鴨川書房</a>
+<ul>
+<li><a href="#data-a-la-carte-vol.1" title="data-a-la-carte-vol.1"><span class="ascii">Data A la carte vol. 1</span></a></li>
+</ul></li>
+<li><a href="#か38-だめぽラボ" title="か38-だめぽラボ">か<span class="ascii">38</span> — だめぽラボ</a>
+<ul>
+<li><a href="#代数的数を作る-多項式の根と因数分解のアルゴリズム" title="代数的数を作る-多項式の根と因数分解のアルゴリズム">代数的数を作る 多項式の根と因数分解のアルゴリズム</a></li>
+</ul></li>
+<li><a href="#か61-趣味はデバッグ" title="か61-趣味はデバッグ">か<span class="ascii">61</span> — 趣味はデバッグ……</a>
+<ul>
+<li><a href="#手続きhaskell" title="手続きhaskell">手続き<span class="ascii">Haskell</span></a></li>
+<li><a href="#haskellで作るwebアプリケーション-遠回りして学ぶyesod入門" title="haskellで作るwebアプリケーション-遠回りして学ぶyesod入門"><span class="ascii">Haskell</span>で作る<span class="ascii">Web</span>アプリケーション 遠回りして学ぶ<span class="ascii">Yesod</span>入門</a></li>
+</ul></li>
+<li><a href="#か74-大宇宙銀河no.1-haskeller-にこにー" title="か74-大宇宙銀河no.1-haskeller-にこにー">か<span class="ascii">74</span> — 大宇宙銀河<span class="ascii">No.1-Haskeller-</span>にこにー</a>
+<ul>
+<li><a href="#矢澤にこ先輩といっしょに代数" title="矢澤にこ先輩といっしょに代数">矢澤にこ先輩といっしょに代数！</a></li>
+</ul></li>
+<li><a href="#それでは当日に" title="それでは当日に">それでは当日に</a></li>
+</ul>
+</div>
+</div>
+<h1 id="技術書典とは"><span class="link-to-here-outer"><a href="#技術書典とは" title="技術書典とは"><span class="link-to-here">Link to<br />
+here</span></a></span>技術書典とは？</h1>
+<p><img src="../../img/2018/tech-book-fest-5-banner.png" alt="技術書典 5 バナー" style="width: 100%;"></p>
+<p>（バナー画像は技術書典<span class="ascii">5</span>サイトよりの引用です。）</p>
+<p>技術書典とは技術系同人誌即売会としておそらく日本最大のもので、今回で<span class="ascii">6</span>回目の開催となります。（ニコニコ超会議内での超技術書典があったのでナンバリングがずれています。）</p>
+<ul>
+<li><a href="https://techbookfest.org/event/tbf05">サイト</a></li>
+<li><a href="https://blog.techbookfest.org/">ブログ</a></li>
+<li><a href="https://twitter.com/techbookfest"><span class="ascii">Twitter</span></a></li>
+</ul>
+<p>これまでは秋葉原での開催でしたが、今回はなんと場所を<span class="ascii">3</span>倍の広さに拡張して池袋で開催されます。</p>
+<p>それにともないサークル数もどどんと<span class="ascii">470</span>超となり、<span class="ascii">1</span>サークル<span class="ascii">45</span>秒で回っても全サークルは見て回れないことになります。</p>
+<p>事前準備の重要性が高まった今回、<span class="ascii">Haskeller</span>向けに<span class="ascii">Haskell</span>サークルをまとめてみました。</p>
+<h1 id="か36-鴨川書房"><span class="link-to-here-outer"><a href="#か36-鴨川書房" title="か36-鴨川書房"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">36</span> — 鴨川書房</h1>
+<p><a href="https://techbookfest.org/event/tbf05/circle/32370012">カタログ</a></p>
+<h2 id="data-a-la-carte-vol.1"><span class="link-to-here-outer"><a href="#data-a-la-carte-vol.1" title="data-a-la-carte-vol.1"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Data A la carte vol. 1</span></h2>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+あと技術書典<span class="ascii">5</span>に、鴨川書房というサークル名で合同本を出品します。<span class="ascii">Haskell</span>による<span class="ascii">NN</span>実装<span class="ascii">(</span><a href="https://twitter.com/lotz84_?ref_src=twsrc%5Etfw"><span class="citation" data-cites="lotz84_"><span class="ascii">@lotz84_</span></span></a><span class="ascii">)</span> や、<span class="ascii">FPGA</span>での<span class="ascii">auto encoder</span>実装に関する苦労話等が掲載される予定です。ぜひに🙏……
+</p>
+— ✨🤩😝🤪パリピ🤭🤢🤮✨ <span class="ascii">(</span><span class="citation" data-cites="chaoticCats"><span class="ascii">@chaoticCats</span></span><span class="ascii">)</span> <a href="https://twitter.com/chaoticCats/status/1027501210494853120?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">8</span>月<span class="ascii">9</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+形態素解析ライブラリ<span class="ascii">nagisa</span>については，技術書典の合同本に寄稿してもらえるよう作成者に依頼中なので興味ある方は是非<span class="ascii">(</span>表紙は鋭意作成中<span class="ascii">)</span>。 <a href="https://t.co/zUtngAS23t"><span class="ascii">pic.twitter.com/zUtngAS23t</span></a>
+</p>
+— ✨🤩😝🤪パリピ🤭🤢🤮✨ <span class="ascii">(</span><span class="citation" data-cites="chaoticCats"><span class="ascii">@chaoticCats</span></span><span class="ascii">)</span> <a href="https://twitter.com/chaoticCats/status/1042018372207108099?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">9</span>月<span class="ascii">18</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="か38-だめぽラボ"><span class="link-to-here-outer"><a href="#か38-だめぽラボ" title="か38-だめぽラボ"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">38</span> — だめぽラボ</h1>
+<p><a href="https://techbookfest.org/event/tbf05/circle/37190001">カタログ</a></p>
+<h2 id="代数的数を作る-多項式の根と因数分解のアルゴリズム"><span class="link-to-here-outer"><a href="#代数的数を作る-多項式の根と因数分解のアルゴリズム" title="代数的数を作る-多項式の根と因数分解のアルゴリズム"><span class="link-to-here">Link to<br />
+here</span></a></span>代数的数を作る 多項式の根と因数分解のアルゴリズム</h2>
+<ul>
+<li>同人誌</li>
+<li><span class="ascii">268</span>ページ</li>
+<li><span class="ascii">¥2500</span></li>
+</ul>
+<p><a href="https://blog.miz-ar.info/2018/09/techbookfest5/">ブログの告知記事</a></p>
+<blockquote>
+<p>代数的数（整数係数多項式の根として表される数）を実装するためのアルゴリズムを解説します。代数的数を使うと、ルートを含むような数に関して、浮動小数点数の誤差に煩わされることなく正確な演算が行えます。<span class="ascii">Haskell</span>によるサンプルコードを掲載しています。</p>
+<p>この本は、<span class="ascii">Web</span>連載していた「週刊 代数的実数を作る」 <span class="ascii">https://miz-ar.info/math/algebraic-real/</span> の書籍化です。本文の加筆修正の他、「付録<span class="ascii">A</span> ユークリッドの互除法と拡張された互除法」「付録<span class="ascii">B</span> 部分分数分解」を追加しています。</p>
+<p><a href="https://techbookfest.org/event/tbf05/circle/37190001">カタログ</a>より</p>
+</blockquote>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+技術書典<span class="ascii">5</span> か<span class="ascii">38</span>で「代数的数を作る 多項式の根と因数分解のアルゴリズム」を頒布します。よろしくお願いします。 <a href="https://t.co/HkLF1YFDuN"><span class="ascii">https://t.co/HkLF1YFDuN</span></a> <a href="https://t.co/V17ZIj2Iub"><span class="ascii">pic.twitter.com/V17ZIj2Iub</span></a>
+</p>
+— だめぽラボ<span class="ascii">@</span>技術書典<span class="ascii">5</span> か<span class="ascii">38 (</span><span class="citation" data-cites="mod_poppo"><span class="ascii">@mod_poppo</span></span><span class="ascii">)</span> <a href="https://twitter.com/mod_poppo/status/1045885679232737281?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">9</span>月<span class="ascii">29</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="か61-趣味はデバッグ"><span class="link-to-here-outer"><a href="#か61-趣味はデバッグ" title="か61-趣味はデバッグ"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">61</span> — 趣味はデバッグ……</h1>
+<p>私のサークルです。新刊落としました……</p>
+<h2 id="手続きhaskell"><span class="link-to-here-outer"><a href="#手続きhaskell" title="手続きhaskell"><span class="link-to-here">Link to<br />
+here</span></a></span>手続き<span class="ascii">Haskell</span></h2>
+<p><a href="https://techbookfest.org/event/tbf05/circle/45000003">カタログ</a></p>
+<ul>
+<li>同人誌</li>
+<li><span class="ascii">28</span>ページ</li>
+<li><span class="ascii">¥500</span></li>
+<li><a href="http://doujin.kakkun61.com/procedural-haskell"><span class="ascii">http://doujin.kakkun61.com/procedural-haskell</span></a></li>
+</ul>
+<blockquote>
+<p><span class="ascii">Haskell</span>での手続きプログラミングの側面について解説します。</p>
+<p>対象読者 <span class="ascii">- Haskell</span>入門書程度が読める <span class="ascii">-</span> 特に読めるが書こうとすると悩む人に読んでほしいです <span class="ascii">-</span> 手続きプログラミングのプログラマー <span class="ascii">-</span> 厳密に本書を読むためには<span class="ascii">Haskell</span>を読めた方がよいですが、手続きプログラミングですのでプログラマーなら雰囲気で読めると思います</p>
+<p>書かれてあること <span class="ascii">-</span> 書き換え可能な変数 <span class="ascii">-</span> 手続きプログラミング的な制御構造 <span class="ascii">-</span> 配列 <span class="ascii">-</span> サンプルプログラム <span class="ascii">-</span> 手続き的な実装と<span class="ascii">Haskell</span>的な実装の対比</p>
+<p>電子版（<span class="ascii">PDF</span>）はこちらで販売中です。 <span class="ascii">https://kakkun61.booth.pm/items/829369</span></p>
+<p><a href="https://techbookfest.org/event/tbf05/circle/45000003">カタログ</a>より</p>
+</blockquote>
+<h2 id="haskellで作るwebアプリケーション-遠回りして学ぶyesod入門"><span class="link-to-here-outer"><a href="#haskellで作るwebアプリケーション-遠回りして学ぶyesod入門" title="haskellで作るwebアプリケーション-遠回りして学ぶyesod入門"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>で作る<span class="ascii">Web</span>アプリケーション 遠回りして学ぶ<span class="ascii">Yesod</span>入門</h2>
+<ul>
+<li>商業誌</li>
+<li><span class="ascii">76</span>ページ</li>
+<li><span class="ascii">¥1500</span></li>
+<li><a href="https://nextpublishing.jp/book/9979.html"><span class="ascii">https://nextpublishing.jp/book/9979.html</span></a></li>
+</ul>
+<blockquote>
+<p>【<span class="ascii">Haskell</span>のウェブアプリケーションフレームワーク<span class="ascii">Yesod</span>の入門書！】</p>
+<p>本書は、<span class="ascii">Haskell</span>の入門書レベルの知識をもつ読者を対象とした、ウェブアプリケーションフレームワーク<span class="ascii">Yesod</span>の入門書です。比較的学習コストの高い<span class="ascii">Yesod</span>ですが、本書を通じて<span class="ascii">Yesod</span>の基本的な知識と<span class="ascii">Haskell</span>でのウェブアプリケーション開発に挑んで見ましょう！ 〈本書の対象読者〉 <span class="ascii">Haskell</span>の入門書は既に読みこなしているプログラマ <span class="ascii">Haskell</span>でウェブアプリを作ってみたいプログラマ</p>
+<p><a href="https://nextpublishing.jp/book/9979.html">出版社ページ</a>より</p>
+</blockquote>
+<p>ちなみにこんな本を作るつもりでした。欲しい方いらっしゃったら次で書けとお伝えください。はげみになります。</p>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+技術書典<span class="ascii">5</span>にサークル「趣味はデバッグ……」として参加申込をしました！ <span class="ascii">|</span> 技術書典 <a href="https://t.co/nD4eBo9622"><span class="ascii">https://t.co/nD4eBo9622</span></a> 「自作静的型付け言語を作ってそれに対して型推論する方法を解説する」書籍を作るぞ！
+</p>
+— <span class="ascii">kakkun61@</span>技術書典<span class="ascii">5</span> か<span class="ascii">61 (</span><span class="citation" data-cites="kakkun61"><span class="ascii">@kakkun61</span></span><span class="ascii">)</span> <a href="https://twitter.com/kakkun61/status/1009271813107474432?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">6</span>月<span class="ascii">20</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="か74-大宇宙銀河no.1-haskeller-にこにー"><span class="link-to-here-outer"><a href="#か74-大宇宙銀河no.1-haskeller-にこにー" title="か74-大宇宙銀河no.1-haskeller-にこにー"><span class="link-to-here">Link to<br />
+here</span></a></span>か<span class="ascii">74</span> — 大宇宙銀河<span class="ascii">No.1-Haskeller-</span>にこにー</h1>
+<p><a href="https://techbookfest.org/event/tbf05/circle/43260001">カタログ</a></p>
+<h2 id="矢澤にこ先輩といっしょに代数"><span class="link-to-here-outer"><a href="#矢澤にこ先輩といっしょに代数" title="矢澤にこ先輩といっしょに代数"><span class="link-to-here">Link to<br />
+here</span></a></span>矢澤にこ先輩といっしょに代数！</h2>
+<ul>
+<li>同人誌</li>
+<li><span class="ascii">84</span>ページ</li>
+<li><span class="ascii">¥1000</span></li>
+</ul>
+<p><a href="http://aiya000.github.io/posts/2018-09-12-techbookfest5.html">ブログの告知記事</a></p>
+<blockquote>
+<p>ゆるふわにこまき数学！</p>
+<p>以下のような人に向けて、頒布します。</p>
+<ul>
+<li>数学・代数の雰囲気をゆるく知りたい</li>
+<li>軽い<span class="ascii">Haskell</span>を知りたい</li>
+<li>なんでもいいから技術系にこまきが読みたい</li>
+</ul>
+<p><a href="https://techbookfest.org/event/tbf05/circle/43260001">カタログ</a>より</p>
+</blockquote>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+技術書典<span class="ascii">5</span>の「か<span class="ascii">74</span>」で、矢澤にこ先輩が簡単な<span class="ascii">Haskell</span>で代数（半群・モノイド・群・環・体）を教えてくれる本を頒布します。<br>よろしくお願いします🐕<a href="https://t.co/KBFxqX69m3"><span class="ascii">https://t.co/KBFxqX69m3</span></a><br>☝サークルページ<a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B8?src=hash&amp;ref_src=twsrc%5Etfw"><span class="ascii">#</span>技術書典</a> <a href="https://twitter.com/hashtag/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B85?src=hash&amp;ref_src=twsrc%5Etfw"><span class="ascii">#</span>技術書典<span class="ascii">5</span></a> <a href="https://t.co/HvD5ql4gFl"><span class="ascii">pic.twitter.com/HvD5ql4gFl</span></a>
+</p>
+— あいや🤘🙄🤘技術書典<span class="ascii">5@</span>か<span class="ascii">74 (</span><span class="citation" data-cites="public_ai000ya"><span class="ascii">@public_ai000ya</span></span><span class="ascii">)</span> <a href="https://twitter.com/public_ai000ya/status/1045946096327962624?ref_src=twsrc%5Etfw"><span class="ascii">2018</span>年<span class="ascii">9</span>月<span class="ascii">29</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="それでは当日に"><span class="link-to-here-outer"><a href="#それでは当日に" title="それでは当日に"><span class="link-to-here">Link to<br />
+here</span></a></span>それでは当日に</h1>
+<p>当日は安全に配慮しつつ楽しんでいきましょう！！</p>
+<p><span class="ascii">1000</span>円札と<span class="ascii">500</span>円玉の準備はしっかりとね。</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2018/substring-parser.html" style="margin-left: auto;" lang="ja">substring-parserで「タイプセーフプリキュア！」を移行した話</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Kazuki Okamoto 2018</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
