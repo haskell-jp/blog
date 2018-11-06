@@ -16,6 +16,7 @@ import Data.Monoid ((<>))
 import qualified Data.Tree as Tree
 import Data.Typeable (Typeable)
 import Hakyll
+import System.FilePath (takeFileName)
 import Skylighting (pygments, styleToCss)
 import Text.Pandoc.Definition ( Inline(Space, Span, Str)
                               , Pandoc(Pandoc)
@@ -33,7 +34,14 @@ hakyllConfig = def { providerDirectory = "preprocessed-site"
                    , storeDirectory = ".hakyll-cache"
                    , tmpDirectory = ".hakyll-cache/tmp"
                    , destinationDirectory = "generated-site"
+                   , ignoreFile = ignoreFile'
                    }
+    where
+        ignoreFile' path
+            | fname == ".circleci" = False
+            | otherwise            = ignoreFile def path
+            where
+                fname = takeFileName path
 
 main :: IO ()
 main = hakyllWith hakyllConfig $ do
@@ -62,6 +70,11 @@ main = hakyllWith hakyllConfig $ do
 
     -- web fonts
     match "fonts/*" $ do
+        route idRoute
+        compile copyFileCompiler
+
+    -- disable Circle CI
+    match ".circleci/*" $ do
         route idRoute
         compile copyFileCompiler
 
