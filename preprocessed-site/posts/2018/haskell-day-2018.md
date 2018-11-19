@@ -28,7 +28,7 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 対話的に実装しながらテストを通していくハンズオンです。
 
-https://github.com/haskell-jp/makeMistakesToLearnHaskell
+[https://github.com/haskell-jp/makeMistakesToLearnHaskell](https://github.com/haskell-jp/makeMistakesToLearnHaskell)
 
 <img src="../../img/2018/haskell-day-2018/_DSC1176.jpg" alt="ハンズオン" style="width: 100%; max-width: 600px;">
 
