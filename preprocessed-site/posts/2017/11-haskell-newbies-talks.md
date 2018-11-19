@@ -32,7 +32,7 @@ markdownで書いといてよかった！ （⌒\_⌒）
 
 - いろいろしゃべったり質問したり、フィードを流したりしてます
 - リンク先は[SlackArchive](http://slackarchive.io/)を利用した発言ログ
-- 登録は[こちら](https://join-haskell-jp-slack.herokuapp.com/)から。
+- 登録は[こちら](https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM)から。
 
 ## 運用ルール
 
