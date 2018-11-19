@@ -36,9 +36,7 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 ## Haskellを導入した話とHRRの紹介
 
-<img src="../../img/2018/haskell-day-2018/khibino.png" alt="Haskell を導入した話と HRR の紹介" style="width: 100%; max-width: 600px;">
-
-[資料](https://htmlpreview.github.io/?https://github.com/khibino/haskell-day-2018/blob/master/presentation.html)
+[<img src="../../img/2018/haskell-day-2018/khibino.png" alt="Haskell を導入した話と HRR の紹介" style="width: 100%; max-width: 600px;">](https://htmlpreview.github.io/?https://github.com/khibino/haskell-day-2018/blob/master/presentation.html)
 
 <img src="../../img/2018/haskell-day-2018/_DSC1177.jpg" alt="khibino" style="width: 100%; max-width: 600px;">
 
@@ -60,9 +58,7 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 ## Semigroupとは？Monoid？環？
 
-<img src="../../img/2018/haskell-day-2018/aiya000.png" alt="Semigroup とは？Monoid？環？" style="width: 100%; max-width: 600px;">
-
-[資料](https://aiya000.github.io/Maid/haskell-day-2018-algebra/#/)
+[<img src="../../img/2018/haskell-day-2018/aiya000.png" alt="Semigroup とは？Monoid？環？" style="width: 100%; max-width: 600px;">](https://aiya000.github.io/Maid/haskell-day-2018-algebra/#/)
 
 <img src="../../img/2018/haskell-day-2018/_DSC1179.jpg" alt="aiya000" style="width: 100%; max-width: 600px;">
 
@@ -74,15 +70,13 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 ## gloss: 動かして遊んで学ぶHaskell
 
-<img src="../../img/2018/haskell-day-2018/lotz.png" alt="動かして遊んで学ぶ Haskell" style="width: 100%; max-width: 600px;">
+[<img src="../../img/2018/haskell-day-2018/lotz.png" alt="動かして遊んで学ぶ Haskell" style="width: 100%; max-width: 600px;">](https://qiita.com/lotz/items/bdb04c771efc8919b79c)
 
 <img src="../../img/2018/haskell-day-2018/_DSC1186.jpg" alt="lotz" style="width: 100%; max-width: 600px;">
 
 ## Lisztあるいは永続データ構造を真に永続させる方法
 
-<img src="../../img/2018/haskell-day-2018/fumieval.png" alt="Liszt あるいは永続データ構造を真に永続させる方法" style="width: 100%; max-width: 600px;">
-
-[資料](https://shared-assets.adobe.com/link/353213c2-281a-4a53-6cff-a52bff1314c1)
+[<img src="../../img/2018/haskell-day-2018/fumieval.png" alt="Liszt あるいは永続データ構造を真に永続させる方法" style="width: 100%; max-width: 600px; border: solid 1px black;">](https://shared-assets.adobe.com/link/353213c2-281a-4a53-6cff-a52bff1314c1)
 
 <img src="../../img/2018/haskell-day-2018/_DSC1191.jpg" alt="fumieval" style="width: 100%; max-width: 600px;">
 
