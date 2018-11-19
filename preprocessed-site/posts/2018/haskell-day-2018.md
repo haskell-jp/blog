@@ -28,7 +28,7 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 ## 「作りながら学ぶHaskell入門」を使ったハンズオン
 
-対話的に実装しながらテストを通していくハンズオンです。
+開発中の対話的チュートリアル[「作りながら学ぶHaskell入門」](https://github.com/haskell-jp/makeMistakesToLearnHaskell)を使って、参加者の皆さんにもくもくと入門していただきました。「作りながら学ぶHaskell入門」では、簡単な課題を解くことで、Haskellの初歩的な使い方を学びつつ、学んだ知識をその場でテストできます。
 
 [https://github.com/haskell-jp/makeMistakesToLearnHaskell](https://github.com/haskell-jp/makeMistakesToLearnHaskell)
 
