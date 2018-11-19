@@ -16,6 +16,8 @@ tags: イベント
 
 <img src="../../img/2018/haskell-day-2018/connpass.png" alt="Connpass" style="width: 100%; max-width: 600px;">
 
+[https://haskell-jp.connpass.com/event/92617/](https://haskell-jp.connpass.com/event/92617/)
+
 Haskell Dayは2012年2016年と不定期に開催しており今回で3度目となります。
 
 2018年の今回は「Haskellちょっと興味あるからちょっとできるまで」というサブタイトルで開催されました。
