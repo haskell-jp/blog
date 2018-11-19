@@ -24,7 +24,7 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 <img src="../../img/2018/haskell-day-2018/_DSC1173.jpg" alt="受付" style="width: 100%; max-width: 600px;">
 
-# 発表
+# セッション
 
 ## 「作りながら学ぶHaskell入門」を使ったハンズオン
 
@@ -34,11 +34,15 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 <img src="../../img/2018/haskell-day-2018/_DSC1176.jpg" alt="ハンズオン" style="width: 100%; max-width: 600px;">
 
+----
+
 ## Haskellを導入した話とHRRの紹介
 
 [<img src="../../img/2018/haskell-day-2018/khibino.png" alt="Haskell を導入した話と HRR の紹介" style="width: 100%; max-width: 600px;">](https://htmlpreview.github.io/?https://github.com/khibino/haskell-day-2018/blob/master/presentation.html)
 
 <img src="../../img/2018/haskell-day-2018/_DSC1177.jpg" alt="khibino" style="width: 100%; max-width: 600px;">
+
+----
 
 ## Servantで実現する高速かつ安全なAPI開発
 
@@ -46,15 +50,21 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 <img src="../../img/2018/haskell-day-2018/_DSC1193.jpg" alt="nakaji-dayo" style="width: 100%; max-width: 600px;">
 
+----
+
 ## 並列並行言語Haskell
 
 <script async class="speakerdeck-embed" data-id="07d92af9d7aa40bca6cc3959d3f56b28" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
 
 <img src="../../img/2018/haskell-day-2018/_DSC1178.jpg" alt="syocy" style="width: 100%; max-width: 600px;">
 
+----
+
 ## Dhall: Haskellの新たなキラーアプリ
 
 <script async class="speakerdeck-embed" data-id="7a16b1e09882433ca2dac9a6a81eb236" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
+----
 
 ## Semigroupとは？Monoid？環？
 
@@ -62,17 +72,23 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 <img src="../../img/2018/haskell-day-2018/_DSC1179.jpg" alt="aiya000" style="width: 100%; max-width: 600px;">
 
+----
+
 ## HaskellでCLI
 
 <iframe src="//www.slideshare.net/slideshow/embed_code/key/FQE1QxbCST8kYi" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/noob00/haskell-cli" title="Haskell で CLI" target="_blank">Haskell で CLI</a> </strong> from <strong><a href="https://www.slideshare.net/noob00" target="_blank">Nobutada Matsubara</a></strong> </div>
 
 <img src="../../img/2018/haskell-day-2018/_DSC1183.jpg" alt="matsubara0507" style="width: 100%; max-width: 600px;">
 
+----
+
 ## gloss: 動かして遊んで学ぶHaskell
 
 [<img src="../../img/2018/haskell-day-2018/lotz.png" alt="動かして遊んで学ぶ Haskell" style="width: 100%; max-width: 600px;">](https://qiita.com/lotz/items/bdb04c771efc8919b79c)
 
 <img src="../../img/2018/haskell-day-2018/_DSC1186.jpg" alt="lotz" style="width: 100%; max-width: 600px;">
+
+----
 
 ## Lisztあるいは永続データ構造を真に永続させる方法
 
@@ -123,7 +139,7 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 - ふつうのHaskell 1票
 - Haskellによる関数プログラミングの思考法 1票
 
-# しめ
+# 終わりに
 
 参加者の発表者、スタッフのみなさんのおかげで無事開催することができました。ありがとうございました。
 
