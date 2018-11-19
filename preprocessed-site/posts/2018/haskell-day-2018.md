@@ -98,6 +98,8 @@ Haskell Dayは2012年2016年と不定期に開催しており今回で3度目と
 
 ## 懇親会
 
+スポンサーとしてIIJに飲食物の提供をしていただきました。
+
 <img src="../../img/2018/haskell-day-2018/_DSC1194.jpg" alt="懇親会" style="width: 100%; max-width: 600px;">
 
 # アンケート
