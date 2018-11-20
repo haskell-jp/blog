@@ -65,6 +65,11 @@ endif
 	git status
 	# Copy all of the generated site's files to the current directory.
 	cp -r /tmp/haskell-jp-blog-deploy/generated-site/* ./
+
+	# Disable Jekyll to serve files whose names begin with `_`.
+	# https://help.github.com/articles/files-that-start-with-an-underscore-are-missing/
+	touch ./.nojekyll
+
 	# Add everything back.  (A lot of files probably won't change, so, for
 	# instance, they won't show up on 'git status' even though we just did 'git
 	# rm -rf *'.  A 'git rm -rf FILE' followed by 'git add FILE' is a noop if
