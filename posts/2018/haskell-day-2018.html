@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Haskell Day 2018 開催レポート">
+    
+      <meta name="author" content="Kazuki Okamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="Haskell Day 2018 開催レポート - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2018/haskell-day-2018.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="こんにちはkakkun61こと岡本和樹です。去る11月10日にHaskell Day 2018が開催されましたので、そのイベントレポートをお送りします。# Haskell Day 2018とは&lt;img src=&quot;../../img/2018/haskell-day-2018/connpass.png&quot; alt=&quot;Connpass&quot; styl" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>Haskell Day 2018 開催レポート - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join-haskell-jp-slack.herokuapp.com/">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>Haskell Day 2018 開催レポート</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a> on November 20, 2018</span><span class="meta">Tags: イベント</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>こんにちは<span class="ascii">kakkun61</span>こと岡本和樹です。</p>
+<p>去る<span class="ascii">11</span>月<span class="ascii">10</span>日に<span class="ascii">Haskell Day 2018</span>が開催されましたので、そのイベントレポートをお送りします。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#haskell-day-2018とは" title="haskell-day-2018とは"><span class="ascii">Haskell Day 2018</span>とは</a></li>
+<li><a href="#セッション" title="セッション">セッション</a>
+<ul>
+<li><a href="#作りながら学ぶhaskell入門を使ったハンズオン" title="作りながら学ぶhaskell入門を使ったハンズオン">「作りながら学ぶ<span class="ascii">Haskell</span>入門」を使ったハンズオン</a></li>
+<li><a href="#haskellを導入した話とhrrの紹介" title="haskellを導入した話とhrrの紹介"><span class="ascii">Haskell</span>を導入した話と<span class="ascii">HRR</span>の紹介</a></li>
+<li><a href="#servantで実現する高速かつ安全なapi開発" title="servantで実現する高速かつ安全なapi開発"><span class="ascii">Servant</span>で実現する高速かつ安全な<span class="ascii">API</span>開発</a></li>
+<li><a href="#並列並行言語haskell" title="並列並行言語haskell">並列並行言語<span class="ascii">Haskell</span></a></li>
+<li><a href="#dhall-haskellの新たなキラーアプリ" title="dhall-haskellの新たなキラーアプリ"><span class="ascii">Dhall: Haskell</span>の新たなキラーアプリ</a></li>
+<li><a href="#semigroupとはmonoid環" title="semigroupとはmonoid環"><span class="ascii">Semigroup</span>とは？<span class="ascii">Monoid</span>？環？</a></li>
+<li><a href="#haskellでcli" title="haskellでcli"><span class="ascii">Haskell</span>で<span class="ascii">CLI</span></a></li>
+<li><a href="#gloss-動かして遊んで学ぶhaskell" title="gloss-動かして遊んで学ぶhaskell"><span class="ascii">gloss:</span> 動かして遊んで学ぶ<span class="ascii">Haskell</span></a></li>
+<li><a href="#lisztあるいは永続データ構造を真に永続させる方法" title="lisztあるいは永続データ構造を真に永続させる方法"><span class="ascii">Liszt</span>あるいは永続データ構造を真に永続させる方法</a></li>
+<li><a href="#懇親会" title="懇親会">懇親会</a></li>
+</ul></li>
+<li><a href="#アンケート" title="アンケート">アンケート</a>
+<ul>
+<li><a href="#haskellを始めてどれくらい経ちますか" title="haskellを始めてどれくらい経ちますか"><span class="ascii">Haskell</span>を始めてどれくらい経ちますか？</a></li>
+<li><a href="#読んだことのある日本語のhaskell本は" title="読んだことのある日本語のhaskell本は">読んだことのある日本語の<span class="ascii">Haskell</span>本は？</a></li>
+</ul></li>
+<li><a href="#終わりに" title="終わりに">終わりに</a></li>
+</ul>
+</div>
+</div>
+<h1 id="haskell-day-2018とは"><span class="link-to-here-outer"><a href="#haskell-day-2018とは" title="haskell-day-2018とは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell Day 2018</span>とは</h1>
+<p><img src="../../img/2018/haskell-day-2018/connpass.png" alt="Connpass" style="width: 100%; max-width: 600px;"></p>
+<p><a href="https://haskell-jp.connpass.com/event/92617/"><span class="ascii">https://haskell-jp.connpass.com/event/92617/</span></a></p>
+<p><span class="ascii">Haskell Day</span>は<span class="ascii">2012</span>年<span class="ascii">2016</span>年と不定期に開催しており今回で<span class="ascii">3</span>度目となります。</p>
+<p><span class="ascii">2018</span>年の今回は「<span class="ascii">Haskell</span>ちょっと興味あるからちょっとできるまで」というテーマで開催されました。</p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1173.jpg" alt="受付" style="width: 100%; max-width: 600px;"></p>
+<h1 id="セッション"><span class="link-to-here-outer"><a href="#セッション" title="セッション"><span class="link-to-here">Link to<br />
+here</span></a></span>セッション</h1>
+<h2 id="作りながら学ぶhaskell入門を使ったハンズオン"><span class="link-to-here-outer"><a href="#作りながら学ぶhaskell入門を使ったハンズオン" title="作りながら学ぶhaskell入門を使ったハンズオン"><span class="link-to-here">Link to<br />
+here</span></a></span>「作りながら学ぶ<span class="ascii">Haskell</span>入門」を使ったハンズオン</h2>
+<p>開発中の対話的チュートリアル<a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell">「作りながら学ぶ<span class="ascii">Haskell</span>入門」</a>を使って、参加者の皆さんにもくもくと入門していただきました。「作りながら学ぶ<span class="ascii">Haskell</span>入門」では、簡単な課題を解くことで、<span class="ascii">Haskell</span>の初歩的な使い方を学びつつ、学んだ知識をその場でテストできます。</p>
+<p><a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell"><span class="ascii">https://github.com/haskell-jp/makeMistakesToLearnHaskell</span></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1176.jpg" alt="ハンズオン" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="haskellを導入した話とhrrの紹介"><span class="link-to-here-outer"><a href="#haskellを導入した話とhrrの紹介" title="haskellを導入した話とhrrの紹介"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>を導入した話と<span class="ascii">HRR</span>の紹介</h2>
+<p><a href="https://htmlpreview.github.io/?https://github.com/khibino/haskell-day-2018/blob/master/presentation.html"><img src="../../img/2018/haskell-day-2018/khibino.png" alt="Haskell を導入した話と HRR の紹介" style="width: 100%; max-width: 600px;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1177.jpg" alt="khibino" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="servantで実現する高速かつ安全なapi開発"><span class="link-to-here-outer"><a href="#servantで実現する高速かつ安全なapi開発" title="servantで実現する高速かつ安全なapi開発"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Servant</span>で実現する高速かつ安全な<span class="ascii">API</span>開発</h2>
+<script async class="speakerdeck-embed" data-id="413d120b6bee433c985c1d2b3395ff0e" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1193.jpg" alt="nakaji-dayo" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="並列並行言語haskell"><span class="link-to-here-outer"><a href="#並列並行言語haskell" title="並列並行言語haskell"><span class="link-to-here">Link to<br />
+here</span></a></span>並列並行言語<span class="ascii">Haskell</span></h2>
+<script async class="speakerdeck-embed" data-id="07d92af9d7aa40bca6cc3959d3f56b28" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1178.jpg" alt="syocy" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="dhall-haskellの新たなキラーアプリ"><span class="link-to-here-outer"><a href="#dhall-haskellの新たなキラーアプリ" title="dhall-haskellの新たなキラーアプリ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Dhall: Haskell</span>の新たなキラーアプリ</h2>
+<script async class="speakerdeck-embed" data-id="7a16b1e09882433ca2dac9a6a81eb236" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<hr />
+<h2 id="semigroupとはmonoid環"><span class="link-to-here-outer"><a href="#semigroupとはmonoid環" title="semigroupとはmonoid環"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Semigroup</span>とは？<span class="ascii">Monoid</span>？環？</h2>
+<p><a href="https://aiya000.github.io/Maid/haskell-day-2018-algebra/#/"><img src="../../img/2018/haskell-day-2018/aiya000.png" alt="Semigroup とは？Monoid？環？" style="width: 100%; max-width: 600px;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1179.jpg" alt="aiya000" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="haskellでcli"><span class="link-to-here-outer"><a href="#haskellでcli" title="haskellでcli"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>で<span class="ascii">CLI</span></h2>
+<iframe src="//www.slideshare.net/slideshow/embed_code/key/FQE1QxbCST8kYi" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen>
+</iframe>
+<div style="margin-bottom:5px">
+<strong> <a href="//www.slideshare.net/noob00/haskell-cli" title="Haskell で CLI" target="_blank"><span class="ascii">Haskell</span> で <span class="ascii">CLI</span></a> </strong> <span class="ascii">from</span> <strong><a href="https://www.slideshare.net/noob00" target="_blank"><span class="ascii">Nobutada Matsubara</span></a></strong>
+</div>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1183.jpg" alt="matsubara0507" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="gloss-動かして遊んで学ぶhaskell"><span class="link-to-here-outer"><a href="#gloss-動かして遊んで学ぶhaskell" title="gloss-動かして遊んで学ぶhaskell"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">gloss:</span> 動かして遊んで学ぶ<span class="ascii">Haskell</span></h2>
+<p><a href="https://qiita.com/lotz/items/bdb04c771efc8919b79c"><img src="../../img/2018/haskell-day-2018/lotz.png" alt="動かして遊んで学ぶ Haskell" style="width: 100%; max-width: 600px;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1186.jpg" alt="lotz" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="lisztあるいは永続データ構造を真に永続させる方法"><span class="link-to-here-outer"><a href="#lisztあるいは永続データ構造を真に永続させる方法" title="lisztあるいは永続データ構造を真に永続させる方法"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Liszt</span>あるいは永続データ構造を真に永続させる方法</h2>
+<p><a href="https://shared-assets.adobe.com/link/353213c2-281a-4a53-6cff-a52bff1314c1"><img src="../../img/2018/haskell-day-2018/fumieval.png" alt="Liszt あるいは永続データ構造を真に永続させる方法" style="width: 100%; max-width: 600px; border: solid 1px black;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1191.jpg" alt="fumieval" style="width: 100%; max-width: 600px;"></p>
+<h2 id="懇親会"><span class="link-to-here-outer"><a href="#懇親会" title="懇親会"><span class="link-to-here">Link to<br />
+here</span></a></span>懇親会</h2>
+<p>スポンサーとして<span class="ascii">IIJ</span>に飲食物の提供をしていただきました。</p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1194.jpg" alt="懇親会" style="width: 100%; max-width: 600px;"></p>
+<h1 id="アンケート"><span class="link-to-here-outer"><a href="#アンケート" title="アンケート"><span class="link-to-here">Link to<br />
+here</span></a></span>アンケート</h1>
+<p>約<span class="ascii">110</span>名の方が出席し約<span class="ascii">40</span>名の方が回答してくださいました。</p>
+<p>参加できなくなった約<span class="ascii">40</span>名の方は事前のキャンセルをよろしくお願いします。</p>
+<h2 id="haskellを始めてどれくらい経ちますか"><span class="link-to-here-outer"><a href="#haskellを始めてどれくらい経ちますか" title="haskellを始めてどれくらい経ちますか"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>を始めてどれくらい経ちますか？</h2>
+<p><img src="../../img/2018/haskell-day-2018/questionnaire1.png" alt="Haskell を始めてどれくらい経ちますか？" style="width: 100%; max-width: 600px;"></p>
+<p>ここ<span class="ascii">1</span>年以内に始めた方が全体の<span class="ascii">21.4</span>％、<span class="ascii">1</span>年以上<span class="ascii">5</span>年未満前に始めた方がちょうど半分程度となりました。<span class="ascii">1</span>年以上<span class="ascii">5</span>年未満前に始めた方の<span class="ascii">57%</span>の方は今でも<span class="ascii">Haskell</span>を使い続けているようです。</p>
+<p><span class="ascii">5</span>年以上前に始めた方は全体の<span class="ascii">1/4</span>となりました。</p>
+<h2 id="読んだことのある日本語のhaskell本は"><span class="link-to-here-outer"><a href="#読んだことのある日本語のhaskell本は" title="読んだことのある日本語のhaskell本は"><span class="link-to-here">Link to<br />
+here</span></a></span>読んだことのある日本語の<span class="ascii">Haskell</span>本は？</h2>
+<p><img src="../../img/2018/haskell-day-2018/questionnaire2.png" alt="Haskell を始めてどれくらい経ちますか？" style="width: 100%; max-width: 600px;"></p>
+<p>項目は下記となります。</p>
+<ul>
+<li>すごい <span class="ascii">Haskell</span> たのしく学ぼう！</li>
+<li>プログラミング <span class="ascii">Haskell</span></li>
+<li><span class="ascii">Haskell</span> による並列・並行プログラミング</li>
+<li>関数プログラミング実践入門 ── 完結で正しいコードを書くために</li>
+<li>関数プログラミング入門 ── <span class="ascii">Haskell</span> で学ぶ原理と技法</li>
+<li><span class="ascii">Real World Haskell</span></li>
+<li>関数プログラミング ── 珠玉のアルゴリズムデザイン</li>
+<li>簡約！λカ娘</li>
+<li><span class="ascii">Haskell</span> ── 教養としての関数型プログラミング</li>
+<li>その他（自由記述）</li>
+</ul>
+<p>この項目にはアンケートの途中で追加したものもあるので、結果があまり厳密でないことに注意してください。</p>
+<p>その他の選択肢で自由記述では次の票がありました。</p>
+<ul>
+<li><span class="ascii">Haskell</span>入門 <span class="ascii">10</span>票</li>
+<li>ふつうの<span class="ascii">Haskell 1</span>票</li>
+<li><span class="ascii">Haskell</span>による関数プログラミングの思考法 <span class="ascii">1</span>票</li>
+</ul>
+<h1 id="終わりに"><span class="link-to-here-outer"><a href="#終わりに" title="終わりに"><span class="link-to-here">Link to<br />
+here</span></a></span>終わりに</h1>
+<p>参加者の発表者、スタッフのみなさんのおかげで無事開催することができました。ありがとうございました。</p>
+<p>今後とも<span class="ascii">Haskell-jp</span>をよろしくお願いします。</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2018/tech-book-fest-5.html" style="margin-left: auto;" lang="ja">技術書典 5 での Haskell 関連サークルのまとめ</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Kazuki Okamoto 2018</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>

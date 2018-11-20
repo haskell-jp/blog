@@ -8,8 +8,190 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2018-10-05T00:00:00Z</updated>
+    <updated>2018-11-20T00:00:00Z</updated>
     <entry>
+    <title>Haskell Day 2018 開催レポート</title>
+    <link href="https://haskell.jp/blog/posts/2018/haskell-day-2018.html" />
+    <id>https://haskell.jp/blog/posts/2018/haskell-day-2018.html</id>
+    <published>2018-11-20T00:00:00Z</published>
+    <updated>2018-11-20T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>こんにちは<span class="ascii">kakkun61</span>こと岡本和樹です。</p>
+<p>去る<span class="ascii">11</span>月<span class="ascii">10</span>日に<span class="ascii">Haskell Day 2018</span>が開催されましたので、そのイベントレポートをお送りします。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#haskell-day-2018とは" title="haskell-day-2018とは"><span class="ascii">Haskell Day 2018</span>とは</a></li>
+<li><a href="#セッション" title="セッション">セッション</a>
+<ul>
+<li><a href="#作りながら学ぶhaskell入門を使ったハンズオン" title="作りながら学ぶhaskell入門を使ったハンズオン">「作りながら学ぶ<span class="ascii">Haskell</span>入門」を使ったハンズオン</a></li>
+<li><a href="#haskellを導入した話とhrrの紹介" title="haskellを導入した話とhrrの紹介"><span class="ascii">Haskell</span>を導入した話と<span class="ascii">HRR</span>の紹介</a></li>
+<li><a href="#servantで実現する高速かつ安全なapi開発" title="servantで実現する高速かつ安全なapi開発"><span class="ascii">Servant</span>で実現する高速かつ安全な<span class="ascii">API</span>開発</a></li>
+<li><a href="#並列並行言語haskell" title="並列並行言語haskell">並列並行言語<span class="ascii">Haskell</span></a></li>
+<li><a href="#dhall-haskellの新たなキラーアプリ" title="dhall-haskellの新たなキラーアプリ"><span class="ascii">Dhall: Haskell</span>の新たなキラーアプリ</a></li>
+<li><a href="#semigroupとはmonoid環" title="semigroupとはmonoid環"><span class="ascii">Semigroup</span>とは？<span class="ascii">Monoid</span>？環？</a></li>
+<li><a href="#haskellでcli" title="haskellでcli"><span class="ascii">Haskell</span>で<span class="ascii">CLI</span></a></li>
+<li><a href="#gloss-動かして遊んで学ぶhaskell" title="gloss-動かして遊んで学ぶhaskell"><span class="ascii">gloss:</span> 動かして遊んで学ぶ<span class="ascii">Haskell</span></a></li>
+<li><a href="#lisztあるいは永続データ構造を真に永続させる方法" title="lisztあるいは永続データ構造を真に永続させる方法"><span class="ascii">Liszt</span>あるいは永続データ構造を真に永続させる方法</a></li>
+<li><a href="#懇親会" title="懇親会">懇親会</a></li>
+</ul></li>
+<li><a href="#アンケート" title="アンケート">アンケート</a>
+<ul>
+<li><a href="#haskellを始めてどれくらい経ちますか" title="haskellを始めてどれくらい経ちますか"><span class="ascii">Haskell</span>を始めてどれくらい経ちますか？</a></li>
+<li><a href="#読んだことのある日本語のhaskell本は" title="読んだことのある日本語のhaskell本は">読んだことのある日本語の<span class="ascii">Haskell</span>本は？</a></li>
+</ul></li>
+<li><a href="#終わりに" title="終わりに">終わりに</a></li>
+</ul>
+</div>
+</div>
+<h1 id="haskell-day-2018とは"><span class="link-to-here-outer"><a href="#haskell-day-2018とは" title="haskell-day-2018とは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell Day 2018</span>とは</h1>
+<p><img src="../../img/2018/haskell-day-2018/connpass.png" alt="Connpass" style="width: 100%; max-width: 600px;"></p>
+<p><a href="https://haskell-jp.connpass.com/event/92617/"><span class="ascii">https://haskell-jp.connpass.com/event/92617/</span></a></p>
+<p><span class="ascii">Haskell Day</span>は<span class="ascii">2012</span>年<span class="ascii">2016</span>年と不定期に開催しており今回で<span class="ascii">3</span>度目となります。</p>
+<p><span class="ascii">2018</span>年の今回は「<span class="ascii">Haskell</span>ちょっと興味あるからちょっとできるまで」というテーマで開催されました。</p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1173.jpg" alt="受付" style="width: 100%; max-width: 600px;"></p>
+<h1 id="セッション"><span class="link-to-here-outer"><a href="#セッション" title="セッション"><span class="link-to-here">Link to<br />
+here</span></a></span>セッション</h1>
+<h2 id="作りながら学ぶhaskell入門を使ったハンズオン"><span class="link-to-here-outer"><a href="#作りながら学ぶhaskell入門を使ったハンズオン" title="作りながら学ぶhaskell入門を使ったハンズオン"><span class="link-to-here">Link to<br />
+here</span></a></span>「作りながら学ぶ<span class="ascii">Haskell</span>入門」を使ったハンズオン</h2>
+<p>開発中の対話的チュートリアル<a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell">「作りながら学ぶ<span class="ascii">Haskell</span>入門」</a>を使って、参加者の皆さんにもくもくと入門していただきました。「作りながら学ぶ<span class="ascii">Haskell</span>入門」では、簡単な課題を解くことで、<span class="ascii">Haskell</span>の初歩的な使い方を学びつつ、学んだ知識をその場でテストできます。</p>
+<p><a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell"><span class="ascii">https://github.com/haskell-jp/makeMistakesToLearnHaskell</span></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1176.jpg" alt="ハンズオン" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="haskellを導入した話とhrrの紹介"><span class="link-to-here-outer"><a href="#haskellを導入した話とhrrの紹介" title="haskellを導入した話とhrrの紹介"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>を導入した話と<span class="ascii">HRR</span>の紹介</h2>
+<p><a href="https://htmlpreview.github.io/?https://github.com/khibino/haskell-day-2018/blob/master/presentation.html"><img src="../../img/2018/haskell-day-2018/khibino.png" alt="Haskell を導入した話と HRR の紹介" style="width: 100%; max-width: 600px;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1177.jpg" alt="khibino" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="servantで実現する高速かつ安全なapi開発"><span class="link-to-here-outer"><a href="#servantで実現する高速かつ安全なapi開発" title="servantで実現する高速かつ安全なapi開発"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Servant</span>で実現する高速かつ安全な<span class="ascii">API</span>開発</h2>
+<script async class="speakerdeck-embed" data-id="413d120b6bee433c985c1d2b3395ff0e" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1193.jpg" alt="nakaji-dayo" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="並列並行言語haskell"><span class="link-to-here-outer"><a href="#並列並行言語haskell" title="並列並行言語haskell"><span class="link-to-here">Link to<br />
+here</span></a></span>並列並行言語<span class="ascii">Haskell</span></h2>
+<script async class="speakerdeck-embed" data-id="07d92af9d7aa40bca6cc3959d3f56b28" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1178.jpg" alt="syocy" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="dhall-haskellの新たなキラーアプリ"><span class="link-to-here-outer"><a href="#dhall-haskellの新たなキラーアプリ" title="dhall-haskellの新たなキラーアプリ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Dhall: Haskell</span>の新たなキラーアプリ</h2>
+<script async class="speakerdeck-embed" data-id="7a16b1e09882433ca2dac9a6a81eb236" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+<hr />
+<h2 id="semigroupとはmonoid環"><span class="link-to-here-outer"><a href="#semigroupとはmonoid環" title="semigroupとはmonoid環"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Semigroup</span>とは？<span class="ascii">Monoid</span>？環？</h2>
+<p><a href="https://aiya000.github.io/Maid/haskell-day-2018-algebra/#/"><img src="../../img/2018/haskell-day-2018/aiya000.png" alt="Semigroup とは？Monoid？環？" style="width: 100%; max-width: 600px;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1179.jpg" alt="aiya000" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="haskellでcli"><span class="link-to-here-outer"><a href="#haskellでcli" title="haskellでcli"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>で<span class="ascii">CLI</span></h2>
+<iframe src="//www.slideshare.net/slideshow/embed_code/key/FQE1QxbCST8kYi" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen>
+</iframe>
+<div style="margin-bottom:5px">
+<strong> <a href="//www.slideshare.net/noob00/haskell-cli" title="Haskell で CLI" target="_blank"><span class="ascii">Haskell</span> で <span class="ascii">CLI</span></a> </strong> <span class="ascii">from</span> <strong><a href="https://www.slideshare.net/noob00" target="_blank"><span class="ascii">Nobutada Matsubara</span></a></strong>
+</div>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1183.jpg" alt="matsubara0507" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="gloss-動かして遊んで学ぶhaskell"><span class="link-to-here-outer"><a href="#gloss-動かして遊んで学ぶhaskell" title="gloss-動かして遊んで学ぶhaskell"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">gloss:</span> 動かして遊んで学ぶ<span class="ascii">Haskell</span></h2>
+<p><a href="https://qiita.com/lotz/items/bdb04c771efc8919b79c"><img src="../../img/2018/haskell-day-2018/lotz.png" alt="動かして遊んで学ぶ Haskell" style="width: 100%; max-width: 600px;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1186.jpg" alt="lotz" style="width: 100%; max-width: 600px;"></p>
+<hr />
+<h2 id="lisztあるいは永続データ構造を真に永続させる方法"><span class="link-to-here-outer"><a href="#lisztあるいは永続データ構造を真に永続させる方法" title="lisztあるいは永続データ構造を真に永続させる方法"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Liszt</span>あるいは永続データ構造を真に永続させる方法</h2>
+<p><a href="https://shared-assets.adobe.com/link/353213c2-281a-4a53-6cff-a52bff1314c1"><img src="../../img/2018/haskell-day-2018/fumieval.png" alt="Liszt あるいは永続データ構造を真に永続させる方法" style="width: 100%; max-width: 600px; border: solid 1px black;"></a></p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1191.jpg" alt="fumieval" style="width: 100%; max-width: 600px;"></p>
+<h2 id="懇親会"><span class="link-to-here-outer"><a href="#懇親会" title="懇親会"><span class="link-to-here">Link to<br />
+here</span></a></span>懇親会</h2>
+<p>スポンサーとして<span class="ascii">IIJ</span>に飲食物の提供をしていただきました。</p>
+<p><img src="../../img/2018/haskell-day-2018/_DSC1194.jpg" alt="懇親会" style="width: 100%; max-width: 600px;"></p>
+<h1 id="アンケート"><span class="link-to-here-outer"><a href="#アンケート" title="アンケート"><span class="link-to-here">Link to<br />
+here</span></a></span>アンケート</h1>
+<p>約<span class="ascii">110</span>名の方が出席し約<span class="ascii">40</span>名の方が回答してくださいました。</p>
+<p>参加できなくなった約<span class="ascii">40</span>名の方は事前のキャンセルをよろしくお願いします。</p>
+<h2 id="haskellを始めてどれくらい経ちますか"><span class="link-to-here-outer"><a href="#haskellを始めてどれくらい経ちますか" title="haskellを始めてどれくらい経ちますか"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>を始めてどれくらい経ちますか？</h2>
+<p><img src="../../img/2018/haskell-day-2018/questionnaire1.png" alt="Haskell を始めてどれくらい経ちますか？" style="width: 100%; max-width: 600px;"></p>
+<p>ここ<span class="ascii">1</span>年以内に始めた方が全体の<span class="ascii">21.4</span>％、<span class="ascii">1</span>年以上<span class="ascii">5</span>年未満前に始めた方がちょうど半分程度となりました。<span class="ascii">1</span>年以上<span class="ascii">5</span>年未満前に始めた方の<span class="ascii">57%</span>の方は今でも<span class="ascii">Haskell</span>を使い続けているようです。</p>
+<p><span class="ascii">5</span>年以上前に始めた方は全体の<span class="ascii">1/4</span>となりました。</p>
+<h2 id="読んだことのある日本語のhaskell本は"><span class="link-to-here-outer"><a href="#読んだことのある日本語のhaskell本は" title="読んだことのある日本語のhaskell本は"><span class="link-to-here">Link to<br />
+here</span></a></span>読んだことのある日本語の<span class="ascii">Haskell</span>本は？</h2>
+<p><img src="../../img/2018/haskell-day-2018/questionnaire2.png" alt="Haskell を始めてどれくらい経ちますか？" style="width: 100%; max-width: 600px;"></p>
+<p>項目は下記となります。</p>
+<ul>
+<li>すごい <span class="ascii">Haskell</span> たのしく学ぼう！</li>
+<li>プログラミング <span class="ascii">Haskell</span></li>
+<li><span class="ascii">Haskell</span> による並列・並行プログラミング</li>
+<li>関数プログラミング実践入門 ── 完結で正しいコードを書くために</li>
+<li>関数プログラミング入門 ── <span class="ascii">Haskell</span> で学ぶ原理と技法</li>
+<li><span class="ascii">Real World Haskell</span></li>
+<li>関数プログラミング ── 珠玉のアルゴリズムデザイン</li>
+<li>簡約！λカ娘</li>
+<li><span class="ascii">Haskell</span> ── 教養としての関数型プログラミング</li>
+<li>その他（自由記述）</li>
+</ul>
+<p>この項目にはアンケートの途中で追加したものもあるので、結果があまり厳密でないことに注意してください。</p>
+<p>その他の選択肢で自由記述では次の票がありました。</p>
+<ul>
+<li><span class="ascii">Haskell</span>入門 <span class="ascii">10</span>票</li>
+<li>ふつうの<span class="ascii">Haskell 1</span>票</li>
+<li><span class="ascii">Haskell</span>による関数プログラミングの思考法 <span class="ascii">1</span>票</li>
+</ul>
+<h1 id="終わりに"><span class="link-to-here-outer"><a href="#終わりに" title="終わりに"><span class="link-to-here">Link to<br />
+here</span></a></span>終わりに</h1>
+<p>参加者の発表者、スタッフのみなさんのおかげで無事開催することができました。ありがとうございました。</p>
+<p>今後とも<span class="ascii">Haskell-jp</span>をよろしくお願いします。</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2018/tech-book-fest-5.html" style="margin-left: auto;" lang="ja">技術書典 5 での Haskell 関連サークルのまとめ</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>技術書典 5 での Haskell 関連サークルのまとめ</title>
     <link href="https://haskell.jp/blog/posts/2018/tech-book-fest-5.html" />
     <id>https://haskell.jp/blog/posts/2018/tech-book-fest-5.html</id>
@@ -204,6 +386,9 @@ here</span></a></span>それでは当日に</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2018/haskell-day-2018.html" lang="ja">Haskell Day 2018 開催レポート</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2112,258 +2297,6 @@ here</span></a></span>書いてもいいよって場合</h2>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2018/ghc-proposal-and-patch.html" style="margin-left: auto;" lang="ja">GHCへの変更提案とパッチ送付の手順例</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>GHCへの変更提案とパッチ送付の手順例</title>
-    <link href="https://haskell.jp/blog/posts/2018/ghc-proposal-and-patch.html" />
-    <id>https://haskell.jp/blog/posts/2018/ghc-proposal-and-patch.html</id>
-    <published>2018-02-11T00:00:00Z</published>
-    <updated>2018-02-11T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#はじめに" title="はじめに">はじめに</a></li>
-<li><a href="#ch1" title="ch1"><span class="ascii">1.</span> 変更提案<span class="ascii">(proposal)</span></a>
-<ul>
-<li><a href="#概要" title="概要">概要</a></li>
-<li><a href="#変更提案の正確な手続き" title="変更提案の正確な手続き">変更提案の正確な手続き</a></li>
-<li><a href="#変更提案のおおまかな流れ" title="変更提案のおおまかな流れ">変更提案のおおまかな流れ</a></li>
-<li><a href="#変更提案の例" title="変更提案の例">変更提案の例</a></li>
-<li><a href="#いくつかのポイントなど" title="いくつかのポイントなど">いくつかのポイントなど</a></li>
-</ul></li>
-<li><a href="#ch2" title="ch2"><span class="ascii">2.</span> パッチ送付<span class="ascii">(patch)</span></a>
-<ul>
-<li><a href="#概要-1" title="概要-1">概要</a></li>
-<li><a href="#パッチ送付の正確な手続き" title="パッチ送付の正確な手続き">パッチ送付の正確な手続き</a></li>
-<li><a href="#パッチ送付のおおまかな流れ" title="パッチ送付のおおまかな流れ">パッチ送付のおおまかな流れ</a></li>
-<li><a href="#パッチ送付の例" title="パッチ送付の例">パッチ送付の例</a></li>
-<li><a href="#いくつかのポイントなど-1" title="いくつかのポイントなど-1">いくつかのポイントなど</a></li>
-</ul></li>
-<li><a href="#補足" title="補足">補足</a></li>
-</ul>
-</div>
-</div>
-<h2 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
-here</span></a></span>はじめに</h2>
-<p><span class="ascii">Haskell</span>のコンパイラの１つである<span class="ascii">GHC</span>は、オープンソースソフトウェア<span class="ascii">(OSS)</span>のプロジェクトとして今も活発に開発が進められています。 個人の経験や経歴や肩書きや権限などに関わらず、誰でも<span class="ascii">GHC</span>の開発にすぐに参加することができます。</p>
-<p>ここでは、<span class="ascii">GHC</span>に新しい変更を提案し実装するための、以下の手順例を紹介します。</p>
-<ol type="1">
-<li><a href="#ch1">変更提案</a> <span class="ascii">(GitHub</span>の<span class="ascii">ghc-proposals</span> リポジトリ上にて実施<span class="ascii">)</span></li>
-<li><a href="#ch2">パッチ送付</a> <span class="ascii">(Phabricator</span>の<span class="ascii">Haskell.org</span> インスタンス上にて実施<span class="ascii">)</span></li>
-</ol>
-<p><span class="ascii">GHC</span>に改善したい点があれば、誰でも変更提案が可能です。 提案のハードルは案外高いものではありません。<span class="ascii">GHC</span>開発では、新たな<span class="ascii">contribution</span>が歓迎されています。<br />
-仮に提案やパッチが<span class="ascii">reject</span>判断されるとしても、<span class="ascii">GHC</span>の開発者と直接やり取りする良い機会が得られます。</p>
-<p>以下では、数値リテラルの構文を変更する単純な例をもとに、変更提案やパッチ送付の手順例を紹介します。<span class="ascii">(</span>文章だらけになってしまいましたがご容赦を 😊 <span class="ascii">)</span></p>
-<hr />
-<h2 id="ch1"><span class="link-to-here-outer"><a href="#ch1" title="ch1"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">1.</span> 変更提案<span class="ascii">(proposal)</span></h2>
-<h3 id="概要"><span class="link-to-here-outer"><a href="#概要" title="概要"><span class="link-to-here">Link to<br />
-here</span></a></span>概要</h3>
-<p><span class="ascii">GHC</span>は、コンパイラ本体やライブラリやツールチェーンなど多くの要素で構成されていますが、ここではコンパイラ本体への変更提案の手順について紹介します。</p>
-<p><span class="ascii">GHC</span>のコンパイラ本体の開発では、<a href="https://github.com/ghc-proposals/ghc-proposals#what-is-a-proposal">ユーザーに見える<span class="ascii">(user-visible)</span>振る舞い</a>等を変更<span class="ascii">(</span>追加・修正・削除など<span class="ascii">)</span>するための提案<span class="ascii">(proposal)</span>手順が定められています。 事前の調整や権限などを必要とせず、<span class="ascii">GitHub</span>への<span class="ascii">pull request</span>を通じて誰もが提案できます。</p>
-<p>なお、変更提案<span class="ascii">(</span>仕様<span class="ascii">)</span>のプロセスと、修正パッチ送付<span class="ascii">(</span>実装<span class="ascii">)</span>のプロセスは、分離されています。必ずしも、変更提案者が実装まで行う必要はありません。</p>
-<h3 id="変更提案の正確な手続き"><span class="link-to-here-outer"><a href="#変更提案の正確な手続き" title="変更提案の正確な手続き"><span class="link-to-here">Link to<br />
-here</span></a></span>変更提案の正確な手続き</h3>
-<p>提案の具体的な手続きについては、以下に記載されています。よく読んでおきましょう。</p>
-<ul>
-<li><a href="https://github.com/ghc-proposals/ghc-proposals#ghc-proposals"><span class="ascii">https://github.com/ghc-proposals/ghc-proposals#ghc-proposals</span></a></li>
-</ul>
-<p>変更提案は、提案書を書いて以下の場所<span class="ascii">(</span>リポジトリ<span class="ascii">)</span>に、<span class="ascii">pull request</span>を送ることで行えます。</p>
-<ul>
-<li><a href="https://github.com/ghc-proposals/ghc-proposals/pulls"><span class="ascii">https://github.com/ghc-proposals/ghc-proposals/pulls</span></a></li>
-</ul>
-<h3 id="変更提案のおおまかな流れ"><span class="link-to-here-outer"><a href="#変更提案のおおまかな流れ" title="変更提案のおおまかな流れ"><span class="link-to-here">Link to<br />
-here</span></a></span>変更提案のおおまかな流れ</h3>
-<p><a href="https://github.com/ghc-proposals/ghc-proposals#what-is-the-timeline-of-a-proposal">提案の流れ</a>は、ざくっと以下の通りです。</p>
-<ul>
-<li>提案の作成
-<ul>
-<li><span class="ascii">GitHub</span>上で、<a href="https://github.com/ghc-proposals/ghc-proposals"><span class="ascii">ghc-proposals</span></a>のリポジトリを<span class="ascii">fork</span>する <a href="https://github.com/takenobu-hs/ghc-proposals"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li><span class="ascii">fork</span>してきた自分のリポジトリで作業用のブランチを作る <a href="https://github.com/takenobu-hs/ghc-proposals/tree/numeric-underscores"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li><span class="ascii">proposals</span>ディレクトリの下に、“<span class="ascii">0000-</span>プロポーザル名<span class="ascii">.rst</span>”のファイル名で<a href="https://github.com/ghc-proposals/ghc-proposals#how-to-start-a-new-proposal">提案用のファイルを作る</a> <a href="https://github.com/takenobu-hs/ghc-proposals/blob/numeric-underscores/proposals/0000-numeric-underscores.rst"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li>“<span class="ascii">Motivation</span>”などの<a href="https://github.com/ghc-proposals/ghc-proposals#what-should-a-proposal-look-like">必要な項目</a>を、<a href="http://docs.sphinx-users.jp/rest.html"><span class="ascii">reStructuredText</span></a>の書式に従い記述する <a href="https://github.com/takenobu-hs/ghc-proposals/blob/numeric-underscores/proposals/0000-numeric-underscores.rst"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-</ul></li>
-<li>提案の送付
-<ul>
-<li><span class="ascii">GitHub</span>上で、<span class="ascii">ghc-proposals</span>のリポジトリに、<span class="ascii">pull request</span>を送る <a href="https://github.com/ghc-proposals/ghc-proposals/pull/76"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li>確定した<span class="ascii">pull request</span>の<span class="ascii">URL</span>を、提案用のファイルの“<span class="ascii">This proposal is discussed at this pull request.</span>”の箇所に記載してから、再度<span class="ascii">commit</span>し直す <a href="https://github.com/takenobu-hs/ghc-proposals/commit/61149ee277aadc6bd46e0ad35aeb529f02da1182#diff-1128b179eb6630a402469b59a8a7dce6"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li><span class="ascii">pull request</span>の <span class="ascii">Conversation</span>のところに、“<span class="ascii">Rendered</span>”という文字で提案ファイルへのリンクを貼っておく <a href="https://github.com/ghc-proposals/ghc-proposals/pull/76#issue-261822915"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-</ul></li>
-<li>提案についての議論
-<ul>
-<li><span class="ascii">pull request</span>上で、<a href="https://github.com/ghc-proposals/ghc-proposals#discussion-goals">議論する</a> <a href="https://github.com/ghc-proposals/ghc-proposals/pull/76"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li>フィードバックがあれば、提案ファイルを修正する</li>
-<li>議論期間を充分に<span class="ascii">(</span>一ヶ月くらいは<span class="ascii">)</span>設ける</li>
-</ul></li>
-<li>提案の判断
-<ul>
-<li>議論が収束したら、<a href="https://github.com/ghc-proposals/ghc-proposals#who-is-the-committee"><span class="ascii">GHC Steering Committee</span></a> へ、<a href="https://github.com/ghc-proposals/ghc-proposals#how-to-bring-a-proposal-before-the-committee">判断依頼</a>をかける <a href="https://github.com/ghc-proposals/ghc-proposals/pull/76#issuecomment-339952996"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li><span class="ascii">GHC Steering Committee</span>が<span class="ascii">Accepted/Rejected</span>を判断する <a href="https://github.com/ghc-proposals/ghc-proposals/pull/76#event-1341434473"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li><span class="ascii">Accepted</span>なら、<span class="ascii">Trac</span>で<a href="https://ghc.haskell.org/trac/ghc/newticket?type=task"><span class="ascii">ticket</span>を登録</a>する <a href="https://ghc.haskell.org/trac/ghc/ticket/14473"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li>次は、コード修正パッチの作成・送付フェーズへ</li>
-</ul></li>
-</ul>
-<h3 id="変更提案の例"><span class="link-to-here-outer"><a href="#変更提案の例" title="変更提案の例"><span class="link-to-here">Link to<br />
-here</span></a></span>変更提案の例</h3>
-<p>数値リテラルの構文を変更する場合の、具体的な変更提案の例を紹介します。</p>
-<ul>
-<li><a href="https://github.com/takenobu-hs/ghc-proposals/blob/0a694636560ca37d9b76e56bddc43c6bf1c9348a/proposals/0000-numeric-underscores.rst">変更提案の初版</a> <span class="ascii">|</span> <a href="https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0009-numeric-underscores.rst">最終的な変更提案</a></li>
-<li><a href="https://github.com/ghc-proposals/ghc-proposals/pull/76">議論フェーズの例</a></li>
-</ul>
-<p>その他の提案の例は以下にたくさんあります。</p>
-<ul>
-<li><a href="https://github.com/ghc-proposals/ghc-proposals/pulls?q=is%3Aopen+is%3Apr"><span class="ascii">Open</span>中の提案</a></li>
-<li><a href="https://github.com/ghc-proposals/ghc-proposals/pulls?q=is%3Apr+is%3Aclosed"><span class="ascii">Close</span>済みの提案</a></li>
-</ul>
-<h3 id="いくつかのポイントなど"><span class="link-to-here-outer"><a href="#いくつかのポイントなど" title="いくつかのポイントなど"><span class="link-to-here">Link to<br />
-here</span></a></span>いくつかのポイントなど</h3>
-<ul>
-<li>他の良い提案が参考になります <span class="ascii">(</span>同じ種類の提案や議論がうまく進んでいる提案などから、色々な観点を学べます。<span class="ascii">)</span></li>
-<li>数カ月単位で気長に根気よくやる<span class="ascii">(</span>開発者は全員がボランティアで忙しい。<span class="ascii">)</span></li>
-<li>提案してよいか迷う場合は、事前に<a href="https://mail.haskell.org/cgi-bin/mailman/listinfo/ghc-devs"><span class="ascii">ghc-devs</span>の<span class="ascii">ML(</span>メーリングリスト<span class="ascii">)</span></a>などで相談してもよい</li>
-<li>英語の精度を必要以上に気にする必要はない。日本語でしっかり考える。あとは短い文に区切って、<span class="ascii">Google</span>翻訳にでも。</li>
-</ul>
-<p>提案プロセスは<span class="ascii">GitHub</span>上で行うものです。操作ミスがあったところでやり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。<br />
-また、多くの提案は<span class="ascii">Accepted</span>に至らないこともあるので、結果を恥ずかしがる必要もありません。提案の結果に関わらず、提案とその議論自体が、他の開発者に新たな観点や気づき・刺激を提供できます。</p>
-<p>それでは、提案プロセスをお楽しみ！</p>
-<hr />
-<h2 id="ch2"><span class="link-to-here-outer"><a href="#ch2" title="ch2"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">2.</span> パッチ送付<span class="ascii">(patch)</span></h2>
-<h3 id="概要-1"><span class="link-to-here-outer"><a href="#概要-1" title="概要-1"><span class="link-to-here">Link to<br />
-here</span></a></span>概要</h3>
-<p><span class="ascii">GHC</span>への変更提案に対するコード修正は、パッチを作成して送付することにより行われます。 ここでは、コード開発ツールである<span class="ascii">Phabricator</span>の<span class="ascii">differential</span>機能を用いる、標準的なパッチ送付の手順について紹介します。</p>
-<p>なお、修正パッチは<span class="ascii">GitHub</span>の<span class="ascii">pull request</span>を通じても送付できますが、後のコードレビューのフェーズを考慮すると、<span class="ascii">Phabricator</span>を用いるこの手順が効率的です。</p>
-<h3 id="パッチ送付の正確な手続き"><span class="link-to-here-outer"><a href="#パッチ送付の正確な手続き" title="パッチ送付の正確な手続き"><span class="link-to-here">Link to<br />
-here</span></a></span>パッチ送付の正確な手続き</h3>
-<p>パッチ作成から送付についての具体的な手続きについては以下に記載されています。</p>
-<ul>
-<li><a href="https://ghc.haskell.org/trac/ghc/wiki/WorkingConventions/FixingBugs"><span class="ascii">How to contribute a patch to GHC</span></a></li>
-<li><a href="https://ghc.haskell.org/trac/ghc/wiki/Phabricator"><span class="ascii">Using Phabricator for GHC development</span></a></li>
-</ul>
-<p>また、<span class="ascii">Phabricator</span>の詳細な操作手順については、以下に解説記事があります。</p>
-<ul>
-<li><a href="https://medium.com/@zw3rk/contributing-to-ghc-290653b63147"><span class="ascii">Contributing to GHC via Phabricator</span></a></li>
-</ul>
-<h3 id="パッチ送付のおおまかな流れ"><span class="link-to-here-outer"><a href="#パッチ送付のおおまかな流れ" title="パッチ送付のおおまかな流れ"><span class="link-to-here">Link to<br />
-here</span></a></span>パッチ送付のおおまかな流れ</h3>
-<p>パッチ送付の流れは、ざくっと以下の通りです。</p>
-<ul>
-<li>パッチの作成
-<ul>
-<li><span class="ascii">GHC</span>の<span class="ascii">build/validate</span>用環境を<a href="https://ghc.haskell.org/trac/ghc/wiki/Building/Preparation">整えておく</a></li>
-<li><span class="ascii">GHC</span>のリポジトリを<a href="https://ghc.haskell.org/trac/ghc/wiki/Building/GettingTheSources#CloningHEAD"><span class="ascii">clone</span>する</a></li>
-<li>事前に<span class="ascii">master</span>ブランチ上で、<a href="https://ghc.haskell.org/trac/ghc/wiki/Building/QuickStart"><span class="ascii">build</span>できることを確認しておく</a> <span class="ascii">(master</span>自体が<span class="ascii">fail</span>していることがあるため。<span class="ascii">)</span></li>
-<li>事前に<span class="ascii">master</span>ブランチ上で、<a href="https://ghc.haskell.org/trac/ghc/wiki/TestingPatches#Locally"><span class="ascii">validate</span>が正常終了することを確認しておく</a> <span class="ascii">(master</span>自体が<span class="ascii">fail</span>していることがあるため。<span class="ascii">)</span></li>
-<li>作業用のブランチを作り、コードを修正する
-<ul>
-<li>修正が１つの<span class="ascii">commit</span>にまとまっていると、後の<span class="ascii">arc</span>コマンドでのパッチ送付がラクです。“<span class="ascii">git merge</span> –<span class="ascii">squash</span>”でまとめられます。</li>
-</ul></li>
-<li><a href="https://ghc.haskell.org/trac/ghc/wiki/Building/RunningTests/Adding">テストケースを追加する</a> <a href="https://phabricator.haskell.org/D4235#change-AHneoV84zpis"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li>必要に応じて<a href="https://ghc.haskell.org/trac/ghc/wiki/Commentary/UserManual">ユーザーガイド</a>に変更機能についての説明を追加する <a href="https://phabricator.haskell.org/D4235#change-0p_6dVtsoCP3"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li>修正コードにて<span class="ascii">build</span>できることを確認しておく<span class="ascii">(</span>必ず行う<span class="ascii">)</span></li>
-<li>修正コードにて<span class="ascii">validate</span>が正常終了することを確認しておく<span class="ascii">(</span>必ず行う<span class="ascii">)</span></li>
-</ul></li>
-<li>パッチの送付
-<ul>
-<li><span class="ascii">Phabricator</span>用のコマンドラインツール<a href="https://ghc.haskell.org/trac/ghc/wiki/Phabricator#TheCLI:Arcanist"><span class="ascii">Arcanist</span>をインストールする</a> <span class="ascii">(</span><a href="https://secure.phabricator.com/book/phabricator/article/arcanist/"><span class="ascii">arcanist</span>ツールの説明</a><span class="ascii">)</span></li>
-<li><a href="https://ghc.haskell.org/trac/ghc/wiki/Phabricator#Startingoff:Fixingabugsubmittingareview"><span class="ascii">Phabricator</span>にパッチを送付する</a> <a href="https://phabricator.haskell.org/D4235"><span class="ascii">(</span>例<span class="ascii">)</span></a>
-<ul>
-<li>具体的なコマンドは“<span class="ascii">arc diff HEAD~</span>”。 最後の<span class="ascii">commit</span>が送信される。</li>
-</ul></li>
-<li><span class="ascii">Trac</span>の<span class="ascii">ticket</span>の、“<span class="ascii">Differential Rev</span>”の箇所に<span class="ascii">Phab</span>の管理番号を書いておく <a href="https://ghc.haskell.org/trac/ghc/ticket/14473"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-<li><span class="ascii">Phabricator</span>上で、コードレビューしてもらう（待つ、議論する）</li>
-<li>必要に応じてコードを修正する
-<ul>
-<li>コード修正後に、修正パッチを送り直すコマンドは“<span class="ascii">arc diff</span>”。</li>
-<li>レビュー待ちの間に、<span class="ascii">master</span>と<span class="ascii">conflict</span>を起こした場合は、パッチを送り直すと親切。</li>
-<li>レビュー待ちの間に、<span class="ascii">master</span>との差分が大きくなった場合は、“<span class="ascii">git rebase</span>”してから送り直すのも親切。<span class="ascii">rebase</span>については<a href="https://ghc.haskell.org/trac/ghc/wiki/Phabricator#Workingwithmultipledependentdiffs">ここを参照</a></li>
-</ul></li>
-<li>レビューが完了して<span class="ascii">master</span>ブランチに取り込まれたら、<span class="ascii">proposals</span>の“<span class="ascii">implemented</span>”のフィールドに、実装済みの<span class="ascii">GHC</span>のバージョン番号を記載しておく <a href="https://github.com/ghc-proposals/ghc-proposals/commit/1974c2a45a782461084ea596ec839638d4ff0743#diff-ffb9f607b8f1e69494a276ae9afa8268"><span class="ascii">(</span>例<span class="ascii">)</span></a></li>
-</ul></li>
-</ul>
-<h3 id="パッチ送付の例"><span class="link-to-here-outer"><a href="#パッチ送付の例" title="パッチ送付の例"><span class="link-to-here">Link to<br />
-here</span></a></span>パッチ送付の例</h3>
-<p>数値リテラルの構文を変更する場合の、具体的なパッチ送付の例を紹介します。</p>
-<ul>
-<li><a href="https://phabricator.haskell.org/D4235"><span class="ascii">https://phabricator.haskell.org/D4235</span></a></li>
-</ul>
-<p>その他のレビュー中パッチの例は以下にたくさんあります。</p>
-<ul>
-<li><a href="https://phabricator.haskell.org/differential/"><span class="ascii">https://phabricator.haskell.org/differential/</span></a></li>
-</ul>
-<h3 id="いくつかのポイントなど-1"><span class="link-to-here-outer"><a href="#いくつかのポイントなど-1" title="いくつかのポイントなど-1"><span class="link-to-here">Link to<br />
-here</span></a></span>いくつかのポイントなど</h3>
-<ul>
-<li>他の良いパッチが参考になります<span class="ascii">(</span>同じ種類の修正を探すと、修正方法や慣習や修正漏れなどを確認できます。<span class="ascii">)</span></li>
-<li><span class="ascii">build</span>確認と<span class="ascii">validation</span>確認は絶対に行う<span class="ascii">(</span>つたないコードは問題視されませんが、本来行うべき手順を行わないことは、開発全体にダメージを与えるとともに、個人の信用度に影響します。<span class="ascii">)</span></li>
-<li>数カ月単位で気長に根気よくやる<span class="ascii">(</span>パッチ作業は多数並走しており、<span class="ascii">GHC</span>のリリース時期は特に多忙です。全員がボランティアで行っている自発的な活動ですので、忘れられている状況への<span class="ascii">ping</span>は構いませんが、強い催促は控えるのが賢明です。<span class="ascii">)</span></li>
-<li>わからない点は、<span class="ascii">ghc-devs ML</span>や<span class="ascii">Phabricator</span>上で相談するとよいでしょう。</li>
-<li><span class="ascii">Phabricator(arc</span>コマンド<span class="ascii">)</span>には慣れが必要かと思います。最初は影響範囲の少ない、ドキュメント修正などで<span class="ascii">Phabricator</span>の作業手順に慣れていくのも良いです。</li>
-</ul>
-<p>パッチ送付は、<span class="ascii">Phabricator</span>や<span class="ascii">git</span>の機能を用いて行うものです。操作ミスがあったところで、<span class="ascii">GHC</span>のリポジトリ本体に直ちに反映されるわけではありません。やり直しは何度でも行えます。失敗やミスを不必要に怖れる必要はありません。<span class="ascii">community</span>のためになる<span class="ascii">contribution</span>は常に歓迎されています。</p>
-<p>それでは、パッチ送付プロセスをお楽しみ！</p>
-<hr />
-<h2 id="補足"><span class="link-to-here-outer"><a href="#補足" title="補足"><span class="link-to-here">Link to<br />
-here</span></a></span>補足</h2>
-<p>わからないことがあれば、<a href="https://mail.haskell.org/cgi-bin/mailman/listinfo/ghc-devs"><span class="ascii">ghc-devs</span>の<span class="ascii">ML</span></a>に問い合わせると親切に教えてもらえます。 もちろん、<a href="https://join-haskell-jp-slack.herokuapp.com/"><span class="ascii">Haskell-jp</span>の<span class="ascii">slack</span></a>の<span class="ascii">#questions</span>チャネルなどで尋ねるのも良いでしょう。</p>
-<p>なお、<span class="ascii">GHC</span>での開発作業については、<a href="https://ghc.haskell.org/trac/ghc/wiki/WorkingConventions"><span class="ascii">Working on GHC</span></a>も参考にどうぞ。<br />
-また、<span class="ascii">GHC</span>の開発フロー全体については、<a href="https://takenobu-hs.github.io/downloads/ghc_development_flow.pdf">こちら</a>も参考にどうぞ。<span class="ascii">GHC</span>関連のサイトの情報を力づくで検索するには、<a href="https://takenobu-hs.github.io/haskell-wiki-search/">こちら</a>もどうぞ。</p>
-<p><span class="ascii">Happy Hacking!</span></p>
-<p>以上です。</p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2018/topic-request.html" lang="ja">Haskell-jp Blogで書いてほしいネタを募集します！</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2018/unordered-containers-hash-dos.html" style="margin-left: auto;" lang="ja">hashdos脆弱性とunordered-containers</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
