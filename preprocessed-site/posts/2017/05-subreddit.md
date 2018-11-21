@@ -29,7 +29,7 @@ date: June 18, 2017
 
 ## 今後について: Slackとの使い分けは？
 
-さて、これまで[Haskell-jpのSlack](https://join-haskell-jp-slack.herokuapp.com/)では[questionsチャンネル](https://haskell-jp.slackarchive.io/questions/)を中心に、Haskellに関する数々の質問や相談が、短い期間ながら行われてきました。[randomチャンネル](https://haskell-jp.slackarchive.io/random/)などでのウェブサイトの共有もたくさんありました。
+さて、これまで[Haskell-jpのSlack](https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM)では[questionsチャンネル](https://haskell-jp.slackarchive.io/questions/)を中心に、Haskellに関する数々の質問や相談が、短い期間ながら行われてきました。[randomチャンネル](https://haskell-jp.slackarchive.io/random/)などでのウェブサイトの共有もたくさんありました。
 今後は、[Haskell-jpのsubreddit](https://www.reddit.com/r/haskell_jp/)でお悩み相談や議論を行うとして、Slackチームはどうなってしまうのでしょうか？
 
 ざっくり結論から申しますと、「好きな方を使え」というのが公式の見解です。  
@@ -43,4 +43,4 @@ Slackはもともとの日本における人気の高さも手伝い、Haskell-j
 - 前項にかかわらず、Slackに慣れているから、Slackのemoji reactionのほうが楽しいから、といった場合はSlackをご利用ください。
 - ちなみに、もちろんteratailやStackOverflowでの質問もよいでしょう。本日から、Slackの[questions-feedチャンネル](https://haskell-jp.slack.com/messages/C5UPKRGRE/convo/C4M4TT8JJ-1497217764.308002/)に質問が流れるようになりました！
 
-以上、今後も[Slackチーム](https://join-haskell-jp-slack.herokuapp.com/)、[r/haskell\_jp](https://www.reddit.com/r/haskell_jp/)ともどもよろしくお願いします！
+以上、今後も[Slackチーム](https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM)、[r/haskell\_jp](https://www.reddit.com/r/haskell_jp/)ともどもよろしくお願いします！

@@ -18,7 +18,7 @@ date: April 30, 2017
 Haskell-jp立ち上げ前、有志による議論に使用していたSlackチームを開放します！  
 下記から登録してください！
 
-<https://join-haskell-jp-slack.herokuapp.com/>
+<https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM>
 
 現時点の運用ルールは、以下のとおりです。
 
