@@ -108,16 +108,16 @@ purify scarletModeElegant (ScarletViolin DressUpKeyPhoenix)
 ```
 
 プリキュア実装の大先輩である[rubicure](https://github.com/sue445/rubicure)では、同じようなケースで実行時エラーを出すようにしていますし、PreCure Monadにおいても、`ExceptT`を使ってエラーにする、という方法が採れるでしょう。  
-しかしそこは「タイプセーフプリキュア！」。どうにかして変身していない状態での`purify`関数の実行を型エラーにして、従来のこの振る舞いと一貫させたいところですよね。  
-と、いうのが今回の課題です。
+しかしそこは「タイプセーフプリキュア！」。どうにかして、変身していない状態での`purify`関数の実行を型エラーにして、従来のこの振る舞いと一貫させたいところですよね。  
+というのが今回の課題です。
 
 # 実現方法: Indexed Monadと型レベル連想配列を使う
 
 今回の課題のとおり、「変身していない状態での`purify`関数の実行を型エラー」としつつ、「変身した状態での`purify`を型エラーとしない」ためには、`purify`や`transform`を実行する前後で、`State` Monad内で共有している値の型を変更できるようにする必要があります。  
 残念ながら、これは従来の`State` Monadでは不可能です。  
-`State s`に対する`>>=`の型が`(>>=) :: State s a -> (a -> State s b) -> State s b`となっていることから察せられるとおり、`State` Monadの中で共有する型はアクションの実行前後にかかわらず同じ`s`でないとならないためです。  
+`State s`に対する`>>=`の型が`(>>=) :: State s a -> (a -> State s b) -> State s b`となっていることから察せられるとおり、`State` Monadの中で共有する型は、アクションの実行前後にかかわらず同じ`s`でないとならないためです。  
 これはそもそも従来のMonadの仕様上やむを得ないことです。  
-従来のMonadはそもそもアクションの実行前後で、アクションの実行結果以外の方を変えることができないようになっています。  
+従来のMonadはそもそもアクションの実行前後で、アクションの実行結果以外の型を変えることができないようになっています。  
 `>>=`の型が`(>>=) :: Monad m => m a -> (a -> m b) -> m b`となっていることからしても、アクションの実行前後で`m`は`m`のままであることがわかります。
 
 この、「アクションの実行前後で、`m`の型を変えることができる」ようにしたのがIndexed Monadです。  
@@ -128,7 +128,7 @@ class IxApplicative m => IxMonad m where
   ibind :: (a -> m j k b) -> m i j a -> m i k b
 ```
 
-`IxApplicative`は名前のとおり`IxMonad`と同様に "index" が付いた`Applicative`となっています。[詳しい定義はドキュメントを](http://hackage.haskell.org/package/indexed-0.1/docs/Control-Monad-Indexed.html)をご覧ください。
+`IxApplicative`は名前のとおり`IxMonad`と同様に "index" が付いた`Applicative`となっています。[詳しい定義はドキュメント](http://hackage.haskell.org/package/indexed-0.1/docs/Control-Monad-Indexed.html)をご覧ください。
 
 さらにIndexed State Monad (`IxState`)で使えるアクションの型宣言を見れば、`IxState`で共有している状態の型が、アクションの実行前後で変更できることがよりはっきりとわかるでしょう。
 
