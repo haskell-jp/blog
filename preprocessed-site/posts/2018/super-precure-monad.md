@@ -176,7 +176,7 @@ Indexed Monadを使用することで、`State` Monadで共有している状態
 [^allstars]: 「この間の映画に出ていた人数より多くない？」と思った方へ: 「プリキュアオールスターズ」に出てくる女の子たちに加え、坂上あゆみ、ペコリン、若宮アンリ、はぐたんの4人が、タイプセーフプリキュア！の分類上`Girl`として収録されています。ちなみにキュアモフルンも収録されていますが、モフルンはあくまでも変身アイテム(`SpecialItem`)という扱いです。
 
 別の視点で見ると、これはいわゆるExtensible Recordとも似ています。  
-[extensibleパッケージ](http://hackage.haskell.org/package/extensible)や[labelsパッケージ](https://github.com/chrisdone/labels)、[superrecordパッケージ](https://www.athiemann.net/2017/07/02/superrecord.html)がそうしているように、Extensible Recordは、フィールドのラベルを表す<small>（型レベルの、静的な）</small>文字列をキーとして、それに対応する値を含んだ連想配列として表現することができるためです。  
+[extensibleパッケージ](http://hackage.haskell.org/package/extensible)や[labelsパッケージ](https://github.com/chrisdone/labels)、[superrecordパッケージ](https://www.athiemann.net/2017/07/02/superrecord.html)がそうしているように、Extensible Recordは、フィールドのラベルを表す<small>（型レベルの、静的な）</small>文字列をキーとして、それに対応する値を含んだ連想配列として見なすことができるためです。  
 事実私は今回、extensibleを使ってこの機能を実装しました。他のExtensible Recordの実装でも良かったのですが、これ以外のものを全く使ったことがないので😅。
 
 # できたもの
