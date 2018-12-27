@@ -1,5 +1,5 @@
 ---
-title: Super PreCure Monad
+title: モナド新しい力！スーパープリキュアモナド！
 headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 subHeading: ～タイプセーフプリキュア！を支える技術 その4～
