@@ -5,7 +5,7 @@ headingDivClass: post-heading
 subHeading: ～タイプセーフプリキュア！を支える技術 その4～
 author: Yuji Yamamoto
 postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
-date: December 25, 2018
+date: December 27, 2018
 tags:
 ...
 ---
