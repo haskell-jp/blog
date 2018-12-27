@@ -130,7 +130,7 @@ class IxApplicative m => IxMonad m where
 
 `IxApplicative`は名前のとおり`IxMonad`と同様に"index"が付いた`Applicative`となっています。[詳しい定義はドキュメント](http://hackage.haskell.org/package/indexed-0.1/docs/Control-Monad-Indexed.html)をご覧ください。
 
-唯一のメソッドである`ibind`が普通のMonadにおける、`>>=`の引数をひっくり返して"index"を追加したものです。  
+唯一のメソッドである`ibind`が、普通のMonadにおける`>>=`の引数をひっくり返して"index"を追加したものです。  
 `(>>=) :: Monad m => m a -> (a -> m b) -> m b`の`m`に、型引数が2つ追加されていますね？これが"index"です。  
 ある`IxMonad` `m`が`m i j a`という形で型引数を渡されている時、`i`がアクションを実行する**前**の型、`j`がアクションを実行した**後**の型を表します。  
 `a`は普通の`Monad`と同様、アクションの実行結果となっています。
