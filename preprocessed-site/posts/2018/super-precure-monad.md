@@ -79,7 +79,8 @@ scarletModeElegant <- transform scarlet (PrincessPerfume DressUpKeyPhoenix)
 ```
 
 1行目の`transform`関数が、変身する女の子である`Towa`（赤城トワ）と変身アイテムを受け取って`CureScarlet`を返し、さらにその`CureScarlet`を2行目の`transform`関数に渡すことでキュアスカーレットのモード・エレガント（`CureScarlet_ModeElegant`）を取得しています。  
-「`transform`関数が、変身する女の子である`Towa`（赤城トワ）と変身アイテムを受け取って`CureScarlet`を」返すあたり、`Towa`に**加えて**`CureScarlet`を**新しく作っている**ように聞こえることから、本来同一人物であるはずの`Towa`と`CureScarlet`が、別々のものとして扱っているように捉えられてしまいます。  
+「`transform`関数が、変身する女の子である`Towa`（赤城トワ）と変身アイテムを受け取って`CureScarlet`を」返すという箇所について、`Towa`に**加えて**`CureScarlet`を**新しく作っている**ように聞こえます。  
+本来同一人物であるはずの`Towa`と`CureScarlet`を、あたかも別々のものとして扱っているように捉えられ兼ねません。  
 そう、本来プリキュアの「変身」は女の子自身の状態を書き換えるものとして表現した方が自然なのです。
 
 Haskellでそうした「状態」を表現する場合、名前のとおりState Monadを使うのが割と一般的な方法です<small>（プログラム全体で状態を管理する場合、`IORef`や`TVar`などを使う方が例外に強く安全ではありますが、それはさておき）</small>。  
