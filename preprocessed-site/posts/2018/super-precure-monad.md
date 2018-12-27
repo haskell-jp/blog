@@ -128,16 +128,24 @@ class IxApplicative m => IxMonad m where
   ibind :: (a -> m j k b) -> m i j a -> m i k b
 ```
 
-`IxApplicative`は名前のとおり`IxMonad`と同様に "index" が付いた`Applicative`となっています。[詳しい定義はドキュメント](http://hackage.haskell.org/package/indexed-0.1/docs/Control-Monad-Indexed.html)をご覧ください。
+`IxApplicative`は名前のとおり`IxMonad`と同様に"index"が付いた`Applicative`となっています。[詳しい定義はドキュメント](http://hackage.haskell.org/package/indexed-0.1/docs/Control-Monad-Indexed.html)をご覧ください。
+
+唯一のメソッドである`ibind`が普通の`Monad`の`>>=`に、"index"を追加したものです。  
+`(>>=) :: Monad m => m a -> (a -> m b) -> m b`の`m`に、型引数が2つ追加されていますね？これが"index"です。  
+ある`IxMonad` `m`が`m i j a`という形で型引数を渡されている時、`i`がアクションを実行する**前**の型、`j`がアクションを実行した**後**の型を表します。  
+`a`は普通の`Monad`と同様、アクションの実行結果となっています。
 
 さらにIndexed State Monad (`IxState`)で使えるアクションの型宣言を見れば、`IxState`で共有している状態の型が、アクションの実行前後で変更できることがよりはっきりとわかるでしょう。
 
 ```haskell
 iget ::      IxState i i i
+-- ^ igetしてもIxStateが管理している状態は変わらないため、型もやはり変わらず。
+
 iput :: j -> IxState i j ()
+-- ^ iputするとIxStateが管理している状態は、引数で渡した値の型に変わる。
 ```
 
-おなじみ[mtlパッケージ](http://hackage.haskell.org/package/mtl)にある`State` Monadに、単純に "index" を加えただけのものとなっています。
+こちらもおなじみ[mtlパッケージ](http://hackage.haskell.org/package/mtl)にある`State` Monadに、単純に "index" を加えただけのものとなっています。
 
 [Indexed Monadの世界 - モナドとわたしとコモナド](http://fumieval.hatenablog.com/entry/2013/05/04/144840)で紹介された際のIndexed Monadは、`ido`というQuasi Quoteを使って`do`記法を無理矢理シミュレートしていましたが、現在はGHCの`RebindableSyntax`という拡張を使うことで、普通の`do`記法をそのまま利用することができるようになりました<small>（例は後で紹介します）</small>。  
 さらに、現在は`RebindableSyntax`を使った場合の諸々の問題を回避するべく、[Indexed Monadを一般化したSuper Monadと、それを簡単に使えるようにしたGHCの型チェッカープラグイン](https://github.com/jbracker/supermonad)が作られたり、[do-notationという、Indexed Monadと普通のMonadを型クラスで抽象化したパッケージ](https://github.com/isovector/do-notation)が作られたりしています。  
