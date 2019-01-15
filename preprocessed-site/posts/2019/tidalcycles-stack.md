@@ -16,11 +16,11 @@ tags: Windows, TidalCycles
 
 [Haskell - networkパッケージがうまく機能しない｜teratail](https://teratail.com/questions/167461?rss)
 
-[TidalCycles](https://tidalcycles.org/index.php/Welcome)という、Haskell製の内部DSLを書くと音楽が再生できる、というライブラリーのインストールがうまくいかない、という質問です。  
+[TidalCycles](https://tidalcycles.org/index.php/Welcome)という、Haskell製の内部DSLでシンセサイザーの演奏ができるライブラリーのインストールがうまくいかない、という質問です。  
 networkパッケージがインストールできていない、ということなのでcabal hellにでもハマったのかな、と思ったのですが、[類似しているとおぼしき報告](https://github.com/tidalcycles/tidal-chocolatey/issues/1)（と、[こちら](https://qiita.com/yoppa/items/fe21d7136f8f3aafd55c#comment-b568fc7ecb423b9bc2ce)）を読む限り、どうもGHCのインストール自体に何か問題があるように見えました。
 
-もう当の質問者はHaskell Platformをインストールすることで解決したそうですが、いずれにしても、我々Haskellerとしてはstackなりcabal new-installなりといった、慣れた方法でインストールできた方がサポートしやすいですし、きっと確実です。  
-というわけで、今回はstackでのインストールに挑戦してみました。  
+もう当の質問者はHaskell Platformをインストールすることで解決したそうですが、いずれにしても、我々Haskellerとしては、stackなりcabal new-installなりといった、慣れた方法でインストールできた方がサポートしやすいですし、きっと確実です。  
+というわけで今回はstackでのインストールに挑戦してみました。  
 すでにstackをインストールしているというHaskell開発者は多いでしょうし、そうした方がTidalCyclesを使いたくなったときの参考になれば幸いです。
 
 結論から言うとほとんど問題なくできたんですが、以下のtweetで述べたポイントにご注意ください。
@@ -41,11 +41,11 @@ networkパッケージがインストールできていない、ということ�
 # 各種依存パッケージのインストール
 
 冒頭に上げた質問をされた方が参考にしたページ [TidalCyclesのインストール2018年版 - Qiita](https://qiita.com/yoppa/items/fe21d7136f8f3aafd55c) では、Chocolateyを使ったインストール方法を紹介していますが、この方法では、直接GHCのWindows向けtarballをダウンロードしてインストールしているようです。  
-私が知る限り特にその方法でも問題はないはずなんですが、なぜか質問者が上げたようなエラーが発生してしまいます。  
+私が知る限り特にその方法でも問題はないはずなんですが、なぜか質問者が挙げたようなエラーが発生してしまいます。  
 また、TidalCyclesが実行時に依存しているSuperColliderやSuperDirtといったソフトウェアを、別のChocolateyのパッケージに分けることなく、TidalCyclesのインストールスクリプトで直接インストールしているようです<small>（詳細は[Chocolateyのパッケージ情報](https://chocolatey.org/packages/TidalCycles)に書かれたchocolateyinstall.ps1を参照されたし）</small>。  
-そのため、ChocolateyでTidalCyclesをインストールしようとすると、問題のあるGHCとSuperColliderなどの依存パッケージを一緒にインストールしなければなりませんし、SuperColliderやSuperDirtだけをChocolateyでインストールすることもできません。
+そのため、ChocolateyでTidalCyclesをインストールしようとすると、問題のあるGHCと、SuperColliderなどの依存パッケージを一緒にインストールしなければなりませんし、SuperColliderやSuperDirtだけをChocolateyでインストールすることもできません。
 
-なので、ここは素直に[TidalCycles公式のWiki](https://tidalcycles.org/index.php/Windows_installation)に書かれた方法に従い、Haskell関連のものだけstackでインストールしようと思います。
+なので、ここは素直に[TidalCycles公式のWiki](https://tidalcycles.org/index.php/Windows_installation)に書かれた方法に従ってSuperColliderやSuperDirtをインストールしつつ、Haskell関連のものだけstackでインストールしようと思います。
 
 ## [TidalCycles公式のWiki](https://tidalcycles.org/index.php/Windows_installation)そのままの手順
 
@@ -55,7 +55,7 @@ networkパッケージがインストールできていない、ということ�
   今回は「Windows」の箇所に書いてある「3.10.0, 64-bit (no SuperNova)」というリンクをクリックしてダウンロードされた実行ファイルをインストールしました。
 1. [Atom](https://atom.io/)も公式サイトからインストールしました。  
   後で触れますTidalCyclesの対話環境を、Atom上で呼び出すためのプラグインがあるためです。他のエディタ向けのプラグインもありますが、公式サイトで紹介していたのはAtomなので、一番これがサポートされているのでしょう。
-1. GitもPrerequisitesとして上げられていますが、すでに私の環境に入っているので今回は特に何もせず。なければ普通に[Git for Windows](https://gitforwindows.org/)を入れるのが無難かと思います。
+1. GitもPrerequisitesとして上げられていますが、すでに私の環境に入っているので今回は特に何もしていません。なければ普通に[Git for Windows](https://gitforwindows.org/)を入れるのが無難かと思います。
 1. SuperDirtのインストール
     1. SuperColliderをスタートメニューから起動します。
     1. ウィンドウの左側にある「Untitled」と書かれた箇所の下がSuperColliderのエディタになっているようです<small>（色がわかりづらい！）</small>。  
@@ -89,8 +89,8 @@ extra-deps:         # <= この行と、
 
 簡単に編集した内容について解説させてください。
 
-まず、`resolver:`で始まる行ですが、これは「LTS Haskell」というパッケージの集合のバージョンを指定するものです。  
-「LTS Haskell」は、「確実にビルドできるバージョンのパッケージの集合」をまとめた一覧です。  
+まず、`resolver:`で始まる行ですが、これは「LTS Haskell」という、パッケージの集合のバージョンを指定するものです。  
+「LTS Haskell」は、「確実にビルドできるバージョンのパッケージをまとめた一覧」です。  
 LTS Haskellのメンテナーの方々は、毎日登録された大量のパッケージをまとめてビルド・テストしてみることで、実際に登録されたバージョンのパッケージのビルドとテストが成功することを確認しています。  
 なので、このLTS Haskellに登録されているバージョンのパッケージを使う限りは、私たちは安心してビルドができると言うことです。
 
@@ -146,8 +146,8 @@ stackは使用するGHCを、前述のstack.yamlに書いたLTS Haskellのバー
         - [BootTidal.hs](https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs)というファイルを`:load`しているみたいです。
 1. 動作確認のために、適当なTidalCyclesの式 --- 例えば公式サイトのWikiどおり`d1 $ sound "bd sn"` --- を入力して、入力した行にカーソルを置き、「Shift + Enter」を押しましょう。
     1. 入力した式が画面下部で起動したGHCiに送信され、実行されます。うまくいっていれば音が鳴るはずです。
-    1. 停止させたいときは、`d1 silence`と入力して同じく「Shift + Enter」を推してください。
-1. より詳しくは、[TidalCyclesのチュートリアル1 - Qiita](https://qiita.com/mk668a/items/6e8e0151817f484a526c)など、他の方が書いた記事を検索してみてください。
+    1. 停止させたいときは、`d1 silence`と入力して同じく「Shift + Enter」を押してください。
+1. より詳しいTidalCyclesの使い方は、[TidalCyclesのチュートリアル1 - Qiita](https://qiita.com/mk668a/items/6e8e0151817f484a526c)など、他の方が書いた記事を検索してみてください。
 
 # ハマったこと
 
@@ -225,7 +225,7 @@ let d3 = p 3
 そして、`let p = streamReplace tidal`という行で、その`tidal`を`streamReplace`関数に[部分適用](http://capm-network.com/?tag=Haskell-%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8)することで、その`p`に整数<small>（シンセサイザーの番号だそうです）</small>をさらに部分適用した`d1`、`d2`などの関数へ、間接的に`tidal`を渡しています。  
 つまり`d1`や`d2`などの関数は、何らかの形で、SuperDirtへの接続情報について知っている必要があるのです。  
 DSLとして、`d1`や`d2`などの関数に毎回接続情報を渡すのは煩雑だと考えたのでしょう。  
-そして、通常のHaskellでそのように、外部のサーバーに接続した結果取得されるものを暗黙に使えるようにしたい場合、 --- つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 --- 少なくともパッケージを`import`するだけではうまくいきません[^TemplateHaskell]。  
+そして、通常のHaskellがそうであるように、外部のサーバーに接続した結果取得されるものを暗黙に使えるようにしたい場合、 --- つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 --- 少なくともパッケージを`import`するだけではうまくいきません[^TemplateHaskell]。  
 BootTidal.hsのように、SuperDirtのような外部に接続する処理を、GHCiの実行時に書かなければならないのです。
 
 [TemplateHaskell]: 後で軽く触れる、Template Haskellという邪悪なテクニックを使わない限りは。
