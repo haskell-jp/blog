@@ -52,7 +52,7 @@ networkパッケージがインストールできていない、ということ�
 **⚠️行く先々でWindowsのファイアウォールの警告が出るかと思います。適当に承認しちゃってください！⚠️**
 
 1. [SuperColliderを公式サイトからインストール](https://supercollider.github.io/download)します。  
-  今回は「Windows」の箇所に書いてある「3.10.0, 64-bit (no SuperNova)」というリンクをクリックしてダウンロードされた実行ファイルをインストールしました。
+  今回は「Windows」の箇所に書いてある「3.10.0, 64-bit (no SuperNova)」というリンクをクリックしてダウンロードされた実行ファイルでインストールしました。
 1. [Atom](https://atom.io/)も公式サイトからインストールしました。  
   後で触れますTidalCyclesの対話環境を、Atom上で呼び出すためのプラグインがあるためです。他のエディタ向けのプラグインもありますが、公式サイトで紹介していたのはAtomなので、一番これがサポートされているのでしょう。
 1. GitもPrerequisitesとして上げられていますが、すでに私の環境に入っているので今回は特に何もしていません。なければ普通に[Git for Windows](https://gitforwindows.org/)を入れるのが無難かと思います。
@@ -89,18 +89,18 @@ extra-deps:         # <= この行と、
 
 簡単に編集した内容について解説させてください。
 
-まず、`resolver:`で始まる行ですが、これは「LTS Haskell」という、パッケージの集合のバージョンを指定するものです。  
+まず、`resolver:`で始まる行ですが、これは「LTS Haskell」という、パッケージの一覧のバージョンを指定するものです。  
 「LTS Haskell」は、「確実にビルドできるバージョンのパッケージをまとめた一覧」です。  
 LTS Haskellのメンテナーの方々は、毎日登録された大量のパッケージをまとめてビルド・テストしてみることで、実際に登録されたバージョンのパッケージのビルドとテストが成功することを確認しています。  
 なので、このLTS Haskellに登録されているバージョンのパッケージを使う限りは、私たちは安心してビルドができると言うことです。
 
-なぜLTS Haskellのバージョンを書き換えたのかというと、それは、LTS Haskellには実際にはパッケージの集合だけでなく、それらをビルドできるGHCのバージョンも含まれているからです。  
-したがって、LTS Haskellのバージョンを指定する、ということは、そのままインストールするGHCのバージョンも指定することになります[lts-haskell]。  
+なぜLTS Haskellのバージョンを書き換えたのかというと、それは、LTS Haskellには実際にはパッケージの一覧だけでなく、それらをビルドできるGHCのバージョンも含まれているからです。  
+したがって、LTS Haskellのバージョンを指定する、ということは、そのままインストールするGHCのバージョンも指定することになります[^lts-haskell]。  
 実は特に今回の場合、インストールするGHCのバージョンを指定しなければ、ビルドできない可能性が高かったのです。  
 現在の最新のLTS Haskellに登録されているGHCのバージョンは「8.6.3」ですが、残念ながらこのバージョンのGHCには、[Windows版のみにおいて深刻なバグ](https://ghc.haskell.org/trac/ghc/ticket/16057)があります。  
 実際にTidalCyclesをビルドする際にこのバグに遭遇するかは確かめてませんが、内容からして遭遇する確率が高そうであるという点と、遭遇するとビルドができないという点を考慮して、念のため確実にビルドできるバージョンのGHCを指定しておきました。
 
-[lts-haskell]: どのバージョンのLTS HaskellでどのバージョンのGHCがインストールされるかは、LTS Haskellを管理している[「Stackage」というウェブサイトのトップページ](https://www.stackage.org/)にある、「Latest LTS per GHC version」というセクションをご覧ください。
+[^lts-haskell]: どのバージョンのLTS HaskellでどのバージョンのGHCがインストールされるかは、LTS Haskellを管理している[「Stackage」というウェブサイトのトップページ](https://www.stackage.org/)にある、「Latest LTS per GHC version」というセクションをご覧ください。
 
 そして、`extra-deps`という項目は、ビルドしようとしているパッケージ<small>（今回の場合`tidal`パッケージ）</small>が依存しているパッケージが、LTS Haskellに登録されていない場合に指定するものです。  
 [tidalパッケージ ver. 1.0.6のパッケージ情報](http://hackage.haskell.org/package/tidal-1.0.6)を確認すると、確かにhoscというパッケージに依存していると書かれていますね！   
@@ -143,7 +143,7 @@ stackは使用するGHCを、前述のstack.yamlに書いたLTS Haskellのバー
     1. Atomを起動して、拡張子が`.tidal`なファイルを開くか作成します。
     1. メニューを「Packages」 -\> 「TidalCycles」 -\> 「Boot TidalCycles」の順に選択してください。
     1. 画面下部でGHCiが起動し、TidalCyclesの式を実行するのに必要なパッケージの`import`や、`import`では賄いきれない関数の定義などが自動的に行われます。
-        - [BootTidal.hs](https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs)というファイルを`:load`しているみたいです。
+        - [BootTidal.hs](https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs)というファイルの中身をGHCiに貼り付けているみたいです。
 1. 動作確認のために、適当なTidalCyclesの式 --- 例えば公式サイトのWikiどおり`d1 $ sound "bd sn"` --- を入力して、入力した行にカーソルを置き、「Shift + Enter」を押しましょう。
     1. 入力した式が画面下部で起動したGHCiに送信され、実行されます。うまくいっていれば音が鳴るはずです。
     1. 停止させたいときは、`d1 silence`と入力して同じく「Shift + Enter」を押してください。
@@ -199,11 +199,11 @@ TidalCyclesは、Haskell製の内部DSLとしては、ちょっと変わって�
 このBootTidal.hsはAtomのプラグインの設定で簡単に切り替えることができるものなので、もし間違ったファイルに設定してしまったら、言語の標準にあたる関数がおかしな動作をすることになりかねませんし、あまり良いやり方だとは思えません。本来なら設定に混ぜて書くべきものではないでしょう。  
 
 なぜTidalCyclesはこんな仕様になっているかというと、それにはある意味Haskellらしい制約が絡んでいると推測されます。  
-Atom上でTidalCyclesを起動する、というのは、実際にはGHCiを起動して、[BootTidal.hs](https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs)というファイルを読み込ませる、ということなのでした<small>（事実、Atomなどのエディターを介さなくとも、お使いのターミナルエミュレーターから`ghci`コマンドを起動してBootTidal.hsファイルを読むだけで、TidalCyclesは利用できます）</small>。  
+Atom上でTidalCyclesを起動する、というのは、実際にはGHCiを起動して、[BootTidal.hs](https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs)というファイルを読み込ませる、ということなのでした<small>（事実、Atomなどのエディターを介さなくとも、お使いのターミナルエミュレーターから`ghci`コマンドを起動してBootTidal.hsファイルの中身をコピペするだけで、TidalCyclesは利用できます）</small>。  
 そのBootTidal.hsの中身を見てみると、サンプルで実行した`d1`という関数が、下記のように定義されていることがわかります。
 
 ```haskell
--- ...
+-- ... 省略 ...
 import Sound.Tidal.Context
 
 -- total latency = oLatency + cFrameTimespan
@@ -211,7 +211,7 @@ tidal <- startTidal (superdirtTarget {oLatency = 0.1, oAddress = "127.0.0.1", oP
 
 let p = streamReplace tidal
 
--- ...
+-- ... 省略 ...
 
 let d1 = p 1
 let d2 = p 2
@@ -228,7 +228,7 @@ DSLとして、`d1`や`d2`などの関数に毎回接続情報を渡すのは煩
 そして、通常のHaskellがそうであるように、外部のサーバーに接続した結果取得されるものを暗黙に使えるようにしたい場合、 --- つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 --- 少なくともパッケージを`import`するだけではうまくいきません[^TemplateHaskell]。  
 BootTidal.hsのように、SuperDirtのような外部に接続する処理を、GHCiの実行時に書かなければならないのです。
 
-[TemplateHaskell]: 後で軽く触れる、Template Haskellという邪悪なテクニックを使わない限りは。
+[^TemplateHaskell]: 後で軽く触れる、Template Haskellという邪悪なテクニックを使わない限りは。
 
 しかし、`tidal <- startTidal`の行で作られるSuperDirtへの接続情報を`d1`などの関数が暗黙に利用できるようにすることは、実際にはBootTidal.hsで行っているような方法を使わなくともできます。  
 そうすることで、BootTidal.hsを変なファイルに切り替えてしまって、`d1`などの関数の定義が間違ったものになってしまう<small>（あるいはそもそも定義されなくなってしまう）</small>リスクを回避できます。  
