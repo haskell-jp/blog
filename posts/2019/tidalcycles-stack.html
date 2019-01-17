@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="TidalCyclesをstackで確実にインストールする">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="TidalCyclesをstackで確実にインストールする - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/tidalcycles-stack.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---# 背景先日teratailのHaskellタグを眺めていたところ、下記のような質問がありました。[Haskell - networkパッケージがうまく機能しない｜teratail](https://teratail.com/questions/167461?rss)[TidalCycles](https://tidalcycles.org/index.php/Welcome)という、Has" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>TidalCyclesをstackで確実にインストールする - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>TidalCyclesをstackで確実にインストールする</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on January 17, 2019</span><span class="meta">Tags: Windows, TidalCycles</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#背景" title="背景">背景</a></li>
+<li><a href="#実行した環境" title="実行した環境">実行した環境</a></li>
+<li><a href="#各種依存パッケージのインストール" title="各種依存パッケージのインストール">各種依存パッケージのインストール</a>
+<ul>
+<li><a href="#tidalcycles公式のwikiそのままの手順" title="tidalcycles公式のwikiそのままの手順"><span class="ascii">TidalCycles</span>公式の<span class="ascii">Wiki</span>そのままの手順</a></li>
+<li><a href="#tidalcycles公式のwikiとは異なる手順" title="tidalcycles公式のwikiとは異なる手順"><span class="ascii">TidalCycles</span>公式の<span class="ascii">Wiki</span>とは異なる手順</a>
+<ul>
+<li><a href="#stackでのtidalcyclesのビルド" title="stackでのtidalcyclesのビルド"><span class="ascii">stack</span>での<span class="ascii">TidalCycles</span>のビルド</a></li>
+<li><a href="#atomのプラグインの設定" title="atomのプラグインの設定"><span class="ascii">Atom</span>のプラグインの設定</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#使い方動作確認" title="使い方動作確認">使い方・動作確認</a>
+<ul>
+<li><a href="#tidalcyclesを起動する度に必要になる手順" title="tidalcyclesを起動する度に必要になる手順"><span class="ascii">TidalCycles</span>を起動する度に必要になる手順</a></li>
+</ul></li>
+<li><a href="#ハマったこと" title="ハマったこと">ハマったこと</a>
+<ul>
+<li><a href="#superdirtが見つからないという趣旨のエラーが出た" title="superdirtが見つからないという趣旨のエラーが出た">「<span class="ascii">SuperDirt</span>が見つからない！」という趣旨のエラーが出た</a></li>
+<li><a href="#atom上でtidalcyclesを起動した際parse-error" title="atom上でtidalcyclesを起動した際parse-error"><span class="ascii">Atom</span>上で<span class="ascii">TidalCycles</span>を起動した際、<code>parse error</code></a></li>
+<li><a href="#superdirtを起動し忘れていても何もエラーが起きない" title="superdirtを起動し忘れていても何もエラーが起きない"><span class="ascii">SuperDirt</span>を起動し忘れていても何もエラーが起きない</a></li>
+</ul></li>
+<li><a href="#おわりに-haskell開発者として見たtidalcycles" title="おわりに-haskell開発者として見たtidalcycles">おわりに<span class="ascii">: Haskell</span>開発者として見た<span class="ascii">TidalCycles</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="背景"><span class="link-to-here-outer"><a href="#背景" title="背景"><span class="link-to-here">Link to<br />
+here</span></a></span>背景</h1>
+<p>先日<span class="ascii">teratail</span>の<span class="ascii">Haskell</span>タグを眺めていたところ、下記のような質問がありました。</p>
+<p><a href="https://teratail.com/questions/167461?rss"><span class="ascii">Haskell - network</span>パッケージがうまく機能しない｜<span class="ascii">teratail</span></a></p>
+<p><a href="https://tidalcycles.org/index.php/Welcome"><span class="ascii">TidalCycles</span></a>という、<span class="ascii">Haskell</span>製の内部<span class="ascii">DSL</span>でシンセサイザーの演奏ができるライブラリーのインストールがうまくいかない、という質問です。<br />
+<span class="ascii">network</span>パッケージがインストールできていない、ということなので<span class="ascii">cabal hell</span>にでもハマったのかな、と思ったのですが、<a href="https://github.com/tidalcycles/tidal-chocolatey/issues/1">類似しているとおぼしき報告</a>（と、<a href="https://qiita.com/yoppa/items/fe21d7136f8f3aafd55c#comment-b568fc7ecb423b9bc2ce">こちら</a>）を読む限り、どうも<span class="ascii">GHC</span>のインストール自体に何か問題があるように見えました。</p>
+<p>もう当の質問者は<span class="ascii">Haskell Platform</span>をインストールすることで解決したそうですが、いずれにしても、我々<span class="ascii">Haskeller</span>としては、<span class="ascii">stack</span>なり<span class="ascii">cabal new-install</span>なりといった、慣れた方法でインストールできた方がサポートしやすいですし、きっと確実です。<br />
+というわけで今回は<span class="ascii">stack</span>でのインストールに挑戦してみました。<br />
+すでに<span class="ascii">stack</span>をインストールしているという<span class="ascii">Haskell</span>開発者は多いでしょうし、そうした方が<span class="ascii">TidalCycles</span>を使いたくなったときの参考になれば幸いです。</p>
+<p>結論から言うとほとんど問題なくできたんですが、以下の<span class="ascii">tweet</span>で述べたポイントにご注意ください。</p>
+<blockquote class="twitter-tweet" data-lang="ja">
+<p lang="ja" dir="ltr">
+<span class="ascii">TidalCycles, Atom</span>の<span class="ascii">package</span>の設定で<span class="ascii">stack exec ghci</span>を使うよう設定したら普通に<span class="ascii">stack</span>で入れた<span class="ascii">GHC</span>から使えましたわ。<br>ポイントは、<br><span class="ascii">- hosc-0.17</span>の<span class="ascii">stack.yaml</span>の<span class="ascii">extra-deps</span>に加えないといけない<br><span class="ascii">- Windows</span>で<span class="ascii">GHC 8.6.3</span>は地雷なので<span class="ascii">LTS 12.26</span>を使う<br><span class="ascii">- ~/.ghci</span>で<span class="ascii">:set +m</span>してるとうまく動かない<br>ぐらいか。
+</p>
+— <span class="ascii">Yuji Yamamoto:</span> 山本悠滋 <span class="ascii">(</span><span class="citation" data-cites="igrep"><span class="ascii">@igrep</span></span><span class="ascii">)</span> <a href="https://twitter.com/igrep/status/1082475580753207296?ref_src=twsrc%5Etfw"><span class="ascii">2019</span>年<span class="ascii">1</span>月<span class="ascii">8</span>日</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<h1 id="実行した環境"><span class="link-to-here-outer"><a href="#実行した環境" title="実行した環境"><span class="link-to-here">Link to<br />
+here</span></a></span>実行した環境</h1>
+<ul>
+<li><span class="ascii">Windows 10 Pro 64bit ver. 1809</span></li>
+<li><code>stack --version</code><span class="ascii">: Version 1.9.1, Git revision f9d0042c141660e1d38f797e1d426be4a99b2a3c (6168 commits) x86_64 hpack-0.31.0</span></li>
+<li><span class="ascii">TidalCycles:</span> <a href="http://hackage.haskell.org/package/tidal-1.0.6"><span class="ascii">1.0.6</span></a></li>
+<li><span class="ascii">SuperCollider: 3.10.0, 64bit</span></li>
+<li><span class="ascii">Atom: 1.34.0</span></li>
+<li><span class="ascii">Atom</span>の<span class="ascii">tidalcycles</span>プラグイン<span class="ascii">: 0.14.0</span></li>
+</ul>
+<h1 id="各種依存パッケージのインストール"><span class="link-to-here-outer"><a href="#各種依存パッケージのインストール" title="各種依存パッケージのインストール"><span class="link-to-here">Link to<br />
+here</span></a></span>各種依存パッケージのインストール</h1>
+<p>冒頭に挙げた質問をされた方が参考にしたページ <a href="https://qiita.com/yoppa/items/fe21d7136f8f3aafd55c"><span class="ascii">TidalCycles</span>のインストール<span class="ascii">2018</span>年版 <span class="ascii">- Qiita</span></a> では、<span class="ascii">Chocolatey</span>を使ったインストール方法を紹介していますが、この方法では、直接<span class="ascii">GHC</span>の<span class="ascii">Windows</span>向け<span class="ascii">tarball</span>をダウンロードしてインストールしているようです。<br />
+私が知る限り特にその方法でも問題はないはずなんですが、なぜか質問者が挙げたようなエラーが発生してしまいます。<br />
+また、<span class="ascii">TidalCycles</span>が実行時に依存している<span class="ascii">SuperCollider</span>や<span class="ascii">SuperDirt</span>といったソフトウェアを、別の<span class="ascii">Chocolatey</span>のパッケージに分けることなく、<span class="ascii">TidalCycles</span>のインストールスクリプトで直接インストールしているようです<small>（詳細は<a href="https://chocolatey.org/packages/TidalCycles"><span class="ascii">Chocolatey</span>のパッケージ情報</a>に書かれた<span class="ascii">chocolateyinstall.ps1</span>を参照されたし）</small>。<br />
+そのため、<span class="ascii">Chocolatey</span>で<span class="ascii">TidalCycles</span>をインストールしようとすると、問題のある<span class="ascii">GHC</span>と、<span class="ascii">SuperCollider</span>などの依存パッケージを一緒にインストールしなければなりませんし、<span class="ascii">SuperCollider</span>や<span class="ascii">SuperDirt</span>だけを<span class="ascii">Chocolatey</span>でインストールすることもできません。</p>
+<p>なので、ここは素直に<a href="https://tidalcycles.org/index.php/Windows_installation"><span class="ascii">TidalCycles</span>公式の<span class="ascii">Wiki</span></a>に書かれた方法に従って<span class="ascii">SuperCollider</span>や<span class="ascii">SuperDirt</span>をインストールしつつ、<span class="ascii">Haskell</span>関連のものだけ<span class="ascii">stack</span>でインストールしようと思います。</p>
+<h2 id="tidalcycles公式のwikiそのままの手順"><span class="link-to-here-outer"><a href="#tidalcycles公式のwikiそのままの手順" title="tidalcycles公式のwikiそのままの手順"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://tidalcycles.org/index.php/Windows_installation"><span class="ascii">TidalCycles</span>公式の<span class="ascii">Wiki</span></a>そのままの手順</h2>
+<p><strong>⚠️行く先々で<span class="ascii">Windows</span>のファイアウォールの警告が出るかと思います。適当に承認しちゃってください！⚠️</strong></p>
+<ol type="1">
+<li><a href="https://supercollider.github.io/download"><span class="ascii">SuperCollider</span>を公式サイトからインストール</a>します。<br />
+今回は「<span class="ascii">Windows</span>」の箇所に書いてある「<span class="ascii">3.10.0, 64-bit (no SuperNova)</span>」というリンクをクリックしてダウンロードされた実行ファイルでインストールしました。</li>
+<li><a href="https://atom.io/"><span class="ascii">Atom</span></a>も公式サイトからインストールしました。<br />
+後で触れます<span class="ascii">TidalCycles</span>の対話環境を、<span class="ascii">Atom</span>上で呼び出すためのプラグインがあるためです。他のエディタ向けのプラグインもありますが、公式サイトで紹介していたのは<span class="ascii">Atom</span>なので、一番これがサポートされているのでしょう。</li>
+<li><span class="ascii">Git</span>も<span class="ascii">Prerequisites</span>として挙げられていますが、すでに私の環境に入っているので今回は特に何もしていません。なければ普通に<a href="https://gitforwindows.org/"><span class="ascii">Git for Windows</span></a>を入れるのが無難かと思います。</li>
+<li><span class="ascii">SuperDirt</span>のインストール
+<ol type="1">
+<li><span class="ascii">SuperCollider</span>をスタートメニューから起動します。</li>
+<li>ウィンドウの左側にある「<span class="ascii">Untitled</span>」と書かれた箇所の下が<span class="ascii">SuperCollider</span>のエディタになっているようです<small>（色がわかりづらい！）</small>。<br />
+そこに<code>include(&quot;SuperDirt&quot;)</code>と書いて、「<span class="ascii">Shift + Enter</span>」を押せば、<span class="ascii">SuperDirt</span>のインストールが始まります。</li>
+<li>次のセクションで<span class="ascii">SuperDirt</span>を起動する前に、<strong>一旦<span class="ascii">SuperCollider</span>を終了</strong>させましょう。</li>
+</ol></li>
+<li><span class="ascii">Atom</span>向け<span class="ascii">tidalcycles</span>プラグインのインストール
+<ul>
+<li>面倒なので省略します。他のプラグインと変わらないはずなので適当に検索してください！</li>
+</ul></li>
+</ol>
+<h2 id="tidalcycles公式のwikiとは異なる手順"><span class="link-to-here-outer"><a href="#tidalcycles公式のwikiとは異なる手順" title="tidalcycles公式のwikiとは異なる手順"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">TidalCycles</span>公式の<span class="ascii">Wiki</span>とは異なる手順</h2>
+<p>ここからはこの記事特有の手順です。<br />
+最近の<span class="ascii">Haskell</span>開発者は、<a href="https://docs.haskellstack.org/en/stable/README/"><span class="ascii">stack</span></a>というツールを使って開発環境を整えることが多いですので、冒頭の予告通りここでは<span class="ascii">stack</span>を使います。<br />
+ちなみに、現在は<span class="ascii">Haskell Platform</span>にも<span class="ascii">stack</span>が添付されていますが、<span class="ascii">Haskell Platform</span>に含まれる、<span class="ascii">GHC</span>は<span class="ascii">stack</span>を使うことでも簡単にインストールできるため、<span class="ascii">stack</span>のみをインストールすれば十分です。<br />
+なお、<span class="ascii">stack</span>自体のインストール方法については拙作の<a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell#%E3%81%BE%E3%81%A0stack%E3%82%84haskell-platform%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%97%E3%81%A6%E3%81%84%E3%81%AA%E3%81%84%E5%A0%B4%E5%90%88%E3%81%AF">「失敗しながら学ぶ<span class="ascii">Haskell</span>入門」の<span class="ascii">README</span></a>をご覧ください。<br />
+<span class="ascii">Windows</span>ではインストーラーをダウンロードして実行するだけで十分でしょう。</p>
+<p><span class="ascii">stack</span>のインストールが終わったら、次の手順を踏んでください。</p>
+<h3 id="stackでのtidalcyclesのビルド"><span class="link-to-here-outer"><a href="#stackでのtidalcyclesのビルド" title="stackでのtidalcyclesのビルド"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">stack</span>での<span class="ascii">TidalCycles</span>のビルド</h3>
+<p><span class="ascii">stack</span>で<span class="ascii">TidalCycles</span>のビルドをするには、<code>C:\sr\global-project\stack.yaml</code>というファイルを、下記でコメントしたように書き換えてください。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># ... 省略 ...</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="fu">packages:</span><span class="at"> </span><span class="kw">[]</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="fu">resolver:</span><span class="at"> lts-12.26 </span><span class="co"># &lt;= ここを編集</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="fu">extra-deps:</span><span class="at">         </span><span class="co"># &lt;= この行と、</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw">-</span> hosc-0.17         <span class="co"># &lt;= この行を追記</span></a></code></pre></div>
+<p>簡単に編集した内容について解説させてください。</p>
+<p>まず、<code>resolver:</code>で始まる行ですが、これは「<span class="ascii">LTS Haskell</span>」という、パッケージの一覧のバージョンを指定するものです。<br />
+「<span class="ascii">LTS Haskell</span>」は、「確実にビルドできるバージョンのパッケージをまとめた一覧」です。<br />
+<span class="ascii">LTS Haskell</span>のメンテナーの方々は、毎日登録された大量のパッケージをまとめてビルド・テストしてみることで、実際に登録されたバージョンのパッケージのビルドとテストが成功することを確認しています。<br />
+なので、この<span class="ascii">LTS Haskell</span>に登録されているバージョンのパッケージを使う限りは、私たちは安心してビルドができると言うことです。</p>
+<p>なぜ<span class="ascii">LTS Haskell</span>のバージョンを書き換えたのかというと、それは、<span class="ascii">LTS Haskell</span>には実際にはパッケージの一覧だけでなく、それらをビルドできる<span class="ascii">GHC</span>のバージョンも含まれているからです。<br />
+したがって、<span class="ascii">LTS Haskell</span>のバージョンを指定する、ということは、そのままインストールする<span class="ascii">GHC</span>のバージョンも指定することになります<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+実は特に今回の場合、インストールする<span class="ascii">GHC</span>のバージョンを指定しなければ、ビルドできない可能性が高かったのです。<br />
+現在の最新の<span class="ascii">LTS Haskell</span>に登録されている<span class="ascii">GHC</span>のバージョンは「<span class="ascii">8.6.3</span>」ですが、残念ながらこのバージョンの<span class="ascii">GHC</span>には、<a href="https://ghc.haskell.org/trac/ghc/ticket/16057"><span class="ascii">Windows</span>版のみにおいて深刻なバグ</a>があります。<br />
+実際に<span class="ascii">TidalCycles</span>をビルドする際にこのバグに遭遇するかは確かめてませんが、内容からして遭遇する確率が高そうであるという点と、遭遇するとビルドができないという点を考慮して、念のため確実にビルドできるバージョンの<span class="ascii">GHC</span>を指定しておきました。</p>
+<p>そして、<code>extra-deps</code>という項目は、ビルドしようとしているパッケージ<small>（今回の場合<code>tidal</code>パッケージ）</small>が依存しているパッケージが、<span class="ascii">LTS Haskell</span>に登録されていない場合に指定するものです。<br />
+<a href="http://hackage.haskell.org/package/tidal-1.0.6"><span class="ascii">tidal</span>パッケージ <span class="ascii">ver. 1.0.6</span>のパッケージ情報</a>を確認すると、確かに<span class="ascii">hosc</span>というパッケージに依存していると書かれていますね！<br />
+残念ながらこの<span class="ascii">hosc</span>パッケージは今回指定した、<span class="ascii">LTS Haskell</span>の<span class="ascii">ver. 12.26</span>には登録されていないので、上記のとおり<code>extra-deps</code>に明記しておいてください。</p>
+<p><code>C:\sr\global-project\stack.yaml</code>の編集が終わったら、</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="ex">stack</span> build tidal</a></code></pre></div>
+<p>と実行しましょう。<br />
+初回は<span class="ascii">GHC</span>のインストールも含めて行われるので、結構時間がかかると思います。</p>
+<p>ちなみに、<code>stack install tidal</code>と実行してもいいですが、<span class="ascii">stack</span>の仕様上、特に結果は変わりません。<br />
+<code>stack install</code>は、実行ファイルがついたパッケージをビルドして<code>PATH</code>にインストールするためのコマンドなので、<code>tidal</code>のように実行ファイルがないパッケージでは意味がありません。</p>
+<h3 id="atomのプラグインの設定"><span class="link-to-here-outer"><a href="#atomのプラグインの設定" title="atomのプラグインの設定"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Atom</span>のプラグインの設定</h3>
+<p>続いて、<span class="ascii">Atom</span>の<span class="ascii">tidalcycles</span>プラグインの設定をしましょう。<br />
+<span class="ascii">stack</span>は使用する<span class="ascii">GHC</span>を、前述の<span class="ascii">stack.yaml</span>に書いた<span class="ascii">LTS Haskell</span>のバージョンに応じて切り替える関係上、<code>PATH</code>の通ったところに<span class="ascii">GHC</span>をインストールしません。<br />
+そのため、<span class="ascii">Atom</span>の<span class="ascii">tidalcycles</span>プラグインに、<span class="ascii">stack</span>がインストールした<span class="ascii">GHC</span>を認識させるには、下記のように設定を書き換える必要があります。</p>
+<ol type="1">
+<li><span class="ascii">Atom</span>を起動し、「<span class="ascii">File</span>」 <span class="ascii">-&gt;</span> 「<span class="ascii">Settings</span>」の順にメニューをクリックして、<span class="ascii">Atom</span>の設定画面を開きます。</li>
+<li>画面左側の「📦<span class="ascii">Packages</span>」と書かれた箇所をクリックすると、インストールした<span class="ascii">Atom</span>のプラグインの一覧が表示されるはずです。</li>
+<li>一覧から「<span class="ascii">tidalcycles</span>」を探して、「⚙️<span class="ascii">Settings</span>」をクリックします。</li>
+<li>「<span class="ascii">Ghci Path</span>」という設定項目があるので、それを<code>stack exec ghci</code>に書き換えてください。</li>
+</ol>
+<h1 id="使い方動作確認"><span class="link-to-here-outer"><a href="#使い方動作確認" title="使い方動作確認"><span class="link-to-here">Link to<br />
+here</span></a></span>使い方・動作確認</h1>
+<h2 id="tidalcyclesを起動する度に必要になる手順"><span class="link-to-here-outer"><a href="#tidalcyclesを起動する度に必要になる手順" title="tidalcyclesを起動する度に必要になる手順"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">TidalCycles</span>を起動する度に必要になる手順</h2>
+<p>※<a href="https://tidalcycles.org/index.php/Start_tidalcycles_and_superdirt_for_the_first_time">公式サイトのこちらのページ</a>に対応しています。</p>
+<ol type="1">
+<li><span class="ascii">SuperDirt</span>の起動
+<ol type="1">
+<li><span class="ascii">SuperCollider</span>をスタートメニューから起動します。</li>
+<li>先ほど<code>include(&quot;SuperDirt&quot;)</code>と入力した、<span class="ascii">SuperCollider</span>のエディタに、今度は<code>SuperDirt.start</code>と入力して、同じく「<span class="ascii">Shift + Enter</span>」しましょう。<br />
+<span class="ascii">SuperDirt</span>が起動します。</li>
+</ol></li>
+<li><span class="ascii">Atom</span>上での<span class="ascii">TidalCycles</span>の起動
+<ol type="1">
+<li><span class="ascii">Atom</span>を起動して、拡張子が<code>.tidal</code>なファイルを開くか作成します。</li>
+<li>メニューを「<span class="ascii">Packages</span>」 <span class="ascii">-&gt;</span> 「<span class="ascii">TidalCycles</span>」 <span class="ascii">-&gt;</span> 「<span class="ascii">Boot TidalCycles</span>」の順に選択してください。</li>
+<li>画面下部で<span class="ascii">GHCi</span>が起動し、<span class="ascii">TidalCycles</span>の式を実行するのに必要なパッケージの<code>import</code>や、<code>import</code>では賄いきれない関数の定義などが自動的に行われます。
+<ul>
+<li><a href="https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs"><span class="ascii">BootTidal.hs</span></a>というファイルの中身を<span class="ascii">GHCi</span>に貼り付けているみたいです。</li>
+</ul></li>
+</ol></li>
+<li>動作確認のために、適当な<span class="ascii">TidalCycles</span>の式 — 例えば公式サイトの<span class="ascii">Wiki</span>どおり<code>d1 $ sound &quot;bd sn&quot;</code> — を入力して、入力した行にカーソルを置き、「<span class="ascii">Shift + Enter</span>」を押しましょう。
+<ol type="1">
+<li>入力した式が画面下部で起動した<span class="ascii">GHCi</span>に送信され、実行されます。うまくいっていれば音が鳴るはずです。</li>
+<li>停止させたいときは、<code>d1 silence</code>と入力して同じく「<span class="ascii">Shift + Enter</span>」を押してください。</li>
+</ol></li>
+<li>より詳しい<span class="ascii">TidalCycles</span>の使い方は、<a href="https://qiita.com/mk668a/items/6e8e0151817f484a526c"><span class="ascii">TidalCycles</span>のチュートリアル<span class="ascii">1 - Qiita</span></a>など、他の方が書いた記事を検索してみてください。</li>
+</ol>
+<h1 id="ハマったこと"><span class="link-to-here-outer"><a href="#ハマったこと" title="ハマったこと"><span class="link-to-here">Link to<br />
+here</span></a></span>ハマったこと</h1>
+<h2 id="superdirtが見つからないという趣旨のエラーが出た"><span class="link-to-here-outer"><a href="#superdirtが見つからないという趣旨のエラーが出た" title="superdirtが見つからないという趣旨のエラーが出た"><span class="link-to-here">Link to<br />
+here</span></a></span>「<span class="ascii">SuperDirt</span>が見つからない！」という趣旨のエラーが出た</h2>
+<p>正確なエラーメッセージは申し訳なくも忘れてしまったのですが、<span class="ascii">SuperCollider</span>上で<code>SuperDirt.start</code>と入力した際、エラーになることがあります。<br />
+この場合、<span class="ascii">SuperCollider</span>を再起動するのを忘れている可能性がありますので、再起動してみてください。<br />
+<span class="ascii">SuperDirt</span>のインストールを終えた直後では、まだ<span class="ascii">SuperDirt</span>は利用できないのです。</p>
+<h2 id="atom上でtidalcyclesを起動した際parse-error"><span class="link-to-here-outer"><a href="#atom上でtidalcyclesを起動した際parse-error" title="atom上でtidalcyclesを起動した際parse-error"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Atom</span>上で<span class="ascii">TidalCycles</span>を起動した際、<code>parse error</code></h2>
+<p>先ほどの「<span class="ascii">Atom</span>上での<span class="ascii">TidalCycles</span>の起動」という手順で、<code>parse error (possibly incorrect indentation or mismatched brackets)</code>というエラーに出遭うことがあります。<br />
+そのまま<span class="ascii">TidalCycles</span>の式を入力して「<span class="ascii">Shift + Enter</span>」しても、<code>Variable not in scope: d1 :: ControlPattern -&gt; t</code>などというエラーになってしまうでしょう。<br />
+これは、前のセクションで触れた<span class="ascii">BootTidal.hs</span>というファイルを<span class="ascii">GHCi</span>が読み込む際に、エラーになってしまったからです。</p>
+<p>原因はいろいろあり得るかと思いますが、私の場合、<code>~/.ghci</code>という<span class="ascii">GHCi</span>の設定ファイルに<code>:set +m</code>という行を加えていたためでした。<br />
+まず、<code>~/.ghci</code>は、<span class="ascii">GHCi</span>が起動するときに必ず読み込まれるファイルです。<br />
+必ず有効にしたい言語拡張や、<code>:set +m</code>のような<span class="ascii">GHCi</span>の設定を記載しておくファイルとなっています。要するに<code>~/.vimrc</code>などと似たようなものですね。<br />
+そして<code>:set +m</code>は、<span class="ascii">GHCi</span>で複数行の入力を有効にするためのものです。<br />
+<span class="ascii">GHCi</span>上で<code>:set +m</code>と実行すると、<span class="ascii">GHCi</span>は入力した行を見て「あっ、この入力はまだ続きがありそうだな」と判断したとき、次の行を自動で前の行の続きとして扱うようになります。<br />
+そして、その場合入力の終了を<span class="ascii">GHCi</span>に伝えたい場合は、空行を入力しなければなりません。<br />
+結果、<span class="ascii">BootTidal.hs</span>を読み込む際に、空行が入力されないため、意図しない行が「前の行の続き」と<span class="ascii">GHCi</span>に認識されてしまい、<code>parse error (possibly incorrect indentation or mismatched brackets)</code>となってしまうようです。</p>
+<p>仕方ないので、直すために<code>~/.ghci</code>を開いて<code>:set +m</code>と書いた行をコメントアウトするか削除しちゃいましょう。<br />
+再び<span class="ascii">Atom</span>で「<span class="ascii">Packages</span>」 <span class="ascii">-&gt;</span> 「<span class="ascii">TidalCycles</span>」 <span class="ascii">-&gt;</span> 「<span class="ascii">Boot TidalCycles</span>」の順にメニューをクリックすれば、今度は該当のエラーがなく起動するかと思います😌。</p>
+<p>このエラーは、特にすでに<span class="ascii">Haskell</span>の開発環境を導入している方で遭遇するケースが多いかと思います。ご注意ください。</p>
+<h2 id="superdirtを起動し忘れていても何もエラーが起きない"><span class="link-to-here-outer"><a href="#superdirtを起動し忘れていても何もエラーが起きない" title="superdirtを起動し忘れていても何もエラーが起きない"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">SuperDirt</span>を起動し忘れていても何もエラーが起きない</h2>
+<p>表題の通りです。<br />
+困ったことに<span class="ascii">SuperDirt</span>を起動し忘れた状態で<code>d1 $ sound &quot;bd sn&quot;</code>などの式を実行しても、特に何のエラーもなく、音も鳴りません。<br />
+<small>（サーバーとして起動しているべき）</small><span class="ascii">SuperDirt</span>に接続し損ねたんだから、何かしらエラーが表示されてもいいはずなんですが、困ったことにウンともスンとも言いません😰。<br />
+と、言うわけで、何のエラーもなく音も出なかった場合は、<span class="ascii">SuperDirt</span>を起動し忘れてないか確認しましょう。</p>
+<h1 id="おわりに-haskell開発者として見たtidalcycles"><span class="link-to-here-outer"><a href="#おわりに-haskell開発者として見たtidalcycles" title="おわりに-haskell開発者として見たtidalcycles"><span class="link-to-here">Link to<br />
+here</span></a></span>おわりに<span class="ascii">: Haskell</span>開発者として見た<span class="ascii">TidalCycles</span></h1>
+<p><strong>※ここから先はおまけ <span class="ascii">+</span> 宣伝です。<span class="ascii">TidalCycles</span>をインストールしたいだけの方は適当に読み飛ばしてください</strong></p>
+<p>ここまで、<span class="ascii">stack</span>という、昨今の<span class="ascii">Haskeller</span>の多くが好んで利用するツールで、<span class="ascii">TidalCycles</span>を利用する方法を説明しました。<br />
+<span class="ascii">TidalCycles</span>の公式サイトの<span class="ascii">Wiki</span>にはこの方法は書かれてませんが、より確実なインストール方法として、覚えておいていただけると幸いです。<br />
+すでに<span class="ascii">Haskell</span>の開発環境をインストールしている方にも参考になるかと思います。</p>
+<p>ところで、ここまで<span class="ascii">TidalCycles</span>を自分でインストールしてみて、<span class="ascii">Haskeller</span>としていくつか気になった点があります。<br />
+<span class="ascii">TidalCycles</span>は、<span class="ascii">Haskell</span>製の内部<span class="ascii">DSL</span>としては、ちょっと変わっているように感じました。</p>
+<p>それは、<span class="ascii">TidalCycles</span>が「標準」として提供している関数を実行する際、<span class="ascii">tidal</span>パッケージに含まれるモジュールを<code>import</code>するだけでなく、<span class="ascii">BootTidal.hs</span>というファイルを読んで、追加の関数を定義する必要がある、という点です。<br />
+大抵の<span class="ascii">Haskell</span>製の内部<span class="ascii">DSL</span>は、そんなことしなくてもモジュールを<code>import</code>するだけで使えるようになっています<small>（<a href="http://hspec.github.io/"><span class="ascii">Hspec</span></a>とか<a href="https://github.com/chrisdone/lucid"><span class="ascii">lucid</span></a>とか<a href="http://hackage.haskell.org/package/clay"><span class="ascii">clay</span></a>とか<a href="http://khibino.github.io/haskell-relational-record/"><span class="ascii">relational-record</span></a>とか）</small>。<br />
+つまり本来ならばわざわざ、<span class="ascii">BootTidal.hs</span>のような、<span class="ascii">GHCi</span>が読み込む専用のファイルを用意しなくとも良いはずなのです。<br />
+この<span class="ascii">BootTidal.hs</span>は<span class="ascii">Atom</span>のプラグインの設定で簡単に切り替えることができるものなので、もし間違ったファイルに設定してしまったら、言語の標準にあたる関数がおかしな動作をすることになりかねませんし、あまり良いやり方だとは思えません。本来なら設定に混ぜて書くべきものではないでしょう。</p>
+<p>なぜ<span class="ascii">TidalCycles</span>はこんな仕様になっているかというと、それにはある意味<span class="ascii">Haskell</span>らしい制約が絡んでいると推測されます。<br />
+<span class="ascii">Atom</span>上で<span class="ascii">TidalCycles</span>を起動する、というのは、実際には<span class="ascii">GHCi</span>を起動して、<a href="https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs"><span class="ascii">BootTidal.hs</span></a>というファイルを読み込ませる、ということなのでした<small>（事実、<span class="ascii">Atom</span>などのエディターを介さなくとも、お使いのターミナルエミュレーターから<code>ghci</code>コマンドを起動して<span class="ascii">BootTidal.hs</span>ファイルの中身をコピペするだけで、<span class="ascii">TidalCycles</span>は利用できます）</small>。<br />
+その<span class="ascii">BootTidal.hs</span>の中身を見てみると、サンプルで実行した<code>d1</code>という関数が、下記のように定義されていることがわかります。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">-- ... 省略 ...</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">import</span> <span class="dt">Sound.Tidal.Context</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">-- total latency = oLatency + cFrameTimespan</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">tidal <span class="ot">&lt;-</span> startTidal (superdirtTarget {oLatency <span class="fu">=</span> <span class="fl">0.1</span>, oAddress <span class="fu">=</span> <span class="st">&quot;127.0.0.1&quot;</span>, oPort <span class="fu">=</span> <span class="dv">57120</span>}) (defaultConfig {cFrameTimespan <span class="fu">=</span> <span class="dv">1</span><span class="fu">/</span><span class="dv">20</span>})</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="kw">let</span> p <span class="fu">=</span> streamReplace tidal</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">-- ... 省略 ...</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="kw">let</span> d1 <span class="fu">=</span> p <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="kw">let</span> d2 <span class="fu">=</span> p <span class="dv">2</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="kw">let</span> d3 <span class="fu">=</span> p <span class="dv">3</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">-- ...</span></a></code></pre></div>
+<p><code>tidal &lt;- startTidal</code>で始まる行で、<span class="ascii">TidalCycles</span>の初期化を行っていると思われます。<br />
+初期化の際には、サーバーとして起動している<span class="ascii">SuperDirt</span>への接続設定<small>（この場合<code>127.0.0.1</code>の<code>57120</code>番ポートへ接続している）</small>を渡しているようです。<br />
+恐らくこの<code>startTidal</code>関数が、<span class="ascii">SuperDirt</span>へ接続し、代入した<code>tidal</code>という変数に、<span class="ascii">SuperDirt</span>への接続を含んでいるんでしょう。<br />
+そして、<code>let p = streamReplace tidal</code>という行で、その<code>tidal</code>を<code>streamReplace</code>関数に<a href="http://capm-network.com/?tag=Haskell-%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8">部分適用</a>することで、<code>p</code>が<span class="ascii">SuperDirt</span>への接続を参照できるようにしています。<br />
+さらに、<code>let d1 = p 1</code>などの行で、前の行で定義した<code>p</code>に整数<small>（シンセサイザーの番号だそうです）</small>を部分適用することで、結果、<code>d1</code>、<code>d2</code>などの関数へ、間接的に<code>tidal</code>を渡すことになります。</p>
+<p>つまり<code>d1</code>や<code>d2</code>などの関数は、何らかの形で、<span class="ascii">SuperDirt</span>への接続情報を持っているのです。<br />
+<span class="ascii">DSL</span>として、<code>d1</code>や<code>d2</code>などの関数に毎回接続情報を渡すのは煩雑だと考えたためでしょう。<br />
+残念ながら、通常の<span class="ascii">Haskell</span>がそうであるように、外部のサーバーに接続した結果取得されるものを、関数が暗黙に参照できるようにしたい場合、 — つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 — 少なくともパッケージを<code>import</code>するだけではうまくいきません<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。<br />
+<span class="ascii">BootTidal.hs</span>のように、<span class="ascii">SuperDirt</span>のような外部に接続する処理を、<span class="ascii">GHCi</span>の実行時に書かなければならないのです。</p>
+<p>しかし、<code>tidal &lt;- startTidal</code>の行で作られる<span class="ascii">SuperDirt</span>への接続情報を<code>d1</code>などの関数が暗黙に利用できるようにすることは、実際には<span class="ascii">BootTidal.hs</span>で行っているような方法を使わなくともできます。<br />
+そうすることで、<span class="ascii">BootTidal.hs</span>を変なファイルに切り替えてしまって、<code>d1</code>などの関数の定義が間違ったものになってしまう<small>（あるいはそもそも定義されなくなってしまう）</small>リスクを回避できます。<br />
+具体的には、下記のような方法が考えられます。<br />
+申し訳なくも私はこれ以上<span class="ascii">TidalCycles</span>に入れ込むつもりもないので、誰か<span class="ascii">TidalCycles</span>を気に入った方が適当に提案するなりパッチを送るなりしてみてください<small>（他力本願😰）</small>。</p>
+<ul>
+<li><span class="ascii">GHCi</span>の中で<code>ReaderT</code>を使う
+<ul>
+<li><span class="ascii">Haskell</span>で「関数に渡した引数を暗黙に利用できるようにする」といえば、やはり<code>ReaderT</code>モナドトランスフォーマーが一番オーソドックスな方法でしょう。<br />
+実は<span class="ascii">GHCi</span>上では、<code>IO</code>以外のモナドのアクションで<code>print</code>することができます。<br />
+<a href="https://www.reddit.com/r/haskell/comments/87otrn/you_can_override_the_monad_that_ghci_uses/"><span class="ascii">You can override the monad that GHCi uses</span></a>という<span class="ascii">Reddit</span>のスレッドでは、<code>ReaderT</code>を使ったサンプルが紹介されています。<br />
+これと同じ要領で、<span class="ascii">GHCi</span>の<code>-interactive-print</code>というオプションに、<code>tidal</code>を<code>ReaderT</code>経由で渡してから結果を<code>print</code>する関数を設定しましょう。<br />
+あとは<code>d1</code>などを<code>ReaderT</code>のアクションにするだけで、それらを<span class="ascii">BootTidal.hs</span>から消し去ることができます。<br />
+残念ながらこの方法を使うと、<span class="ascii">GHCi</span>に与えた式の結果がすべて当該のモナドのアクションになっていなければならなくなるため、例えば単純な計算結果でさえ<code>return</code>をいちいち書かないといけなくなります。しかし、<span class="ascii">TidalCycles</span>の利用方法を見る限り、大きな問題にはならないだろうと思います。</li>
+</ul></li>
+<li><code>ImplicitParams</code>という<span class="ascii">GHC</span>の言語拡張を使う
+<ul>
+<li><span class="ascii">GHC</span>には、<code>ImplicitParams</code>という、もっと直接的にこれを実現する言語拡張があります。文字通り、暗黙の引数を実現するための拡張です<small>（<a href="https://qiita.com/philopon/items/e6d2522f5b514c219a5f">参考</a>）</small>。<br />
+これを利用して、例えば<code>d1</code>を<code>?tidal :: Stream =&gt; ControlPattern -&gt; IO ()</code>のように型宣言しておき、<code>?tidal</code><small>（頭に<code>?</code>を付けたものが暗黙の引数となります）</small>を暗黙の引数として参照するようにしましょう。後は<span class="ascii">GHCi</span>の起動時に<code>?tidal</code>を定義すれば、<code>?tidal</code>の後に<code>d1</code>などを定義する必要がなくなるので、<span class="ascii">BootTidal.hs</span>はもっとコンパクトに済むはずです。</li>
+</ul></li>
+<li>その他、<code>unsafePerformIO</code>や<span class="ascii">Template Haskell</span>など、ちょっと危ない手段を使う
+<ul>
+<li>こちらについては詳細を割愛します。<code>d1</code>などの再利用性が下がるので、おすすめしません。</li>
+</ul></li>
+</ul>
+<p><span class="ascii">TidalCycles</span>の技術的な側面で気になった点は以上です。<br />
+ちょっと難しい話になってしまいましたが、これを機会に、<span class="ascii">Haskell</span>そのものへの興味を持っていただけると幸いです。<br />
+素晴らしいことに、<span class="ascii">TidalCycles</span>そのものは<span class="ascii">Haskell</span>を知らなくてもそれなりに使えるようになっているようですが、<span class="ascii">Haskell</span>を知った上で使えば、より簡単にトラブルシューティングができるようになりますし、<span class="ascii">TidalCycles</span>をより柔軟に使えるようになるでしょう。</p>
+<p>もし、今回の記事や<span class="ascii">TidalCycles</span>をきっかけに<span class="ascii">Haskell</span>を勉強してみたいと思ったら、<a href="https://wiki.haskell.jp/Links"><span class="ascii">Haskell-jp Wiki</span>の日本語のリンク集</a>を読んで、自分に合う入門コンテンツを見つけてみてください！<br />
+それから、何か困ったことがあれば<a href="https://haskell-jp.slack.com/messages/C5666B6BB/convo/C4M4TT8JJ-1547294914.091800/"><span class="ascii">Haskell-jp</span>の<span class="ascii">Slack Workspace</span>にある、<span class="ascii">#questions</span>チャンネル</a>で質問してみてください。<br />
+<a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">登録はこちら</a>からどうぞ！</p>
+<p>それでは<span class="ascii">2019</span>年も<span class="ascii">Haskell</span>と<span class="ascii">TidalCycles</span>で<span class="ascii">Happy Hacking!!</span> 🎶🎶🎶</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>どのバージョンの<span class="ascii">LTS Haskell</span>でどのバージョンの<span class="ascii">GHC</span>がインストールされるかは、<span class="ascii">LTS Haskell</span>を管理している<a href="https://www.stackage.org/">「<span class="ascii">Stackage</span>」というウェブサイトのトップページ</a>にある、「<span class="ascii">Latest LTS per GHC version</span>」というセクションをご覧ください。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>後で軽く触れる、<span class="ascii">Template Haskell</span>という邪悪なテクニックを使わない限りは。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2018/super-precure-monad.html" style="margin-left: auto;" lang="ja">モナドの新しい力！スーパープリキュアモナド！</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
