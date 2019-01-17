@@ -40,7 +40,7 @@ networkパッケージがインストールできていない、ということ�
 
 # 各種依存パッケージのインストール
 
-冒頭に上げた質問をされた方が参考にしたページ [TidalCyclesのインストール2018年版 - Qiita](https://qiita.com/yoppa/items/fe21d7136f8f3aafd55c) では、Chocolateyを使ったインストール方法を紹介していますが、この方法では、直接GHCのWindows向けtarballをダウンロードしてインストールしているようです。  
+冒頭に挙げた質問をされた方が参考にしたページ [TidalCyclesのインストール2018年版 - Qiita](https://qiita.com/yoppa/items/fe21d7136f8f3aafd55c) では、Chocolateyを使ったインストール方法を紹介していますが、この方法では、直接GHCのWindows向けtarballをダウンロードしてインストールしているようです。  
 私が知る限り特にその方法でも問題はないはずなんですが、なぜか質問者が挙げたようなエラーが発生してしまいます。  
 また、TidalCyclesが実行時に依存しているSuperColliderやSuperDirtといったソフトウェアを、別のChocolateyのパッケージに分けることなく、TidalCyclesのインストールスクリプトで直接インストールしているようです<small>（詳細は[Chocolateyのパッケージ情報](https://chocolatey.org/packages/TidalCycles)に書かれたchocolateyinstall.ps1を参照されたし）</small>。  
 そのため、ChocolateyでTidalCyclesをインストールしようとすると、問題のあるGHCと、SuperColliderなどの依存パッケージを一緒にインストールしなければなりませんし、SuperColliderやSuperDirtだけをChocolateyでインストールすることもできません。
@@ -55,7 +55,7 @@ networkパッケージがインストールできていない、ということ�
   今回は「Windows」の箇所に書いてある「3.10.0, 64-bit (no SuperNova)」というリンクをクリックしてダウンロードされた実行ファイルでインストールしました。
 1. [Atom](https://atom.io/)も公式サイトからインストールしました。  
   後で触れますTidalCyclesの対話環境を、Atom上で呼び出すためのプラグインがあるためです。他のエディタ向けのプラグインもありますが、公式サイトで紹介していたのはAtomなので、一番これがサポートされているのでしょう。
-1. GitもPrerequisitesとして上げられていますが、すでに私の環境に入っているので今回は特に何もしていません。なければ普通に[Git for Windows](https://gitforwindows.org/)を入れるのが無難かと思います。
+1. GitもPrerequisitesとして挙げられていますが、すでに私の環境に入っているので今回は特に何もしていません。なければ普通に[Git for Windows](https://gitforwindows.org/)を入れるのが無難かと思います。
 1. SuperDirtのインストール
     1. SuperColliderをスタートメニューから起動します。
     1. ウィンドウの左側にある「Untitled」と書かれた箇所の下がSuperColliderのエディタになっているようです<small>（色がわかりづらい！）</small>。  
