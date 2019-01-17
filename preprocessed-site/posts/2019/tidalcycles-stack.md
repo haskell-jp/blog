@@ -104,7 +104,7 @@ LTS Haskellのメンテナーの方々は、毎日登録された大量のパッ
 
 そして、`extra-deps`という項目は、ビルドしようとしているパッケージ<small>（今回の場合`tidal`パッケージ）</small>が依存しているパッケージが、LTS Haskellに登録されていない場合に指定するものです。  
 [tidalパッケージ ver. 1.0.6のパッケージ情報](http://hackage.haskell.org/package/tidal-1.0.6)を確認すると、確かにhoscというパッケージに依存していると書かれていますね！   
-残念ながらこのhoscパッケージは今回指定した、LTS Haskellのver. 12.26には登録されていないので、明記しておいてください。
+残念ながらこのhoscパッケージは今回指定した、LTS Haskellのver. 12.26には登録されていないので、上記のとおり`extra-deps`に明記しておいてください。
 
 `C:\sr\global-project\stack.yaml`の編集が終わったら、
 
@@ -122,7 +122,7 @@ stack build tidal
 
 続いて、Atomのtidalcyclesプラグインの設定をしましょう。  
 stackは使用するGHCを、前述のstack.yamlに書いたLTS Haskellのバージョンに応じて切り替える関係上、`PATH`の通ったところにGHCをインストールしません。  
-そのため、AtomのtidalcyclesプラグインにstackがインストールしたGHCを認識させるには、下記のように設定を書き換える必要があります。
+そのため、Atomのtidalcyclesプラグインに、stackがインストールしたGHCを認識させるには、下記のように設定を書き換える必要があります。
 
 1. Atomを起動し、「File」 -\> 「Settings」の順にメニューをクリックして、Atomの設定画面を開きます。
 1. 画面左側の「📦Packages」と書かれた箇所をクリックすると、インストールしたAtomのプラグインの一覧が表示されるはずです。
@@ -165,8 +165,7 @@ SuperDirtのインストールを終えた直後では、まだSuperDirtは利�
 
 原因はいろいろあり得るかと思いますが、私の場合、`~/.ghci`というGHCiの設定ファイルに`:set +m`という行を加えていたためでした。  
 まず、`~/.ghci`は、GHCiが起動するときに必ず読み込まれるファイルです。  
-必ず有効にしたい言語拡張や、`:set +m`のようなGHCiの設定を記載しておくファイルとなっています。  
-要するに`~/.vimrc`などと似たようなものですね。
+必ず有効にしたい言語拡張や、`:set +m`のようなGHCiの設定を記載しておくファイルとなっています。要するに`~/.vimrc`などと似たようなものですね。  
 そして`:set +m`は、GHCiで複数行の入力を有効にするためのものです。  
 GHCi上で`:set +m`と実行すると、GHCiは入力した行を見て「あっ、この入力はまだ続きがありそうだな」と判断したとき、次の行を自動で前の行の続きとして扱うようになります。  
 そして、その場合入力の終了をGHCiに伝えたい場合は、空行を入力しなければなりません。  
@@ -185,6 +184,8 @@ GHCi上で`:set +m`と実行すると、GHCiは入力した行を見て「あっ
 と、言うわけで、何のエラーもなく音も出なかった場合は、SuperDirtを起動し忘れてないか確認しましょう。
 
 # おわりに: Haskell開発者として見たTidalCycles
+
+**※ここから先はおまけ + 宣伝です。TidalCyclesをインストールしたいだけの方は適当に読み飛ばしてください**
 
 ここまで、stackという、昨今のHaskellerの多くが好んで利用するツールで、TidalCyclesを利用する方法を説明しました。  
 TidalCyclesの公式サイトのWikiにはこの方法は書かれてませんが、より確実なインストール方法として、覚えておいていただけると幸いです。  
@@ -222,10 +223,12 @@ let d3 = p 3
 `tidal <- startTidal`で始まる行で、TidalCyclesの初期化を行っていると思われます。  
 初期化の際には、サーバーとして起動しているSuperDirtへの接続設定<small>（この場合`127.0.0.1`の`57120`番ポートへ接続している）</small>を渡しているようです。  
 恐らくこの`startTidal`関数が、SuperDirtへ接続し、代入した`tidal`という変数に、SuperDirtへの接続を含んでいるんでしょう。  
-そして、`let p = streamReplace tidal`という行で、その`tidal`を`streamReplace`関数に[部分適用](http://capm-network.com/?tag=Haskell-%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8)することで、その`p`に整数<small>（シンセサイザーの番号だそうです）</small>をさらに部分適用した`d1`、`d2`などの関数へ、間接的に`tidal`を渡しています。  
-つまり`d1`や`d2`などの関数は、何らかの形で、SuperDirtへの接続情報について知っている必要があるのです。  
-DSLとして、`d1`や`d2`などの関数に毎回接続情報を渡すのは煩雑だと考えたのでしょう。  
-そして、通常のHaskellがそうであるように、外部のサーバーに接続した結果取得されるものを暗黙に使えるようにしたい場合、 --- つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 --- 少なくともパッケージを`import`するだけではうまくいきません[^TemplateHaskell]。  
+そして、`let p = streamReplace tidal`という行で、その`tidal`を`streamReplace`関数に[部分適用](http://capm-network.com/?tag=Haskell-%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8)することで、`p`がSuperDirtへの接続を参照できるようにしています。  
+さらに、`let d1 = p 1`などの行で、前の行で定義した`p`に整数<small>（シンセサイザーの番号だそうです）</small>を部分適用することで、結果、`d1`、`d2`などの関数へ、間接的に`tidal`を渡すことになります。
+
+つまり`d1`や`d2`などの関数は、何らかの形で、SuperDirtへの接続情報を持っているのです。  
+DSLとして、`d1`や`d2`などの関数に毎回接続情報を渡すのは煩雑だと考えたためでしょう。  
+残念ながら、通常のHaskellがそうであるように、外部のサーバーに接続した結果取得されるものを、関数が暗黙に参照できるようにしたい場合、 --- つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 --- 少なくともパッケージを`import`するだけではうまくいきません[^TemplateHaskell]。  
 BootTidal.hsのように、SuperDirtのような外部に接続する処理を、GHCiの実行時に書かなければならないのです。
 
 [^TemplateHaskell]: 後で軽く触れる、Template Haskellという邪悪なテクニックを使わない限りは。
@@ -241,7 +244,7 @@ BootTidal.hsのように、SuperDirtのような外部に接続する処理を�
       [You can override the monad that GHCi uses](https://www.reddit.com/r/haskell/comments/87otrn/you_can_override_the_monad_that_ghci_uses/)というRedditのスレッドでは、`ReaderT`を使ったサンプルが紹介されています。  
       これと同じ要領で、GHCiの`-interactive-print`というオプションに、`tidal`を`ReaderT`経由で渡してから結果を`print`する関数を設定しましょう。  
       あとは`d1`などを`ReaderT`のアクションにするだけで、それらをBootTidal.hsから消し去ることができます。  
-      残念ながらこの方法を使うと、GHCiに与えた式の結果がすべて当該のモナドのアクションになってなければならなくなるため、例えば単純な計算結果でも`return`をいちいち書かないと行けなくなります。しかし、TidalCyclesの利用方法を見る限り、大きな問題にはならないだろうと思います。
+      残念ながらこの方法を使うと、GHCiに与えた式の結果がすべて当該のモナドのアクションになっていなければならなくなるため、例えば単純な計算結果でさえ`return`をいちいち書かないといけなくなります。しかし、TidalCyclesの利用方法を見る限り、大きな問題にはならないだろうと思います。
 - `ImplicitParams`というGHCの言語拡張を使う
     - GHCには、`ImplicitParams`という、もっと直接的にこれを実現する言語拡張があります。文字通り、暗黙の引数を実現するための拡張です<small>（[参考](https://qiita.com/philopon/items/e6d2522f5b514c219a5f)）</small>。  
       これを利用して、例えば`d1`を`?tidal :: Stream => ControlPattern -> IO ()`のように型宣言しておき、`?tidal`<small>（頭に`?`を付けたものが暗黙の引数となります）</small>を暗黙の引数として参照するようにしましょう。後はGHCiの起動時に`?tidal`を定義すれば、`?tidal`の後に`d1`などを定義する必要がなくなるので、BootTidal.hsはもっとコンパクトに済むはずです。
@@ -252,7 +255,7 @@ TidalCyclesの技術的な側面で気になった点は以上です。
 ちょっと難しい話になってしまいましたが、これを機会に、Haskellそのものへの興味を持っていただけると幸いです。  
 素晴らしいことに、TidalCyclesそのものはHaskellを知らなくてもそれなりに使えるようになっているようですが、Haskellを知った上で使えば、より簡単にトラブルシューティングができるようになりますし、TidalCyclesをより柔軟に使えるようになるでしょう。
 
-もし、今回の記事やTidalCyclesをきっかけにHaskellを勉強してみたいと思ったら、[Haskell-jp Wikiの日本語のリンク集](https://wiki.haskell.jp/Links)を読んで自分に合う入門コンテンツを見つけてみてください！  
+もし、今回の記事やTidalCyclesをきっかけにHaskellを勉強してみたいと思ったら、[Haskell-jp Wikiの日本語のリンク集](https://wiki.haskell.jp/Links)を読んで、自分に合う入門コンテンツを見つけてみてください！  
 それから、何か困ったことがあれば[Haskell-jpのSlack Workspaceにある、#questionsチャンネル](https://haskell-jp.slack.com/messages/C5666B6BB/convo/C4M4TT8JJ-1547294914.091800/)で質問してみてください。  
 [登録はこちら](https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM)からどうぞ！
 
