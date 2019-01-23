@@ -297,4 +297,4 @@ steps:
 
 あと、QiitaのFeedがコメントや追記などでも更新され、その通知が `#antenna` チャンネルに飛んで来てうるさいので修正したいです[^scrapbook]。
 
-[^scrapbook]: この修正は `haskell-jp/antenna` ではなく、[`matsubara0507/scrapbook`](https://github.com/matsubara0507/scrapbook) からやる必要がある。
+[^scrapbook]: この修正は `haskell-jp/antenna` ではなく、[`matsubara0507/scrapbook`](https://github.com/matsubara0507/scrapbook) からやる必要があります。
