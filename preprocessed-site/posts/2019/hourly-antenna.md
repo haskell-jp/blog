@@ -11,7 +11,7 @@ tags: CI, Antenna
 
 Haskell-jpのコンテンツの一つとして[Haskell Antenna](https://haskell.jp/antenna/)という Web ページの開発・運用をしております。
 
-![](antenna-page.png)
+![](../../img/2019/hourly-antenna/antenna-page.jpg)
 
 このWebページは[Haskell-jpのリポジトリ](https://github.com/haskell-jp/antenna)で開発し、GitHub Pagesとして公開しています。
 更新は[TravisCI](https://travis-ci.org/)のDaily Cronを使って行なっていましたが、なんとかして **毎時更新を実現したい** と思案していました。
@@ -185,7 +185,7 @@ steps:
 
 Cronの設定はWeb UI上で行います:
 
-![](drone-cron-setting.jpg)
+![](../../img/2019/hourly-antenna/drone-cron-setting.jpg)
 
 これで毎時間`master`ブランチのビルドが実行されます。
 
@@ -283,7 +283,7 @@ steps:
 最近、Docker Hubの大リニュアールがあって、いつのまにかDocker HubとSlackを連携できるようになっていました。
 なので試しに連携して更新の通知が飛ぶようにしてみました:
 
-![](dockerhub-slack.jpg)
+![](../../img/2019/hourly-antenna/dockerhub-slack.jpg)
 
 # 今後やりたいこと
 
