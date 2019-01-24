@@ -95,7 +95,9 @@ Docker HubにはAutomated buildsと呼ばれるGitHubなどのプッシュによ
 
 ```yaml
 # .travis.yml
-...
+
+# ...
+
 install:
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
