@@ -282,7 +282,7 @@ steps:
 - `#antenna-dev` チャンネルを新しく作りGitHubの全ての更新はこっちに設定
 - `#dockerhub` チャンネルもついでに作って `haskelljp` の更新を通知する
 
-最近、Docker Hubの大リニュアールがあって、いつのまにかDocker HubとSlackを連携できるようになっていました。
+最近、Docker Hubの大リニューアルがあって、いつのまにかDocker HubとSlackを連携できるようになっていました。
 なので試しに連携して更新の通知が飛ぶようにしてみました:
 
 <img src="../../img/2019/hourly-antenna/dockerhub-slack.jpg" style="width: 100%;">
