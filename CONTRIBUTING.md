@@ -10,7 +10,6 @@ Haskell-jp Blogの寄稿に興味を持っていただいてありがとうご�
 1. 作成した記事を含めたコミットで、Pull requestを送ってください。先ほどの"Create new file"というボタンからの導線に従えば、割と簡単にできるはずです。
 1. [GitHubのHaskell-jp organization](https://github.com/haskell-jp)に所属する人などが、記事をレビューします。適宜対応してください。
 1. 送ったPull requestがマージされると、CIが自動で記事を公開してくれます！
-    - [諸般の事情](https://github.com/haskell-jp/blog/issues/54)により、このときのビルドは現状Travis CIが実行します。
 
 # 記事のライセンスについて
 
