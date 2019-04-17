@@ -157,22 +157,22 @@ Contents
 <h3 id="使い方"><span class="link-to-here-outer"><a href="#使い方" title="使い方"><span class="link-to-here">Link to<br />
 here</span></a></span>使い方</h3>
 <p>例えば、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1">main <span class="fu">=</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">main <span class="ot">=</span> <span class="fu">print</span> <span class="op">$</span> <span class="fl">1.0</span> <span class="op">+</span> _</a></code></pre></div>
 <p>のようなコードを書いて、 <code>runghc</code>や<code>ghci</code>や<code>ghc</code>で実行すると、 <code>_</code> 部の型をエラーメッセージで教えてくれます。</p>
 <h3 id="エラーメッセージの表示例"><span class="link-to-here-outer"><a href="#エラーメッセージの表示例" title="エラーメッセージの表示例"><span class="link-to-here">Link to<br />
 here</span></a></span>エラーメッセージの表示例</h3>
 <p>例えば、以下のようにエラーメッセージが表示されます。 以下の例では、<code>_</code>部が、<code>Double</code>型であることを示しています。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="fu">$</span> runghc test1<span class="fu">.</span>hs </a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">test1<span class="fu">.</span>hs<span class="fu">:</span><span class="dv">3</span><span class="fu">:</span><span class="dv">22</span><span class="fu">:</span> error<span class="fu">:</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">    • <span class="dt">Found</span> hole<span class="fu">:</span><span class="ot"> _ ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">    • <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="fu">+</span>)’, namely ‘_’</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">      <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="fu">$</span>)’, namely ‘<span class="fl">1.0</span> <span class="fu">+</span> _’</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">      <span class="dt">In</span> the expression<span class="fu">:</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">    • <span class="dt">Relevant</span> bindings include<span class="ot"> main ::</span> <span class="dt">IO</span> () (bound at test1<span class="fu">.</span>hs<span class="fu">:</span><span class="dv">3</span><span class="fu">:</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">  <span class="fu">|</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="dv">3</span> <span class="fu">|</span> main <span class="fu">=</span> print <span class="fu">$</span> <span class="fl">1.0</span> <span class="fu">+</span> _</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">  <span class="fu">|</span>                      <span class="fu">^</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="op">$</span> runghc test1<span class="op">.</span>hs </a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3">test1<span class="op">.</span>hs<span class="op">:</span><span class="dv">3</span><span class="op">:</span><span class="dv">22</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-4" title="4">    • <span class="dt">Found</span> hole<span class="op">:</span><span class="ot"> _ ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb2-5" title="5">    • <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="op">+</span>)’, namely ‘_’</a>
+<a class="sourceLine" id="cb2-6" title="6">      <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="op">$</span>)’, namely ‘<span class="fl">1.0</span> <span class="op">+</span> _’</a>
+<a class="sourceLine" id="cb2-7" title="7">      <span class="dt">In</span> the expression<span class="op">:</span> <span class="fu">print</span> <span class="op">$</span> <span class="fl">1.0</span> <span class="op">+</span> _</a>
+<a class="sourceLine" id="cb2-8" title="8">    • <span class="dt">Relevant</span> bindings include<span class="ot"> main ::</span> <span class="dt">IO</span> () (bound at test1<span class="op">.</span>hs<span class="op">:</span><span class="dv">3</span><span class="op">:</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-9" title="9">  <span class="op">|</span></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="dv">3</span> <span class="op">|</span> main <span class="ot">=</span> <span class="fu">print</span> <span class="op">$</span> <span class="fl">1.0</span> <span class="op">+</span> _</a>
+<a class="sourceLine" id="cb2-11" title="11">  <span class="op">|</span>                      <span class="op">^</span></a></code></pre></div>
 <h3 id="補足1"><span class="link-to-here-outer"><a href="#補足1" title="補足1"><span class="link-to-here">Link to<br />
 here</span></a></span>補足<span class="ascii">1</span></h3>
 <p><code>_</code> の替りに、 <code>_hoge</code> のように名前付けしても構いません。</p>
@@ -181,7 +181,7 @@ here</span></a></span>補足<span class="ascii">1</span></h3>
 here</span></a></span>補足<span class="ascii">2</span></h3>
 <p>詳細情報は以下にあります。</p>
 <ul>
-<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes"><span class="ascii">https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes</span></a></li>
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes" class="uri"><span class="ascii">https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes</span></a></li>
 </ul>
             </div>
         </div>

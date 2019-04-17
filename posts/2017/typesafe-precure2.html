@@ -202,51 +202,51 @@ here</span></a></span>ほかの言語での例</h1>
 <h2 id="typesafe-precure2_case-ruby"><span class="link-to-here-outer"><a href="#typesafe-precure2_case-ruby" title="typesafe-precure2_case-ruby"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Ruby</span>での場合</h2>
 <p>前職時代、私は実際にこの「定義を自動でまとめる問題」に出くわしたのですが、<span class="ascii">Ruby</span>を使っていたため、下記のように<a href="https://docs.ruby-lang.org/ja/2.4.0/method/Module/i/included.html"><span class="ascii">Module#included</span></a>という、対象のモジュールを<code>include</code><small>（モジュールが提供する機能の継承）</small>したときに呼ばれる、特別なメタプログラミング用のメソッドを使って解決しておりました。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">module</span> <span class="dt">ListedAsSubCommand</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="ot">@listed</span> = []</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="co"># このモジュールを include するたびに呼ばれるメソッド。</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="co"># 引数として、include した Class オブジェクト（または Module オブジェクト）を受け取る</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="kw">def</span> included klass</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">    <span class="co"># include した Class オブジェクトをリストに追加して記録する</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">    <span class="ot">@listed</span>.push klass</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="kw">end</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">  <span class="kw">class</span> &lt;&lt; <span class="dv">self</span></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">    <span class="ot">attr_reader</span> <span class="st">:listed</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">  <span class="kw">end</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="kw">end</span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># path/to/commands/foo/sub_command_a.rb</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="kw">class</span> <span class="dt">SubCommandA</span></a>
-<a class="sourceLine" id="cb1-19" data-line-number="19">  include <span class="dt">ListedAsSubCommand</span></a>
-<a class="sourceLine" id="cb1-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb1-21" data-line-number="21">  <span class="co"># SubCommandA の定義 ...</span></a>
-<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="kw">end</span></a>
-<a class="sourceLine" id="cb1-23" data-line-number="23"></a>
-<a class="sourceLine" id="cb1-24" data-line-number="24"></a>
-<a class="sourceLine" id="cb1-25" data-line-number="25"><span class="co"># path/to/commands/bar/sub_command_b.rb</span></a>
-<a class="sourceLine" id="cb1-26" data-line-number="26"><span class="kw">class</span> <span class="dt">SubCommandB</span></a>
-<a class="sourceLine" id="cb1-27" data-line-number="27">  include <span class="dt">ListedAsSubCommand</span></a>
-<a class="sourceLine" id="cb1-28" data-line-number="28"></a>
-<a class="sourceLine" id="cb1-29" data-line-number="29">  <span class="co"># SubCommandB の定義 ...</span></a>
-<a class="sourceLine" id="cb1-30" data-line-number="30"><span class="kw">end</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">module</span> <span class="dt">ListedAsSubCommand</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="ot">@listed</span> = []</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="co"># このモジュールを include するたびに呼ばれるメソッド。</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="co"># 引数として、include した Class オブジェクト（または Module オブジェクト）を受け取る</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="kw">def</span> included klass</a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="co"># include した Class オブジェクトをリストに追加して記録する</span></a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="ot">@listed</span>.push klass</a>
+<a class="sourceLine" id="cb1-9" title="9">  <span class="kw">end</span></a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11">  <span class="kw">class</span> &lt;&lt; <span class="dv">self</span></a>
+<a class="sourceLine" id="cb1-12" title="12">    <span class="ot">attr_reader</span> <span class="st">:listed</span></a>
+<a class="sourceLine" id="cb1-13" title="13">  <span class="kw">end</span></a>
+<a class="sourceLine" id="cb1-14" title="14"><span class="kw">end</span></a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16"></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="co"># path/to/commands/foo/sub_command_a.rb</span></a>
+<a class="sourceLine" id="cb1-18" title="18"><span class="kw">class</span> <span class="dt">SubCommandA</span></a>
+<a class="sourceLine" id="cb1-19" title="19">  include <span class="dt">ListedAsSubCommand</span></a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21">  <span class="co"># SubCommandA の定義 ...</span></a>
+<a class="sourceLine" id="cb1-22" title="22"><span class="kw">end</span></a>
+<a class="sourceLine" id="cb1-23" title="23"></a>
+<a class="sourceLine" id="cb1-24" title="24"></a>
+<a class="sourceLine" id="cb1-25" title="25"><span class="co"># path/to/commands/bar/sub_command_b.rb</span></a>
+<a class="sourceLine" id="cb1-26" title="26"><span class="kw">class</span> <span class="dt">SubCommandB</span></a>
+<a class="sourceLine" id="cb1-27" title="27">  include <span class="dt">ListedAsSubCommand</span></a>
+<a class="sourceLine" id="cb1-28" title="28"></a>
+<a class="sourceLine" id="cb1-29" title="29">  <span class="co"># SubCommandB の定義 ...</span></a>
+<a class="sourceLine" id="cb1-30" title="30"><span class="kw">end</span></a></code></pre></div>
 <p>このように書くことで、<code>ListedAsSubCommand.listed</code>というプロパティから、<code>ListedAsSubCommand</code>を<code>include</code>した<code>Class</code>オブジェクトのリストが取得できます。<br />
 実際に使用するときは、下記のように、対象のクラスが定義されているファイルを含んだディレクトリーからまとめて<code>require</code>した上で、<code>ListedAsSubCommand.listed</code>にアクセスする事になるでしょう。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># ListedAsSubCommand.includedが実行されるのは対象のクラスが</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co"># 定義されたときなので、この時点では空のリスト。</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="dt">ListedAsSubCommand</span>.listed <span class="co">#=&gt; []</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co"># Dir.glob メソッドで、指定したディレクトリーから</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co"># 再帰的にファイルを取り出し、require で読み込む。</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="dt">Dir</span>.glob(<span class="st">'path/to/commands/**/*.rb'</span>) <span class="kw">do</span>|file|</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">  require file</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="kw">end</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co"># require されたファイルの中でクラスの定義が実行されるので、</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co"># 定義したクラスがリストに追加される</span></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="dt">ListedAsSubCommand</span>.listed <span class="co">#=&gt; [SubCommandA, SubCommandB, ...]</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># ListedAsSubCommand.includedが実行されるのは対象のクラスが</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co"># 定義されたときなので、この時点では空のリスト。</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="dt">ListedAsSubCommand</span>.listed <span class="co">#=&gt; []</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="co"># Dir.glob メソッドで、指定したディレクトリーから</span></a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="co"># 再帰的にファイルを取り出し、require で読み込む。</span></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="dt">Dir</span>.glob(<span class="st">'path/to/commands/**/*.rb'</span>) <span class="kw">do</span>|file|</a>
+<a class="sourceLine" id="cb2-8" title="8">  require file</a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="kw">end</span></a>
+<a class="sourceLine" id="cb2-10" title="10"></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="co"># require されたファイルの中でクラスの定義が実行されるので、</span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="co"># 定義したクラスがリストに追加される</span></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="dt">ListedAsSubCommand</span>.listed <span class="co">#=&gt; [SubCommandA, SubCommandB, ...]</span></a></code></pre></div>
 <h2 id="javaでの場合"><span class="link-to-here-outer"><a href="#javaでの場合" title="javaでの場合"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Java</span>での場合</h2>
 <p><span class="ascii">Java</span>で「定義を自動でまとめる問題」を解決する場合も、<span class="ascii">Ruby</span>と同様に、何らかの形でメタプログラミング用の仕組みを利用することになるかと思います。<br />
@@ -255,15 +255,15 @@ here</span></a></span><span class="ascii">Java</span>での場合</h2>
 結果、モジュール<small>（実際には<span class="ascii">Java</span>なのでクラス）</small>に関する情報、すなわちどのクラスのどのフィールドに、どのオブジェクトを注入するか、といった情報はすべてモジュールのファイルとは独立して管理することになり、<span class="ascii">DRY</span>ではなくなってしまいます。 まさに「定義を自動でまとめる問題」の典型と言えますね。</p>
 <p>それに対して<span class="ascii">Spring</span>の「コンポーネントスキャン」では、下記のように設定することで、「どのインターフェースにどのオブジェクトを紐付けるか」といった情報を、すべて自動で設定してしまうことができます。<br />
 下記はコンポーネントスキャンを<code>@Configuration</code>アノテーションが着いた<span class="ascii">Java</span>のクラスで設定した場合のサンプルコードです。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode java"><code class="sourceCode java"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="at">@Configuration</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="at">@ComponentScan</span>(<span class="st">&quot;example.base.package.containing.components&quot;</span>)</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">public</span> <span class="kw">class</span> AppConfig {</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">}</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode java"><code class="sourceCode java"><a class="sourceLine" id="cb3-1" title="1"><span class="at">@Configuration</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="at">@ComponentScan</span>(<span class="st">&quot;example.base.package.containing.components&quot;</span>)</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">public</span> <span class="kw">class</span> AppConfig {</a>
+<a class="sourceLine" id="cb3-4" title="4">}</a></code></pre></div>
 <p><code>@Configuration</code>アノテーションを付与した<span class="ascii">Java</span>のクラスに、更に<code>@ComponentScan</code>というアノテーションを付与すると、<span class="ascii">Spring</span>は、<code>@ComponentScan</code>アノテーションの引数として渡した名前空間以下に存在する、すべての<code>@Component</code>というアノテーションが着いたクラスのオブジェクトを、自動的にほかの<code>@Component</code>が着いたクラスのフィールドとして設定できるようにします<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode java"><code class="sourceCode java"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="at">@Component</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">public</span> <span class="kw">class</span> SomeComponent {</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="co">// ...</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">}</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode java"><code class="sourceCode java"><a class="sourceLine" id="cb4-1" title="1"><span class="at">@Component</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">public</span> <span class="kw">class</span> SomeComponent {</a>
+<a class="sourceLine" id="cb4-3" title="3">  <span class="co">// ...</span></a>
+<a class="sourceLine" id="cb4-4" title="4">}</a></code></pre></div>
 <p>このようにコンポーネントスキャンを使うことで、<code>@ComponentScan</code>されたクラスのオブジェクトは自動で依存するオブジェクトとして紐付けられるようになります。<br />
 従来<code>foo-context.xml</code>みたいな名前のファイルに、どのオブジェクトのどのフィールドにどのオブジェクトを紐付けるか、といった情報を一つ一つ書いていたのを、ほとんど書かなくて済むようになりました。</p>
 <h1 id="typesafe-precure2_requirement"><span class="link-to-here-outer"><a href="#typesafe-precure2_requirement" title="typesafe-precure2_requirement"><span class="link-to-here">Link to<br />
@@ -274,15 +274,15 @@ here</span></a></span>解決に必要なもの</h1>
 まさかファイルシステムにあるすべてのソースコードから「まとめたい定義」を探すわけにも行きませんし、プロジェクトのディレクトリーすべてを処理するのも、柔軟性に欠けた解決方法でしょう。そこで通例「定義を自動でまとめる問題」に対応する際は、「まとめたい定義（モジュールや関数、型など）」が書かれているファイルがどのディレクトリー以下にあるか、を何らかの形で書くことになります。</p>
 <p>前述の<span class="ascii">Ruby</span>による例の場合、この情報は下記の<code>Dir.glob</code>メソッドに渡した引数に当たります。<br />
 <code>'path/to/commands/**/*.rb'</code> という文字列のうち、 <code>path/to/commands/</code> の部分ですね。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode ruby"><code class="sourceCode ruby"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="dt">Dir</span>.glob(<span class="st">'path/to/commands/**/*.rb'</span>) <span class="kw">do</span>|file|</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">  require file</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">end</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ruby"><code class="sourceCode ruby"><a class="sourceLine" id="cb5-1" title="1"><span class="dt">Dir</span>.glob(<span class="st">'path/to/commands/**/*.rb'</span>) <span class="kw">do</span>|file|</a>
+<a class="sourceLine" id="cb5-2" title="2">  require file</a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">end</span></a></code></pre></div>
 <p><span class="ascii">Java</span>における<span class="ascii">Spring</span>のコンポーネントスキャンの場合、<code>@ComponentScan</code>アノテーションに渡した引数が該当します。<br />
 厳密には、<code>@ComponentScan</code>アノテーションに渡す引数はディレクトリーのパスではなく<code>Java</code>のパッケージの名前ですが、<span class="ascii">Java</span>ではパッケージはクラスパス以下のディレクトリーと一対一で対応するよう作る必要があるので、事実上ディレクトリーのパスを渡していると言えるでしょう。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode java"><code class="sourceCode java"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="at">@Configuration</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="at">@ComponentScan</span>(<span class="st">&quot;example.base.package.containing.components&quot;</span>)</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">public</span> <span class="kw">class</span> AppConfig {</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">}</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode java"><code class="sourceCode java"><a class="sourceLine" id="cb6-1" title="1"><span class="at">@Configuration</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="at">@ComponentScan</span>(<span class="st">&quot;example.base.package.containing.components&quot;</span>)</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw">public</span> <span class="kw">class</span> AppConfig {</a>
+<a class="sourceLine" id="cb6-4" title="4">}</a></code></pre></div>
 <p><strong><span class="ascii">(2)</span> 「まとめたい定義（モジュールや関数、型など）」が書かれたファイルに、なんらかの印をつける</strong></p>
 <p>「定義を自動でまとめる問題」では、「どの定義を自動でまとめるか」さえ指定できればよいので、理屈の上では前述の「<span class="ascii">(1)</span> 対象となる『まとめたい定義（モジュールや関数、型など）』が書かれているファイルが、どのディレクトリー以下にあるか設定する」さえできれば、後はディレクトリー以下のファイルをすべて自動でまとめられるはずです。 しかし、それだけでは次の問題が生じてしまう恐れがあります。</p>
 <ol type="1">
@@ -324,53 +324,53 @@ here</span></a></span>注意点</h1>
 here</span></a></span><span class="ascii">Haskell</span>での解決事例 <span class="ascii">-</span> 「タイプセーフプリキュア！」における<code>cure-index.json</code>の実装</h1>
 <p>「<a href="https://github.com/igrep/typesafe-precure/">タイプセーフプリキュア！</a>」<small>（パッケージとしての名前は<a href="https://hackage.haskell.org/package/typesafe-precure"><span class="ascii">typesafe-precure</span></a>なので、以下「<span class="ascii">typesafe-precure</span>」と呼びます）</small>では、最近の更新により、コンパイル時に「<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/cure-index.json"><span class="ascii">cure-index.json</span></a>」と、「<a href="https://github.com/igrep/typesafe-precure/blob/master/gen/pretty-cure-index.json"><span class="ascii">pretty-cure-index.json</span></a>」いうファイルを生成するようになりました。<br />
 次のような内容のファイルです。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="fu">{</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">    <span class="dt">&quot;specialItems&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">        <span class="fu">{</span></a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">            <span class="dt">&quot;nameEn&quot;</span><span class="fu">:</span> <span class="st">&quot;Sweets Pact&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">            <span class="dt">&quot;attachments&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">                <span class="st">&quot;Animal Sweets&quot;</span></a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">            <span class="ot">]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-8" data-line-number="8">            <span class="dt">&quot;nameJa&quot;</span><span class="fu">:</span> <span class="st">&quot;スイーツパクト&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-9" data-line-number="9">            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SweetsPact&quot;</span></a>
-<a class="sourceLine" id="cb7-10" data-line-number="10">        <span class="fu">}</span><span class="ot">,</span></a>
-<a class="sourceLine" id="cb7-11" data-line-number="11">        <span class="er">...</span></a>
-<a class="sourceLine" id="cb7-12" data-line-number="12">    <span class="ot">]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-13" data-line-number="13">    <span class="dt">&quot;transformees&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
-<a class="sourceLine" id="cb7-14" data-line-number="14">        <span class="fu">{</span></a>
-<a class="sourceLine" id="cb7-15" data-line-number="15">            <span class="dt">&quot;nameEn&quot;</span><span class="fu">:</span> <span class="st">&quot;Cure Whip&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-16" data-line-number="16">            <span class="dt">&quot;variationEn&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-17" data-line-number="17">            <span class="dt">&quot;nameJa&quot;</span><span class="fu">:</span> <span class="st">&quot;キュアホイップ&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-18" data-line-number="18">            <span class="dt">&quot;variationJa&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-19" data-line-number="19">            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;CureWhip&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-20" data-line-number="20">            <span class="dt">&quot;introducesHerselfAs&quot;</span><span class="fu">:</span> <span class="st">&quot;ショートケーキ！元気と笑顔を！レッツ・ラ・まぜまぜ！キュアホイップ！できあがり！&quot;</span></a>
-<a class="sourceLine" id="cb7-21" data-line-number="21">        <span class="fu">}</span><span class="ot">,</span></a>
-<a class="sourceLine" id="cb7-22" data-line-number="22">        <span class="er">...</span></a>
-<a class="sourceLine" id="cb7-23" data-line-number="23">    <span class="ot">]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-24" data-line-number="24">    <span class="dt">&quot;girls&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
-<a class="sourceLine" id="cb7-25" data-line-number="25">        <span class="fu">{</span></a>
-<a class="sourceLine" id="cb7-26" data-line-number="26">            <span class="dt">&quot;nameEn&quot;</span><span class="fu">:</span> <span class="st">&quot;Ichika Usami&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-27" data-line-number="27">            <span class="dt">&quot;nameJa&quot;</span><span class="fu">:</span> <span class="st">&quot;宇佐美 いちか&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-28" data-line-number="28">            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;Ichika&quot;</span></a>
-<a class="sourceLine" id="cb7-29" data-line-number="29">        <span class="fu">}</span><span class="ot">,</span></a>
-<a class="sourceLine" id="cb7-30" data-line-number="30">        <span class="er">...</span></a>
-<a class="sourceLine" id="cb7-31" data-line-number="31">    <span class="ot">]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb7-32" data-line-number="32">    <span class="er">...</span></a>
-<a class="sourceLine" id="cb7-33" data-line-number="33"><span class="fu">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">    <span class="dt">&quot;specialItems&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb7-3" title="3">        <span class="fu">{</span></a>
+<a class="sourceLine" id="cb7-4" title="4">            <span class="dt">&quot;nameEn&quot;</span><span class="fu">:</span> <span class="st">&quot;Sweets Pact&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-5" title="5">            <span class="dt">&quot;attachments&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb7-6" title="6">                <span class="st">&quot;Animal Sweets&quot;</span></a>
+<a class="sourceLine" id="cb7-7" title="7">            <span class="ot">]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-8" title="8">            <span class="dt">&quot;nameJa&quot;</span><span class="fu">:</span> <span class="st">&quot;スイーツパクト&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-9" title="9">            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SweetsPact&quot;</span></a>
+<a class="sourceLine" id="cb7-10" title="10">        <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb7-11" title="11">        <span class="er">...</span></a>
+<a class="sourceLine" id="cb7-12" title="12">    <span class="ot">]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-13" title="13">    <span class="dt">&quot;transformees&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb7-14" title="14">        <span class="fu">{</span></a>
+<a class="sourceLine" id="cb7-15" title="15">            <span class="dt">&quot;nameEn&quot;</span><span class="fu">:</span> <span class="st">&quot;Cure Whip&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-16" title="16">            <span class="dt">&quot;variationEn&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-17" title="17">            <span class="dt">&quot;nameJa&quot;</span><span class="fu">:</span> <span class="st">&quot;キュアホイップ&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-18" title="18">            <span class="dt">&quot;variationJa&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-19" title="19">            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;CureWhip&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-20" title="20">            <span class="dt">&quot;introducesHerselfAs&quot;</span><span class="fu">:</span> <span class="st">&quot;ショートケーキ！元気と笑顔を！レッツ・ラ・まぜまぜ！キュアホイップ！できあがり！&quot;</span></a>
+<a class="sourceLine" id="cb7-21" title="21">        <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb7-22" title="22">        <span class="er">...</span></a>
+<a class="sourceLine" id="cb7-23" title="23">    <span class="ot">]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-24" title="24">    <span class="dt">&quot;girls&quot;</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb7-25" title="25">        <span class="fu">{</span></a>
+<a class="sourceLine" id="cb7-26" title="26">            <span class="dt">&quot;nameEn&quot;</span><span class="fu">:</span> <span class="st">&quot;Ichika Usami&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-27" title="27">            <span class="dt">&quot;nameJa&quot;</span><span class="fu">:</span> <span class="st">&quot;宇佐美 いちか&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-28" title="28">            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;Ichika&quot;</span></a>
+<a class="sourceLine" id="cb7-29" title="29">        <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb7-30" title="30">        <span class="er">...</span></a>
+<a class="sourceLine" id="cb7-31" title="31">    <span class="ot">]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-32" title="32">    <span class="er">...</span></a>
+<a class="sourceLine" id="cb7-33" title="33"><span class="fu">}</span></a></code></pre></div>
 <p>これは、変身アイテムからプリキュア、プリキュアに変身する前の女の子、それから浄化技や変身時の台詞まで、<span class="ascii">typesafe-precure</span>で定義されているあらゆる情報をまとめた<span class="ascii">JSON</span>です。<br />
 まさしく、プリキュアの定義を自動でまとめた「インデックス」となっております <a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>。<br />
 ただし、残念ながら現時点では「キラキラ☆プリキュアアラモード」に収録されたプリキュアの情報しか、<code>cure-index.json</code>には記録されていません<small>（理由は後で説明します）</small>。</p>
 <p>名前の通り、<span class="ascii">pretty-</span><code>cure-index.json</code>には<code>cure-index.json</code>をプリティープリントした<span class="ascii">JSON</span>が記録されています。<br />
 下記のように<code>curl</code>して確かめてみましょう。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" data-line-number="1">$ <span class="ex">curl</span> -sL https://github.com/igrep/typesafe-precure/raw/master/gen/cure-index.json</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">{<span class="st">&quot;girls&quot;</span>:[{<span class="st">&quot;id&quot;</span>:<span class="st">&quot;Ichika&quot;</span>,<span class="st">&quot;nameEn&quot;</span>:<span class="st">&quot;Ichika Usami&quot;</span>,<span class="st">&quot;nameJa&quot;</span>:<span class="st">&quot;宇佐美 いちか&quot;</span>},{<span class="st">&quot;id&quot;</span>:<span class="st">&quot;Himari&quot;</span>,<span class="st">&quot;nameEn&quot;</span>:<span class="st">&quot;Himari Arisugawa&quot;</span>,<span class="st">&quot;nameJa&quot;</span>:<span class="st">&quot;有栖川 ひまり&quot;</span>}</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="ex">...</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">$ <span class="ex">curl</span> -sL https://github.com/igrep/typesafe-precure/raw/master/gen/pretty-cure-index.json</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="kw">{</span></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">    <span class="st">&quot;specialItems&quot;</span>:<span class="bu"> [</span></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">        {</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">            <span class="st">&quot;nameEn&quot;</span>: <span class="st">&quot;Sweets Pact&quot;</span>,</a>
-<a class="sourceLine" id="cb8-9" data-line-number="9">...</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1">$ <span class="ex">curl</span> -sL https://github.com/igrep/typesafe-precure/raw/master/gen/cure-index.json</a>
+<a class="sourceLine" id="cb8-2" title="2">{<span class="st">&quot;girls&quot;</span>:[{<span class="st">&quot;id&quot;</span>:<span class="st">&quot;Ichika&quot;</span>,<span class="st">&quot;nameEn&quot;</span>:<span class="st">&quot;Ichika Usami&quot;</span>,<span class="st">&quot;nameJa&quot;</span>:<span class="st">&quot;宇佐美 いちか&quot;</span>},{<span class="st">&quot;id&quot;</span>:<span class="st">&quot;Himari&quot;</span>,<span class="st">&quot;nameEn&quot;</span>:<span class="st">&quot;Himari Arisugawa&quot;</span>,<span class="st">&quot;nameJa&quot;</span>:<span class="st">&quot;有栖川 ひまり&quot;</span>}</a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="ex">...</span></a>
+<a class="sourceLine" id="cb8-4" title="4">$ <span class="ex">curl</span> -sL https://github.com/igrep/typesafe-precure/raw/master/gen/pretty-cure-index.json</a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="kw">{</span></a>
+<a class="sourceLine" id="cb8-6" title="6">    <span class="st">&quot;specialItems&quot;</span>:<span class="bu"> [</span></a>
+<a class="sourceLine" id="cb8-7" title="7">        {</a>
+<a class="sourceLine" id="cb8-8" title="8">            <span class="st">&quot;nameEn&quot;</span>: <span class="st">&quot;Sweets Pact&quot;</span>,</a>
+<a class="sourceLine" id="cb8-9" title="9">...</a></code></pre></div>
 <p>さて、この<code>cure-index.json</code>、繰り返しになりますが、<span class="ascii">typesafe-precure</span>で定義されている、すべてのプリキュアの情報をまとめた<span class="ascii">JSON</span>となっております。<br />
 ライブラリーとしての<span class="ascii">typesafe-precure</span>では、これらの情報は一つ一つが<span class="ascii">Haskell</span>の型として定義<span class="ascii">[^detail-typesafe-precure]</span>されており、<code>cure-index.json</code>は、それらの情報をコンパイル時に「自動でまとめる」ことで作成されます。決して、<span class="ascii">JSON</span>から<span class="ascii">Haskell</span>の型を作っているわけではありません。<br />
 詳細は冒頭にも挙げましたが、<a href="https://qiita.com/igrep/items/5496fa405fae00b5a737">私の去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>や<a href="http://the.igreque.info/posts/2016/06-type-safe-precure.html">同年のプリキュア <span class="ascii">Advent Calendar</span>の記事</a>をご覧ください。<br />
@@ -390,54 +390,54 @@ here</span></a></span><span class="ascii">ANN</span>で「まとめたい型」�
 <p>まず、「『まとめたい定義（モジュールや関数、型など）』が書かれたファイルに、なんらかの印をつける」方法を考えましょう。<br />
 実は<span class="ascii">Haskell(GHC)</span>にもアノテーションがあります<small>（<span class="ascii">Java</span>のアノテーションと使い勝手が異なりますが）</small>。<br />
 <code>ANN</code>という<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch12.html#x19-18800012"><span class="ascii">GHC</span>のプラグマ</a>（<code>{-# ... #-}</code> という形式で表される、特別なコメント）を使用すると、下記のように、モジュールや型、名前が付いた値に対して、アノテーションを加えることができます<small>（例は<a href="https://qiita.com/philopon/items/85210cc8f23ae04ba6ec">アンッ<span class="ascii">!!!</span>アンッ<span class="ascii">!!!! - Qiita</span></a>から拝借しました）</small>。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">module</span> <span class="dt">Foo</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="ot">{-# ANN module (&quot;annotation&quot; :: String) #-}</span> <span class="co">-- モジュールに対する注釈。importの前には書けないっぽい。不便……</span></a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="kw">data</span> <span class="dt">Foo</span> <span class="fu">=</span> <span class="dt">Foo</span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="ot">{-# ANN type Foo (2 :: Int) #-}</span> <span class="co">-- 型に対する注釈</span></a>
-<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="ot">{-# ANN type Foo (5 :: Int) #-}</span> <span class="co">-- 注釈を同じ/違う型で複数個付ける事も出来る</span></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="ot">{-# ANN type Foo (2.4 :: Double) #-}</span></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="ot">foo ::</span> <span class="dt">Foo</span></a>
-<a class="sourceLine" id="cb9-10" data-line-number="10">foo <span class="fu">=</span> <span class="dt">Foo</span></a>
-<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="ot">{-# ANN foo (3 + 2 * 6 :: Int) #-}</span> <span class="co">-- 値に対する注釈。注釈の中で計算する事も可能</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">module</span> <span class="dt">Foo</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="ot">{-# ANN module (&quot;annotation&quot; :: String) #-}</span> <span class="co">-- モジュールに対する注釈。importの前には書けないっぽい。不便……</span></a>
+<a class="sourceLine" id="cb9-3" title="3"></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="kw">data</span> <span class="dt">Foo</span> <span class="ot">=</span> <span class="dt">Foo</span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="ot">{-# ANN type Foo (2 :: Int) #-}</span> <span class="co">-- 型に対する注釈</span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="ot">{-# ANN type Foo (5 :: Int) #-}</span> <span class="co">-- 注釈を同じ/違う型で複数個付ける事も出来る</span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="ot">{-# ANN type Foo (2.4 :: Double) #-}</span></a>
+<a class="sourceLine" id="cb9-8" title="8"></a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="ot">foo ::</span> <span class="dt">Foo</span></a>
+<a class="sourceLine" id="cb9-10" title="10">foo <span class="ot">=</span> <span class="dt">Foo</span></a>
+<a class="sourceLine" id="cb9-11" title="11"><span class="ot">{-# ANN foo (3 + 2 * 6 :: Int) #-}</span> <span class="co">-- 値に対する注釈。注釈の中で計算する事も可能</span></a></code></pre></div>
 <p>上記の通り、<span class="ascii">GHC</span>の<code>ANN</code>は、<span class="ascii">Java</span>のアノテーションと異なり、アノテーション専用のインターフェースを作って引数を補足情報として渡す、というような形式ではありません<small>（そもそも<span class="ascii">Haskell</span>にはインターフェースなんてありませんしね）</small>。<br />
 <code>Data</code>型クラスのインスタンスである型の値であれば、なんでもアノテーションとして設定できます。</p>
 <p>その<code>Data</code>型クラスのインスタンスですが、<code>base</code>パッケージに含まれている多くの型に加え、<code>DeriveDataTypeable</code>という<span class="ascii">GHC</span>の言語拡張を使えば、オリジナルの型も簡単にそのインスタンスにすることができます。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="ot">{-# LANGUAGE DeriveDataTypeable #-}</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw">import</span> <span class="dt">Data.Data</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="kw">data</span> <span class="dt">SomeOriginalType</span> <span class="fu">=</span></a>
-<a class="sourceLine" id="cb10-6" data-line-number="6">  <span class="dt">SomeOriginalValue</span> <span class="kw">deriving</span> <span class="dt">Data</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="ot">{-# LANGUAGE DeriveDataTypeable #-}</span></a>
+<a class="sourceLine" id="cb10-2" title="2"></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="kw">import</span> <span class="dt">Data.Data</span></a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="kw">data</span> <span class="dt">SomeOriginalType</span> <span class="ot">=</span></a>
+<a class="sourceLine" id="cb10-6" title="6">  <span class="dt">SomeOriginalValue</span> <span class="kw">deriving</span> <span class="dt">Data</span></a></code></pre></div>
 <p>この、<code>Data</code>型クラスを使えば、実行時に型の構造を取得したりすることができます。<br />
 とはいえ、ここでは単純に<code>{-# LANGUAGE DeriveDataTypeable #-}</code>と<code>deriving Data</code>を「おまじない」として使うだけで差し支えありません。<br />
 詳しく知りたい方は<a href="https://github.com/shiatsumat/wiwinwlh-jp/wiki/%E3%82%B8%E3%82%A7%E3%83%8D%E3%83%AA%E3%82%AF%E3%82%B9">「<span class="ascii">What I Wish I Knew When Learning Haskell</span> 日本語訳」の「ジェネリクス」の章</a>をご覧ください。</p>
 <p>さて<span class="ascii">typesafe-precure</span>では、この<code>Data</code>型クラスと<code>ANN</code>プラグマを利用した次のようなアプローチで、各モジュールに対し、プリキュアやプリキュアに関する情報を「印」として付与しました。</p>
 <ol type="1">
 <li><p><a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Index/Types.hs"><code>ACME.PreCure.Index.Types</code></a>というモジュールに、型の名前やインスタンスの定義を自動生成したり、それを<span class="ascii">JSON</span>に変換したりするのに使う、中間データのための型を作る。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Girl</span> <span class="fu">=</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="dt">Girl</span> {<span class="ot"> girlId ::</span> <span class="dt">String</span>,<span class="ot"> girlNameEn ::</span> <span class="dt">String</span>,<span class="ot"> girlNameJa ::</span> <span class="dt">String</span> }</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Data</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">data</span> <span class="dt">Girl</span> <span class="ot">=</span></a>
+<a class="sourceLine" id="cb11-2" title="2">  <span class="dt">Girl</span> {<span class="ot"> girlId ::</span> <span class="dt">String</span>,<span class="ot"> girlNameEn ::</span> <span class="dt">String</span>,<span class="ot"> girlNameJa ::</span> <span class="dt">String</span> }</a>
+<a class="sourceLine" id="cb11-3" title="3">    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Data</span>)</a></code></pre></div>
 <ul>
 <li>この、各種中間データ用の型を<code>Data</code>型クラスのインスタンスとすることで、「まとめたい定義」が含まれたモジュールに、その中間データ用の値を<code>ANN</code>プラグマで付与できるようにする。</li>
 </ul></li>
 <li><p>名前が<code>ACME.PreCure.Textbook.*.Profiles</code>という形式のモジュール<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a><small>（<a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Profiles.hs">「キラキラ☆プリキュアアラモード」での例</a>）</small>で、中間データの値<small>（つまり各プリキュアや変身アイテムなどについての情報）</small>を定義する。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="ot">girls ::</span> [<span class="dt">Girl</span>]</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">girls <span class="fu">=</span></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">  [ mkGirl <span class="st">&quot;Ichika Usami&quot;</span> <span class="st">&quot;宇佐美 いちか&quot;</span></a>
-<a class="sourceLine" id="cb12-4" data-line-number="4">  , mkGirl <span class="st">&quot;Himari Arisugawa&quot;</span> <span class="st">&quot;有栖川 ひまり&quot;</span></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5">  , mkGirl <span class="st">&quot;Aoi Tategami&quot;</span> <span class="st">&quot;立神 あおい&quot;</span></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">  , mkGirl <span class="st">&quot;Yukari Kotozume&quot;</span> <span class="st">&quot;琴爪 ゆかり&quot;</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">  , mkGirl <span class="st">&quot;Akira Kenjo&quot;</span> <span class="st">&quot;剣城 あきら&quot;</span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8">  , mkGirl <span class="st">&quot;Ciel Kirahoshi&quot;</span> <span class="st">&quot;キラ星 シエル&quot;</span></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9">  ]</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="ot">girls ::</span> [<span class="dt">Girl</span>]</a>
+<a class="sourceLine" id="cb12-2" title="2">girls <span class="ot">=</span></a>
+<a class="sourceLine" id="cb12-3" title="3">  [ mkGirl <span class="st">&quot;Ichika Usami&quot;</span> <span class="st">&quot;宇佐美 いちか&quot;</span></a>
+<a class="sourceLine" id="cb12-4" title="4">  , mkGirl <span class="st">&quot;Himari Arisugawa&quot;</span> <span class="st">&quot;有栖川 ひまり&quot;</span></a>
+<a class="sourceLine" id="cb12-5" title="5">  , mkGirl <span class="st">&quot;Aoi Tategami&quot;</span> <span class="st">&quot;立神 あおい&quot;</span></a>
+<a class="sourceLine" id="cb12-6" title="6">  , mkGirl <span class="st">&quot;Yukari Kotozume&quot;</span> <span class="st">&quot;琴爪 ゆかり&quot;</span></a>
+<a class="sourceLine" id="cb12-7" title="7">  , mkGirl <span class="st">&quot;Akira Kenjo&quot;</span> <span class="st">&quot;剣城 あきら&quot;</span></a>
+<a class="sourceLine" id="cb12-8" title="8">  , mkGirl <span class="st">&quot;Ciel Kirahoshi&quot;</span> <span class="st">&quot;キラ星 シエル&quot;</span></a>
+<a class="sourceLine" id="cb12-9" title="9">  ]</a></code></pre></div>
 <p><small><span class="ascii">1.</span> <code>ACME.PreCure.Textbook.*.Profiles</code>で定義した中間データを、<code>ACME.PreCure.Textbook.KirakiraALaMode.Types</code>という形式のモジュールに対して<code>ANN</code>プラグマで付与する（同じく<a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Types.hs">「キラキラ☆プリキュアアラモード」での例</a>）</small>。</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Types</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Profiles</span></a>
-<a class="sourceLine" id="cb13-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="ot">{-# ANN module girls #-}</span></a></code></pre></div></li>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Types</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb13-2" title="2"></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Profiles</span></a>
+<a class="sourceLine" id="cb13-4" title="4"></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="ot">{-# ANN module girls #-}</span></a></code></pre></div></li>
 </ol>
 <h3 id="stage-restrictionを避けるためにモジュールを分ける"><span class="link-to-here-outer"><a href="#stage-restrictionを避けるためにモジュールを分ける" title="stage-restrictionを避けるためにモジュールを分ける"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Stage Restriction</span>を避けるためにモジュールを分ける</h3>
@@ -445,27 +445,27 @@ here</span></a></span><span class="ascii">Stage Restriction</span>を避ける�
 中間データの値を定義するモジュールと、<code>ANN</code>で中間データの値を付与するモジュールとを分ける必要があるのか、と。<br />
 上記の例で言えば、一つのモジュール<span class="ascii">(</span><code>ACME.PreCure.Textbook.KirakiraALaMode.Types</code><span class="ascii">)</span>で<code>girls</code>を定義しつつ<code>ANN</code>で付与すればよいのではないか、ということです。<br />
 あるいは<code>girls</code>という名前をつけずに、</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="ot">{-# ANN module</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="ot">    [ mkGirl &quot;Ichika Usami&quot; &quot;宇佐美 いちか&quot;</span></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="ot">    , mkGirl &quot;Himari Arisugawa&quot; &quot;有栖川 ひまり&quot;</span></a>
-<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="ot">    , mkGirl &quot;Aoi Tategami&quot; &quot;立神 あおい&quot;</span></a>
-<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="ot">    , mkGirl &quot;Yukari Kotozume&quot; &quot;琴爪 ゆかり&quot;</span></a>
-<a class="sourceLine" id="cb14-6" data-line-number="6"><span class="ot">    , mkGirl &quot;Akira Kenjo&quot; &quot;剣城 あきら&quot;</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="ot">    , mkGirl &quot;Ciel Kirahoshi&quot; &quot;キラ星 シエル&quot;</span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="ot">    ]</span></a>
-<a class="sourceLine" id="cb14-9" data-line-number="9"><span class="ot">#-}</span></a>
-<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co">-- 注: このコードは試していないので文法が合っているか自信がないです。</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="ot">{-# ANN module</span></a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="ot">    [ mkGirl &quot;Ichika Usami&quot; &quot;宇佐美 いちか&quot;</span></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="ot">    , mkGirl &quot;Himari Arisugawa&quot; &quot;有栖川 ひまり&quot;</span></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="ot">    , mkGirl &quot;Aoi Tategami&quot; &quot;立神 あおい&quot;</span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="ot">    , mkGirl &quot;Yukari Kotozume&quot; &quot;琴爪 ゆかり&quot;</span></a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="ot">    , mkGirl &quot;Akira Kenjo&quot; &quot;剣城 あきら&quot;</span></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="ot">    , mkGirl &quot;Ciel Kirahoshi&quot; &quot;キラ星 シエル&quot;</span></a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="ot">    ]</span></a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="ot">#-}</span></a>
+<a class="sourceLine" id="cb14-10" title="10"><span class="co">-- 注: このコードは試していないので文法が合っているか自信がないです。</span></a></code></pre></div>
 <p>というような書き方はできないのか、ということです。</p>
 <p>中間データの値を<code>ANN</code>で使うだけならそれで問題ないのですが、<span class="ascii">typesafe-precure</span>の場合、中間データの値からプリキュアや変身アイテムを表す型と、その型クラスのインスタンスを定義する必要があります。<br />
 なので、先ほどのコード例にあった<code>ACME.PreCure.Textbook.KirakiraALaMode.Profiles</code>というモジュールでは、実際には<code>{-# ANN module girls #-}</code>の行の後に、<code>girls</code>から、プリキュアに変身する女の子（を表す型）や、それに対して型クラスのインスタンスを宣言する<span class="ascii">Template Haskell</span>のコードが続いています。<br />
 下記の<code>$(declareGirls girls)</code>という行がそれです。</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Types</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Profiles</span></a>
-<a class="sourceLine" id="cb15-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="ot">{-# ANN module girls #-}</span></a>
-<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="fu">$</span>(declareGirls girls)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Types</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb15-3" title="3"></a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode.Profiles</span></a>
+<a class="sourceLine" id="cb15-5" title="5"></a>
+<a class="sourceLine" id="cb15-6" title="6"><span class="ot">{-# ANN module girls #-}</span></a>
+<a class="sourceLine" id="cb15-7" title="7"><span class="op">$</span>(declareGirls girls)</a></code></pre></div>
 <p>詳細は冒頭でも挙げた<a href="https://qiita.com/igrep/items/5496fa405fae00b5a737">私の去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>などをご覧いただきたいのですが、<span class="ascii">typesafe-precure</span>では、それぞれのプリキュアや、プリキュアに変身する女の子、変身に必要なアイテムなどを、すべて<strong>個別の型</strong>として定義しています。<br />
 そのため、中間データの値は<span class="ascii">JSON</span>としてまとめるだけでなく、個別の型として定義する必要もあったのです。<br />
 その結果、中間データの値は必ず名前をつけて使い回さないといけなくなるのです。</p>
@@ -488,7 +488,7 @@ here</span></a></span><span class="ascii">autoexporter</span>で「まとめた�
 本節の見出しでネタバレしてしまっていますが、<a href="https://hackage.haskell.org/package/autoexporter"><code>autoexporter</code></a>というプログラムと、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/phases.html#ghc-flag--F"><span class="ascii">GHC</span>のカスタムプリプロセッサーのためのオプション</a>を使います。</p>
 <p><span class="ascii">autoexporter</span>は、ドキュメントに書いてあるとおり、<span class="ascii">GHC</span>のカスタムプリプロセッサーのためのオプション<span class="ascii">(</span><code>-F -pgmF</code><span class="ascii">)</span>、さらには<a href="https://downloads.haskell.org/~ghc/7.0.3/docs/html/users_guide/pragmas.html#options-pragma"><code>OPTIONS_GHC</code>プラグマ</a>組み合わせて、次のように使うことを想定して作られています。<br />
 以下は、<a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook.hs"><span class="ascii">typesafe-precure</span>の<code>ACME/PreCure/Textbook.hs</code>というファイル</a>からの抜粋です。</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="ot">{-# OPTIONS_GHC -F -pgmF autoexporter #-}</span></a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">{-# OPTIONS_GHC -F -pgmF autoexporter #-}</span></a></code></pre></div>
 <p>と、いっても<span class="ascii">1</span>行だけですが😅</p>
 <p>一つずつ解説しましょう。<br />
 まず<code>OPTIONS_GHC</code>プラグマですが、文字通りこれは<code>ghc</code>コマンドに渡すオプションを、ファイル単位で指定するためのものです<small>（もちろんすべてのオプションをファイル単位で指定できるわけではありません）</small>。<br />
@@ -508,17 +508,17 @@ here</span></a></span><span class="ascii">autoexporter</span>で「まとめた�
 そういえばこれもテストコードの「定義を自動でまとめる問題」を解決したものでしたね！</p>
 <p>話がそれましたが、<code>autoexporter</code>はこのカスタムプリプロセッサーを利用することで、次のようなソースコードを自動生成します。<br />
 <code>autoexporter</code>のドキュメントにも同じことが書かれていますが、ここでも<code>ACME/PreCure/Textbook.hs</code>を例に説明しましょう。</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook</span></a>
-<a class="sourceLine" id="cb17-2" data-line-number="2">  ( <span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.First</span></a>
-<a class="sourceLine" id="cb17-3" data-line-number="3">  , <span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.MaxHeart</span></a>
-<a class="sourceLine" id="cb17-4" data-line-number="4">  <span class="fu">...</span></a>
-<a class="sourceLine" id="cb17-5" data-line-number="5">  , <span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode</span></a>
-<a class="sourceLine" id="cb17-6" data-line-number="6">  ) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb17-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.First</span></a>
-<a class="sourceLine" id="cb17-9" data-line-number="9"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.MaxHeart</span></a>
-<a class="sourceLine" id="cb17-10" data-line-number="10"><span class="fu">...</span></a>
-<a class="sourceLine" id="cb17-11" data-line-number="11"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode</span></a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook</span></a>
+<a class="sourceLine" id="cb17-2" title="2">  ( <span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.First</span></a>
+<a class="sourceLine" id="cb17-3" title="3">  , <span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.MaxHeart</span></a>
+<a class="sourceLine" id="cb17-4" title="4">  <span class="op">...</span></a>
+<a class="sourceLine" id="cb17-5" title="5">  , <span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode</span></a>
+<a class="sourceLine" id="cb17-6" title="6">  ) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-7" title="7"></a>
+<a class="sourceLine" id="cb17-8" title="8"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.First</span></a>
+<a class="sourceLine" id="cb17-9" title="9"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.MaxHeart</span></a>
+<a class="sourceLine" id="cb17-10" title="10"><span class="op">...</span></a>
+<a class="sourceLine" id="cb17-11" title="11"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.KirakiraALaMode</span></a></code></pre></div>
 <p>そう、（プリキュアが好きで）賢明な<span class="ascii">Haskeller</span>のみなさんならお気づきでしょう。<a href="https://github.com/igrep/typesafe-precure/tree/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook"><span class="ascii">typesafe-precure</span>の<code>ACME/PreCure/Textbook/</code>ディレクトリー</a>に含まれている、（プリキュアの各シリーズを表す）すべてのモジュールを<code>import</code>して、再エクスポートしているのです！</p>
 <p>つまり、<code>autoexporter</code>はこのような、「責務を分割するためにモジュールを細かく分けたい、でもユーザーには一つのモジュールを<code>import</code>しただけで使えるようにしたい」というライブラリー開発者のニーズに応えるため、よく行われているモジュールの書き方を自動で行うための便利コマンドなのです。</p>
 <p>紹介が長くなりましたが、<span class="ascii">typesafe-precure</span>ではこの<code>autoexporter</code>を次のように使うことで、「まとめたい型（プリキュアや変身アイテムなどの情報）」が書かれているモジュールを集めています。</p>
@@ -554,17 +554,17 @@ here</span></a></span>うまくいかなかった方法 （<span class="ascii">+
 here</span></a></span>型クラスのインスタンスから</h2>
 <p>当初（実は今も大部分は）、<span class="ascii">typesafe-precure</span>には、<a href="https://github.com/igrep/typesafe-precure/blob/f6701b3b4a86fda3a9e82a6f0c06a87c4a56362e/src/ACME/PreCure/Textbook/KirakiraALaMode/Profiles.hs"><code>ACME.PreCure.Textbook.KirakiraALaMode.Profiles</code></a>で定義しているような中間データはなく、各プリキュア（や、変身アイテムなど諸々）に対しては、直接型を宣言したり型クラスのインスタンスを実装したりしていました。<br />
 例えば下記のようなコードです<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>👇</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw">data</span> <span class="dt">CurePeach</span> <span class="fu">=</span> <span class="dt">CurePeach</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="kw">data</span> <span class="dt">CureStickPeachRod</span> <span class="fu">=</span> <span class="dt">CureStickPeachRod</span></a>
-<a class="sourceLine" id="cb18-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="kw">instance</span> <span class="dt">Purification</span> <span class="dt">CurePeach</span> <span class="dt">CureStickPeachRod</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb18-6" data-line-number="6">  purificationSpeech _ _ <span class="fu">=</span></a>
-<a class="sourceLine" id="cb18-7" data-line-number="7">    [ <span class="st">&quot;届け！愛のメロディ！&quot;</span></a>
-<a class="sourceLine" id="cb18-8" data-line-number="8">    , <span class="st">&quot;キュアスティック・ピーチロッド！&quot;</span></a>
-<a class="sourceLine" id="cb18-9" data-line-number="9">    , <span class="st">&quot;悪いの悪いの飛んでいけ！&quot;</span></a>
-<a class="sourceLine" id="cb18-10" data-line-number="10">    , <span class="st">&quot;プリキュア！ラブサンシャイン・フレッシュ！&quot;</span></a>
-<a class="sourceLine" id="cb18-11" data-line-number="11">    ]</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">data</span> <span class="dt">CurePeach</span> <span class="ot">=</span> <span class="dt">CurePeach</span></a>
+<a class="sourceLine" id="cb18-2" title="2"></a>
+<a class="sourceLine" id="cb18-3" title="3"><span class="kw">data</span> <span class="dt">CureStickPeachRod</span> <span class="ot">=</span> <span class="dt">CureStickPeachRod</span></a>
+<a class="sourceLine" id="cb18-4" title="4"></a>
+<a class="sourceLine" id="cb18-5" title="5"><span class="kw">instance</span> <span class="dt">Purification</span> <span class="dt">CurePeach</span> <span class="dt">CureStickPeachRod</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb18-6" title="6">  purificationSpeech _ _ <span class="ot">=</span></a>
+<a class="sourceLine" id="cb18-7" title="7">    [ <span class="st">&quot;届け！愛のメロディ！&quot;</span></a>
+<a class="sourceLine" id="cb18-8" title="8">    , <span class="st">&quot;キュアスティック・ピーチロッド！&quot;</span></a>
+<a class="sourceLine" id="cb18-9" title="9">    , <span class="st">&quot;悪いの悪いの飛んでいけ！&quot;</span></a>
+<a class="sourceLine" id="cb18-10" title="10">    , <span class="st">&quot;プリキュア！ラブサンシャイン・フレッシュ！&quot;</span></a>
+<a class="sourceLine" id="cb18-11" title="11">    ]</a></code></pre></div>
 <p>今回作った<code>cure-index.json</code>を最初に思いついたとき、「型クラスから各型のインスタンス宣言を自動で収集して、そこから<code>cure-index.json</code>を作れないだろうか」と、漠然と考えていました。<br />
 <span class="ascii">typesafe-precure</span>を作り始める以前、私は<span class="ascii">Ruby</span>で「定義を自動でまとめる問題」に対応した際、<a href="#typesafe-precure2_case-ruby"><span class="ascii">Ruby</span>での場合</a>の節で紹介したような方法を用いていたため、「<span class="ascii">Haskell</span>における、<span class="ascii">Ruby</span>で言うところの<span class="ascii">mix-in</span>されるモジュールは型クラスだ」なんて類推をしていたからかも知れません。<br />
 いずれにしても、そんな方法で実現できれば、既存の<span class="ascii">typesafe-precure</span>のモジュールの構造をそのまま使って<span class="ascii">cure-index</span>が作れるので、大変都合がよかったのです。</p>
@@ -600,11 +600,11 @@ here</span></a></span>モジュールが持っている特定の名前の関数�
 <p>という流れで「定義を自動でまとめる」機構の存在に気づくのではないでしょうか。</p>
 <p>あるいはいっそ<code>ANN</code>も使わずに、こんな内容の<span class="ascii">human-readable</span>なコメントを「印」とするのもよいかも知れません。<br />
 プログラムで検出するのもそう難しくはないでしょう。</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">module</span> <span class="dt">Foo.Commands.SampleCommand</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb19-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb19-3" data-line-number="3"><span class="co">-- | このコメントが付いたモジュールの 'execute' という関数は、</span></a>
-<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="co">--   Template Haskellによって、自動的に再利用できるよう収集される。</span></a>
-<a class="sourceLine" id="cb19-5" data-line-number="5"><span class="co">--   詳しくは 'Foo.Commands` を読まれたし。</span></a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">module</span> <span class="dt">Foo.Commands.SampleCommand</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb19-2" title="2"></a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="co">-- | このコメントが付いたモジュールの 'execute' という関数は、</span></a>
+<a class="sourceLine" id="cb19-4" title="4"><span class="co">--   Template Haskellによって、自動的に再利用できるよう収集される。</span></a>
+<a class="sourceLine" id="cb19-5" title="5"><span class="co">--   詳しくは 'Foo.Commands` を読まれたし。</span></a></code></pre></div>
 <p>これなら、<code>Foo.Commands</code>モジュールにヒントがあることが、すぐに分かります。<br />
 <code>hspec-discover</code>のように、<span class="ascii">Template Haskell</span>を使わず直接ファイルシステムにあるファイルを開く方法とも、相性がいいはずです。</p>
 <p>ほかにもいろいろな方法を考えましたが、これ以上に有効でもなさそうだし、そろそろ時間もなくなってきたので、この辺でまとめたいと思います。</p>

@@ -164,55 +164,55 @@ here</span></a></span><span class="ascii">deriveJsonNoPrefix</span></h1>
 <h2 id="例"><span class="link-to-here-outer"><a href="#例" title="例"><span class="link-to-here">Link to<br />
 here</span></a></span>例</h2>
 <p>こんな感じの<span class="ascii">JSON</span>を作りたいとしましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">{</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ID STRING&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="dt">&quot;max&quot;</span><span class="fu">:</span> <span class="fl">0.789</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="dt">&quot;min&quot;</span><span class="fu">:</span> <span class="fl">0.123</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="fu">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ID STRING&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="dt">&quot;max&quot;</span><span class="fu">:</span> <span class="fl">0.789</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="dt">&quot;min&quot;</span><span class="fu">:</span> <span class="fl">0.123</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="fu">}</span></a></code></pre></div>
 <p>きっと<a href="http://hackage.haskell.org/package/aeson/docs/Data-Aeson.html#t:ToJSON"><span class="ascii">ToJSON</span></a>（おそらくそれに加えて<a href="http://hackage.haskell.org/package/aeson/docs/Data-Aeson.html#t:FromJSON"><span class="ascii">FromJSON</span></a>も）のインスタンスを自動的に定義するための、次のようなレコード型を定義したくなるでしょう。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw">import</span> <span class="dt">Data.Aeson.TH</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="fu">=</span> <span class="dt">SomeRecord</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">  {<span class="ot"> id ::</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">  ,<span class="ot"> max ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">  ,<span class="ot"> min ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="fu">$</span>(deriveToJSON defaultOptions <span class="ch">''</span><span class="dt">SomeRecord</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">import</span> <span class="dt">Data.Aeson.TH</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="ot">=</span> <span class="dt">SomeRecord</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  {<span class="ot"> id ::</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  ,<span class="ot"> max ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  ,<span class="ot"> min ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb2-9" title="9">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
+<a class="sourceLine" id="cb2-10" title="10"></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="op">$</span>(deriveToJSON defaultOptions '<span class="dt">'SomeRecord</span>)</a></code></pre></div>
 <p>しかし、こんなレコード型は定義すべきではありません。<br />
 <code>id</code>も<code>max</code>も<code>min</code>も、<code>Prelude</code>に定義済みなのですから！</p>
 <p>この問題を回避するために、レコードラベルに型の名前をプレフィックスとして加える、ということをわれわれはよくやります。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="fu">=</span> <span class="dt">SomeRecord</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">  {<span class="ot"> someRecordId ::</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">  ,<span class="ot"> someRecordMax ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">  ,<span class="ot"> someRecordMin ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="ot">=</span> <span class="dt">SomeRecord</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  {<span class="ot"> someRecordId ::</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  ,<span class="ot"> someRecordMax ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  ,<span class="ot"> someRecordMin ::</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a></code></pre></div>
 <p>そして、<code>deriveToJSON</code>にデフォルトと異なるオプションを渡して実行します。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1">deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="fu">=</span> firstLower <span class="fu">.</span> drop (length <span class="st">&quot;SomeRecord&quot;</span>) } <span class="ch">''</span><span class="dt">SomeRecord</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">firstLower (x<span class="fu">:</span>xs) <span class="fu">=</span> toLower x <span class="fu">:</span> xs</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">firstLower _ <span class="fu">=</span> error <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1">deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="ot">=</span> firstLower <span class="op">.</span> <span class="fu">drop</span> (<span class="fu">length</span> <span class="st">&quot;SomeRecord&quot;</span>) } '<span class="dt">'SomeRecord</span></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb4-4" title="4">firstLower (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="fu">toLower</span> x <span class="op">:</span> xs</a>
+<a class="sourceLine" id="cb4-5" title="5">firstLower _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
 <p><code>fieldLabelModifier</code>オプションは文字通り、対象のレコードを<span class="ascii">JSON</span>に変換するとき、あるいは<span class="ascii">JSON</span>から対象のレコードの値に変換する時、レコードのラベルを変換する関数を設定するために使います。<br />
 👆の場合、プレフィックスである<code>SomeRecord</code>の文字数分レコードラベルから<code>drop</code>して、先頭の文字<small>（<code>someRecordId</code>で言えば<code>Id</code>の<code>I</code>に相当します）</small>を小文字に変換しているのがわかるでしょうか？</p>
 <p>そう、これが<code>deriveToJsonNoTypeNamePrefix</code>がやっていることとほぼ同等のことです。<br />
 <code>deriveToJsonNoTypeNamePrefix</code>は、実質次のように定義されています。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="ot">deriveToJsonNoTypeNamePrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">deriveToJsonNoTypeNamePrefix deriver name <span class="fu">=</span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">  deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="fu">=</span> dropPrefix name } name</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="ot">dropPrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb5-6" data-line-number="6">dropPrefix name <span class="fu">=</span> firstLower <span class="fu">.</span> drop (length <span class="fu">$</span> nameBase name)</a>
-<a class="sourceLine" id="cb5-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb5-9" data-line-number="9">firstLower (x<span class="fu">:</span>xs) <span class="fu">=</span> toLower x <span class="fu">:</span> xs</a>
-<a class="sourceLine" id="cb5-10" data-line-number="10">firstLower _ <span class="fu">=</span> error <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">deriveToJsonNoTypeNamePrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</a>
+<a class="sourceLine" id="cb5-2" title="2">deriveToJsonNoTypeNamePrefix deriver name <span class="ot">=</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="ot">=</span> dropPrefix name } name</a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="ot">dropPrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb5-6" title="6">dropPrefix name <span class="ot">=</span> firstLower <span class="op">.</span> <span class="fu">drop</span> (<span class="fu">length</span> <span class="op">$</span> nameBase name)</a>
+<a class="sourceLine" id="cb5-7" title="7"></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb5-9" title="9">firstLower (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="fu">toLower</span> x <span class="op">:</span> xs</a>
+<a class="sourceLine" id="cb5-10" title="10">firstLower _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
 <p>結果、これからは<code>fieldLabelModifier</code>をもう自分で定義する必要がありません！🙌</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">import</span> <span class="dt">Data.Aeson.DeriveNoPrefix</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="fu">$</span>(deriveJsonNoTypeNamePrefix <span class="ch">''</span><span class="dt">SomeRecord</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">import</span> <span class="dt">Data.Aeson.DeriveNoPrefix</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="op">$</span>(deriveJsonNoTypeNamePrefix '<span class="dt">'SomeRecord</span>)</a></code></pre></div>
 <p>👆 の<code>deriveJsonNoTypeNamePrefix</code> は <a href="https://hackage.haskell.org/package/aeson/docs/Data-Aeson-TH.html#v:deriveJSON"><span class="ascii">deriveJSON</span></a>と同様に、<code>ToJSON</code>と<code>FromJSON</code>のインスタンス、両方を生成します。<br />
 もちろん、<code>FromJSON</code>のインスタンスを生成するときのオプションとしても、プレフィックスを削除するための<code>fieldLabelModifier</code>を渡してくれます！</p>
 <h2 id="同じ問題を解決するほかのライブラリー"><span class="link-to-here-outer"><a href="#同じ問題を解決するほかのライブラリー" title="同じ問題を解決するほかのライブラリー"><span class="link-to-here">Link to<br />

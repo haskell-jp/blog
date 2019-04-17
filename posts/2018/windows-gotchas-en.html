@@ -203,7 +203,7 @@ To roll it back, run <code>chcp 932</code>.</p>
 <p>It seems that the “932” of “CP932” is the same “932” entered here!</p>
 <p>The <code>chcp</code> command is available in MSYS2’s bash (Surprises me a little. Wondering how it works…😕).<br />
 But you should know that <code>chcp</code> exists at <code>C:\Windows\System32\</code>, which MSYS2 users usually don’t want to include in the <code>PATH</code>.<br />
-The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g. <code>find.exe</code>)!</p>
+The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g. <code>find.exe</code>)!</p>
 <p>So I’ve dropped <code>C:\Windows\System32\</code> from <code>PATH</code> when using MSYS2.<br />
 If you’ve done like me, run by full path:</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
@@ -216,31 +216,31 @@ When reporting; asking the developer to run after doing <code>chcp 932</code> co
 When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the <code>Handle</code> object.</p>
 <p>This problem is caused by the inconsistency between the <code>Handle</code>'s character encoding and the encoding of the bytes that are actually transferred. So switching into the proper encoding should fix it.<br />
 If the error happens when reading/writing a common UTF-8 file via the <code>Handle</code>, writing like below can avoid it:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">hSetEncoding handle utf8</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4">hSetEncoding handle utf8</a></code></pre></div>
 <p>As a bonus, I’ll show you an example of how <a href="https://github.com/haskell/haddock/pull/566">I myself addressed a problem caused by the standard output (or standard error output), and fixed a bug in haddock</a>. In short, it can at least suppress the error to paste the code below before your program uses the <code>Handle</code> (Copied from <a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">this commit</a>).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="ot">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="ot">#endif</span></a>
-<a class="sourceLine" id="cb6-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="fu">...</span></a>
-<a class="sourceLine" id="cb6-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="ot">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13">  liftIO <span class="fu">$</span> hSetEncoding stdout <span class="fu">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="ot">#endif</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</a>
+<a class="sourceLine" id="cb6-4" title="4"></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="pp">#if defined(mingw32_HOST_OS)</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)</a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))</a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="pp">#endif</span></a>
+<a class="sourceLine" id="cb6-9" title="9"></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="op">...</span></a>
+<a class="sourceLine" id="cb6-11" title="11"></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="pp">#if defined(mingw32_HOST_OS)</span></a>
+<a class="sourceLine" id="cb6-13" title="13">  liftIO <span class="op">$</span> hSetEncoding stdout <span class="op">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="pp">#endif</span></a></code></pre></div>
 <p>CPP macros to <code>import</code> modules only available on Windows makes this code hard to read, so let’s cut out the verbose part:</p>
 <pre><code>hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure</code></pre>
 <p>Here’re the details:<br />
 First of all, <code>hSetEncoding</code> is the function to change the <code>Handle</code>‘s character encoding, as I referred before.<br />
 Then <code>stdout</code> is the <code>Handle</code> for the standard output as its name.<br />
-The last function call <code>mkLocaleEncoding TransliterateCodingFailure</code> returns a character encoding object for the current Windows’ character encoding (i.e. <code>chcp</code>ed character encoding), configured as “Even if the <code>Handle</code> detects any characters which can’t be converted into/from a Unicode character, don’t raise an error, convert it into some likable character instead.”.</p>
+The last function call <code>mkLocaleEncoding TransliterateCodingFailure</code> returns a character encoding object for the current Windows’ character encoding (i.e. <code>chcp</code>ed character encoding), configured as “Even if the <code>Handle</code> detects any characters which can’t be converted into/from a Unicode character, don’t raise an error, convert it into some likable character instead.”.</p>
 <p>As the result of the <code>hSetEncoding</code> above, and the current character encoding is Windows-31J, the character used in the compilation error of GHC:</p>
 <pre><code>↓This character
 • No instance for (Transformation Nagisa CardCommune_Mepple)

@@ -166,43 +166,43 @@ here</span></a></span>この記事は</h1>
 here</span></a></span>課題<span class="ascii">:</span> プリキュアに変身していない状態で浄化技を使おうとした場合、型エラーにしたい</h1>
 <p>従来より、タイプセーフプリキュア！には、<code>PreCureMonad</code>と呼ばれる、プリキュアの台詞を<code>do</code>記法で組み立てる機能があります。<br />
 例えば<span class="ascii">GHCi</span>上で下記のように書くだけで、<a href="https://www.youtube.com/watch?v=oQLIyIZ2vk0">「<span class="ascii">Go!</span> プリンセスプリキュア」のあの名シーン</a>を再現できます<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">&gt;</span> <span class="fu">:</span>m <span class="dt">ACME.PreCure</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="fu">&gt;</span> <span class="fu">:</span>{</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="fu">&gt;</span> <span class="kw">let</span> scene <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="fu">&gt;</span>       say <span class="st">&quot;この罪を抱いたまま、もう一度、グランプリンセスを目指す！&quot;</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="fu">&gt;</span>       scarlet <span class="ot">&lt;-</span> transform <span class="dt">Towa</span> (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKeyScarlet</span>)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="fu">&gt;</span>       scarletModeElegant <span class="ot">&lt;-</span> transform scarlet (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="fu">&gt;</span>       purify scarletModeElegant (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="fu">&gt;</span> <span class="fu">:</span>}</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>m <span class="dt">ACME.PreCure</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="op">&gt;</span> <span class="op">:</span>{</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="op">&gt;</span> <span class="kw">let</span> scene <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">&gt;</span>       say <span class="st">&quot;この罪を抱いたまま、もう一度、グランプリンセスを目指す！&quot;</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="op">&gt;</span>       scarlet <span class="ot">&lt;-</span> transform <span class="dt">Towa</span> (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKeyScarlet</span>)</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="op">&gt;</span>       scarletModeElegant <span class="ot">&lt;-</span> transform scarlet (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="op">&gt;</span>       purify scarletModeElegant (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="op">&gt;</span> <span class="op">:</span>}</a></code></pre></div>
 <p>名シーンを単純な文字列のリストとして使いたい場合はこう👇しましょう<small>（出力は手で見やすく加工しています）</small>。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1">ghci<span class="fu">&gt;</span> composeEpisode scene</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">[ <span class="st">&quot;この罪を抱いたまま、もう一度、グランプリンセスを目指す！&quot;</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">, <span class="st">&quot;プリキュア！プリンセスエンゲージ！&quot;</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">, <span class="st">&quot;深紅の炎のプリンセス！キュアスカーレット！&quot;</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">, <span class="st">&quot;冷たい檻に閉ざされた夢、返していただきますわ。&quot;</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">, <span class="st">&quot;お覚悟を決めなさい！&quot;</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">, <span class="st">&quot;エクスチェンジ！モードエレガント！&quot;</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">, <span class="st">&quot;スカーレット・バイオリン！フェニックス！&quot;</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">, <span class="st">&quot;羽ばたけ炎の翼！&quot;</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10">, <span class="st">&quot;プリキュア！ フェニックス・ブレイズ！&quot;</span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">, <span class="st">&quot;ごきげんよう。&quot;</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">]</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1">ghci<span class="op">&gt;</span> composeEpisode scene</a>
+<a class="sourceLine" id="cb2-2" title="2">[ <span class="st">&quot;この罪を抱いたまま、もう一度、グランプリンセスを目指す！&quot;</span></a>
+<a class="sourceLine" id="cb2-3" title="3">, <span class="st">&quot;プリキュア！プリンセスエンゲージ！&quot;</span></a>
+<a class="sourceLine" id="cb2-4" title="4">, <span class="st">&quot;深紅の炎のプリンセス！キュアスカーレット！&quot;</span></a>
+<a class="sourceLine" id="cb2-5" title="5">, <span class="st">&quot;冷たい檻に閉ざされた夢、返していただきますわ。&quot;</span></a>
+<a class="sourceLine" id="cb2-6" title="6">, <span class="st">&quot;お覚悟を決めなさい！&quot;</span></a>
+<a class="sourceLine" id="cb2-7" title="7">, <span class="st">&quot;エクスチェンジ！モードエレガント！&quot;</span></a>
+<a class="sourceLine" id="cb2-8" title="8">, <span class="st">&quot;スカーレット・バイオリン！フェニックス！&quot;</span></a>
+<a class="sourceLine" id="cb2-9" title="9">, <span class="st">&quot;羽ばたけ炎の翼！&quot;</span></a>
+<a class="sourceLine" id="cb2-10" title="10">, <span class="st">&quot;プリキュア！ フェニックス・ブレイズ！&quot;</span></a>
+<a class="sourceLine" id="cb2-11" title="11">, <span class="st">&quot;ごきげんよう。&quot;</span></a>
+<a class="sourceLine" id="cb2-12" title="12">]</a></code></pre></div>
 <p>さらに<code>printEpisode</code>という関数で実行すれば、<span class="ascii">1</span>行ごとに間隔を置いてあの台詞を再生できます。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1">ghci<span class="fu">&gt;</span> printEpisode scene</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">この罪を抱いたまま、もう一度、グランプリンセスを目指す！</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">プリキュア！プリンセスエンゲージ！</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">深紅の炎のプリンセス！キュアスカーレット！</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">冷たい檻に閉ざされた夢、返していただきますわ。</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">お覚悟を決めなさい！</a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">エクスチェンジ！モードエレガント！</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">スカーレット・バイオリン！フェニックス！</a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">羽ばたけ炎の翼！</a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">プリキュア！ フェニックス・ブレイズ！</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11">ごきげんよう。</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1">ghci<span class="op">&gt;</span> printEpisode scene</a>
+<a class="sourceLine" id="cb3-2" title="2">この罪を抱いたまま、もう一度、グランプリンセスを目指す！</a>
+<a class="sourceLine" id="cb3-3" title="3">プリキュア！プリンセスエンゲージ！</a>
+<a class="sourceLine" id="cb3-4" title="4">深紅の炎のプリンセス！キュアスカーレット！</a>
+<a class="sourceLine" id="cb3-5" title="5">冷たい檻に閉ざされた夢、返していただきますわ。</a>
+<a class="sourceLine" id="cb3-6" title="6">お覚悟を決めなさい！</a>
+<a class="sourceLine" id="cb3-7" title="7">エクスチェンジ！モードエレガント！</a>
+<a class="sourceLine" id="cb3-8" title="8">スカーレット・バイオリン！フェニックス！</a>
+<a class="sourceLine" id="cb3-9" title="9">羽ばたけ炎の翼！</a>
+<a class="sourceLine" id="cb3-10" title="10">プリキュア！ フェニックス・ブレイズ！</a>
+<a class="sourceLine" id="cb3-11" title="11">ごきげんよう。</a></code></pre></div>
 <p>そんな<code>PreCureMonad</code>ですが、先ほどのコードをよく読めばわかるとおり、ちょっと不格好ですよね。<br />
 具体的には下記の<span class="ascii">2</span>行です。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1">scarlet <span class="ot">&lt;-</span> transform <span class="dt">Towa</span> (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKey_Scarlet</span>)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">scarletModeElegant <span class="ot">&lt;-</span> transform scarlet (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKeyPhoenix</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1">scarlet <span class="ot">&lt;-</span> transform <span class="dt">Towa</span> (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKey_Scarlet</span>)</a>
+<a class="sourceLine" id="cb4-2" title="2">scarletModeElegant <span class="ot">&lt;-</span> transform scarlet (<span class="dt">PrincessPerfume</span> <span class="dt">DressUpKeyPhoenix</span>)</a></code></pre></div>
 <p><span class="ascii">1</span>行目の<code>transform</code>関数が、変身する女の子である<code>Towa</code>（赤城トワ）と変身アイテムを受け取って<code>CureScarlet</code>を返し、さらにその<code>CureScarlet</code>を<span class="ascii">2</span>行目の<code>transform</code>関数に渡すことでキュアスカーレットのモード・エレガント（<code>CureScarlet_ModeElegant</code>）を取得しています。<br />
 「<code>transform</code>関数が、変身する女の子である<code>Towa</code>（赤城トワ）と変身アイテムを受け取って<code>CureScarlet</code>を」返すという箇所について、<code>Towa</code>に<strong>加えて</strong><code>CureScarlet</code>を<strong>新しく作っている</strong>ように聞こえます。<br />
 本来同一人物であるはずの<code>Towa</code>と<code>CureScarlet</code>を、あたかも別々のものとして扱っているように捉えられかねません。<br />
@@ -210,19 +210,19 @@ here</span></a></span>課題<span class="ascii">:</span> プリキュアに変�
 <p><span class="ascii">Haskell</span>でそうした「状態」を表現する場合、名前のとおり<code>State</code> <span class="ascii">Monad</span>を使うのが割と一般的な方法です<small>（プログラム全体で状態を管理する場合、<code>IORef</code>や<code>TVar</code>などを使う方が例外に強く安全ではありますが、それはさておき）</small>。<br />
 しかし、従来の<code>State</code> <span class="ascii">Monad</span>でプリキュアの変身や浄化技を表現する場合、<strong>女の子が変身していない状態で浄化技<span class="ascii">(</span><code>purify</code><span class="ascii">)</span>を使おうとした場合をどのように扱うか</strong>、という問題があります。<br />
 先ほどの例で言うところの</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1">purify scarletModeElegant (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1">purify scarletModeElegant (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a></code></pre></div>
 <p>という行でまさにその「浄化技」を実行しているのですが、プリキュアの設定上、特定の浄化技を使うには、特定のプリキュアのフォームに、専用のアイテムを渡さなければなりません。<br />
 タイプセーフプリキュア！ではこの点に強くこだわり、浄化技が使用できる組み合わせごとに型クラスのインスタンスを定義することで、間違った組み合わせを<code>purify</code>関数に渡すと、型エラーになります<small>（詳しくは<a href="https://qiita.com/igrep/items/5496fa405fae00b5a737">タイプセーフプリキュア！を最初に技術的に解説した記事</a>をご覧ください）</small>。<br />
 当然、まだ変身していない状態の女の子を<code>purify</code>関数に渡しても、エラーになってしまいます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="fu">&gt;</span> scene <span class="fu">=</span> purify <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="fu">&lt;</span>interactive<span class="fu">&gt;:</span><span class="dv">4</span><span class="fu">:</span><span class="dv">9</span><span class="fu">:</span> error<span class="fu">:</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">    • <span class="dt">No</span> <span class="kw">instance</span> for (<span class="dt">Purification</span></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">                         <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>))</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">        arising from a use <span class="kw">of</span> ‘purify’</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">    • <span class="dt">In</span> the expression<span class="fu">:</span> purify <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">      <span class="dt">In</span> an equation for ‘scene’<span class="fu">:</span></a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">          scene <span class="fu">=</span> purify <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&gt;</span> scene <span class="ot">=</span> purify <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">4</span><span class="op">:</span><span class="dv">9</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    • <span class="dt">No</span> <span class="kw">instance</span> for (<span class="dt">Purification</span></a>
+<a class="sourceLine" id="cb6-5" title="5">                         <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>))</a>
+<a class="sourceLine" id="cb6-6" title="6">        arising from a use <span class="kw">of</span> ‘purify’</a>
+<a class="sourceLine" id="cb6-7" title="7">    • <span class="dt">In</span> the expression<span class="op">:</span> purify <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a>
+<a class="sourceLine" id="cb6-8" title="8">      <span class="dt">In</span> an equation for ‘scene’<span class="op">:</span></a>
+<a class="sourceLine" id="cb6-9" title="9">          scene <span class="ot">=</span> purify <span class="dt">Towa</span> (<span class="dt">ScarletViolin</span> <span class="dt">DressUpKeyPhoenix</span>)</a></code></pre></div>
 <p>プリキュア実装の大先輩である<a href="https://github.com/sue445/rubicure"><span class="ascii">rubicure</span></a>では、同じようなケースで実行時エラーを出すようにしていますし、<span class="ascii">PreCure Monad</span>においても、<code>ExceptT</code>を使ってエラーにする、という方法が採れるでしょう。<br />
 しかしそこは「タイプセーフプリキュア！」。どうにかして、変身していない状態での<code>purify</code>関数の実行を型エラーにして、従来のこの振る舞いと一貫させたいところですよね。<br />
 というのが今回の課題です。</p>
@@ -236,19 +236,19 @@ here</span></a></span>実現方法<span class="ascii">: Indexed Monad</span>と�
 <code>&gt;&gt;=</code>の型が<code>(&gt;&gt;=) :: Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b</code>となっていることからしても、アクションの実行前後で<code>m</code>は<code>m</code>のままであることがわかります。</p>
 <p>この、「アクションの実行前後で、<code>m</code>の型を変えることができる」ようにしたのが<span class="ascii">Indexed Monad</span>です。<br />
 <span class="ascii">Indexed Monad</span>は次のような型宣言にすることで、アクションの実行前後で異なる型の “<span class="ascii">index</span>” を挟めるようになっています。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">class</span> <span class="dt">IxApplicative</span> m <span class="ot">=&gt;</span> <span class="dt">IxMonad</span> m <span class="kw">where</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="ot">  ibind ::</span> (a <span class="ot">-&gt;</span> m j k b) <span class="ot">-&gt;</span> m i j a <span class="ot">-&gt;</span> m i k b</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">class</span> <span class="dt">IxApplicative</span> m <span class="ot">=&gt;</span> <span class="dt">IxMonad</span> m <span class="kw">where</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="ot">  ibind ::</span> (a <span class="ot">-&gt;</span> m j k b) <span class="ot">-&gt;</span> m i j a <span class="ot">-&gt;</span> m i k b</a></code></pre></div>
 <p><code>IxApplicative</code>は名前のとおり<code>IxMonad</code>と同様に“<span class="ascii">index</span>”が付いた<code>Applicative</code>となっています。<a href="http://hackage.haskell.org/package/indexed-0.1/docs/Control-Monad-Indexed.html">詳しい定義はドキュメント</a>をご覧ください。</p>
 <p>唯一のメソッドである<code>ibind</code>が、普通の<span class="ascii">Monad</span>における<code>&gt;&gt;=</code>の引数をひっくり返して“<span class="ascii">index</span>”を追加したものです。<br />
 <code>(&gt;&gt;=) :: Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b</code>の<code>m</code>に、型引数が<span class="ascii">2</span>つ追加されていますね？これが“<span class="ascii">index</span>”です。<br />
 ある<code>IxMonad</code> <code>m</code>が<code>m i j a</code>という形で型引数を渡されている時、<code>i</code>がアクションを実行する<strong>前</strong>の型、<code>j</code>がアクションを実行した<strong>後</strong>の型を表します。<br />
 <code>a</code>は普通の<code>Monad</code>と同様、アクションの実行結果となっています。</p>
 <p>さらに<span class="ascii">Indexed</span>な<code>State</code> <span class="ascii">Monad (</span><code>IxState</code><span class="ascii">)</span>で使えるアクションの型宣言を見れば、<code>IxState</code>で共有している状態の型が、アクションの実行前後で変更できることがよりはっきりとわかるでしょう。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="ot">iget ::</span>      <span class="dt">IxState</span> i i i</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">-- ^ igetしてもIxStateが管理している状態は変わらないため、型もやはり変わらず。</span></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="ot">iput ::</span> j <span class="ot">-&gt;</span> <span class="dt">IxState</span> i j ()</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">-- ^ iputするとIxStateが管理している状態は、引数で渡した値の型に変わる。</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="ot">iget ::</span>      <span class="dt">IxState</span> i i i</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="co">-- ^ igetしてもIxStateが管理している状態は変わらないため、型もやはり変わらず。</span></a>
+<a class="sourceLine" id="cb8-3" title="3"></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="ot">iput ::</span> j <span class="ot">-&gt;</span> <span class="dt">IxState</span> i j ()</a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="co">-- ^ iputするとIxStateが管理している状態は、引数で渡した値の型に変わる。</span></a></code></pre></div>
 <p>こちらもおなじみ<a href="http://hackage.haskell.org/package/mtl"><span class="ascii">mtl</span>パッケージ</a>にある<code>State</code> <span class="ascii">Monad</span>に、単純に “<span class="ascii">index</span>” を加えただけのものとなっています。</p>
 <p><a href="http://fumieval.hatenablog.com/entry/2013/05/04/144840"><span class="ascii">Indexed Monad</span>の世界 <span class="ascii">-</span> モナドとわたしとコモナド</a>で紹介された際の<span class="ascii">Indexed Monad</span>は、<code>ido</code>という<span class="ascii">Quasi Quote</span>を使って<code>do</code>記法を無理矢理シミュレートしていましたが、現在は<span class="ascii">GHC</span>の<code>RebindableSyntax</code>という拡張を使うことで、普通の<code>do</code>記法をそのまま利用することができるようになりました<small>（例は後で紹介します）</small>。<br />
 さらに、現在は<code>RebindableSyntax</code>を使った場合の諸々の問題を回避するべく、<a href="https://github.com/jbracker/supermonad"><span class="ascii">Indexed Monad</span>を一般化した<span class="ascii">Super Monad</span>と、それを簡単に使えるようにした<span class="ascii">GHC</span>の型チェッカープラグイン</a>が作られたり、<a href="https://github.com/isovector/do-notation"><span class="ascii">do-notation</span>という、<span class="ascii">Indexed Monad</span>と普通の<span class="ascii">Monad</span>を型クラスで抽象化したパッケージ</a>が作られたりしています。<br />
@@ -259,18 +259,18 @@ here</span></a></span>実現方法<span class="ascii">: Indexed Monad</span>と�
 これを直感的に表現できるようにするために、ちょっと型レベルプログラミングの力を借りましょう。そこで登場するのが「型レベル連想配列」です。<br />
 「型レベル連想配列」という言い方はあまりしないのでピンとこないかも知れませんが、要するに型<small>（タイプセーフプリキュア！の場合、プリキュアに変身する女の子一人一人に個別の型を割り当てているので、その個別の型）</small>と、それに対応する値のペアを含んだ型レベルリストです。<br />
 大雑把に言うと、下記👇のような内容となります<small>（実際にはもう少し違う型で構成されています）</small>。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" data-line-number="1">[ (<span class="dt">Hana</span>,   <span class="dt">HasTransformed</span> <span class="ch">'True)</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="co">-- ^ プリキュアに変身する女の子を表す型（この場合「HUGっと！プリキュア」の野乃はな）</span></a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">, (<span class="dt">Saaya</span>,  <span class="dt">HasTransformed</span> <span class="ch">'False)</span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">--         ^ 対応する女の子が変身しているかどうかを表すsingleton type。</span></a>
-<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">--           DataKindsで型に持ち上げられたBoolを、普通の値として扱えるよう変換するためのラッパー。</span></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">--           申し訳なくもsingleton typeについては割愛します。</span></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">--           Haskell-jpのSlack Workspaceあたりでリクエストがあったら書こうかな。</span></a>
-<a class="sourceLine" id="cb9-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb9-10" data-line-number="10">, (<span class="dt">Homare</span>, <span class="dt">HasTransformed</span> <span class="ch">'False)</span></a>
-<a class="sourceLine" id="cb9-11" data-line-number="11">, <span class="fu">...</span></a>
-<a class="sourceLine" id="cb9-12" data-line-number="12">]</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1">[ (<span class="dt">Hana</span>,   <span class="dt">HasTransformed</span> <span class="dt">'True</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">-- ^ プリキュアに変身する女の子を表す型（この場合「HUGっと！プリキュア」の野乃はな）</span></a>
+<a class="sourceLine" id="cb9-3" title="3"></a>
+<a class="sourceLine" id="cb9-4" title="4">, (<span class="dt">Saaya</span>,  <span class="dt">HasTransformed</span> <span class="dt">'False</span>)</a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="co">--         ^ 対応する女の子が変身しているかどうかを表すsingleton type。</span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co">--           DataKindsで型に持ち上げられたBoolを、普通の値として扱えるよう変換するためのラッパー。</span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">--           申し訳なくもsingleton typeについては割愛します。</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="co">--           Haskell-jpのSlack Workspaceあたりでリクエストがあったら書こうかな。</span></a>
+<a class="sourceLine" id="cb9-9" title="9"></a>
+<a class="sourceLine" id="cb9-10" title="10">, (<span class="dt">Homare</span>, <span class="dt">HasTransformed</span> <span class="dt">'False</span>)</a>
+<a class="sourceLine" id="cb9-11" title="11">, <span class="op">...</span></a>
+<a class="sourceLine" id="cb9-12" title="12">]</a></code></pre></div>
 <p>別の視点で見ると、これはいわゆる<span class="ascii">Extensible Record</span>とも似ています。<br />
 <a href="http://hackage.haskell.org/package/extensible"><span class="ascii">extensible</span>パッケージ</a>や<a href="https://github.com/chrisdone/labels"><span class="ascii">labels</span>パッケージ</a>、<a href="https://www.athiemann.net/2017/07/02/superrecord.html"><span class="ascii">superrecord</span>パッケージ</a>がそうしているように、<span class="ascii">Extensible Record</span>は、フィールドのラベルを表す<small>（型レベルの、静的な）</small>文字列をキーとして、それに対応する値を含んだ連想配列として見なすことができるためです。<br />
 事実私は今回、<span class="ascii">extensible</span>を使ってこの機能を実装しました。他の<span class="ascii">Extensible Record</span>の実装でも良かったのですが、これ以外のものを全く使ったことがないので😅。</p>
@@ -297,11 +297,11 @@ here</span></a></span>できたもの</h1>
 <p>このように生まれ変わった<span class="ascii">PreCure Monad</span>を<strong>✨<span class="ascii">Super PreCure Monad</span>✨</strong>と呼ぶこととします💪</p>
 <p>下記が<span class="ascii">Super PreCure Monad</span>のサンプルコードです。<br />
 野乃はながキュアエールに変身して、「ハート・フォー・ユー」という浄化技を放つまでを表しています。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="ot">cureYell ::</span> <span class="dt">PreCureM</span> (<span class="dt">StatusTable</span> <span class="ch">'[]) (StatusTable '</span>[<span class="dt">Hana</span> <span class="fu">&gt;:</span> <span class="dt">HasTransformed</span> <span class="ch">'True]) ()</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">cureYell <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">  enter <span class="dt">Hana</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4">  transform <span class="dt">Hana</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalPink</span>)</a>
-<a class="sourceLine" id="cb10-5" data-line-number="5">  purify <span class="dt">CureYell</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalPink</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="ot">cureYell ::</span> <span class="dt">PreCureM</span> (<span class="dt">StatusTable</span> '[]) (<span class="dt">StatusTable</span> '[<span class="dt">Hana</span> <span class="op">&gt;:</span> <span class="dt">HasTransformed</span> <span class="dt">'True</span>]) ()</a>
+<a class="sourceLine" id="cb10-2" title="2">cureYell <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb10-3" title="3">  enter <span class="dt">Hana</span></a>
+<a class="sourceLine" id="cb10-4" title="4">  transform <span class="dt">Hana</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalPink</span>)</a>
+<a class="sourceLine" id="cb10-5" title="5">  purify <span class="dt">CureYell</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalPink</span>)</a></code></pre></div>
 <p><code>enter</code>は、旧<span class="ascii">PreCureMonad</span>にはない、<span class="ascii">Super PreCure Monad</span>に新しく追加されたアクションです。<br />
 引数で指定された女の子や、女の子が変身したプリキュアを「登場」させます。<br />
 具体的には、以下のように振る舞います。</p>
@@ -318,39 +318,39 @@ here</span></a></span>できたもの</h1>
 here</span></a></span>✨<span class="ascii">Super PreCure Monad</span>✨を試す方法</h2>
 <p>ここまで述べたような基本的な仕様は実装できたものの、まだ解決すべき技術的な問題が見つかったので、残念ながらリリースはされていません<small>（その詳細は気が向いたら書きます）</small>。<br />
 なので、試す場合は下記のように実行してください。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="fu">$</span> chcp <span class="dv">65001</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="co">-- ^ Windowsの方は恐らく必要</span></a>
-<a class="sourceLine" id="cb11-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="fu">$</span> git clone <span class="fu">-</span>b super<span class="fu">-</span>precure<span class="fu">-</span>monad https<span class="fu">://</span>github<span class="fu">.</span>com<span class="fu">/</span>igrep<span class="fu">/</span>typesafe<span class="fu">-</span>precure<span class="fu">.</span>git</a>
-<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="fu">$</span> cd typesafe<span class="fu">-</span>precure</a>
-<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="fu">$</span> stack build</a>
-<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="fu">$</span> stack exec ghci</a>
-<a class="sourceLine" id="cb11-8" data-line-number="8"><span class="fu">&gt;</span> <span class="fu">:</span>set <span class="fu">-</span><span class="dt">XRebindableSyntax</span> <span class="fu">-</span><span class="dt">XFlexibleContexts</span> <span class="fu">-</span><span class="dt">XTypeFamilies</span></a>
-<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="fu">&gt;</span> <span class="kw">import</span> <span class="dt">Prelude</span> <span class="kw">hiding</span> ((&gt;&gt;), (&gt;&gt;=))</a>
-<a class="sourceLine" id="cb11-10" data-line-number="10"><span class="fu">&gt;</span> <span class="fu">:</span>m <span class="fu">+</span> <span class="dt">ACME.PreCure</span> <span class="dt">ACME.PreCure.Monad.Super</span></a>
-<a class="sourceLine" id="cb11-11" data-line-number="11"><span class="fu">&gt;</span> <span class="fu">:</span>{</a>
-<a class="sourceLine" id="cb11-12" data-line-number="12"><span class="fu">&gt;</span> scene <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb11-13" data-line-number="13"><span class="fu">&gt;</span>       enter <span class="dt">Makoto</span></a>
-<a class="sourceLine" id="cb11-14" data-line-number="14"><span class="fu">&gt;</span>       transform <span class="dt">Makoto</span> (<span class="dt">LovelyCommuneDavi</span> <span class="dt">CureLoveads</span>)</a>
-<a class="sourceLine" id="cb11-15" data-line-number="15"><span class="fu">&gt;</span>       purify <span class="dt">CureSword</span> (<span class="dt">LovelyCommuneDavi</span> <span class="dt">CureLoveads</span>)</a>
-<a class="sourceLine" id="cb11-16" data-line-number="16"><span class="fu">&gt;</span> <span class="fu">:</span>}</a>
-<a class="sourceLine" id="cb11-17" data-line-number="17"><span class="fu">&gt;</span> printEpisode scene</a>
-<a class="sourceLine" id="cb11-18" data-line-number="18">(ダビィー！)</a>
-<a class="sourceLine" id="cb11-19" data-line-number="19">プリキュア！ラブリンク！</a>
-<a class="sourceLine" id="cb11-20" data-line-number="20">(<span class="dt">L</span><span class="fu">!</span> <span class="dt">O</span><span class="fu">!</span> <span class="dt">V</span><span class="fu">!</span> <span class="dt">E</span><span class="fu">!</span>)</a>
-<a class="sourceLine" id="cb11-21" data-line-number="21">勇気の刃！ キュアソード！</a>
-<a class="sourceLine" id="cb11-22" data-line-number="22">このキュアソードが 愛の剣で、あなたの野望を断ち切ってみせる！</a>
-<a class="sourceLine" id="cb11-23" data-line-number="23">閃け！ホーリー・ソード！</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="op">$</span> chcp <span class="dv">65001</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="co">-- ^ Windowsの方は恐らく必要</span></a>
+<a class="sourceLine" id="cb11-3" title="3"></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="op">$</span> git clone <span class="op">-</span>b super<span class="op">-</span>precure<span class="op">-</span>monad https<span class="op">://</span>github<span class="op">.</span>com<span class="op">/</span>igrep<span class="op">/</span>typesafe<span class="op">-</span>precure<span class="op">.</span>git</a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="op">$</span> cd typesafe<span class="op">-</span>precure</a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="op">$</span> stack build</a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="op">$</span> stack exec ghci</a>
+<a class="sourceLine" id="cb11-8" title="8"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XRebindableSyntax</span> <span class="op">-</span><span class="dt">XFlexibleContexts</span> <span class="op">-</span><span class="dt">XTypeFamilies</span></a>
+<a class="sourceLine" id="cb11-9" title="9"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Prelude</span> <span class="kw">hiding</span> ((&gt;&gt;), (&gt;&gt;=))</a>
+<a class="sourceLine" id="cb11-10" title="10"><span class="op">&gt;</span> <span class="op">:</span>m <span class="op">+</span> <span class="dt">ACME.PreCure</span> <span class="dt">ACME.PreCure.Monad.Super</span></a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="op">&gt;</span> <span class="op">:</span>{</a>
+<a class="sourceLine" id="cb11-12" title="12"><span class="op">&gt;</span> scene <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb11-13" title="13"><span class="op">&gt;</span>       enter <span class="dt">Makoto</span></a>
+<a class="sourceLine" id="cb11-14" title="14"><span class="op">&gt;</span>       transform <span class="dt">Makoto</span> (<span class="dt">LovelyCommuneDavi</span> <span class="dt">CureLoveads</span>)</a>
+<a class="sourceLine" id="cb11-15" title="15"><span class="op">&gt;</span>       purify <span class="dt">CureSword</span> (<span class="dt">LovelyCommuneDavi</span> <span class="dt">CureLoveads</span>)</a>
+<a class="sourceLine" id="cb11-16" title="16"><span class="op">&gt;</span> <span class="op">:</span>}</a>
+<a class="sourceLine" id="cb11-17" title="17"><span class="op">&gt;</span> printEpisode scene</a>
+<a class="sourceLine" id="cb11-18" title="18">(ダビィー！)</a>
+<a class="sourceLine" id="cb11-19" title="19">プリキュア！ラブリンク！</a>
+<a class="sourceLine" id="cb11-20" title="20">(<span class="dt">L</span><span class="op">!</span> <span class="dt">O</span><span class="op">!</span> <span class="dt">V</span><span class="op">!</span> <span class="dt">E</span><span class="op">!</span>)</a>
+<a class="sourceLine" id="cb11-21" title="21">勇気の刃！ キュアソード！</a>
+<a class="sourceLine" id="cb11-22" title="22">このキュアソードが 愛の剣で、あなたの野望を断ち切ってみせる！</a>
+<a class="sourceLine" id="cb11-23" title="23">閃け！ホーリー・ソード！</a></code></pre></div>
 <p>「変身していない状態での<code>purify</code>関数の実行を型エラーとする」といった仕様を試す場合は、<a href="https://github.com/igrep/typesafe-precure/blob/super-precure-monad/gen/AllPreCureM.hs">こちらに置いた、全プリキュアの変身と浄化技を列挙したテスト用ファイル</a>を<span class="ascii">ghci</span>で読んでみるといいでしょう。<br />
 先ほど👆の手順で<code>git clone</code>したディレクトリーにおいて、あらかじめ<code>stack build</code>を実行しておくのをお忘れなく。</p>
 <pre><code>$ stack build
 $ stack exec ghci gen/AllPreCureM.hs</code></pre>
 <p>適当に<code>gen/AllPreCureM.hs</code>を書き換えて<code>:r</code>してみれば、概ねいい感じに動いていることがわかるはずです。</p>
 <p>例えば冒頭付近にある、</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" data-line-number="1">act_CureDiamond_LovelyCommuneRaquel_CureLoveads <span class="fu">=</span> printEpisode <span class="fu">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">  enter <span class="dt">Rikka</span></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">  transform <span class="dt">Rikka</span> (<span class="dt">LovelyCommuneRaquel</span> <span class="dt">CureLoveads</span>)</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">  purify <span class="dt">CureDiamond</span> (<span class="dt">LovelyCommuneRaquel</span> <span class="dt">CureLoveads</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1">act_CureDiamond_LovelyCommuneRaquel_CureLoveads <span class="ot">=</span> printEpisode <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb13-2" title="2">  enter <span class="dt">Rikka</span></a>
+<a class="sourceLine" id="cb13-3" title="3">  transform <span class="dt">Rikka</span> (<span class="dt">LovelyCommuneRaquel</span> <span class="dt">CureLoveads</span>)</a>
+<a class="sourceLine" id="cb13-4" title="4">  purify <span class="dt">CureDiamond</span> (<span class="dt">LovelyCommuneRaquel</span> <span class="dt">CureLoveads</span>)</a></code></pre></div>
 <p>という<span class="ascii">Super PreCure Monad</span>によるアクションから、<code>transform Rikka (LovelyCommuneRaquel CureLoveads)</code>という行を削除した上で<code>:r</code>してみると、次のようなエラーになります。</p>
 <pre><code>&gt; :r
 [1 of 1] Compiling AllPreCureM      ( gen\AllPreCureM.hs, interpreted )

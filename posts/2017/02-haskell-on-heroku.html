@@ -198,19 +198,19 @@ here</span></a></span><span class="ascii">Docker</span>を <strong>使わずに<
 <h3 id="ローカル環境でサンプルアプリをビルドする"><span class="link-to-here-outer"><a href="#ローカル環境でサンプルアプリをビルドする" title="ローカル環境でサンプルアプリをビルドする"><span class="link-to-here">Link to<br />
 here</span></a></span>ローカル環境でサンプルアプリをビルドする</h3>
 <p>まず最初に、このサンプルアプリを公開している<span class="ascii">github</span>レポジトリを<span class="ascii">clone</span>して、アプリをビルドしてみましょう。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" data-line-number="1">$ <span class="fu">git</span> clone https://github.com/cdepillabout/servant-on-heroku</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">$ <span class="bu">cd</span> servant-on-heroku/</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">$ <span class="ex">stack</span> setup  # このアプリが使っているバージョンのGHCをインストールします</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">$ <span class="ex">stack</span> build  # 依存パッケージをインストールし、ビルドします</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1">$ <span class="fu">git</span> clone https://github.com/cdepillabout/servant-on-heroku</a>
+<a class="sourceLine" id="cb1-2" title="2">$ <span class="bu">cd</span> servant-on-heroku/</a>
+<a class="sourceLine" id="cb1-3" title="3">$ <span class="ex">stack</span> setup  <span class="co"># このアプリが使っているバージョンのGHCをインストールします</span></a>
+<a class="sourceLine" id="cb1-4" title="4">$ <span class="ex">stack</span> build  <span class="co"># 依存パッケージをインストールし、ビルドします</span></a></code></pre></div>
 <p>もしかしたら、<span class="ascii">PostgreSQL</span>のライブラリが入っていなくて、ビルドに失敗してしまうかもしれません。</p>
 <p><span class="ascii">Arch Linux</span>の場合は、以下のコマンドで必要なライブラリをインストールできます。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1">$ <span class="fu">sudo</span> pacman -Ss postgresql-libs</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1">$ <span class="fu">sudo</span> pacman -Ss postgresql-libs</a></code></pre></div>
 <p><span class="ascii">Ubuntu</span>ユーザの方は、以下のコマンドで大丈夫です。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1">$ <span class="fu">sudo</span> apt-get install libpq-dev</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1">$ <span class="fu">sudo</span> apt-get install libpq-dev</a></code></pre></div>
 <p>上記以外のプラットフォームでは別のコマンドを使うことになると思うので、いい感じにググってください。</p>
 <p>では、<span class="ascii">PostgreSQL</span>の必要なライブラリを入れたところで、<code>stack build</code>をもう一度試してみましょう。今度はうまくいきましたよね？</p>
 <p>うまくビルドできたら、アプリの実行をしてみます。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</a></code></pre></div>
 <p>わーお！なにかエラーが出ちゃいますね…</p>
 <pre><code>servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused
         Is the server running on host &quot;localhost&quot; (::1) and accepting
@@ -225,7 +225,7 @@ here</span></a></span><span class="ascii">PostgreSQL</span>のセットアップ
 <p>お使いの環境によって、<span class="ascii">PostgreSQL</span>のインストール方法はまちまちなので、 そのプラットフォームが提供しているドキュメントにしたがって、<span class="ascii">PostgreSQL</span>のインストールを行ってください。</p>
 <p>たとえば、<span class="ascii">Arch Linux</span>の場合は<a href="https://wiki.archlinux.org/index.php/PostgreSQL#Installing_PostgreSQL">このドキュメント</a>です。 <span class="ascii">Ubuntu</span>なら<a href="https://help.ubuntu.com/community/PostgreSQL#Installation">ここ</a>にドキュメントがあります。</p>
 <p>さて、<span class="ascii">PostgreSQL</span>をインストールして、動いているのが確認できたら、もう一度アプリを起動してみましょう。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" data-line-number="1">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</a></code></pre></div>
 <p>わーお… またもやエラーです…</p>
 <pre><code>servant-on-heroku-api: libpq: failed (FATAL:  role &quot;mydbuser&quot; does not exist
 )</code></pre>
@@ -234,32 +234,32 @@ here</span></a></span><span class="ascii">PostgreSQL</span>のセットアップ
 <pre><code>postgres://mydbuser:mydbpass@localhost:5432/mydb</code></pre>
 <p><code>mydbuser</code>というユーザ名で、<code>mydbpass</code>というパスワードを使って<code>mydb</code>という名前のデータベースにアクセスしようとしているということですね。 では、実際にこのユーザとデータベースを<span class="ascii">PostgreSQL</span>で作成してみましょう。 次のコマンドは<span class="ascii">Arch Linux</span>でしか動かないかもしれません。 もし動かないようであれば、お使いのプラットフォームが提供するドキュメントを参照してください。</p>
 <p>最初に、<code>mydbuser</code>という名前のユーザを、<code>mydbpass</code>というパスワードで作成しましょう。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" data-line-number="1">$ <span class="fu">sudo</span> -u postgres -- psql --command <span class="st">&quot;CREATE ROLE mydbuser NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN ENCRYPTED PASSWORD 'mydbpass'&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1">$ <span class="fu">sudo</span> -u postgres -- psql --command <span class="st">&quot;CREATE ROLE mydbuser NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN ENCRYPTED PASSWORD 'mydbpass'&quot;</span></a></code></pre></div>
 <p>次に<code>mydb</code>という名前のデータベースを作成します。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" data-line-number="1">$ <span class="fu">sudo</span> -u postgres -- createdb mydb</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1">$ <span class="fu">sudo</span> -u postgres -- createdb mydb</a></code></pre></div>
 <p><code>mydbuser</code>が<code>mydb</code>データベースにアクセスできるようにするのも忘れちゃいけませんね。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" data-line-number="1">$ <span class="fu">sudo</span> -u postgres -- psql --command <span class="st">&quot;GRANT ALL PRIVILEGES ON DATABASE mydb TO mydbuser&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1">$ <span class="fu">sudo</span> -u postgres -- psql --command <span class="st">&quot;GRANT ALL PRIVILEGES ON DATABASE mydb TO mydbuser&quot;</span></a></code></pre></div>
 <p>ここで、<span class="ascii">PostgreSQL</span>の再起動をしておいた方が無難でしょう。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" data-line-number="1">$ <span class="fu">sudo</span> systemctl restart postgresql</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" title="1">$ <span class="fu">sudo</span> systemctl restart postgresql</a></code></pre></div>
 <p>これで、実際に<code>mydb</code>データベースに、<code>mydbuser</code>としてログインすることができるようになったはずです。</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb13-1" data-line-number="1">$ <span class="ex">psql</span> -U mydbuser -d mydb -h 127.0.0.1</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb13-1" title="1">$ <span class="ex">psql</span> -U mydbuser -d mydb -h 127.0.0.1</a></code></pre></div>
 <h3 id="apiを実際にたたいてみる"><span class="link-to-here-outer"><a href="#apiを実際にたたいてみる" title="apiを実際にたたいてみる"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">API</span>を実際にたたいてみる</h3>
 <p>では、<span class="ascii">PostgreSQL</span>のセットアップが無事終了したところで、次のコマンドでアプリケーションを立ち上げてみましょう。</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb14-1" data-line-number="1">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="ex">running</span> servant-on-heroku on port 8080...</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb14-1" title="1">$ <span class="ex">stack</span> exec -- servant-on-heroku-api</a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="ex">running</span> servant-on-heroku on port 8080...</a></code></pre></div>
 <p>無事に立ち上がったら、コメントを送ってみます。 アプリが立ち上がった状態で、別のターミナルなどを開いて次のコマンドを打ってみてください。</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb15-1" data-line-number="1">$ <span class="ex">curl</span> --request POST \</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
-<a class="sourceLine" id="cb15-3" data-line-number="3">    --data <span class="st">'{&quot;author&quot;: &quot;DG&quot;, &quot;text&quot;: &quot;Pretty good&quot;}'</span> \</a>
-<a class="sourceLine" id="cb15-4" data-line-number="4">    <span class="st">'http://localhost:8080/add-comment'</span></a>
-<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="kw">{</span> <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Pretty good&quot;</span>, <span class="st">&quot;author&quot;</span>: <span class="st">&quot;DG&quot;</span> <span class="kw">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb15-1" title="1">$ <span class="ex">curl</span> --request POST \</a>
+<a class="sourceLine" id="cb15-2" title="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
+<a class="sourceLine" id="cb15-3" title="3">    --data <span class="st">'{&quot;author&quot;: &quot;DG&quot;, &quot;text&quot;: &quot;Pretty good&quot;}'</span> \</a>
+<a class="sourceLine" id="cb15-4" title="4">    <span class="st">'http://localhost:8080/add-comment'</span></a>
+<a class="sourceLine" id="cb15-5" title="5"><span class="kw">{</span> <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Pretty good&quot;</span>, <span class="st">&quot;author&quot;</span>: <span class="st">&quot;DG&quot;</span> <span class="kw">}</span></a></code></pre></div>
 <p>よさそうですね！</p>
 <p>では、全コメントを取得してみます。</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb16-1" data-line-number="1">$ <span class="ex">curl</span> --request GET \</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
-<a class="sourceLine" id="cb16-3" data-line-number="3">    <span class="st">'http://localhost:8080/get-comments'</span></a>
-<a class="sourceLine" id="cb16-4" data-line-number="4">[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Pretty good&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;DG&quot;</span>} ]</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb16-1" title="1">$ <span class="ex">curl</span> --request GET \</a>
+<a class="sourceLine" id="cb16-2" title="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
+<a class="sourceLine" id="cb16-3" title="3">    <span class="st">'http://localhost:8080/get-comments'</span></a>
+<a class="sourceLine" id="cb16-4" title="4">[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Pretty good&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;DG&quot;</span>} ]</a></code></pre></div>
 <p>いいですね！ <span class="ascii">DG (Dennis Gosnell /</span> 原著者<span class="ascii">)</span>さんが「チョベリグ！」と言っています。 以上で、ローカル環境でアプリを動かすことができたので、次は<span class="ascii">Docker</span>を使ってみましょう！</p>
 <h2 id="今度はdockerをつかってアプリを動かしてみよう"><span class="link-to-here-outer"><a href="#今度はdockerをつかってアプリを動かしてみよう" title="今度はdockerをつかってアプリを動かしてみよう"><span class="link-to-here">Link to<br />
 here</span></a></span>今度は<strong><span class="ascii">Docker</span>をつかって</strong>アプリを動かしてみよう！</h2>
@@ -268,12 +268,12 @@ here</span></a></span>今度は<strong><span class="ascii">Docker</span>をつ�
 here</span></a></span><span class="ascii">Docker</span>をインストールする</h3>
 <p><span class="ascii">Docker</span>のインストール方法は環境によってまちまちなので、ご自身の環境に合わせて信用できるドキュメントを参照してください。 <a href="https://wiki.archlinux.org/index.php/Docker#Installation"><span class="ascii">Arch Linux</span>の場合</a>や<a href="https://docs.docker.com/engine/installation/linux/ubuntu/"><span class="ascii">Ubuntu</span>の場合</a>はリンク先を読めばなんとかなると思います。</p>
 <p><span class="ascii">Docker</span>のインストールが終わったら、以下のコマンドを実行して<span class="ascii">Docker</span>がちゃんと動いているか確認してみてください。</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb17-1" data-line-number="1">$ <span class="ex">docker</span> info</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb17-1" title="1">$ <span class="ex">docker</span> info</a></code></pre></div>
 <h3 id="dockerを使ってビルドする"><span class="link-to-here-outer"><a href="#dockerを使ってビルドする" title="dockerを使ってビルドする"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Docker</span>を使ってビルドする</h3>
 <p>では、実際に<span class="ascii">Docker</span>を使ってサンプルアプリをビルドし、そのアプリを動かすための<span class="ascii">Docker</span>イメージを作成します。</p>
 <p>アプリケーションをビルドするには、<code>docker build</code>コマンドを使います。</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb18-1" data-line-number="1">$ <span class="ex">docker</span> build -t servant-on-heroku .</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb18-1" title="1">$ <span class="ex">docker</span> build -t servant-on-heroku .</a></code></pre></div>
 <p>このコマンドを実行すると、実行したディレクトリ内に存在する<a href="https://github.com/cdepillabout/servant-on-heroku/blob/master/Dockerfile"><code>Dockerfile</code></a>という名前のファイルにしたがってアプリをビルドしてくれます。 この<code>Dockerfile</code>には、アプリをビルドするための具体的な手順がすべて記述されており、その手続きにしたがって、まったく別の環境でも<span class="ascii">Docker</span>さえあればアプリを実行できる「イメージ」を作成できます。</p>
 <p>ためしに、このサンプルアプリに含まれる<code>Dockerfile</code>の中身を見てみましょう。 以下の各処理を実行するようになっています。</p>
 <ol type="1">
@@ -289,13 +289,13 @@ here</span></a></span><span class="ascii">Docker</span>を使ってビルドす�
 <h3 id="dockerをつかってapiをテストする"><span class="link-to-here-outer"><a href="#dockerをつかってapiをテストする" title="dockerをつかってapiをテストする"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Docker</span>をつかって<span class="ascii">API</span>をテストする</h3>
 <p><code>docker build</code>が終わったら、<code>docker images</code>でローカル環境に存在する全イメージを一覧表示してみましょう。</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb19-1" data-line-number="1">$ <span class="ex">docker</span> images</a>
-<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="ex">REPOSITORY</span>           TAG       IMAGE ID       CREATED         SIZE</a>
-<a class="sourceLine" id="cb19-3" data-line-number="3"><span class="ex">servant-on-heroku</span>    latest    ff591d372461   30 seconds ago  3.92 GB</a>
-<a class="sourceLine" id="cb19-4" data-line-number="4"><span class="ex">...</span></a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb19-1" title="1">$ <span class="ex">docker</span> images</a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="ex">REPOSITORY</span>           TAG       IMAGE ID       CREATED         SIZE</a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="ex">servant-on-heroku</span>    latest    ff591d372461   30 seconds ago  3.92 GB</a>
+<a class="sourceLine" id="cb19-4" title="4"><span class="ex">...</span></a></code></pre></div>
 <p>さきほど作成した<code>servant-on-heroku</code>のイメージが作成されているのがわかりますね？</p>
 <p>では、<code>servant-on-heroku</code>のイメージを走らせてみましょう。次のコマンドを実行すれば、<span class="ascii">Docker</span>内でこのサンプルアプリが動くはずです。</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb20-1" data-line-number="1">$ <span class="ex">docker</span> run --interactive --tty --rm servant-on-heroku</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb20-1" title="1">$ <span class="ex">docker</span> run --interactive --tty --rm servant-on-heroku</a></code></pre></div>
 <p>あぁ… また<span class="ascii">PostgreSQL</span>の例の問題が出てしまったみたいですね…</p>
 <pre><code>servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused
         Is the server running on host &quot;localhost&quot; (::1) and accepting
@@ -306,23 +306,23 @@ could not connect to server: Connection refused
 )</code></pre>
 <p>これはどういうことでしょうか。 <code>servant-on-heroku</code>コンテナは<span class="ascii">Docker</span>コンテナとして動いているため、初期設定では我々のローカル環境が見えず、もちろんローカル環境にセットアップして<code>localhost:5432</code>で動いている<span class="ascii">PostgreSQL</span>も見えないのです。</p>
 <p>では、ちょっとしたワザを使ってこの問題を解決してみましょう。 <code>servant-on-heroku</code>コンテナを動かしている時に、<span class="ascii">Docker</span>に我々のローカル環境のネットワークインタフェースを使うように指示することができます。</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" data-line-number="1">$ <span class="ex">docker</span> run --interactive --tty --rm --network host servant-on-heroku</a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="ex">running</span> servant-on-heroku on port 8080...</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1">$ <span class="ex">docker</span> run --interactive --tty --rm --network host servant-on-heroku</a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="ex">running</span> servant-on-heroku on port 8080...</a></code></pre></div>
 <p>ほら、こうすれば、確かに<span class="ascii">Docker</span>コンテナから<span class="ascii">PostgreSQL</span>にアクセスできているようです。</p>
 <p><code>servant-on-heroku</code>コンテナが動いている状態で別のシェルを立ち上げて、前の章でやったように<code>curl</code>コマンドで<span class="ascii">API</span>が動いているか確かめてみましょう。 まずはコメントの投稿です。</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb23-1" data-line-number="1">$ <span class="ex">curl</span> --request POST \</a>
-<a class="sourceLine" id="cb23-2" data-line-number="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
-<a class="sourceLine" id="cb23-3" data-line-number="3">    --data <span class="st">'{&quot;author&quot;: &quot;EK&quot;, &quot;text&quot;: &quot;Not enough CT&quot;}'</span> \</a>
-<a class="sourceLine" id="cb23-4" data-line-number="4">    <span class="st">'http://localhost:8080/add-comment'</span></a>
-<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="kw">{</span> <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Not enough CT&quot;</span>, <span class="st">&quot;author&quot;</span>: <span class="st">&quot;EK&quot;</span> <span class="kw">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb23-1" title="1">$ <span class="ex">curl</span> --request POST \</a>
+<a class="sourceLine" id="cb23-2" title="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
+<a class="sourceLine" id="cb23-3" title="3">    --data <span class="st">'{&quot;author&quot;: &quot;EK&quot;, &quot;text&quot;: &quot;Not enough CT&quot;}'</span> \</a>
+<a class="sourceLine" id="cb23-4" title="4">    <span class="st">'http://localhost:8080/add-comment'</span></a>
+<a class="sourceLine" id="cb23-5" title="5"><span class="kw">{</span> <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Not enough CT&quot;</span>, <span class="st">&quot;author&quot;</span>: <span class="st">&quot;EK&quot;</span> <span class="kw">}</span></a></code></pre></div>
 <p>今度はコメントの取得をしてみます。</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb24-1" data-line-number="1">$ <span class="ex">curl</span> --request GET \</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
-<a class="sourceLine" id="cb24-3" data-line-number="3">    <span class="st">'http://localhost:8080/get-comments'</span></a>
-<a class="sourceLine" id="cb24-4" data-line-number="4">[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Pretty good&quot;</span>,<span class="st">&quot;author&quot;</span>: <span class="st">&quot;DG&quot;</span>},{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Not enough CT&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;EK&quot;</span>}]</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb24-1" title="1">$ <span class="ex">curl</span> --request GET \</a>
+<a class="sourceLine" id="cb24-2" title="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
+<a class="sourceLine" id="cb24-3" title="3">    <span class="st">'http://localhost:8080/get-comments'</span></a>
+<a class="sourceLine" id="cb24-4" title="4">[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Pretty good&quot;</span>,<span class="st">&quot;author&quot;</span>: <span class="st">&quot;DG&quot;</span>},{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Not enough CT&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;EK&quot;</span>}]</a></code></pre></div>
 <p>この通り、無事に<span class="ascii">EK (Edward Kmett / Haskell</span>界のすごい人<span class="ascii">)</span>さんが「圏論を、圏論をもっとくれぇええええい！」と言っているコメントが追加されました。</p>
 <p>ちなみに、<span class="ascii">Docker</span>内でシェルを開いて、手動で<span class="ascii">Docker</span>イメージをいじりながらいろいろ確かめてみるには、次のコメントのようにすれば<span class="ascii">OK</span>です。</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb25-1" data-line-number="1">$ <span class="ex">docker</span> run --interactive --tty --rm --network host servant-on-heroku /bin/bash</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb25-1" title="1">$ <span class="ex">docker</span> run --interactive --tty --rm --network host servant-on-heroku /bin/bash</a></code></pre></div>
 <p>では、<span class="ascii">Docker</span>上でアプリがちゃんと動いたことを確認したところで、ようやく<span class="ascii">Heroku</span>の出番です。</p>
 <h2 id="herokuで動かす"><span class="link-to-here-outer"><a href="#herokuで動かす" title="herokuで動かす"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Heroku</span>で動かす</h2>
@@ -336,173 +336,173 @@ here</span></a></span><span class="ascii">Heroku</span>アカウントを作成�
 here</span></a></span><span class="ascii">Heroku</span>のコマンドラインプログラムをインストールする</h3>
 <p><span class="ascii">Heroku</span>は<span class="ascii">CLI</span>で操作するためのコマンドを用意してくれているので、これを使って便利に<span class="ascii">Heroku</span>を使い倒せます。 ちょうど、<a href="https://aws.amazon.com/cli"><span class="ascii">AWS</span>の<span class="ascii">CLI</span></a>とか、<a href="https://github.com/digitalocean/doctl"><span class="ascii">Digital Ocean</span>の<span class="ascii">CLI</span></a>プログラムと同じような感じです。</p>
 <p><span class="ascii">Arch Linux</span>使いの方は、下記のコマンドで<span class="ascii">Heroku</span>の<span class="ascii">CLI</span>プログラムをインストールできます。</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb26-1" data-line-number="1">$ <span class="ex">yaourt</span> -S heroku-toolbelt</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb26-1" title="1">$ <span class="ex">yaourt</span> -S heroku-toolbelt</a></code></pre></div>
 <p>このコマンドは、<code>heroku</code>コマンドのバイナリを直接取得してインストールしてくれます。</p>
 <p>他の環境の方は、<a href="https://devcenter.heroku.com/articles/heroku-cli"><span class="ascii">Heroku</span>の公式ドキュメント</a>をご覧ください。</p>
 <p><span class="ascii">CLI</span>プログラムのインストールができたら、コマンドライン上でログインして、権限を必要とする操作ができる状態にしておきましょう。</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb27-1" data-line-number="1">$ <span class="ex">heroku</span> login</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb27-1" title="1">$ <span class="ex">heroku</span> login</a></code></pre></div>
 <p>このコマンドを実行すると、ユーザ名とパスワードをたずねられるので、事前に作成しておいたアカウントの情報を入力してください。</p>
 <h3 id="heroku上でアプリケーションを登録する"><span class="link-to-here-outer"><a href="#heroku上でアプリケーションを登録する" title="heroku上でアプリケーションを登録する"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Heroku</span>上でアプリケーションを登録する</h3>
 <p>今回のサンプルアプリを<span class="ascii">Heroku</span>で公開するには、まず<span class="ascii">Heroku</span>上でアプリケーションの登録をする必要があります。</p>
 <p>以下のコマンドを実行すると、<code>servant-on-heroku</code>という名前のアプリケーションを<span class="ascii">Heroku</span>に登録できます。 必要に応じて<code>servant-on-heroku</code>の部分を別の名前に変更してアプリケーションを登録してください。</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb28-1" data-line-number="1">$ <span class="ex">heroku</span> apps:create servant-on-heroku</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb28-1" title="1">$ <span class="ex">heroku</span> apps:create servant-on-heroku</a></code></pre></div>
 <p>以下のコマンドで、いま新規登録されたアプリケーションについての情報を一応取得できます。</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb29-1" data-line-number="1">$ <span class="ex">heroku</span> apps:info servant-on-heroku</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2">=== <span class="ex">servant-on-heroku</span></a>
-<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="ex">Auto</span> Cert Mgmt: false</a>
-<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="ex">Dynos</span>:</a>
-<a class="sourceLine" id="cb29-5" data-line-number="5"><span class="ex">Git</span> URL:        https://git.heroku.com/servant-on-heroku.git</a>
-<a class="sourceLine" id="cb29-6" data-line-number="6"><span class="ex">Owner</span>:          me@gmail.com</a>
-<a class="sourceLine" id="cb29-7" data-line-number="7"><span class="ex">Region</span>:         us</a>
-<a class="sourceLine" id="cb29-8" data-line-number="8"><span class="ex">Repo</span> Size:      0 B</a>
-<a class="sourceLine" id="cb29-9" data-line-number="9"><span class="ex">Slug</span> Size:      0 B</a>
-<a class="sourceLine" id="cb29-10" data-line-number="10"><span class="ex">Stack</span>:          cedar-14</a>
-<a class="sourceLine" id="cb29-11" data-line-number="11"><span class="ex">Web</span> URL:        https://servant-on-heroku.herokuapp.com/</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb29-1" title="1">$ <span class="ex">heroku</span> apps:info servant-on-heroku</a>
+<a class="sourceLine" id="cb29-2" title="2">=== <span class="ex">servant-on-heroku</span></a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="ex">Auto</span> Cert Mgmt: false</a>
+<a class="sourceLine" id="cb29-4" title="4"><span class="ex">Dynos</span>:</a>
+<a class="sourceLine" id="cb29-5" title="5"><span class="ex">Git</span> URL:        https://git.heroku.com/servant-on-heroku.git</a>
+<a class="sourceLine" id="cb29-6" title="6"><span class="ex">Owner</span>:          me@gmail.com</a>
+<a class="sourceLine" id="cb29-7" title="7"><span class="ex">Region</span>:         us</a>
+<a class="sourceLine" id="cb29-8" title="8"><span class="ex">Repo</span> Size:      0 B</a>
+<a class="sourceLine" id="cb29-9" title="9"><span class="ex">Slug</span> Size:      0 B</a>
+<a class="sourceLine" id="cb29-10" title="10"><span class="ex">Stack</span>:          cedar-14</a>
+<a class="sourceLine" id="cb29-11" title="11"><span class="ex">Web</span> URL:        https://servant-on-heroku.herokuapp.com/</a></code></pre></div>
 <p><code>Web URL</code>の項目だけ、あとで使うのでどこかにメモしておいてください。 他の項目は、いまは特に気にしなくて大丈夫です。</p>
 <h3 id="heroku-docker-pluginをインストールする"><span class="link-to-here-outer"><a href="#heroku-docker-pluginをインストールする" title="heroku-docker-pluginをインストールする"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Heroku Docker Plugin</span>をインストールする</h3>
 <p><span class="ascii">Heroku</span>のコマンドラインプログラムは、プラグインを追加することで、どんどん便利な機能を使えるようにできます。</p>
 <p>今回は、<a href="https://devcenter.heroku.com/articles/container-registry-and-runtime"><span class="ascii">Heroku Container Registry</span></a>というプラグインを使いましょう。</p>
 <p>以下のコマンドで、このプラグインがインストールされます。</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb30-1" data-line-number="1">$ <span class="ex">heroku</span> plugins:install heroku-container-registry</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb30-1" title="1">$ <span class="ex">heroku</span> plugins:install heroku-container-registry</a></code></pre></div>
 <p>インストールが終わったら、次のコマンドを実行して、ちゃんと動いているか確認してください。</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb31-1" data-line-number="1">$ <span class="ex">heroku</span> container</a>
-<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="ex">4.1.1</span></a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb31-1" title="1">$ <span class="ex">heroku</span> container</a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="ex">4.1.1</span></a></code></pre></div>
 <p>きっと、このプラグインのバージョンナンバーが表示されたはずです。</p>
 <p>実際にプラグインを使うためには、以下のコマンドで<span class="ascii">Heroku Container Registry</span>にログインする必要があります。</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb32-1" data-line-number="1">$ <span class="ex">heroku</span> container:login</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb32-1" title="1">$ <span class="ex">heroku</span> container:login</a></code></pre></div>
 <p>このコマンドによって、<span class="ascii">Container Registry</span>のログイン情報が、<code>~/.docker/config.json</code>というファイルに追加されます。</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb33-1" data-line-number="1">$ <span class="fu">cat</span> ~/.docker/config.json</a>
-<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="kw">{</span></a>
-<a class="sourceLine" id="cb33-3" data-line-number="3">  <span class="st">&quot;auths&quot;</span>: <span class="kw">{</span></a>
-<a class="sourceLine" id="cb33-4" data-line-number="4">    <span class="st">&quot;registry.heroku.com&quot;</span>: <span class="kw">{</span></a>
-<a class="sourceLine" id="cb33-5" data-line-number="5">      <span class="st">&quot;auth&quot;</span>: <span class="st">&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=&quot;</span></a>
-<a class="sourceLine" id="cb33-6" data-line-number="6">    <span class="kw">}</span></a>
-<a class="sourceLine" id="cb33-7" data-line-number="7">  <span class="kw">}</span></a>
-<a class="sourceLine" id="cb33-8" data-line-number="8"><span class="kw">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb33-1" title="1">$ <span class="fu">cat</span> ~/.docker/config.json</a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="kw">{</span></a>
+<a class="sourceLine" id="cb33-3" title="3">  <span class="st">&quot;auths&quot;</span>: <span class="kw">{</span></a>
+<a class="sourceLine" id="cb33-4" title="4">    <span class="st">&quot;registry.heroku.com&quot;</span>: <span class="kw">{</span></a>
+<a class="sourceLine" id="cb33-5" title="5">      <span class="st">&quot;auth&quot;</span>: <span class="st">&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=&quot;</span></a>
+<a class="sourceLine" id="cb33-6" title="6">    <span class="kw">}</span></a>
+<a class="sourceLine" id="cb33-7" title="7">  <span class="kw">}</span></a>
+<a class="sourceLine" id="cb33-8" title="8"><span class="kw">}</span></a></code></pre></div>
 <h3 id="アプリケーションをheroku上で動かす"><span class="link-to-here-outer"><a href="#アプリケーションをheroku上で動かす" title="アプリケーションをheroku上で動かす"><span class="link-to-here">Link to<br />
 here</span></a></span>アプリケーションを<span class="ascii">Heroku</span>上で動かす</h3>
 <p>実際にアプリを<span class="ascii">Heroku</span>上で動かすには、以下のコマンドを使います。</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb34-1" data-line-number="1">$ <span class="ex">heroku</span> container:push web</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb34-1" title="1">$ <span class="ex">heroku</span> container:push web</a></code></pre></div>
 <p>これを実行すると、実行したディレクトリ内にある<code>Dockerfile</code>の設定にしたがって<span class="ascii">Docker</span>イメージを作成します。 内部では、ローカル環境で<code>Docker</code>イメージを作成するときに使ったのと同じ<code>docker build</code>を呼んでいます。 前の章で実際に<code>docker build</code>を実行した方は、その際に作成したイメージがそのまま<span class="ascii">Docker Container Registry</span>に送られるので安心してください。また<span class="ascii">1</span>時間も待つなんてイヤですよね。</p>
 <p>では、<code>heroku apps:info</code>をもう一度実行して確認してみましょう。</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb35-1" data-line-number="1">$ <span class="ex">heroku</span> apps:info servant-on-heroku</a>
-<a class="sourceLine" id="cb35-2" data-line-number="2">=== <span class="ex">servant-on-heroku</span></a>
-<a class="sourceLine" id="cb35-3" data-line-number="3"><span class="ex">Auto</span> Cert Mgmt: false</a>
-<a class="sourceLine" id="cb35-4" data-line-number="4"><span class="ex">Dynos</span>:</a>
-<a class="sourceLine" id="cb35-5" data-line-number="5"><span class="ex">Git</span> URL:        https://git.heroku.com/servant-on-heroku.git</a>
-<a class="sourceLine" id="cb35-6" data-line-number="6"><span class="ex">Owner</span>:          me@gmail.com</a>
-<a class="sourceLine" id="cb35-7" data-line-number="7"><span class="ex">Region</span>:         us</a>
-<a class="sourceLine" id="cb35-8" data-line-number="8"><span class="ex">Repo</span> Size:      0 B</a>
-<a class="sourceLine" id="cb35-9" data-line-number="9"><span class="ex">Slug</span> Size:      0 B</a>
-<a class="sourceLine" id="cb35-10" data-line-number="10"><span class="ex">Stack</span>:          cedar-14</a>
-<a class="sourceLine" id="cb35-11" data-line-number="11"><span class="ex">Web</span> URL:        https://servant-on-heroku.herokuapp.com/</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb35-1" title="1">$ <span class="ex">heroku</span> apps:info servant-on-heroku</a>
+<a class="sourceLine" id="cb35-2" title="2">=== <span class="ex">servant-on-heroku</span></a>
+<a class="sourceLine" id="cb35-3" title="3"><span class="ex">Auto</span> Cert Mgmt: false</a>
+<a class="sourceLine" id="cb35-4" title="4"><span class="ex">Dynos</span>:</a>
+<a class="sourceLine" id="cb35-5" title="5"><span class="ex">Git</span> URL:        https://git.heroku.com/servant-on-heroku.git</a>
+<a class="sourceLine" id="cb35-6" title="6"><span class="ex">Owner</span>:          me@gmail.com</a>
+<a class="sourceLine" id="cb35-7" title="7"><span class="ex">Region</span>:         us</a>
+<a class="sourceLine" id="cb35-8" title="8"><span class="ex">Repo</span> Size:      0 B</a>
+<a class="sourceLine" id="cb35-9" title="9"><span class="ex">Slug</span> Size:      0 B</a>
+<a class="sourceLine" id="cb35-10" title="10"><span class="ex">Stack</span>:          cedar-14</a>
+<a class="sourceLine" id="cb35-11" title="11"><span class="ex">Web</span> URL:        https://servant-on-heroku.herokuapp.com/</a></code></pre></div>
 <p>あれ？ なにかおかしいですね… <code>Dynos:</code>のところになにも書いてありません。 <code>dyno</code>というのは<span class="ascii">Heroku</span>が独自に使っている用語で、ウェブアプリを実行する<span class="ascii">1</span>台のサーバのことを意味します。ここになにも書かれていないということは、アプリを実行しているサーバがいないということになります。</p>
 <p>これをどうにかするためには、<code>heroku ps:scale</code>を使います。</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb36-1" data-line-number="1">$ <span class="ex">heroku</span> ps:scale web=1</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb36-1" title="1">$ <span class="ex">heroku</span> ps:scale web=1</a></code></pre></div>
 <p>これで、“<span class="ascii">web</span>” <span class="ascii">dyno</span>が<span class="ascii">1</span>台分作成され、その上で今回のサンプルアプリが動くようになります。<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
 <p>では、次のコマンドを実行して、<span class="ascii">dyno</span>がちゃんと動いていることを確認しましょう。</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb37-1" data-line-number="1">$ <span class="ex">heroku</span> ps</a>
-<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="ex">Free</span> dyno hours quota remaining this month: 549h 2m (99%)</a>
-<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="ex">For</span> more information on dyno sleeping and how to upgrade, see:</a>
-<a class="sourceLine" id="cb37-4" data-line-number="4"><span class="ex">https</span>://devcenter.heroku.com/articles/dyno-sleeping</a>
-<a class="sourceLine" id="cb37-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb37-6" data-line-number="6">=== <span class="ex">web</span> (Free)<span class="bu">:</span> /bin/sh -c /opt/servant-on-heroku/bin/servant-on-heroku-api (1)</a>
-<a class="sourceLine" id="cb37-7" data-line-number="7"><span class="ex">web.1</span>: starting 2017/03/22 19:05:04 +0900 (~ 8s ago)</a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb37-1" title="1">$ <span class="ex">heroku</span> ps</a>
+<a class="sourceLine" id="cb37-2" title="2"><span class="ex">Free</span> dyno hours quota remaining this month: 549h 2m (99%)</a>
+<a class="sourceLine" id="cb37-3" title="3"><span class="ex">For</span> more information on dyno sleeping and how to upgrade, see:</a>
+<a class="sourceLine" id="cb37-4" title="4"><span class="ex">https</span>://devcenter.heroku.com/articles/dyno-sleeping</a>
+<a class="sourceLine" id="cb37-5" title="5"></a>
+<a class="sourceLine" id="cb37-6" title="6">=== <span class="ex">web</span> (Free)<span class="bu">:</span> /bin/sh -c /opt/servant-on-heroku/bin/servant-on-heroku-api (1)</a>
+<a class="sourceLine" id="cb37-7" title="7"><span class="ex">web.1</span>: starting 2017/03/22 19:05:04 +0900 (~ 8s ago)</a></code></pre></div>
 <p>なんだか余計な情報もだらだら出てきますが、<span class="ascii">web dyno</span>が<span class="ascii">1</span>台分動いていることが確認できます。</p>
 <p>これで、サンプルアプリが動くようになったので、<code>curl</code>を使って、<code>Web URL</code>にアクセスしてみましょう。 <span class="ascii">(</span>サンプルアプリの<code>Web URL</code>は、<code>heroku apps:info</code>に書いてありましたよね？<span class="ascii">)</span></p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb38-1" data-line-number="1">$ <span class="ex">curl</span> --request POST \</a>
-<a class="sourceLine" id="cb38-2" data-line-number="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
-<a class="sourceLine" id="cb38-3" data-line-number="3">    --data <span class="st">'{&quot;author&quot;: &quot;MS&quot;, &quot;text&quot;: &quot;Gotta make it professional&quot;}'</span> \</a>
-<a class="sourceLine" id="cb38-4" data-line-number="4">    <span class="st">'https://servant-on-heroku.herokuapp.com/add-comment'</span></a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb38-1" title="1">$ <span class="ex">curl</span> --request POST \</a>
+<a class="sourceLine" id="cb38-2" title="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
+<a class="sourceLine" id="cb38-3" title="3">    --data <span class="st">'{&quot;author&quot;: &quot;MS&quot;, &quot;text&quot;: &quot;Gotta make it professional&quot;}'</span> \</a>
+<a class="sourceLine" id="cb38-4" title="4">    <span class="st">'https://servant-on-heroku.herokuapp.com/add-comment'</span></a></code></pre></div>
 <p>なにかおかしいですね… なにもレスポンスが返ってきません。 なにかエラーが出ているはずなので、<span class="ascii">Heroku</span>上で起こったエラーを実際に見てみたいです。</p>
 <h3 id="heroku上で動いているアプリのエラーを見てみる"><span class="link-to-here-outer"><a href="#heroku上で動いているアプリのエラーを見てみる" title="heroku上で動いているアプリのエラーを見てみる"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Heroku</span>上で動いているアプリのエラーを見てみる</h3>
 <p><span class="ascii">Heroku</span>には、とってもすばらしいログ機能があり、アプリの標準エラーや標準出力を簡単にチェックできます。</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb39-1" data-line-number="1">$ <span class="ex">heroku</span> logs</a>
-<a class="sourceLine" id="cb39-2" data-line-number="2"><span class="ex">2017-03-22T10</span>:05:49 heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></a>
-<a class="sourceLine" id="cb39-3" data-line-number="3"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]: servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused</a>
-<a class="sourceLine" id="cb39-4" data-line-number="4"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]:    Is the server running on host <span class="st">&quot;localhost&quot;</span> (127.0.0.1) <span class="ex">and</span> accepting</a>
-<a class="sourceLine" id="cb39-5" data-line-number="5"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]:    TCP/IP connections on port 5432?</a>
-<a class="sourceLine" id="cb39-6" data-line-number="6"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]: )</a>
-<a class="sourceLine" id="cb39-7" data-line-number="7"><span class="ex">2017-03-22T10</span>:05:52 heroku[web.1]: State changed from starting to crashed</a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb39-1" title="1">$ <span class="ex">heroku</span> logs</a>
+<a class="sourceLine" id="cb39-2" title="2"><span class="ex">2017-03-22T10</span>:05:49 heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></a>
+<a class="sourceLine" id="cb39-3" title="3"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]: servant-on-heroku-api: libpq: failed (could not connect to server: Connection refused</a>
+<a class="sourceLine" id="cb39-4" title="4"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]:    Is the server running on host <span class="st">&quot;localhost&quot;</span> (127.0.0.1) <span class="ex">and</span> accepting</a>
+<a class="sourceLine" id="cb39-5" title="5"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]:    TCP/IP connections on port 5432?</a>
+<a class="sourceLine" id="cb39-6" title="6"><span class="ex">2017-03-22T10</span>:05:52 app[web.1]: )</a>
+<a class="sourceLine" id="cb39-7" title="7"><span class="ex">2017-03-22T10</span>:05:52 heroku[web.1]: State changed from starting to crashed</a></code></pre></div>
 <p>とても便利ですね！ どうやらこれまで何度も見てきた例のエラーがまた出ているようです…</p>
 <p>今回は、<span class="ascii">Heroku</span>上で動いている<span class="ascii">PostgreSQL</span>データベースをちゃんとセットアップしていないのが理由です。</p>
 <h3 id="herokuのpostgresqlサポート"><span class="link-to-here-outer"><a href="#herokuのpostgresqlサポート" title="herokuのpostgresqlサポート"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Heroku</span>の<span class="ascii">PostgreSQL</span>サポート</h3>
 <p><span class="ascii">Heroku</span>は<span class="ascii">PostgreSQL</span>について<a href="https://devcenter.heroku.com/articles/heroku-postgresql">しっかりサポート</a>してくれている上に、なんと無料枠まで設けてくれています。</p>
 <p>以下のコマンドを実行すれば、<span class="ascii">PostgreSQL</span>のアドオンが使えるようになります。</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb40-1" data-line-number="1">$ <span class="ex">heroku</span> addons:create heroku-postgresql:hobby-dev</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb40-1" title="1">$ <span class="ex">heroku</span> addons:create heroku-postgresql:hobby-dev</a></code></pre></div>
 <p>これで、<code>heroku-postgresql</code>アドオンを、無料で使える<code>hobby-dev</code>利用枠で使えるようになりました。</p>
 <p>では、本当に<span class="ascii">PostgreSQL</span>が作成されたか、以下のコマンドを使って確認してみましょう。</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb41-1" data-line-number="1">$ <span class="ex">heroku</span> addons:info heroku-postgresql</a>
-<a class="sourceLine" id="cb41-2" data-line-number="2">=== <span class="ex">postgresql-tetrahedral-44549</span></a>
-<a class="sourceLine" id="cb41-3" data-line-number="3"><span class="ex">Attachments</span>:  servant-on-heroku::DATABASE</a>
-<a class="sourceLine" id="cb41-4" data-line-number="4"><span class="ex">Installed</span> at: Wed Mar 22 2017 19:22:14 GMT+0900 (JST)</a>
-<a class="sourceLine" id="cb41-5" data-line-number="5"><span class="ex">Owning</span> app:   servant-on-heroku</a>
-<a class="sourceLine" id="cb41-6" data-line-number="6"><span class="ex">Plan</span>:         heroku-postgresql:hobby-dev</a>
-<a class="sourceLine" id="cb41-7" data-line-number="7"><span class="ex">Price</span>:        free</a>
-<a class="sourceLine" id="cb41-8" data-line-number="8"><span class="ex">State</span>:        created</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb41-1" title="1">$ <span class="ex">heroku</span> addons:info heroku-postgresql</a>
+<a class="sourceLine" id="cb41-2" title="2">=== <span class="ex">postgresql-tetrahedral-44549</span></a>
+<a class="sourceLine" id="cb41-3" title="3"><span class="ex">Attachments</span>:  servant-on-heroku::DATABASE</a>
+<a class="sourceLine" id="cb41-4" title="4"><span class="ex">Installed</span> at: Wed Mar 22 2017 19:22:14 GMT+0900 (JST)</a>
+<a class="sourceLine" id="cb41-5" title="5"><span class="ex">Owning</span> app:   servant-on-heroku</a>
+<a class="sourceLine" id="cb41-6" title="6"><span class="ex">Plan</span>:         heroku-postgresql:hobby-dev</a>
+<a class="sourceLine" id="cb41-7" title="7"><span class="ex">Price</span>:        free</a>
+<a class="sourceLine" id="cb41-8" title="8"><span class="ex">State</span>:        created</a></code></pre></div>
 <p>データベースの詳細情報については、<code>pg:info</code>コマンドを使って見れます。</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb42-1" data-line-number="1">$ <span class="ex">heroku</span> pg:info</a>
-<a class="sourceLine" id="cb42-2" data-line-number="2">=== <span class="ex">DATABASE_URL</span></a>
-<a class="sourceLine" id="cb42-3" data-line-number="3"><span class="ex">Plan</span>:        Hobby-dev</a>
-<a class="sourceLine" id="cb42-4" data-line-number="4"><span class="ex">Status</span>:      Available</a>
-<a class="sourceLine" id="cb42-5" data-line-number="5"><span class="ex">Connections</span>: 0/20</a>
-<a class="sourceLine" id="cb42-6" data-line-number="6"><span class="ex">PG</span> Version:  9.6.1</a>
-<a class="sourceLine" id="cb42-7" data-line-number="7"><span class="ex">Created</span>:     2017-03-22 10:22 UTC</a>
-<a class="sourceLine" id="cb42-8" data-line-number="8"><span class="ex">Data</span> Size:   7.2 MB</a>
-<a class="sourceLine" id="cb42-9" data-line-number="9"><span class="ex">Tables</span>:      1</a>
-<a class="sourceLine" id="cb42-10" data-line-number="10"><span class="ex">Rows</span>:        0/10000 (In compliance)</a>
-<a class="sourceLine" id="cb42-11" data-line-number="11"><span class="ex">Fork</span>/Follow: <span class="ex">Unsupported</span></a>
-<a class="sourceLine" id="cb42-12" data-line-number="12"><span class="ex">Rollback</span>:    Unsupported</a>
-<a class="sourceLine" id="cb42-13" data-line-number="13"><span class="ex">Add-on</span>:      postgresql-tetrahedral-44549</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb42-1" title="1">$ <span class="ex">heroku</span> pg:info</a>
+<a class="sourceLine" id="cb42-2" title="2">=== <span class="ex">DATABASE_URL</span></a>
+<a class="sourceLine" id="cb42-3" title="3"><span class="ex">Plan</span>:        Hobby-dev</a>
+<a class="sourceLine" id="cb42-4" title="4"><span class="ex">Status</span>:      Available</a>
+<a class="sourceLine" id="cb42-5" title="5"><span class="ex">Connections</span>: 0/20</a>
+<a class="sourceLine" id="cb42-6" title="6"><span class="ex">PG</span> Version:  9.6.1</a>
+<a class="sourceLine" id="cb42-7" title="7"><span class="ex">Created</span>:     2017-03-22 10:22 UTC</a>
+<a class="sourceLine" id="cb42-8" title="8"><span class="ex">Data</span> Size:   7.2 MB</a>
+<a class="sourceLine" id="cb42-9" title="9"><span class="ex">Tables</span>:      1</a>
+<a class="sourceLine" id="cb42-10" title="10"><span class="ex">Rows</span>:        0/10000 (In compliance)</a>
+<a class="sourceLine" id="cb42-11" title="11"><span class="ex">Fork</span>/Follow: <span class="ex">Unsupported</span></a>
+<a class="sourceLine" id="cb42-12" title="12"><span class="ex">Rollback</span>:    Unsupported</a>
+<a class="sourceLine" id="cb42-13" title="13"><span class="ex">Add-on</span>:      postgresql-tetrahedral-44549</a></code></pre></div>
 <h3 id="アプリケーションを再起動する"><span class="link-to-here-outer"><a href="#アプリケーションを再起動する" title="アプリケーションを再起動する"><span class="link-to-here">Link to<br />
 here</span></a></span>アプリケーションを再起動する</h3>
 <p>これで<span class="ascii">PostgreSQL</span>のデータベースが動くようになったので、アプリを再起動しましょう。</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb43-1" data-line-number="1">$ <span class="ex">heroku</span> ps:restart</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb43-1" title="1">$ <span class="ex">heroku</span> ps:restart</a></code></pre></div>
 <p>もう一度ログを見て、本当にこれでエラーが出なくなったか確かめてみます。</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb44-1" data-line-number="1">$ <span class="ex">heroku</span> logs</a>
-<a class="sourceLine" id="cb44-2" data-line-number="2"><span class="ex">2017-03-22T10</span>:22:15 heroku[web.1]: State changed from crashed to starting</a>
-<a class="sourceLine" id="cb44-3" data-line-number="3"><span class="ex">2017-03-22T10</span>:22:54 heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></a>
-<a class="sourceLine" id="cb44-4" data-line-number="4"><span class="ex">2017-03-22T10</span>:22:56 app[web.1]: Migrating: CREATe TABLE <span class="st">&quot;comment&quot;</span>(<span class="st">&quot;id&quot;</span> SERIAL8  PRIMARY KEY UNIQUE,<span class="st">&quot;author&quot;</span> VARCHAR NOT NULL,<span class="st">&quot;text&quot;</span> VARCHAR NOT NULL)</a>
-<a class="sourceLine" id="cb44-5" data-line-number="5"><span class="ex">2017-03-22T10</span>:22:57 heroku[web.1]: State changed from starting to up</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb44-1" title="1">$ <span class="ex">heroku</span> logs</a>
+<a class="sourceLine" id="cb44-2" title="2"><span class="ex">2017-03-22T10</span>:22:15 heroku[web.1]: State changed from crashed to starting</a>
+<a class="sourceLine" id="cb44-3" title="3"><span class="ex">2017-03-22T10</span>:22:54 heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></a>
+<a class="sourceLine" id="cb44-4" title="4"><span class="ex">2017-03-22T10</span>:22:56 app[web.1]: Migrating: CREATe TABLE <span class="st">&quot;comment&quot;</span>(<span class="st">&quot;id&quot;</span> SERIAL8  PRIMARY KEY UNIQUE,<span class="st">&quot;author&quot;</span> VARCHAR NOT NULL,<span class="st">&quot;text&quot;</span> VARCHAR NOT NULL)</a>
+<a class="sourceLine" id="cb44-5" title="5"><span class="ex">2017-03-22T10</span>:22:57 heroku[web.1]: State changed from starting to up</a></code></pre></div>
 <p>すごーい！ついに、ついにちゃんと動いたみたいです！！</p>
 <p>もう一度<code>curl</code>コマンドを使って<span class="ascii">API</span>がちゃんと動いているか確認してみます。</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb45-1" data-line-number="1">$ <span class="ex">curl</span> --request POST \</a>
-<a class="sourceLine" id="cb45-2" data-line-number="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
-<a class="sourceLine" id="cb45-3" data-line-number="3">    --data <span class="st">'{&quot;author&quot;: &quot;SPJ&quot;, &quot;text&quot;: &quot;Avoid heroku-at-all-costs&quot;}'</span> \</a>
-<a class="sourceLine" id="cb45-4" data-line-number="4">    <span class="st">'https://servant-on-heroku.herokuapp.com/add-comment'</span></a>
-<a class="sourceLine" id="cb45-5" data-line-number="5">{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Avoid heroku-at-all-costs&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;SPJ&quot;</span>}</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb45-1" title="1">$ <span class="ex">curl</span> --request POST \</a>
+<a class="sourceLine" id="cb45-2" title="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
+<a class="sourceLine" id="cb45-3" title="3">    --data <span class="st">'{&quot;author&quot;: &quot;SPJ&quot;, &quot;text&quot;: &quot;Avoid heroku-at-all-costs&quot;}'</span> \</a>
+<a class="sourceLine" id="cb45-4" title="4">    <span class="st">'https://servant-on-heroku.herokuapp.com/add-comment'</span></a>
+<a class="sourceLine" id="cb45-5" title="5">{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Avoid heroku-at-all-costs&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;SPJ&quot;</span>}</a></code></pre></div>
 <p>ちゃんとレスポンスが返ってきています！ 今度はコメントを取得してみましょう。</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb46-1" data-line-number="1">$ <span class="ex">curl</span> --request GET \</a>
-<a class="sourceLine" id="cb46-2" data-line-number="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
-<a class="sourceLine" id="cb46-3" data-line-number="3">    <span class="st">'https://servant-on-heroku.herokuapp.com/get-comments'</span></a>
-<a class="sourceLine" id="cb46-4" data-line-number="4">[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Avoid heroku-at-all-costs&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;SPJ&quot;</span>}]</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb46-1" title="1">$ <span class="ex">curl</span> --request GET \</a>
+<a class="sourceLine" id="cb46-2" title="2">    --header <span class="st">'Content-Type: application/json'</span> \</a>
+<a class="sourceLine" id="cb46-3" title="3">    <span class="st">'https://servant-on-heroku.herokuapp.com/get-comments'</span></a>
+<a class="sourceLine" id="cb46-4" title="4">[{<span class="st">&quot;text&quot;</span>:<span class="st">&quot;Avoid heroku-at-all-costs&quot;</span>,<span class="st">&quot;author&quot;</span>:<span class="st">&quot;SPJ&quot;</span>}]</a></code></pre></div>
 <p>いいですね！ <span class="ascii">SPJ(Simon Peyton Jones / Haskell</span>の父<span class="ascii">)</span>さんが「目先の便利さにとらわれて<span class="ascii">Heroku</span>に余計な機能をいれるのは、ダメ。ゼッタイ。」<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>と言っています。 これで全てうまくいったようです。</p>
 <h3 id="heroku上のアプリは接続先のdbをどうやって見つけているのか"><span class="link-to-here-outer"><a href="#heroku上のアプリは接続先のdbをどうやって見つけているのか" title="heroku上のアプリは接続先のdbをどうやって見つけているのか"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Heroku</span>上のアプリは接続先の<span class="ascii">DB</span>をどうやって見つけているのか</h3>
 <p>賢明な読者のみなさんは、「<span class="ascii">Heroku</span>上のアプリはどうやってデータベースを見つけているんだろう？」と疑問に思ったかもしれません。 実は、<span class="ascii">Heroku</span>にはアプリに環境変数を与える仕組みがあります。</p>
 <p>この環境変数の設定値を確かめるには、以下のコマンドが使えます。</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb47-1" data-line-number="1">$ <span class="ex">heroku</span> config</a>
-<a class="sourceLine" id="cb47-2" data-line-number="2">=== <span class="ex">servant-on-heroku</span> Config Vars</a>
-<a class="sourceLine" id="cb47-3" data-line-number="3"><span class="ex">DATABASE_URL</span>: postgres://someusername:somepassword@ec2-12-12-234-123.compute-1.amazonaws.com:5432/databasename</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb47-1" title="1">$ <span class="ex">heroku</span> config</a>
+<a class="sourceLine" id="cb47-2" title="2">=== <span class="ex">servant-on-heroku</span> Config Vars</a>
+<a class="sourceLine" id="cb47-3" title="3"><span class="ex">DATABASE_URL</span>: postgres://someusername:somepassword@ec2-12-12-234-123.compute-1.amazonaws.com:5432/databasename</a></code></pre></div>
 <p><code>heroku-postgresql</code>アドオンで<span class="ascii">PostgreSQL</span>のデータベースを作成した際に、<code>DATABASE_URL</code>という名前の設定値が追加されます。 <span class="ascii">Heroku</span>はアプリの起動時にこの設定値を環境変数として与えているのです。 先に述べたとおり、今回のサンプルアプリは、<code>DATABASE_URL</code>という環境変数を接続先<span class="ascii">DB</span>の情報として受け取るようになっています<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>。</p>
 <p><span class="ascii">Heroku</span>に設定されている環境変数は、<code>heroku config:get VAR_NAME</code>で取得できるので、次のコマンドを使って<span class="ascii">DB</span>に接続することもできます。</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb48-1" data-line-number="1">$ <span class="ex">psql</span> <span class="st">&quot;</span><span class="va">$(</span><span class="ex">heroku</span> config:get DATABASE_URL<span class="va">)</span><span class="st">&quot;</span></a>
-<a class="sourceLine" id="cb48-2" data-line-number="2"><span class="ex">psql</span> (9.6.1)</a>
-<a class="sourceLine" id="cb48-3" data-line-number="3"><span class="ex">SSL</span> connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)</a>
-<a class="sourceLine" id="cb48-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb48-5" data-line-number="5"><span class="va">databasename=</span><span class="op">&gt;</span> <span class="kw">select</span> <span class="ex">*</span> from comment<span class="kw">;</span></a>
-<a class="sourceLine" id="cb48-6" data-line-number="6"> <span class="fu">id</span> <span class="kw">|</span> <span class="ex">author</span> <span class="kw">|</span>           <span class="ex">text</span></a>
-<a class="sourceLine" id="cb48-7" data-line-number="7"><span class="ex">----</span><span class="kw">|</span><span class="ex">--------</span><span class="kw">|</span><span class="ex">---------------------------</span></a>
-<a class="sourceLine" id="cb48-8" data-line-number="8">  <span class="ex">1</span> <span class="kw">|</span> <span class="ex">SPJ</span>    <span class="kw">|</span> <span class="ex">Avoid</span> Heroku at all costs</a>
-<a class="sourceLine" id="cb48-9" data-line-number="9"><span class="kw">(</span><span class="ex">1</span> row<span class="kw">)</span></a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb48-1" title="1">$ <span class="ex">psql</span> <span class="st">&quot;</span><span class="va">$(</span><span class="ex">heroku</span> config:get DATABASE_URL<span class="va">)</span><span class="st">&quot;</span></a>
+<a class="sourceLine" id="cb48-2" title="2"><span class="ex">psql</span> (9.6.1)</a>
+<a class="sourceLine" id="cb48-3" title="3"><span class="ex">SSL</span> connection (protocol: TLSv1.2, cipher: ECDHE-RSA-AES256-GCM-SHA384, bits: 256, compression: off)</a>
+<a class="sourceLine" id="cb48-4" title="4"></a>
+<a class="sourceLine" id="cb48-5" title="5"><span class="va">databasename=</span><span class="op">&gt;</span> <span class="kw">select</span> <span class="ex">*</span> from comment<span class="kw">;</span></a>
+<a class="sourceLine" id="cb48-6" title="6"> <span class="fu">id</span> <span class="kw">|</span> <span class="ex">author</span> <span class="kw">|</span>           <span class="ex">text</span></a>
+<a class="sourceLine" id="cb48-7" title="7"><span class="ex">----</span><span class="kw">|</span><span class="ex">--------</span><span class="kw">|</span><span class="ex">---------------------------</span></a>
+<a class="sourceLine" id="cb48-8" title="8">  <span class="ex">1</span> <span class="kw">|</span> <span class="ex">SPJ</span>    <span class="kw">|</span> <span class="ex">Avoid</span> Heroku at all costs</a>
+<a class="sourceLine" id="cb48-9" title="9"><span class="kw">(</span><span class="ex">1</span> row<span class="kw">)</span></a></code></pre></div>
 <h3 id="アプリのアップデート"><span class="link-to-here-outer"><a href="#アプリのアップデート" title="アプリのアップデート"><span class="link-to-here">Link to<br />
 here</span></a></span>アプリのアップデート</h3>
 <p><span class="ascii">Heroku</span>上で動いているアプリをアップデートするのは、とっても簡単です。 単に以下のコマンドを実行するだけで大丈夫です。</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb49-1" data-line-number="1">$ <span class="ex">heroku</span> container:push web</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb49-1" title="1">$ <span class="ex">heroku</span> container:push web</a></code></pre></div>
 <p>このコマンドは、<span class="ascii">Docker</span>イメージをビルドしなおして<span class="ascii">Heroku container registry</span>にアップします。 その後関係する<span class="ascii">dyno</span>を全て再起動して、アップデート後のアプリを実行するようにします。</p>
 <h2 id="もっと良くするために"><span class="link-to-here-outer"><a href="#もっと良くするために" title="もっと良くするために"><span class="link-to-here">Link to<br />
 here</span></a></span>もっと良くするために</h2>

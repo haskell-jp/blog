@@ -204,30 +204,30 @@ here</span></a></span><span class="ascii">Win32 API</span>のユニコード版�
 いちいち絶対パスに変えて変なプレフィックスを加えないといけないという面倒くささはありますが、いちいち分割して相対パスに変換するよりは簡単なはずですので、検討する価値があります。</p>
 <p>この、<code>\\?\</code>機能を試す場合、下記のコードを適当なファイルに貼り付けて保存し、<code>stack runghc file.hs</code>などと実行してみてください <span class="ascii">(Thanks,</span> <span class="citation" data-cites="matsubara0507"><span class="ascii">@matsubara0507</span></span><span class="ascii">!)</span>。<br />
 <code>catch</code>関数を使って例外を捕捉している箇所では、実際にパスが長すぎるためにエラーが発生し、<code>catch</code>されているはずです。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">import</span>           <span class="dt">Control.Exception</span> (catch, <span class="dt">IOException</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">import</span>           <span class="dt">Data.List</span>        (replicate)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw">import</span>           <span class="dt">System.Directory</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">main <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">  crDir <span class="ot">&lt;-</span> getCurrentDirectory</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">  <span class="kw">let</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">    path1 <span class="fu">=</span> mconcat <span class="fu">$</span> replicate <span class="dv">20</span> <span class="st">&quot;abcdefgh/&quot;</span> <span class="co">-- ok</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10">    path2 <span class="fu">=</span> mconcat <span class="fu">$</span> replicate <span class="dv">30</span> <span class="st">&quot;abcdefgh/&quot;</span> <span class="co">-- error</span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">    path3 <span class="fu">=</span> crDir <span class="fu">++</span> <span class="st">&quot;/&quot;</span> <span class="fu">++</span> path2 <span class="co">-- error</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">    path4 <span class="fu">=</span> <span class="st">&quot;\\\\?\\&quot;</span> <span class="fu">++</span> path3 <span class="co">-- ok</span></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">  putStrLn <span class="fu">$</span> <span class="st">&quot;path1: &quot;</span> <span class="fu">++</span> show path1</a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">  createDirectoryIfMissing <span class="dt">True</span> path1</a>
-<a class="sourceLine" id="cb2-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">  putStrLn <span class="fu">$</span> <span class="st">&quot;path2: &quot;</span> <span class="fu">++</span> show path2</a>
-<a class="sourceLine" id="cb2-18" data-line-number="18">  createDirectoryIfMissing <span class="dt">True</span> path2 <span class="ot">`catch`</span> (\e <span class="ot">-&gt;</span> putStrLn <span class="fu">$</span> <span class="st">&quot;  &quot;</span> <span class="fu">++</span> show (<span class="ot">e ::</span> <span class="dt">IOException</span>))</a>
-<a class="sourceLine" id="cb2-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb2-20" data-line-number="20">  putStrLn <span class="fu">$</span> <span class="st">&quot;path3: &quot;</span> <span class="fu">++</span> show path3</a>
-<a class="sourceLine" id="cb2-21" data-line-number="21">  createDirectoryIfMissing <span class="dt">True</span> path3 <span class="ot">`catch`</span> (\e <span class="ot">-&gt;</span> putStrLn <span class="fu">$</span> <span class="st">&quot;  &quot;</span> <span class="fu">++</span> show (<span class="ot">e ::</span> <span class="dt">IOException</span>))</a>
-<a class="sourceLine" id="cb2-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb2-23" data-line-number="23">  putStrLn <span class="fu">$</span> <span class="st">&quot;path4: &quot;</span> <span class="fu">++</span> show path4</a>
-<a class="sourceLine" id="cb2-24" data-line-number="24">  createDirectoryIfMissing <span class="dt">True</span> path4</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">import</span>           <span class="dt">Control.Exception</span> (catch, <span class="dt">IOException</span>)</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">import</span>           <span class="dt">Data.List</span>        (replicate)</a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">import</span>           <span class="dt">System.Directory</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb2-6" title="6">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb2-7" title="7">  crDir <span class="ot">&lt;-</span> getCurrentDirectory</a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="kw">let</span></a>
+<a class="sourceLine" id="cb2-9" title="9">    path1 <span class="ot">=</span> <span class="fu">mconcat</span> <span class="op">$</span> <span class="fu">replicate</span> <span class="dv">20</span> <span class="st">&quot;abcdefgh/&quot;</span> <span class="co">-- ok</span></a>
+<a class="sourceLine" id="cb2-10" title="10">    path2 <span class="ot">=</span> <span class="fu">mconcat</span> <span class="op">$</span> <span class="fu">replicate</span> <span class="dv">30</span> <span class="st">&quot;abcdefgh/&quot;</span> <span class="co">-- error</span></a>
+<a class="sourceLine" id="cb2-11" title="11">    path3 <span class="ot">=</span> crDir <span class="op">++</span> <span class="st">&quot;/&quot;</span> <span class="op">++</span> path2 <span class="co">-- error</span></a>
+<a class="sourceLine" id="cb2-12" title="12">    path4 <span class="ot">=</span> <span class="st">&quot;\\\\?\\&quot;</span> <span class="op">++</span> path3 <span class="co">-- ok</span></a>
+<a class="sourceLine" id="cb2-13" title="13"></a>
+<a class="sourceLine" id="cb2-14" title="14">  <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;path1: &quot;</span> <span class="op">++</span> <span class="fu">show</span> path1</a>
+<a class="sourceLine" id="cb2-15" title="15">  createDirectoryIfMissing <span class="dt">True</span> path1</a>
+<a class="sourceLine" id="cb2-16" title="16"></a>
+<a class="sourceLine" id="cb2-17" title="17">  <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;path2: &quot;</span> <span class="op">++</span> <span class="fu">show</span> path2</a>
+<a class="sourceLine" id="cb2-18" title="18">  createDirectoryIfMissing <span class="dt">True</span> path2 <span class="ot">`catch`</span> (\e <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;  &quot;</span> <span class="op">++</span> <span class="fu">show</span> (<span class="ot">e ::</span> <span class="dt">IOException</span>))</a>
+<a class="sourceLine" id="cb2-19" title="19"></a>
+<a class="sourceLine" id="cb2-20" title="20">  <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;path3: &quot;</span> <span class="op">++</span> <span class="fu">show</span> path3</a>
+<a class="sourceLine" id="cb2-21" title="21">  createDirectoryIfMissing <span class="dt">True</span> path3 <span class="ot">`catch`</span> (\e <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;  &quot;</span> <span class="op">++</span> <span class="fu">show</span> (<span class="ot">e ::</span> <span class="dt">IOException</span>))</a>
+<a class="sourceLine" id="cb2-22" title="22"></a>
+<a class="sourceLine" id="cb2-23" title="23">  <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;path4: &quot;</span> <span class="op">++</span> <span class="fu">show</span> path4</a>
+<a class="sourceLine" id="cb2-24" title="24">  createDirectoryIfMissing <span class="dt">True</span> path4</a></code></pre></div>
 <h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
 here</span></a></span>おわりに</h1>
 <p>さて、またしても<span class="ascii">Windows</span>固有の面倒な問題を紹介することとなってしまいましたが、俗世の喜び（主にゲーム）と簡単にインストールできる<span class="ascii">GUI</span>に慣らされてしまった私は、今後も<span class="ascii">Windows</span>を使い続けるつもりです。<br />
