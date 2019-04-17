@@ -6,7 +6,7 @@ subHeading: string gap の紹介
 author: mizunashi_mana
 postedBy: mizunashi_mana
 tags: heredoc, CPP
-date: April 16, 2019
+date: April 17, 2019
 ...
 ---
 
