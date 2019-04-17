@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Haskell でも heredoc がしたい">
+    
+      <meta name="author" content="mizunashi_mana">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="Haskell でも heredoc がしたい - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/string-gap-for-heredoc-like.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---多くの言語では， here document (heredoc) という言語機能が搭載されています．これは，複数行の文字列をコード中に文字列リテラルとして埋め込める機能です．今日は heredoc ほど使い勝手がよくないものの，長い文字列を埋め込める， Haskell 標準の string gap という機能を紹介したいと思います．## string gapbash では，複数行の文字列を，" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>Haskell でも heredoc がしたい - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/post-bg.jpg'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>Haskell でも heredoc がしたい</h1>
+                      <h2 class="subheading">string gap の紹介</h2><span class="meta">Posted by mizunashi_mana on April 17, 2019</span><span class="meta">Tags: heredoc, CPP</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>多くの言語では， <span class="ascii">here document (heredoc)</span> という言語機能が搭載されています．これは，複数行の文字列をコード中に文字列リテラルとして埋め込める機能です．今日は <span class="ascii">heredoc</span> ほど使い勝手がよくないものの，長い文字列を埋め込める， <span class="ascii">Haskell</span> 標準の <span class="ascii">string gap</span> という機能を紹介したいと思います．</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#string-gap" title="string-gap"><span class="ascii">string gap</span></a></li>
+<li><a href="#cpp-下での注意事項" title="cpp-下での注意事項"><span class="ascii">CPP</span> 下での注意事項</a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h2 id="string-gap"><span class="link-to-here-outer"><a href="#string-gap" title="string-gap"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">string gap</span></h2>
+<p><span class="ascii">bash</span> では，複数行の文字列を，次の記法で埋め込むことができます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="bu">echo</span> <span class="st">&quot;</span><span class="va">$(</span><span class="fu">cat</span> <span class="op">&lt;&lt;EOS</span></a>
+<a class="sourceLine" id="cb1-2" title="2">some text</a>
+<a class="sourceLine" id="cb1-3" title="3">is multilined</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">EOS</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="va">)</span><span class="st">&quot;</span></a></code></pre></div>
+<p>これは，</p>
+<pre class="text"><code>some text
+is multilined</code></pre>
+<p>という文字列が出力されます．多くの言語では似たような構文で <span class="ascii">heredoc</span> が採用されていて，特殊な記号の後に終端記号を書いて，その後の終端記号までを文字列リテラルとして扱われます． <span class="ascii">Haskell</span> では残念ながらこのような機能は搭載されていませんが，代わりに次の記法が提供されています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb3-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;\</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="st">  \some text\n\</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="st">  \is multilined\</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="st">\&quot;</span></a></code></pre></div>
+<p>この実行結果は，前の <span class="ascii">bash</span> スクリプトの結果と同じになります． <span class="ascii">heredoc</span> より色々ごちゃごちゃしてますが，複数行の文字列リテラルを書けます．この機能は， <span class="ascii">Haskell</span> の複数行文字列リテラルまたは <span class="ascii">Haskell</span> 標準では <span class="ascii">gap</span> と呼ばれています <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>．記法はかなり単純で，文字列中のバックスラッシュ <code>\</code> で囲まれた空白が無視されるだけです．改行も空白に含まれます．なので，上のプログラムは以下のプログラムと同じです<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb4-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;some text\nis multilined&quot;</span></a></code></pre></div>
+<p>なお， <span class="ascii">gap</span> を使わないで複数行の文字列リテラルを書くことはできません．また， <span class="ascii">gap</span> は空白を全て無視するため，改行を含まない長い文字列を複数行に渡って埋め込むのにも使えます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb5-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very \</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="st">  \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p>なお， <span class="ascii">gap</span> は <span class="ascii">Haskell</span> 標準でレイアウトルールの処理から除外されているため<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>，インデントを考慮する必要はありません<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb6-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;one line&quot;</span></a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;\</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="st">\multiline\n\</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="st">\text\</span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="st">\&quot;</span></a></code></pre></div>
+<h2 id="cpp-下での注意事項"><span class="link-to-here-outer"><a href="#cpp-下での注意事項" title="cpp-下での注意事項"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">CPP</span> 下での注意事項</h2>
+<p>ただ， <span class="ascii">GHC</span> の <code>CPP</code> 拡張を使用する際注意が必要です． <code>CPP</code> では，バックスラッシュで終わる行は，バックスラッシュを除いて次の行と繋げる処理が行われます<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>．この処理のため， <span class="ascii">gap</span> を使用した以下のコードは，</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb7-4" title="4">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very \</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="st">  \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p><code>cpp</code> により次のように変換されてしまいます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb8-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very   \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p>このため，結果的にコンパイルエラーになってしまいます．このため， <code>CPP</code> を使う際は， <span class="ascii">gap</span> を使わず <code>CPP</code> の機能を使う必要があります．例えば，上記のプログラムは，</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb9-4" title="4">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very \</span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="st">\ \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p>と書くと <span class="ascii">gap</span> をそのまま使った時のプログラムと同じになります．一番最初の <code>\</code> は <code>CPP</code> のためのもの，次の <span class="ascii">2</span> つは <span class="ascii">gap</span> になります．</p>
+<h2 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h2>
+<p><span class="ascii">string gap</span> は，昔から <span class="ascii">Haskell</span> 標準で付いている機能なので，ぜひ使ってみてください．</p>
+<p>ただ， <span class="ascii">heredoc</span> より使い勝手は良くないです．変数展開やもう少し見栄えの良い <span class="ascii">heredoc</span> が欲しい場合は， <a href="http://hackage.haskell.org/package/here"><span class="ascii">here</span> パッケージ</a> や <a href="http://hackage.haskell.org/package/shakespeare"><span class="ascii">Shakespeare</span></a> などの <span class="ascii">TemplateHaskell</span> を使ったテンプレートエンジンの使用を検討してみるといいかもしれませんね．</p>
+<p>では，今日はこれでノシ</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.haskell.org/onlinereport/haskell2010/haskellch2.html#x7-200002.6"><span class="ascii">Haskell2010</span> の <span class="ascii">2.6</span> 節</a>の最後の方で紹介されています．<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p><a href="https://www.haskell.org/onlinereport/haskell2010/haskellch10.html#x17-17800010.3"><span class="ascii">Haskell2010</span> の <span class="ascii">10.3</span> 節</a> で触れられています．<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p><a href="https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html#index-continued-lines"><span class="ascii">CPP</span> の仕様の <span class="ascii">1.2</span> 節</a> で触れられています．<a href="#fnref3" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/hourly-antenna.html" style="margin-left: auto;" lang="ja">DroneでHaskell Antennaを毎時更新する</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; mizunashi_mana 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>

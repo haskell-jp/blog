@@ -8,8 +8,139 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2019-01-25T00:00:00Z</updated>
+    <updated>2019-04-17T00:00:00Z</updated>
     <entry>
+    <title>Haskell でも heredoc がしたい</title>
+    <link href="https://haskell.jp/blog/posts/2019/string-gap-for-heredoc-like.html" />
+    <id>https://haskell.jp/blog/posts/2019/string-gap-for-heredoc-like.html</id>
+    <published>2019-04-17T00:00:00Z</published>
+    <updated>2019-04-17T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>多くの言語では， <span class="ascii">here document (heredoc)</span> という言語機能が搭載されています．これは，複数行の文字列をコード中に文字列リテラルとして埋め込める機能です．今日は <span class="ascii">heredoc</span> ほど使い勝手がよくないものの，長い文字列を埋め込める， <span class="ascii">Haskell</span> 標準の <span class="ascii">string gap</span> という機能を紹介したいと思います．</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#string-gap" title="string-gap"><span class="ascii">string gap</span></a></li>
+<li><a href="#cpp-下での注意事項" title="cpp-下での注意事項"><span class="ascii">CPP</span> 下での注意事項</a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h2 id="string-gap"><span class="link-to-here-outer"><a href="#string-gap" title="string-gap"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">string gap</span></h2>
+<p><span class="ascii">bash</span> では，複数行の文字列を，次の記法で埋め込むことができます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="bu">echo</span> <span class="st">&quot;</span><span class="va">$(</span><span class="fu">cat</span> <span class="op">&lt;&lt;EOS</span></a>
+<a class="sourceLine" id="cb1-2" title="2">some text</a>
+<a class="sourceLine" id="cb1-3" title="3">is multilined</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="op">EOS</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="va">)</span><span class="st">&quot;</span></a></code></pre></div>
+<p>これは，</p>
+<pre class="text"><code>some text
+is multilined</code></pre>
+<p>という文字列が出力されます．多くの言語では似たような構文で <span class="ascii">heredoc</span> が採用されていて，特殊な記号の後に終端記号を書いて，その後の終端記号までを文字列リテラルとして扱われます． <span class="ascii">Haskell</span> では残念ながらこのような機能は搭載されていませんが，代わりに次の記法が提供されています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb3-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;\</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="st">  \some text\n\</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="st">  \is multilined\</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="st">\&quot;</span></a></code></pre></div>
+<p>この実行結果は，前の <span class="ascii">bash</span> スクリプトの結果と同じになります． <span class="ascii">heredoc</span> より色々ごちゃごちゃしてますが，複数行の文字列リテラルを書けます．この機能は， <span class="ascii">Haskell</span> の複数行文字列リテラルまたは <span class="ascii">Haskell</span> 標準では <span class="ascii">gap</span> と呼ばれています <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>．記法はかなり単純で，文字列中のバックスラッシュ <code>\</code> で囲まれた空白が無視されるだけです．改行も空白に含まれます．なので，上のプログラムは以下のプログラムと同じです<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb4-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;some text\nis multilined&quot;</span></a></code></pre></div>
+<p>なお， <span class="ascii">gap</span> を使わないで複数行の文字列リテラルを書くことはできません．また， <span class="ascii">gap</span> は空白を全て無視するため，改行を含まない長い文字列を複数行に渡って埋め込むのにも使えます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb5-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very \</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="st">  \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p>なお， <span class="ascii">gap</span> は <span class="ascii">Haskell</span> 標準でレイアウトルールの処理から除外されているため<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>，インデントを考慮する必要はありません<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb6-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;one line&quot;</span></a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;\</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="st">\multiline\n\</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="st">\text\</span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="st">\&quot;</span></a></code></pre></div>
+<h2 id="cpp-下での注意事項"><span class="link-to-here-outer"><a href="#cpp-下での注意事項" title="cpp-下での注意事項"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">CPP</span> 下での注意事項</h2>
+<p>ただ， <span class="ascii">GHC</span> の <code>CPP</code> 拡張を使用する際注意が必要です． <code>CPP</code> では，バックスラッシュで終わる行は，バックスラッシュを除いて次の行と繋げる処理が行われます<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>．この処理のため， <span class="ascii">gap</span> を使用した以下のコードは，</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb7-4" title="4">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very \</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="st">  \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p><code>cpp</code> により次のように変換されてしまいます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb8-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very   \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p>このため，結果的にコンパイルエラーになってしまいます．このため， <code>CPP</code> を使う際は， <span class="ascii">gap</span> を使わず <code>CPP</code> の機能を使う必要があります．例えば，上記のプログラムは，</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb9-4" title="4">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;This is very very very \</span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="st">\ \long long long long long long long long text.&quot;</span></a></code></pre></div>
+<p>と書くと <span class="ascii">gap</span> をそのまま使った時のプログラムと同じになります．一番最初の <code>\</code> は <code>CPP</code> のためのもの，次の <span class="ascii">2</span> つは <span class="ascii">gap</span> になります．</p>
+<h2 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h2>
+<p><span class="ascii">string gap</span> は，昔から <span class="ascii">Haskell</span> 標準で付いている機能なので，ぜひ使ってみてください．</p>
+<p>ただ， <span class="ascii">heredoc</span> より使い勝手は良くないです．変数展開やもう少し見栄えの良い <span class="ascii">heredoc</span> が欲しい場合は， <a href="http://hackage.haskell.org/package/here"><span class="ascii">here</span> パッケージ</a> や <a href="http://hackage.haskell.org/package/shakespeare"><span class="ascii">Shakespeare</span></a> などの <span class="ascii">TemplateHaskell</span> を使ったテンプレートエンジンの使用を検討してみるといいかもしれませんね．</p>
+<p>では，今日はこれでノシ</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.haskell.org/onlinereport/haskell2010/haskellch2.html#x7-200002.6"><span class="ascii">Haskell2010</span> の <span class="ascii">2.6</span> 節</a>の最後の方で紹介されています．<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p><a href="https://www.haskell.org/onlinereport/haskell2010/haskellch10.html#x17-17800010.3"><span class="ascii">Haskell2010</span> の <span class="ascii">10.3</span> 節</a> で触れられています．<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p><a href="https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html#index-continued-lines"><span class="ascii">CPP</span> の仕様の <span class="ascii">1.2</span> 節</a> で触れられています．<a href="#fnref3" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2019/hourly-antenna.html" style="margin-left: auto;" lang="ja">DroneでHaskell Antennaを毎時更新する</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>DroneでHaskell Antennaを毎時更新する</title>
     <link href="https://haskell.jp/blog/posts/2019/hourly-antenna.html" />
     <id>https://haskell.jp/blog/posts/2019/hourly-antenna.html</id>
@@ -295,6 +426,9 @@ here</span></a></span>今後やりたいこと</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2019/string-gap-for-heredoc-like.html" lang="ja">Haskell でも heredoc がしたい</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2736,189 +2870,6 @@ here</span></a></span>参考文献</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2018/main-tester.html" style="margin-left: auto;" lang="ja">CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>CLIアプリのE2Eテストを行うためのライブラリー main-testerをリリースしました</title>
-    <link href="https://haskell.jp/blog/posts/2018/main-tester.html" />
-    <id>https://haskell.jp/blog/posts/2018/main-tester.html</id>
-    <published>2018-04-09T00:00:00Z</published>
-    <updated>2018-04-09T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>こんにちは。みなさん、テストは書いてますか？<br />
-「<a href="http://syocy.hatenablog.com/entry/haskell-library-2016#%E3%83%86%E3%82%B9%E3%83%88"><span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span></a>」という記事でも紹介されているとおり、<span class="ascii">Haskell</span>にも様々なテスト用ライブラリーがあります。<br />
-今回は、「<span class="ascii">Haskell</span>ライブラリ所感<span class="ascii">2016</span>」でも紹介されている<a href="https://hackage.haskell.org/package/silently"><span class="ascii">silently</span></a>というパッケージにインスパイアされた、新しいテスト用ライブラリーを作りました。<br />
-タイトルにも書きましたが<a href="https://hackage.haskell.org/package/main-tester"><span class="ascii">main-tester</span></a>といいます。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#main-testerができること" title="main-testerができること"><span class="ascii">main-tester</span>ができること</a></li>
-<li><a href="#ほかのライブラリーとの違い" title="ほかのライブラリーとの違い">ほかのライブラリーとの違い</a></li>
-<li><a href="#使い方バグ報告" title="使い方バグ報告">使い方・バグ報告</a></li>
-</ul>
-</div>
-</div>
-<h1 id="main-testerができること"><span class="link-to-here-outer"><a href="#main-testerができること" title="main-testerができること"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">main-tester</span>ができること</h1>
-<p><span class="ascii">main-tester</span>は名前の通り、<code>main</code>関数のテストをサポートするライブラリーです。<br />
-<span class="ascii">Haskell</span>製のプログラムを起動すると最初に実行される、あの<code>main</code>関数です。</p>
-<p><code>main</code>関数は<code>IO ()</code>という型であるとおり、原則として必ず入出力を伴うので、自動テストがしにくい関数です。<br />
-一般的なベストプラクティスとしては、できるだけ<code>IO</code>でない、純粋な関数を中心にテストを書いていくのが普通でしょう。<br />
-それでも敢えて<code>main</code>関数の自動テストを書くのには、以下のメリットがあります。</p>
-<ol type="1">
-<li><code>main</code>関数をテストすると言うことは、作っているコマンドの、ユーザーの要求に最も近いレベルのテスト、<span class="ascii">E2E</span>テスト（<span class="ascii">end-to-end</span> テスト）をすることができる。</li>
-<li><code>main</code>関数（や、その他の<code>IO</code>を伴う関数）に対するテストは、データベースやファイルシステムなど、外部のソフトウェアとの「組み合わせ」で起こるバグを検出できる。
-<ul>
-<li>経験上、特に単純なアプリケーションでは、そうした外部のソフトウェアに対する「誤解」が原因となったバグが比較的多いように感じています。</li>
-</ul></li>
-<li>私の個人的な都合ですが、趣味では小さなアプリケーションを書くことが多いので、そうした<span class="ascii">E2E</span>テストの方が効果的だったりする。</li>
-</ol>
-<p>このように、<code>main</code>関数をはじめとする、<code>IO</code>な関数に対して敢えて自動テストを書くことには、様々なメリットがあります。<br />
-<code>main-tester</code>はそうした<code>IO</code>な関数をテストする際に伴う、<span class="ascii">2</span>つの問題を解決しました。</p>
-<ol type="1">
-<li>標準出力・標準エラー出力に出力した文字列がテストしにくい
-<ul>
-<li>➡️ <code>captureProcessResult</code>という関数で、標準出力・標準エラー出力に出力した文字列をそれぞれ<code>ByteString</code>として取得することができます。</li>
-</ul></li>
-<li>標準入力から文字列を読み出そうとすると、テストの実行が停止してしまう。
-<ul>
-<li>➡️ <code>withStdin</code>という関数で、標準入力に与えたい文字列を<code>ByteString</code>として与えることができます。</li>
-</ul></li>
-</ol>
-<p>ここに書いたことは、ビルドした実行ファイルを子プロセスとして呼び出すことによってもできます。<br />
-入出力の順番など、標準出力や標準エラー出力のより細かい挙動をテストするにはその方がいいでしょう<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
-しかし、テストのために<code>PATH</code>を分離させる必要があったり、そのために<a href="https://github.com/commercialhaskell/stack/issues/2885"><code>stack exec</code>を使ったらめっちゃ遅い</a>という問題があったり、そもそも子プロセス呼び出しはそれだけでオーバーヘッドがあったりと、様々な問題があります。<br />
-物事をよりシンプルにするには、<code>main</code>関数を直接呼び出した方がよいでしょう。<br />
-<span class="ascii">main-tester</span>は、<span class="ascii">CLI</span>アプリケーションの<span class="ascii">E2E</span>テストにおける、そうした子プロセスの呼び出しの問題と、より大きな関数をテストしたいというニーズに応えるためのライブラリーなのです。</p>
-<h1 id="ほかのライブラリーとの違い"><span class="link-to-here-outer"><a href="#ほかのライブラリーとの違い" title="ほかのライブラリーとの違い"><span class="link-to-here">Link to<br />
-here</span></a></span>ほかのライブラリーとの違い</h1>
-<p>「<span class="ascii">silently</span>というパッケージにインスパイアされた」と冒頭で申しましたとおり、前節で紹介した機能は、実はすでにほかのライブラリーに似たものがあります。<br />
-<span class="ascii">silently</span>に加え、<a href="https://hackage.haskell.org/package/imperative-edsl-0.7.1/docs/System-IO-Fake.html"><span class="ascii">imperative-edsl</span>というパッケージに含まれる、<code>System.IO.Fake</code>というモジュール</a>です<small>（ほかにもあったらすみません！🙇🙇🙇）</small>。<br />
-これらと<span class="ascii">main-tester</span>との違いは何でしょう？</p>
-<p>第一に、先ほども触れましたが、<span class="ascii">main-tester</span>の<code>captureProcessResult</code>関数や<code>withStdin</code>関数は、標準出力・標準エラー出力・標準入力でやりとりする文字列を<span class="ascii">strict</span>な<code>ByteString</code>でやりとりします。<br />
-<span class="ascii">silently</span>や<code>System.IO.Fake</code>は、<code>String</code>なのです。<br />
-<code>ByteString</code>は文字通り任意のバイト列を扱うことができるので、「<span class="ascii">Unicode</span>の文字のリスト」である<code>String</code>よりも、多様なデータを扱うことができます。</p>
-<p>これは、特に複数の種類の文字コードを扱うとき、非常に重要な機能となります。<br />
-<a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html">以前の記事で取り上げた、<code>Invalid character</code>というエラー</a>を再現させる場合も、ないと大変やりづらいでしょう。</p>
-<p>第二に、<span class="ascii">main-tester</span>の<code>captureProcessResult</code>関数は、<code>main</code>関数の終了コードも<a href="https://hackage.haskell.org/package/base-4.11.0.0/docs/System-Exit.html#t:ExitCode"><code>ExitCode</code>型</a>の値として取得できます。<br />
-<code>main</code>関数の中で<code>exitFailure</code>等の関数を呼び出すと、<code>ExitCode</code>が例外として投げられます。<br />
-既存のライブラリーでこれを行うと、<code>ExitCode</code>が例外として処理されるため、テストしたい<code>main</code>関数の実行が終了してしまいます。<br />
-結果、<code>main</code>関数が標準出力・標準エラー出力に書き込んだ文字列を取得することができないのです。<br />
-「○○というエラーメッセージを出力して異常終了する」といったことをテストしたい場合、これでは使いづらいでしょう。<br />
-<strong>「<code>main</code>関数の<span class="ascii">E2E</span>テストを行うためのライブラリーである」</strong>という観点から、必須の機能であると判断し、実装しました。 ちなみに、<code>ExitCode</code>以外の例外についてはそのまま投げられます。仕様を単純にするために、これはユーザーのテストコードの中で処理することとしています。</p>
-<h1 id="使い方バグ報告"><span class="link-to-here-outer"><a href="#使い方バグ報告" title="使い方バグ報告"><span class="link-to-here">Link to<br />
-here</span></a></span>使い方・バグ報告</h1>
-<p>機能は非常にシンプルなので、使い方については<a href="https://hackage.haskell.org/package/main-tester-0.1.0.0/docs/Test-Main.html">ドキュメント</a>のサンプルコードを読めば大体わかるかなぁと思いますが、簡単にサンプルを載せておきましょう。</p>
-<p>例えばこんなソース👇のプログラムがあった場合、</p>
-<p><span class="ascii">ExampleMain.hs:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">module</span> <span class="dt">ExampleMain</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">import</span> <span class="dt">Data.List</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">import</span> <span class="dt">System.Exit</span></a>
-<a class="sourceLine" id="cb1-5" title="5"></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb1-7" title="7">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb1-8" title="8">  <span class="fu">putStr</span> <span class="st">&quot;What&#39;s your name?: &quot;</span></a>
-<a class="sourceLine" id="cb1-9" title="9">  name <span class="ot">&lt;-</span> <span class="fu">getLine</span></a>
-<a class="sourceLine" id="cb1-10" title="10">  <span class="kw">if</span> <span class="st">&quot;Yuji&quot;</span> <span class="ot">`isInfixOf`</span> name</a>
-<a class="sourceLine" id="cb1-11" title="11">    <span class="kw">then</span> <span class="fu">putStrLn</span> <span class="st">&quot;Nice name!&quot;</span></a>
-<a class="sourceLine" id="cb1-12" title="12">    <span class="kw">else</span> die <span class="op">$</span> name <span class="op">++</span> <span class="st">&quot;? Sorry I don&#39;t know such a guy!&quot;</span></a></code></pre></div>
-<p><span class="ascii">main-tester</span>を使えば、次のように<span class="ascii">Hspec</span>でテストできます。</p>
-<p><span class="ascii">ExampleSpec.hs:</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">{-# LANGUAGE OverloadedStrings #-}</span></a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">import</span> <span class="dt">System.Exit</span></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="kw">import</span> <span class="dt">Test.Main</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="kw">import</span> <span class="dt">Test.Hspec</span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">ExampleMain</span></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString</span> <span class="kw">as</span> <span class="dt">B</span></a>
-<a class="sourceLine" id="cb2-8" title="8"></a>
-<a class="sourceLine" id="cb2-9" title="9">main <span class="ot">=</span> hspec <span class="op">$</span></a>
-<a class="sourceLine" id="cb2-10" title="10">  describe <span class="st">&quot;your-cool-command&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-11" title="11">    context <span class="st">&quot;Given &#39;Yuji&#39; to stdin&quot;</span> <span class="op">$</span></a>
-<a class="sourceLine" id="cb2-12" title="12">      it <span class="st">&quot;prints a string including &#39;Nice name&#39; without an error&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-13" title="13">        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;Yuji&quot;</span><span class="op">$</span> captureProcessResult ExampleMain.main</a>
-<a class="sourceLine" id="cb2-14" title="14">        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitSuccess</span></a>
-<a class="sourceLine" id="cb2-15" title="15">        prStderr result <span class="ot">`shouldSatisfy`</span> B.null</a>
-<a class="sourceLine" id="cb2-16" title="16">        prStdout result <span class="ot">`shouldSatisfy`</span> (<span class="st">&quot;Nice name&quot;</span> <span class="ot">`B.isInfixOf`</span>)</a>
-<a class="sourceLine" id="cb2-17" title="17"></a>
-<a class="sourceLine" id="cb2-18" title="18">    context <span class="st">&quot;Given other name to stdin&quot;</span> <span class="op">$</span></a>
-<a class="sourceLine" id="cb2-19" title="19">      it <span class="st">&quot;prints an error message&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-20" title="20">        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;other name&quot;</span> <span class="op">$</span> captureProcessResult ExampleMain.main</a>
-<a class="sourceLine" id="cb2-21" title="21">        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitFailure</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-22" title="22">        prStderr result <span class="ot">`shouldSatisfy`</span> (<span class="fu">not</span> <span class="op">.</span> B.null)</a></code></pre></div>
-<p>それぞれのファイルを同じディレクトリーに置いた上で、次のように実行すれば試せるはずです <small>（<span class="ascii">cabal</span>ユーザーの皆さんは適当に読み替えてください…）</small>。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> build hspec main-tester</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="op">&gt;</span> <span class="ex">stack</span> exec runghc -- --ghc-arg=-i. ExampleSpec.hs</a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="ex">your-cool-command</span></a>
-<a class="sourceLine" id="cb3-5" title="5">  <span class="ex">Given</span> <span class="st">&#39;Yuji&#39;</span> to stdin</a>
-<a class="sourceLine" id="cb3-6" title="6">    <span class="ex">prints</span> a string including <span class="st">&#39;Nice name&#39;</span> without an error</a>
-<a class="sourceLine" id="cb3-7" title="7">  <span class="ex">Given</span> other name to stdin</a>
-<a class="sourceLine" id="cb3-8" title="8">    <span class="ex">prints</span> an error message</a>
-<a class="sourceLine" id="cb3-9" title="9"></a>
-<a class="sourceLine" id="cb3-10" title="10"><span class="ex">Finished</span> in 0.0130 seconds</a>
-<a class="sourceLine" id="cb3-11" title="11"><span class="ex">2</span> examples, 0 failures</a></code></pre></div>
-<p>バグを見つけたら<a href="https://gitlab.com/igrep/main-tester/issues">こちらの<span class="ascii">GitLab</span>の<span class="ascii">Issue</span></a>に報告してください<small>（最近の個人的な判官贔屓により、敢えて<span class="ascii">GitLab</span>にしております 😏）</small>。<br />
-それではこの春は<span class="ascii">main-tester</span>で<span class="ascii">Happy Haskell Testing!!</span> 💚💚💚</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p><code>main</code>関数を子スレッドとして<code>forkIO</code>することで同じことが恐らくできますが、テスト結果の報告に使うべき、標準出力・標準エラー出力を食い合うことになってしまうので、非常にやりづらいと思います。<a href="#fnref1" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2018/about-ghc-exts-1.html" lang="ja">GHC拡張ノック(Part 1)</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2018/renew-haskell-antenna.html" style="margin-left: auto;" lang="ja">Haskell Antenna をリニューアルしました</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
