@@ -175,7 +175,7 @@ HEAD.hackageに収録されたパッケージを正しく取得できていれ�
 ## それでもうまくいかない場合: `extra-deps`を使い倒す
 
 しかしやっぱり、必要な変更が施されたパッケージが、HEAD.hackageにもアップロードされていない場合はあります。  
-そうした場合、自分で修正して<small>（Pull requestを送りつつ）</small>パッチを[HEAD.hackageのリポジトリー](https://github.com/hvr/head.hackage)にアップロードすることもできますが、stack.yamlの`extra-deps`を次のように使えば、もっと手っ取り早く修正したバージョンのビルドを試すことができます。
+そうした場合、自分で修正して<small>（Pull requestを送りつつ）</small>パッチを[HEAD.hackageのリポジトリー](https://github.com/hvr/head.hackage)にアップロードすることもできますが、`stack.yaml`の`extra-deps`を次のように使えば、もっと手っ取り早く修正したバージョンのビルドを試すことができます。
 
 ### 自分以外の人が対象のパッケージを修正した場合:
 
