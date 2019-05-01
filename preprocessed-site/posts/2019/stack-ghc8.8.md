@@ -52,7 +52,7 @@ stackはここに書かれたURLにアクセスすることで、GHCをインス
       ちょっと試したいだけならそのディレクトリーで`stack exec ghci`などと実行すればOKです！
 - `stack setup`コマンドのオプションとして渡す:  
   ```
-  stack setup --setup-info-yaml https://gist.github.com/igrep/7298e1e2515059ae332feaf5501c41a4/raw/d69cc0b75d9be6735bdfcca6aa3eb6398d98983f/stack-setup-info.yaml
+  stack setup 8.8.0.20190424 --setup-info-yaml https://gist.github.com/igrep/7298e1e2515059ae332feaf5501c41a4/raw/d69cc0b75d9be6735bdfcca6aa3eb6398d98983f/stack-setup-info.yaml
   ```
 
     - `--setup-info-yaml`オプションを指定した上で`8.8.0.20190424`という引数を与えるのがポイントです。  
