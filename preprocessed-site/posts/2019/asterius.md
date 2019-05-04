@@ -22,7 +22,7 @@ tags: Asterius, WebAssembly
 GHCのHEAD<small>（開発中のバージョン）</small>を都度フォークして、現在活発に開発中です。  
 Template Haskellと、GHC標準におけるIOを行う関数（の大半）を除いた、すべての機能が利用できるようになっています。  
 現状のWebAssemblyを実用する上で必要不可欠であろう、FFIもサポートされています。  
-つまり、JavaScriptからWebAssemblyにコンパイルされたHaskellの関数を読んだり、HaskellからJavaScriptの関数を呼ぶことができます！  
+つまり、JavaScriptからWebAssemblyにコンパイルされたHaskellの関数を呼んだり、HaskellからJavaScriptの関数を呼ぶことができます！  
 何かしらのIO処理を行う場合は、基本的にこのFFIを使ってJavaScriptの関数を呼ぶことになります。
 
 加えて、`ahc-cabal`という名前のコマンドで、cabalパッケージを利用することもできます。  
@@ -50,7 +50,7 @@ Asteriusは、GHCをフォークしていくつかの機能を追加して作ら
 詳細な違いは[About the custom GHC fork](https://tweag.github.io/asterius/custom-ghc/)にまとまっています。近い将来GHC本体に取り込まれそうな修正ばかりではないかと。
 
 それからこれは、ブラウザーでHaskellを動かすことができるという点でAsteriusの競合に当たる、GHCJSと比較した場合の話ですが、FFIを利用して、JavaScriptから**直接**Haskellを呼ぶことができるようになっているのも、優れた点と言えるでしょう。  
-GHCJSは[こちらのドキュメント曰く](https://github.com/ghcjs/ghcjs/blob/3959a9321a2d3e2ad4b8d4c9cc436fcfece99237/doc/foreign-function-interface.md#calling-haskell-from-javascript)、JavaScriptからHaskellを呼ぶ機能は備えてはいるものの、簡単ではないため、ドキュメントも書かれておらず、推奨されてません。  
+GHCJSは[こちらのドキュメント曰く](https://github.com/ghcjs/ghcjs/blob/3959a9321a2d3e2ad4b8d4c9cc436fcfece99237/doc/foreign-function-interface.md#calling-haskell-from-javascript)、JavaScriptからHaskellを呼ぶ機能は備えてはいるものの、簡単ではないためドキュメントも書かれておらず、推奨されていません。  
 これでは状況によってはかなり使いづらいでしょう。  
 今回私が試したように、コアとなる処理だけをHaskellの関数として書いて、それをJavaScriptから呼び出すということができないのです。
 
@@ -60,16 +60,17 @@ GHCJSは[こちらのドキュメント曰く](https://github.com/ghcjs/ghcjs/bl
 foreign export javascript "func" func :: Int -> Int -> Int
 ```
 
-ただし、実際に今回試してみたところ、Asteriusではまだバグがあったりしたので、この用途では依然使いにくいという状況ではありますが...（詳細は後で触れます）。
+ただし、実際に今回試してみたところ、Asteriusではまだバグがあったので、この用途では依然使いにくいという状況ではありますが...（詳細は後で触れます）。
 
 # 👎Asteriusのイマイチなところ
 
 Asteriusは、やっぱりまだまだ開発中で、バグが多いです。  
 今回の目的もバグのために果たせませんでした😢。
-先ほども触れたとおり、特に未完成なのが、`IO`とTemplate Haskellです。  
+
+先ほども触れたとおり、特に未完成なのが、IOとTemplate Haskellです。  
 GHCなら使えるはずの`IO`な関数の多くが使えませんし、Template Haskellに至っては一切利用できません。
 
-`IO`については、現状、<small>（`putStrLn`などのよく使われる）</small>一部を除き、FFI<small>（`foreign import javascript`）</small>を使ってJavaScriptの関数経由でよばなけれなりません。  
+IOについては、現状、<small>（`putStrLn`などのよく使われる）</small>一部を除き、FFI<small>（`foreign import javascript`）</small>を使ってJavaScriptの関数経由でよばなけれなりません。  
 これは、入出力関連のAPIを一切持たないという現状のWebAssemblyの事情を考えれば、致し方ない仕様だとも言えます。  
 [WASI](https://github.com/WebAssembly/WASI)の策定によってこの辺の事情が変わるまでの間に、すべて`foreign import javascript`で賄うというのも、なかなか面倒なことでしょうし。
 
@@ -87,7 +88,7 @@ Template Haskellに関しては、現在[こちらのブランチ](https://githu
 Asteriusのドキュメント「[IR types and transformation passes](https://tweag.github.io/asterius/ir/)」をざっくり要約してみると、Asteriusは以下のような流れで動くそうです。  
 実際には`ahc-link`というコマンドがこれらの手順をまとめて実行するので、ユーザーの皆さんはあまり意識する必要はないでしょう。
 
-1. [フロントエンドプラグイン](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/extending_ghc.html#frontend-plugins)という仕組みでラップしたGHC<small>（のフォーク）</small>を使い、GHCが生成した、Cmmという中間言語で書かれたソースを、`AsteriusModule`という独自のオブジェクトに変換します。
+1. [フロントエンドプラグイン](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/extending_ghc.html#frontend-plugins)という仕組みでラップしたGHC<small>（のフォーク）</small>を使い、GHCが生成したCmmという中間言語で書かれたコードを、`AsteriusModule`という独自のオブジェクトに変換します。
 1. `ahc-ld`という専用のリンカーで、WASM向けにリンクします。
 1. 最後に、`ahc-dist`というコマンドで、リンクしたモジュールを実行できる状態にします。
     - [binaryen](https://github.com/WebAssembly/binaryen)か、[wasm-toolkit](https://github.com/tweag/asterius/tree/master/wasm-toolkit)というHaskellでWASMを書く言語内DSLを利用して、`ahc-ld`がリンクしたモジュールを検証し、`.wasm`ファイルに変換して、
@@ -128,6 +129,6 @@ template-haskellパッケージに間接的に依存しているだけで依存�
 # ✅おわりに
 
 今回Asteriusを試したことで、ブラウザー上でHaskellを動かす、もう一つの可能性を知ることができました。  
-とは言え、バグが多かったり依存関係から`IO`やTemplate Haskellを抜き出さなければならなかったりで、まだまだ実用的とは言い難いでしょう。  
+とは言え、バグが多かったり依存関係からIOやTemplate Haskellを抜き出さなければならなかったりで、まだまだ実用的とは言い難いでしょう。  
 しかし、今回報告したバグが直れば、ブラウザーによる処理のコアに当たる部分をHaskellで書く、という応用が利きそうです。  
-例えばPandocなどHaskell製アプリケーションを、ブラウザーから操作する、なんてアプリケーション作りが捗りそうですね！
+例えばPandocなどHaskell製アプリケーションをブラウザーから操作する、なんてアプリケーション作りが捗りそうですね！
