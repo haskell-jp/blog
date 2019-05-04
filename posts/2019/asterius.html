@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版） - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/asterius.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---先日、[Emscripten &amp; WebAssembly night !! #7](https://emsn.connpass.com/event/121028/)というイベントにて、[Asterius](https://tweag.github.io/asterius/)というHaskellをWebAssemblyにコンパイルするツールについて紹介いたしました。  資料はこちら👇で" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版） - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on May 4, 2019</span><span class="meta">Tags: Asterius, WebAssembly</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>先日、<a href="https://emsn.connpass.com/event/121028/"><span class="ascii">Emscripten &amp; WebAssembly night !! #7</span></a>というイベントにて、<a href="https://tweag.github.io/asterius/"><span class="ascii">Asterius</span></a>という<span class="ascii">Haskell</span>を<span class="ascii">WebAssembly</span>にコンパイルするツールについて紹介いたしました。<br />
+資料はこちら👇です。</p>
+<p><a href="https://the.igreque.info/slides/2019-04-19-asterius.html#(1)"><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>の関数を<span class="ascii">JS</span>から呼べるようにしてみた（けど失敗）</a></p>
+<p>本日は、スライドの英語で書いていた箇所を和訳しつつ、いろいろ捕捉してブログ記事の形で共有します。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#asteriusとは何か" title="asteriusとは何か">🔍<span class="ascii">Asterius</span>とは何か</a></li>
+<li><a href="#asteriusのいいところ" title="asteriusのいいところ">👍<span class="ascii">Asterius</span>のいいところ</a></li>
+<li><a href="#asteriusのイマイチなところ" title="asteriusのイマイチなところ">👎<span class="ascii">Asterius</span>のイマイチなところ</a></li>
+<li><a href="#asteriusの仕組み" title="asteriusの仕組み">⚙️<span class="ascii">Asterius</span>の仕組み</a></li>
+<li><a href="#asteriusでhaskell製の関数を実行してみた" title="asteriusでhaskell製の関数を実行してみた"><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>製の関数を実行してみた</a>
+<ul>
+<li><a href="#結果" title="結果">結果</a></li>
+</ul></li>
+<li><a href="#おわりに" title="おわりに">✅おわりに</a></li>
+</ul>
+</div>
+</div>
+<h1 id="asteriusとは何か"><span class="link-to-here-outer"><a href="#asteriusとは何か" title="asteriusとは何か"><span class="link-to-here">Link to<br />
+here</span></a></span>🔍<span class="ascii">Asterius</span>とは何か</h1>
+<p>冒頭でも触れたとおり、<a href="https://tweag.github.io/asterius/"><span class="ascii">Asterius</span></a>は<span class="ascii">Haskell</span>のソースを<a href="https://developer.mozilla.org/ja/docs/WebAssembly"><span class="ascii">WebAssembly</span></a>にコンパイルするコンパイラーです。<br />
+<span class="ascii">GHC</span>の<span class="ascii">HEAD</span><small>（開発中のバージョン）</small>を都度フォークして、現在活発に開発中です。<br />
+<span class="ascii">Template Haskell</span>と、<span class="ascii">GHC</span>標準における<span class="ascii">IO</span>を行う関数（の大半）を除いた、すべての機能が利用できるようになっています。<br />
+現状の<span class="ascii">WebAssembly</span>を実用する上で必要不可欠であろう、<span class="ascii">FFI</span>もサポートされています。<br />
+つまり、<span class="ascii">JavaScript</span>から<span class="ascii">WebAssembly</span>にコンパイルされた<span class="ascii">Haskell</span>の関数を呼んだり、<span class="ascii">Haskell</span>から<span class="ascii">JavaScript</span>の関数を呼ぶことができます！<br />
+何かしらの<span class="ascii">IO</span>処理を行う場合は、基本的にこの<span class="ascii">FFI</span>を使って<span class="ascii">JavaScript</span>の関数を呼ぶことになります。</p>
+<p>加えて、<code>ahc-cabal</code>という名前のコマンドで、<span class="ascii">cabal</span>パッケージを利用することもできます。<br />
+こちらは<code>cabal</code>コマンドの単純なラッパーです。<code>ahc-cabal new-build</code>などと実行すれば、外部のパッケージに依存したアプリケーションも、まとめて<span class="ascii">WebAssembly</span>にコンパイルできます。<br />
+本格的に開発する上では欠かせないツールでしょう。</p>
+<h1 id="asteriusのいいところ"><span class="link-to-here-outer"><a href="#asteriusのいいところ" title="asteriusのいいところ"><span class="link-to-here">Link to<br />
+here</span></a></span>👍<span class="ascii">Asterius</span>のいいところ</h1>
+<p><span class="ascii">Asterius</span>は、“<span class="ascii">A linker which performs aggressive dead-code elimination, producing as small WebAssembly binary as possible.</span>”と謳っているとおり、<span class="ascii">GHC</span>のランタイムを抱えているにしては、比較的小さい<span class="ascii">WASM</span>ファイルを生成するそうです。<br />
+というわけで手元で試してみたところ、下記のような結果になりました。</p>
+<ul>
+<li>空っぽのプログラム（<code>main = return ()</code>しかしないソース）<span class="ascii">:</span>
+<ul>
+<li><span class="ascii">36KB</span>（<code>.wasm</code>ファイルのみ）。なかなかいい感じですね。</li>
+<li><span class="ascii">168KB</span>（実行時に必要な<code>.mjs</code>ファイルを含めた合計）。未圧縮でこれなら確かに十分軽いでしょう。<span class="ascii">Webpack</span>などで結合・<span class="ascii">minify</span>するともっと軽くできますし。</li>
+</ul></li>
+<li>今回私が移植を試みたアプリ（詳細は後ほど）<span class="ascii">:</span>
+<ul>
+<li><span class="ascii">1.9MB</span>（<code>.wasm</code>ファイルのみ）。うーん、ちょっと苦しいような…😥。</li>
+<li><span class="ascii">2.1MB</span>（実行時に必要な<code>.mjs</code>ファイルを含めた合計）。<code>.mjs</code>ファイルの内容は特に変わりませんでした。</li>
+</ul></li>
+</ul>
+<p>ちなみに、移植前の元のソースを含むアプリを、<span class="ascii">Linux 64bit</span>向けの<span class="ascii">ELF</span>ファイルとしてビルドして比較してみたところ、<code>.wasm</code>ファイルよりも少し小さいぐらいでした。<br />
+詳細な内訳が気にはなりますが、今のソースですと大体これぐらいが限界なのかも知れません<small>（でも<span class="ascii">WASM</span>は現状<span class="ascii">32bit</span>バイナリー相当のはずだし、もう少し小さくならないものか…）</small>。</p>
+<p>加えて、<span class="ascii">Asterius</span>を利用して開発すると、ほぼ最新の<span class="ascii">GHC</span>の開発版が使える、というところも、新しもの好きな<span class="ascii">Haskeller</span>をわくわくさせるところですね！<small>（今回はあいにく新しい機能について調べる余裕もなかったので、特に恩恵は受けてませんが…😅）</small><br />
+<span class="ascii">Asterius</span>は、<span class="ascii">GHC</span>をフォークしていくつかの機能を追加して作られているものです。<br />
+しかし幸いオリジナルとの差分が十分に小さく、作者が定期的に<span class="ascii">rebase</span>することができています。<br />
+詳細な違いは<a href="https://tweag.github.io/asterius/custom-ghc/"><span class="ascii">About the custom GHC fork</span></a>にまとまっています。近い将来<span class="ascii">GHC</span>本体に取り込まれそうな修正ばかりではないかと。</p>
+<p>それからこれは、ブラウザーで<span class="ascii">Haskell</span>を動かすことができるという点で<span class="ascii">Asterius</span>の競合に当たる、<span class="ascii">GHCJS</span>と比較した場合の話ですが、<span class="ascii">FFI</span>を利用して、<span class="ascii">JavaScript</span>から<strong>直接</strong><span class="ascii">Haskell</span>を呼ぶことができるようになっているのも、優れた点と言えるでしょう。<br />
+<span class="ascii">GHCJS</span>は<a href="https://github.com/ghcjs/ghcjs/blob/3959a9321a2d3e2ad4b8d4c9cc436fcfece99237/doc/foreign-function-interface.md#calling-haskell-from-javascript">こちらのドキュメント曰く</a>、<span class="ascii">JavaScript</span>から<span class="ascii">Haskell</span>を呼ぶ機能は備えてはいるものの、簡単ではないためドキュメントも書かれておらず、推奨されていません。<br />
+これでは状況によってはかなり使いづらいでしょう。<br />
+今回私が試したように、コアとなる処理だけを<span class="ascii">Haskell</span>の関数として書いて、それを<span class="ascii">JavaScript</span>から呼び出すということができないのです。</p>
+<p>一方<span class="ascii">Asterius</span>では、例えば👇のように書くことで、<span class="ascii">WASM</span>がエクスポートする関数として、<code>func</code>を<span class="ascii">JavaScript</span>から呼べるようにすることができます！</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">foreign export javascript <span class="st">&quot;func&quot;</span><span class="ot"> func ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
+<p>ただし、実際に今回試してみたところ、<span class="ascii">Asterius</span>ではまだバグがあったので、この用途では依然使いにくいという状況ではありますが…（詳細は後で触れます）。</p>
+<h1 id="asteriusのイマイチなところ"><span class="link-to-here-outer"><a href="#asteriusのイマイチなところ" title="asteriusのイマイチなところ"><span class="link-to-here">Link to<br />
+here</span></a></span>👎<span class="ascii">Asterius</span>のイマイチなところ</h1>
+<p><span class="ascii">Asterius</span>は、やっぱりまだまだ開発中で、バグが多いです。<br />
+今回の目的もバグのために果たせませんでした😢。</p>
+<p>先ほども触れたとおり、特に未完成なのが、<span class="ascii">IO</span>と<span class="ascii">Template Haskell</span>です。<br />
+<span class="ascii">GHC</span>なら使えるはずの<code>IO</code>な関数の多くが使えませんし、<span class="ascii">Template Haskell</span>に至っては一切利用できません。</p>
+<p><span class="ascii">IO</span>については、現状、<small>（<code>putStrLn</code>などのよく使われる）</small>一部を除き、<span class="ascii">FFI</span><small>（<code>foreign import javascript</code>）</small>を使って<span class="ascii">JavaScript</span>の関数経由でよばなけれなりません。<br />
+これは、入出力関連の<span class="ascii">API</span>を一切持たないという現状の<span class="ascii">WebAssembly</span>の事情を考えれば、致し方ない仕様だとも言えます。<br />
+<a href="https://github.com/WebAssembly/WASI"><span class="ascii">WASI</span></a>の策定によってこの辺の事情が変わるまでの間に、すべて<code>foreign import javascript</code>で賄うというのも、なかなか面倒なことでしょうし。</p>
+<p><span class="ascii">Template Haskell</span>に関しては、現在<a href="https://github.com/tweag/asterius/pull/81">こちらのブランチ</a>で開発中です。…と、思ったらこの<span class="ascii">Pull request</span>、<span class="ascii">Close</span>されてますね…。<br />
+これに関して詳しい事情はわかりません。いずれにしても、<span class="ascii">Template Haskell</span>を実装するには、コンパイル時にその場で<span class="ascii">Haskell</span>を評価するためのインタープリターが別途必要だったりして、結構ハードルが高いのです。</p>
+<p>加えて、<span class="ascii">RTS</span><small>（この場合、コンパイルした<span class="ascii">Haskell</span>を動かすのに必要な<span class="ascii">WASM</span>や<span class="ascii">JavaScript</span>ファイル）</small>が<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/BigInt"><code>BigInt</code></a>に依存している関係で、<span class="ascii">V8</span>や<span class="ascii">SpiderMonkey</span>でないと動かない点もまだまだ、という感じです。<br />
+ブラウザーで言うと、<span class="ascii">2019</span>年<span class="ascii">5</span>月<span class="ascii">3</span>日時点で<span class="ascii">Chrome</span>か、<span class="ascii">Firefox</span>の<span class="ascii">Beta</span>版以降でないと使用できません<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
+<h1 id="asteriusの仕組み"><span class="link-to-here-outer"><a href="#asteriusの仕組み" title="asteriusの仕組み"><span class="link-to-here">Link to<br />
+here</span></a></span>⚙️<span class="ascii">Asterius</span>の仕組み</h1>
+<p><span class="ascii">Asterius</span>のドキュメント「<a href="https://tweag.github.io/asterius/ir/"><span class="ascii">IR types and transformation passes</span></a>」をざっくり要約してみると、<span class="ascii">Asterius</span>は以下のような流れで動くそうです。<br />
+実際には<code>ahc-link</code>というコマンドがこれらの手順をまとめて実行するので、ユーザーの皆さんはあまり意識する必要はないでしょう。</p>
+<ol type="1">
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/extending_ghc.html#frontend-plugins">フロントエンドプラグイン</a>という仕組みでラップした<span class="ascii">GHC</span><small>（のフォーク）</small>を使い、<span class="ascii">GHC</span>が生成した<span class="ascii">Cmm</span>という中間言語で書かれたコードを、<code>AsteriusModule</code>という独自のオブジェクトに変換します。</li>
+<li><code>ahc-ld</code>という専用のリンカーで、<span class="ascii">WASM</span>向けにリンクします。</li>
+<li>最後に、<code>ahc-dist</code>というコマンドで、リンクしたモジュールを実行できる状態にします。
+<ul>
+<li><a href="https://github.com/WebAssembly/binaryen"><span class="ascii">binaryen</span></a>か、<a href="https://github.com/tweag/asterius/tree/master/wasm-toolkit"><span class="ascii">wasm-toolkit</span></a>という<span class="ascii">Haskell</span>で<span class="ascii">WASM</span>を書く言語内<span class="ascii">DSL</span>を利用して、<code>ahc-ld</code>がリンクしたモジュールを検証し、<code>.wasm</code>ファイルに変換して、</li>
+<li>実行時に必要な<span class="ascii">JavaScript</span>ファイルをコピーして、</li>
+<li><span class="ascii">Haskell</span>のソースにおける<code>main</code>関数を実行する、エントリーモジュールを作ります。<br />
+あとはこれを<span class="ascii">HTML</span>ファイルから<code>&lt;script&gt;</code>タグで参照すれば、ブラウザー上で<span class="ascii">Haskell</span>が動きます。</li>
+</ul></li>
+</ol>
+<h1 id="asteriusでhaskell製の関数を実行してみた"><span class="link-to-here-outer"><a href="#asteriusでhaskell製の関数を実行してみた" title="asteriusでhaskell製の関数を実行してみた"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>製の関数を実行してみた</h1>
+<p>ここからは、私が以前作った<a href="https://github.com/igrep/igrep-cashbook/tree/master/hs2">アプリケーション</a>のコアに当たる関数を<span class="ascii">Asterius</span>でコンパイルすることで、ブラウザー上で動かせるようチャレンジした時の体験談を紹介します。</p>
+<p>今回試みたアプリケーションは、単純なコマンドラインアプリケーションです。<br />
+詳細は省きますが、行単位で書かれたファイルをパースして、項目ごとの合計を計算するだけの、ありふれたものです。<br />
+パーサーは<a href="http://hackage.haskell.org/package/megaparsec"><span class="ascii">megaparsec</span></a>を使って作り、整数の四則演算ができるようなっているのも特徴です。<br />
+そのアプリケーションの処理のほとんどすべてに当たる、ファイル名とその中身を受け取って、計算結果を文字列で返す関数（<code>FilePath -&gt; Text -&gt; Text</code>）を、<span class="ascii">FFI</span>でエクスポート<small>（<code>foreign export javascript</code>）</small>し、<span class="ascii">JavaScript</span>から呼べるようにしてみました。</p>
+<p>アプリケーション自体の書き換えはほとんど必要なかったものの、依存関係を減らしたり、依存するパッケージを書き換えたりするのが大変でした。<br />
+というのも、先ほど触れたとおり、<span class="ascii">Asterius</span>は現状「<span class="ascii">Template Haskell</span>と、<span class="ascii">GHC</span>標準における<span class="ascii">IO</span>を行う関数（の大半）」が一切使用できないので、取り除かなければコンパイルエラーになってしまいます。<br />
+<span class="ascii">template-haskell</span>パッケージに間接的に依存しているだけで依存関係の解決すらできないのはなかなかつらいものでした。<br />
+<a href="https://docs.haskellstack.org/en/stable/dependency_visualization/"><code>stack dot</code></a>コマンドを使って依存関係のツリーを作り、それを見て<span class="ascii">template-haskell</span>パッケージに間接的に依存しているパッケージを割り出し、そのパッケージの必要な関数のみを切り出すことでどうにか回避できました。<br />
+<a href="http://hackage.haskell.org/package/monoidal-containers"><span class="ascii">monoidal-containers</span></a>パッケージと<a href="http://hackage.haskell.org/package/foldl"><span class="ascii">foldl</span></a>パッケージがそれでした。<br />
+幸い、どちらも依存しているのはごく一部だったで、必要な部分だけをコピペして使うことにしました。<br />
+それから、<code>IO</code>への依存もなくすために、<a href="http://hackage.haskell.org/package/text"><span class="ascii">text</span></a>パッケージから<code>*.IO</code>なモジュールを取り除いたりもしました。</p>
+<p>当然、元々のアプリケーションも<span class="ascii">text</span>パッケージの<code>*.IO</code>なモジュールを使ってはいたので、それを使わないよう修正する必要がありました。<br />
+しかしそこは<span class="ascii">Haskell</span>。そうした<code>IO</code>に依存した関数から純粋な関数を切り出すのは、型システムのおかげで大変楽ちんでした！😤<br />
+入出力をするのに<span class="ascii">JavaScript</span>の<span class="ascii">FFI</span>を使わないといけない、という現状の<span class="ascii">WebAssembly</span>の制約が、偶然にもマッチしたわけですね！<br />
+純粋じゃない関数はときめかないので捨て去ってしまいましょう✨</p>
+<h2 id="結果"><span class="link-to-here-outer"><a href="#結果" title="結果"><span class="link-to-here">Link to<br />
+here</span></a></span>結果</h2>
+<p>ここまで頑張った結果、目的の関数を<code>foreign export javascript</code>してコンパイルを通すことはできました🎉<br />
+しかし、実際にブラウザー上で動かしてみたところ、<a href="https://github.com/tweag/asterius/issues/105"><span class="ascii">Asterius</span>の<span class="ascii">FFI</span>のバグ</a>にハマってしまいました…😢 肝心の<code>foreign export javascript</code>した関数が、返すべき値を返してくれないのです！<br />
+恐らく<code>foreign export javascript</code>を使わずに、<span class="ascii">Haskell</span>側から<span class="ascii">JavaScript</span>の関数を呼ぶようにしていれば、今回の問題は回避できたのではないかと思います。<br />
+しかし、それは今回のゴールではありませんし、あまり便利ではないのでひとまず移植は見送ることにしました。残念！</p>
+<h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
+here</span></a></span>✅おわりに</h1>
+<p>今回<span class="ascii">Asterius</span>を試したことで、ブラウザー上で<span class="ascii">Haskell</span>を動かす、もう一つの可能性を知ることができました。<br />
+とは言え、バグが多かったり依存関係から<span class="ascii">IO</span>や<span class="ascii">Template Haskell</span>を抜き出さなければならなかったりで、まだまだ実用的とは言い難いでしょう。<br />
+しかし、今回報告したバグが直れば、ブラウザーによる処理のコアに当たる部分を<span class="ascii">Haskell</span>で書く、という応用が利きそうです。<br />
+例えば<span class="ascii">Pandoc</span>など<span class="ascii">Haskell</span>製アプリケーションをブラウザーから操作する、なんてアプリケーション作りが捗りそうですね！</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://caniuse.com/#feat=bigint"><span class="ascii">Can I use</span></a>曰く安定版でも<code>about:config</code>を書き換えればすでに使えるとのことなんですが、なぜか手元の<span class="ascii">Firefox</span> 安定版ではうまくいきませんでした。確かに<code>about:config</code>にそれらしき設定はあるものの、<code>true</code>にしても何も変わらず…😰。<br />
+ついでに細かいことを言うと、<span class="ascii">Firefox Nightly</span>は<code>about:config</code>を書き換えなくても使え、<span class="ascii">Beta</span>版では<code>about:config</code>を書き換えると使えました。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/stack-ghc8.8.html" style="margin-left: auto;" lang="ja">GHC 8.8.1 alphaをstackでダウンロードして手持ちのパッケージをビルドする</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>

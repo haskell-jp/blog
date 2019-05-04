@@ -8,8 +8,190 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2019-05-02T00:00:00Z</updated>
+    <updated>2019-05-04T00:00:00Z</updated>
     <entry>
+    <title>AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</title>
+    <link href="https://haskell.jp/blog/posts/2019/asterius.html" />
+    <id>https://haskell.jp/blog/posts/2019/asterius.html</id>
+    <published>2019-05-04T00:00:00Z</published>
+    <updated>2019-05-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>先日、<a href="https://emsn.connpass.com/event/121028/"><span class="ascii">Emscripten &amp; WebAssembly night !! #7</span></a>というイベントにて、<a href="https://tweag.github.io/asterius/"><span class="ascii">Asterius</span></a>という<span class="ascii">Haskell</span>を<span class="ascii">WebAssembly</span>にコンパイルするツールについて紹介いたしました。<br />
+資料はこちら👇です。</p>
+<p><a href="https://the.igreque.info/slides/2019-04-19-asterius.html#(1)"><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>の関数を<span class="ascii">JS</span>から呼べるようにしてみた（けど失敗）</a></p>
+<p>本日は、スライドの英語で書いていた箇所を和訳しつつ、いろいろ捕捉してブログ記事の形で共有します。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#asteriusとは何か" title="asteriusとは何か">🔍<span class="ascii">Asterius</span>とは何か</a></li>
+<li><a href="#asteriusのいいところ" title="asteriusのいいところ">👍<span class="ascii">Asterius</span>のいいところ</a></li>
+<li><a href="#asteriusのイマイチなところ" title="asteriusのイマイチなところ">👎<span class="ascii">Asterius</span>のイマイチなところ</a></li>
+<li><a href="#asteriusの仕組み" title="asteriusの仕組み">⚙️<span class="ascii">Asterius</span>の仕組み</a></li>
+<li><a href="#asteriusでhaskell製の関数を実行してみた" title="asteriusでhaskell製の関数を実行してみた"><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>製の関数を実行してみた</a>
+<ul>
+<li><a href="#結果" title="結果">結果</a></li>
+</ul></li>
+<li><a href="#おわりに" title="おわりに">✅おわりに</a></li>
+</ul>
+</div>
+</div>
+<h1 id="asteriusとは何か"><span class="link-to-here-outer"><a href="#asteriusとは何か" title="asteriusとは何か"><span class="link-to-here">Link to<br />
+here</span></a></span>🔍<span class="ascii">Asterius</span>とは何か</h1>
+<p>冒頭でも触れたとおり、<a href="https://tweag.github.io/asterius/"><span class="ascii">Asterius</span></a>は<span class="ascii">Haskell</span>のソースを<a href="https://developer.mozilla.org/ja/docs/WebAssembly"><span class="ascii">WebAssembly</span></a>にコンパイルするコンパイラーです。<br />
+<span class="ascii">GHC</span>の<span class="ascii">HEAD</span><small>（開発中のバージョン）</small>を都度フォークして、現在活発に開発中です。<br />
+<span class="ascii">Template Haskell</span>と、<span class="ascii">GHC</span>標準における<span class="ascii">IO</span>を行う関数（の大半）を除いた、すべての機能が利用できるようになっています。<br />
+現状の<span class="ascii">WebAssembly</span>を実用する上で必要不可欠であろう、<span class="ascii">FFI</span>もサポートされています。<br />
+つまり、<span class="ascii">JavaScript</span>から<span class="ascii">WebAssembly</span>にコンパイルされた<span class="ascii">Haskell</span>の関数を呼んだり、<span class="ascii">Haskell</span>から<span class="ascii">JavaScript</span>の関数を呼ぶことができます！<br />
+何かしらの<span class="ascii">IO</span>処理を行う場合は、基本的にこの<span class="ascii">FFI</span>を使って<span class="ascii">JavaScript</span>の関数を呼ぶことになります。</p>
+<p>加えて、<code>ahc-cabal</code>という名前のコマンドで、<span class="ascii">cabal</span>パッケージを利用することもできます。<br />
+こちらは<code>cabal</code>コマンドの単純なラッパーです。<code>ahc-cabal new-build</code>などと実行すれば、外部のパッケージに依存したアプリケーションも、まとめて<span class="ascii">WebAssembly</span>にコンパイルできます。<br />
+本格的に開発する上では欠かせないツールでしょう。</p>
+<h1 id="asteriusのいいところ"><span class="link-to-here-outer"><a href="#asteriusのいいところ" title="asteriusのいいところ"><span class="link-to-here">Link to<br />
+here</span></a></span>👍<span class="ascii">Asterius</span>のいいところ</h1>
+<p><span class="ascii">Asterius</span>は、“<span class="ascii">A linker which performs aggressive dead-code elimination, producing as small WebAssembly binary as possible.</span>”と謳っているとおり、<span class="ascii">GHC</span>のランタイムを抱えているにしては、比較的小さい<span class="ascii">WASM</span>ファイルを生成するそうです。<br />
+というわけで手元で試してみたところ、下記のような結果になりました。</p>
+<ul>
+<li>空っぽのプログラム（<code>main = return ()</code>しかしないソース）<span class="ascii">:</span>
+<ul>
+<li><span class="ascii">36KB</span>（<code>.wasm</code>ファイルのみ）。なかなかいい感じですね。</li>
+<li><span class="ascii">168KB</span>（実行時に必要な<code>.mjs</code>ファイルを含めた合計）。未圧縮でこれなら確かに十分軽いでしょう。<span class="ascii">Webpack</span>などで結合・<span class="ascii">minify</span>するともっと軽くできますし。</li>
+</ul></li>
+<li>今回私が移植を試みたアプリ（詳細は後ほど）<span class="ascii">:</span>
+<ul>
+<li><span class="ascii">1.9MB</span>（<code>.wasm</code>ファイルのみ）。うーん、ちょっと苦しいような…😥。</li>
+<li><span class="ascii">2.1MB</span>（実行時に必要な<code>.mjs</code>ファイルを含めた合計）。<code>.mjs</code>ファイルの内容は特に変わりませんでした。</li>
+</ul></li>
+</ul>
+<p>ちなみに、移植前の元のソースを含むアプリを、<span class="ascii">Linux 64bit</span>向けの<span class="ascii">ELF</span>ファイルとしてビルドして比較してみたところ、<code>.wasm</code>ファイルよりも少し小さいぐらいでした。<br />
+詳細な内訳が気にはなりますが、今のソースですと大体これぐらいが限界なのかも知れません<small>（でも<span class="ascii">WASM</span>は現状<span class="ascii">32bit</span>バイナリー相当のはずだし、もう少し小さくならないものか…）</small>。</p>
+<p>加えて、<span class="ascii">Asterius</span>を利用して開発すると、ほぼ最新の<span class="ascii">GHC</span>の開発版が使える、というところも、新しもの好きな<span class="ascii">Haskeller</span>をわくわくさせるところですね！<small>（今回はあいにく新しい機能について調べる余裕もなかったので、特に恩恵は受けてませんが…😅）</small><br />
+<span class="ascii">Asterius</span>は、<span class="ascii">GHC</span>をフォークしていくつかの機能を追加して作られているものです。<br />
+しかし幸いオリジナルとの差分が十分に小さく、作者が定期的に<span class="ascii">rebase</span>することができています。<br />
+詳細な違いは<a href="https://tweag.github.io/asterius/custom-ghc/"><span class="ascii">About the custom GHC fork</span></a>にまとまっています。近い将来<span class="ascii">GHC</span>本体に取り込まれそうな修正ばかりではないかと。</p>
+<p>それからこれは、ブラウザーで<span class="ascii">Haskell</span>を動かすことができるという点で<span class="ascii">Asterius</span>の競合に当たる、<span class="ascii">GHCJS</span>と比較した場合の話ですが、<span class="ascii">FFI</span>を利用して、<span class="ascii">JavaScript</span>から<strong>直接</strong><span class="ascii">Haskell</span>を呼ぶことができるようになっているのも、優れた点と言えるでしょう。<br />
+<span class="ascii">GHCJS</span>は<a href="https://github.com/ghcjs/ghcjs/blob/3959a9321a2d3e2ad4b8d4c9cc436fcfece99237/doc/foreign-function-interface.md#calling-haskell-from-javascript">こちらのドキュメント曰く</a>、<span class="ascii">JavaScript</span>から<span class="ascii">Haskell</span>を呼ぶ機能は備えてはいるものの、簡単ではないためドキュメントも書かれておらず、推奨されていません。<br />
+これでは状況によってはかなり使いづらいでしょう。<br />
+今回私が試したように、コアとなる処理だけを<span class="ascii">Haskell</span>の関数として書いて、それを<span class="ascii">JavaScript</span>から呼び出すということができないのです。</p>
+<p>一方<span class="ascii">Asterius</span>では、例えば👇のように書くことで、<span class="ascii">WASM</span>がエクスポートする関数として、<code>func</code>を<span class="ascii">JavaScript</span>から呼べるようにすることができます！</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">foreign export javascript <span class="st">&quot;func&quot;</span><span class="ot"> func ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
+<p>ただし、実際に今回試してみたところ、<span class="ascii">Asterius</span>ではまだバグがあったので、この用途では依然使いにくいという状況ではありますが…（詳細は後で触れます）。</p>
+<h1 id="asteriusのイマイチなところ"><span class="link-to-here-outer"><a href="#asteriusのイマイチなところ" title="asteriusのイマイチなところ"><span class="link-to-here">Link to<br />
+here</span></a></span>👎<span class="ascii">Asterius</span>のイマイチなところ</h1>
+<p><span class="ascii">Asterius</span>は、やっぱりまだまだ開発中で、バグが多いです。<br />
+今回の目的もバグのために果たせませんでした😢。</p>
+<p>先ほども触れたとおり、特に未完成なのが、<span class="ascii">IO</span>と<span class="ascii">Template Haskell</span>です。<br />
+<span class="ascii">GHC</span>なら使えるはずの<code>IO</code>な関数の多くが使えませんし、<span class="ascii">Template Haskell</span>に至っては一切利用できません。</p>
+<p><span class="ascii">IO</span>については、現状、<small>（<code>putStrLn</code>などのよく使われる）</small>一部を除き、<span class="ascii">FFI</span><small>（<code>foreign import javascript</code>）</small>を使って<span class="ascii">JavaScript</span>の関数経由でよばなけれなりません。<br />
+これは、入出力関連の<span class="ascii">API</span>を一切持たないという現状の<span class="ascii">WebAssembly</span>の事情を考えれば、致し方ない仕様だとも言えます。<br />
+<a href="https://github.com/WebAssembly/WASI"><span class="ascii">WASI</span></a>の策定によってこの辺の事情が変わるまでの間に、すべて<code>foreign import javascript</code>で賄うというのも、なかなか面倒なことでしょうし。</p>
+<p><span class="ascii">Template Haskell</span>に関しては、現在<a href="https://github.com/tweag/asterius/pull/81">こちらのブランチ</a>で開発中です。…と、思ったらこの<span class="ascii">Pull request</span>、<span class="ascii">Close</span>されてますね…。<br />
+これに関して詳しい事情はわかりません。いずれにしても、<span class="ascii">Template Haskell</span>を実装するには、コンパイル時にその場で<span class="ascii">Haskell</span>を評価するためのインタープリターが別途必要だったりして、結構ハードルが高いのです。</p>
+<p>加えて、<span class="ascii">RTS</span><small>（この場合、コンパイルした<span class="ascii">Haskell</span>を動かすのに必要な<span class="ascii">WASM</span>や<span class="ascii">JavaScript</span>ファイル）</small>が<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/BigInt"><code>BigInt</code></a>に依存している関係で、<span class="ascii">V8</span>や<span class="ascii">SpiderMonkey</span>でないと動かない点もまだまだ、という感じです。<br />
+ブラウザーで言うと、<span class="ascii">2019</span>年<span class="ascii">5</span>月<span class="ascii">3</span>日時点で<span class="ascii">Chrome</span>か、<span class="ascii">Firefox</span>の<span class="ascii">Beta</span>版以降でないと使用できません<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
+<h1 id="asteriusの仕組み"><span class="link-to-here-outer"><a href="#asteriusの仕組み" title="asteriusの仕組み"><span class="link-to-here">Link to<br />
+here</span></a></span>⚙️<span class="ascii">Asterius</span>の仕組み</h1>
+<p><span class="ascii">Asterius</span>のドキュメント「<a href="https://tweag.github.io/asterius/ir/"><span class="ascii">IR types and transformation passes</span></a>」をざっくり要約してみると、<span class="ascii">Asterius</span>は以下のような流れで動くそうです。<br />
+実際には<code>ahc-link</code>というコマンドがこれらの手順をまとめて実行するので、ユーザーの皆さんはあまり意識する必要はないでしょう。</p>
+<ol type="1">
+<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/extending_ghc.html#frontend-plugins">フロントエンドプラグイン</a>という仕組みでラップした<span class="ascii">GHC</span><small>（のフォーク）</small>を使い、<span class="ascii">GHC</span>が生成した<span class="ascii">Cmm</span>という中間言語で書かれたコードを、<code>AsteriusModule</code>という独自のオブジェクトに変換します。</li>
+<li><code>ahc-ld</code>という専用のリンカーで、<span class="ascii">WASM</span>向けにリンクします。</li>
+<li>最後に、<code>ahc-dist</code>というコマンドで、リンクしたモジュールを実行できる状態にします。
+<ul>
+<li><a href="https://github.com/WebAssembly/binaryen"><span class="ascii">binaryen</span></a>か、<a href="https://github.com/tweag/asterius/tree/master/wasm-toolkit"><span class="ascii">wasm-toolkit</span></a>という<span class="ascii">Haskell</span>で<span class="ascii">WASM</span>を書く言語内<span class="ascii">DSL</span>を利用して、<code>ahc-ld</code>がリンクしたモジュールを検証し、<code>.wasm</code>ファイルに変換して、</li>
+<li>実行時に必要な<span class="ascii">JavaScript</span>ファイルをコピーして、</li>
+<li><span class="ascii">Haskell</span>のソースにおける<code>main</code>関数を実行する、エントリーモジュールを作ります。<br />
+あとはこれを<span class="ascii">HTML</span>ファイルから<code>&lt;script&gt;</code>タグで参照すれば、ブラウザー上で<span class="ascii">Haskell</span>が動きます。</li>
+</ul></li>
+</ol>
+<h1 id="asteriusでhaskell製の関数を実行してみた"><span class="link-to-here-outer"><a href="#asteriusでhaskell製の関数を実行してみた" title="asteriusでhaskell製の関数を実行してみた"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>製の関数を実行してみた</h1>
+<p>ここからは、私が以前作った<a href="https://github.com/igrep/igrep-cashbook/tree/master/hs2">アプリケーション</a>のコアに当たる関数を<span class="ascii">Asterius</span>でコンパイルすることで、ブラウザー上で動かせるようチャレンジした時の体験談を紹介します。</p>
+<p>今回試みたアプリケーションは、単純なコマンドラインアプリケーションです。<br />
+詳細は省きますが、行単位で書かれたファイルをパースして、項目ごとの合計を計算するだけの、ありふれたものです。<br />
+パーサーは<a href="http://hackage.haskell.org/package/megaparsec"><span class="ascii">megaparsec</span></a>を使って作り、整数の四則演算ができるようなっているのも特徴です。<br />
+そのアプリケーションの処理のほとんどすべてに当たる、ファイル名とその中身を受け取って、計算結果を文字列で返す関数（<code>FilePath -&gt; Text -&gt; Text</code>）を、<span class="ascii">FFI</span>でエクスポート<small>（<code>foreign export javascript</code>）</small>し、<span class="ascii">JavaScript</span>から呼べるようにしてみました。</p>
+<p>アプリケーション自体の書き換えはほとんど必要なかったものの、依存関係を減らしたり、依存するパッケージを書き換えたりするのが大変でした。<br />
+というのも、先ほど触れたとおり、<span class="ascii">Asterius</span>は現状「<span class="ascii">Template Haskell</span>と、<span class="ascii">GHC</span>標準における<span class="ascii">IO</span>を行う関数（の大半）」が一切使用できないので、取り除かなければコンパイルエラーになってしまいます。<br />
+<span class="ascii">template-haskell</span>パッケージに間接的に依存しているだけで依存関係の解決すらできないのはなかなかつらいものでした。<br />
+<a href="https://docs.haskellstack.org/en/stable/dependency_visualization/"><code>stack dot</code></a>コマンドを使って依存関係のツリーを作り、それを見て<span class="ascii">template-haskell</span>パッケージに間接的に依存しているパッケージを割り出し、そのパッケージの必要な関数のみを切り出すことでどうにか回避できました。<br />
+<a href="http://hackage.haskell.org/package/monoidal-containers"><span class="ascii">monoidal-containers</span></a>パッケージと<a href="http://hackage.haskell.org/package/foldl"><span class="ascii">foldl</span></a>パッケージがそれでした。<br />
+幸い、どちらも依存しているのはごく一部だったで、必要な部分だけをコピペして使うことにしました。<br />
+それから、<code>IO</code>への依存もなくすために、<a href="http://hackage.haskell.org/package/text"><span class="ascii">text</span></a>パッケージから<code>*.IO</code>なモジュールを取り除いたりもしました。</p>
+<p>当然、元々のアプリケーションも<span class="ascii">text</span>パッケージの<code>*.IO</code>なモジュールを使ってはいたので、それを使わないよう修正する必要がありました。<br />
+しかしそこは<span class="ascii">Haskell</span>。そうした<code>IO</code>に依存した関数から純粋な関数を切り出すのは、型システムのおかげで大変楽ちんでした！😤<br />
+入出力をするのに<span class="ascii">JavaScript</span>の<span class="ascii">FFI</span>を使わないといけない、という現状の<span class="ascii">WebAssembly</span>の制約が、偶然にもマッチしたわけですね！<br />
+純粋じゃない関数はときめかないので捨て去ってしまいましょう✨</p>
+<h2 id="結果"><span class="link-to-here-outer"><a href="#結果" title="結果"><span class="link-to-here">Link to<br />
+here</span></a></span>結果</h2>
+<p>ここまで頑張った結果、目的の関数を<code>foreign export javascript</code>してコンパイルを通すことはできました🎉<br />
+しかし、実際にブラウザー上で動かしてみたところ、<a href="https://github.com/tweag/asterius/issues/105"><span class="ascii">Asterius</span>の<span class="ascii">FFI</span>のバグ</a>にハマってしまいました…😢 肝心の<code>foreign export javascript</code>した関数が、返すべき値を返してくれないのです！<br />
+恐らく<code>foreign export javascript</code>を使わずに、<span class="ascii">Haskell</span>側から<span class="ascii">JavaScript</span>の関数を呼ぶようにしていれば、今回の問題は回避できたのではないかと思います。<br />
+しかし、それは今回のゴールではありませんし、あまり便利ではないのでひとまず移植は見送ることにしました。残念！</p>
+<h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
+here</span></a></span>✅おわりに</h1>
+<p>今回<span class="ascii">Asterius</span>を試したことで、ブラウザー上で<span class="ascii">Haskell</span>を動かす、もう一つの可能性を知ることができました。<br />
+とは言え、バグが多かったり依存関係から<span class="ascii">IO</span>や<span class="ascii">Template Haskell</span>を抜き出さなければならなかったりで、まだまだ実用的とは言い難いでしょう。<br />
+しかし、今回報告したバグが直れば、ブラウザーによる処理のコアに当たる部分を<span class="ascii">Haskell</span>で書く、という応用が利きそうです。<br />
+例えば<span class="ascii">Pandoc</span>など<span class="ascii">Haskell</span>製アプリケーションをブラウザーから操作する、なんてアプリケーション作りが捗りそうですね！</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://caniuse.com/#feat=bigint"><span class="ascii">Can I use</span></a>曰く安定版でも<code>about:config</code>を書き換えればすでに使えるとのことなんですが、なぜか手元の<span class="ascii">Firefox</span> 安定版ではうまくいきませんでした。確かに<code>about:config</code>にそれらしき設定はあるものの、<code>true</code>にしても何も変わらず…😰。<br />
+ついでに細かいことを言うと、<span class="ascii">Firefox Nightly</span>は<code>about:config</code>を書き換えなくても使え、<span class="ascii">Beta</span>版では<code>about:config</code>を書き換えると使えました。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2019/stack-ghc8.8.html" style="margin-left: auto;" lang="ja">GHC 8.8.1 alphaをstackでダウンロードして手持ちのパッケージをビルドする</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>GHC 8.8.1 alphaをstackでダウンロードして手持ちのパッケージをビルドする</title>
     <link href="https://haskell.jp/blog/posts/2019/stack-ghc8.8.html" />
     <id>https://haskell.jp/blog/posts/2019/stack-ghc8.8.html</id>
@@ -231,6 +413,9 @@ here</span></a></span>番外編<span class="ascii">: Operation Vanguard</span></
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2019/asterius.html" lang="ja">AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2264,206 +2449,6 @@ here</span></a></span>同じ問題を解決するほかのライブラリー</h2
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2018/windows-gotchas-en.html" style="margin-left: auto;" lang="en">Errors and the workarounds frequently encountered when dealing with Haskell on Windows</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>Errors and the workarounds frequently encountered when dealing with Haskell on Windows</title>
-    <link href="https://haskell.jp/blog/posts/2018/windows-gotchas-en.html" />
-    <id>https://haskell.jp/blog/posts/2018/windows-gotchas-en.html</id>
-    <published>2018-05-25T00:00:00Z</published>
-    <updated>2018-05-25T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="en">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>This is the English version of <a href="https://haskell.jp/blog/posts/2017/windows-gotchas.html">WindowsでHaskellを扱う時によく遭遇するエラーと対処法</a>.<br />
-The original article is the 4th article of <a href="https://qiita.com/advent-calendar/2017/haskell4">Haskell (その4) Advent Calendar 2017 (Japanese)</a>.</p>
-<p>What I’m going to tell is summarized as <a href="https://twitter.com/igrep/status/938056578934042626">just one tweet (originally in Japanese)</a>:</p>
-<blockquote>
-<p>What I’ve learned:</p>
-<ul>
-<li>chcp65001 if ‘Invalid character’</li>
-<li>rebuild if ‘Permission Denied’</li>
-<li>Don’t mix Japanese characters in file paths.</li>
-<li>Some libraries in C are available, and others are not.</li>
-</ul>
-<p>Perhaps they’re helpful in other languages.</p>
-</blockquote>
-<p>Let me add more details.</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#chcp-65001-if-invalid-character" title="chcp-65001-if-invalid-character">chcp 65001 if “Invalid character”</a>
-<ul>
-<li><a href="#workaround" title="workaround">Workaround</a>
-<ul>
-<li><a href="#if-you-encounter-as-a-user" title="if-you-encounter-as-a-user">If you encounter as a user</a></li>
-<li><a href="#if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc." title="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc.">If it still doesn’t work, or you’re the developer of the libraries etc.</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#rebuild-if-permission-denied" title="rebuild-if-permission-denied">Rebuild if “Permission Denied”</a></li>
-<li><a href="#try-hard-to-build-libraries-in-c" title="try-hard-to-build-libraries-in-c">Try hard to build libraries in C…</a></li>
-</ul>
-</div>
-</div>
-<h1 id="chcp-65001-if-invalid-character"><span class="link-to-here-outer"><a href="#chcp-65001-if-invalid-character" title="chcp-65001-if-invalid-character"><span class="link-to-here">Link to<br />
-here</span></a></span>chcp 65001 if “Invalid character”</h1>
-<p>You would have encountered this frequently, especially if you don’t know how to avoid/fix this.<br />
-Oh, it’s caused again by building with hakyll!</p>
-<pre><code>&gt; stack exec -- site rebuild
-...
-  [ERROR] preprocessed-site\posts/2017/01-first.md: hGetContents: invalid argument (invalid byte sequence)</code></pre>
-<p>The object called <a href="https://www.stackage.org/haddock/lts-10.0/base-4.10.1.0/System-IO.html#t:Handle"><code>Handle</code></a>, used by GHC to read and write a file, knows its character encoding.</p>
-<p>This resembles Ruby’s <a href="https://ruby-doc.org/core-2.5.0/IO.html"><code>IO</code></a> and Perl’s file handler.<br />
-Both of them represent the “gateway” of data, and assigning character encoding to them enables us to handle the only, consistently encoded strings by converting the incoming data.<br />
-In Haskell’s type <code>Char</code>, the only default encoding is UTF-32 (is this the right name in this case?).</p>
-<p>The character encoding assigned to a <code>Handle</code> by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).<br />
-But it’s now soon becoming 2018 (when writing the original article). Most files you create should be in UTF-8 unless you write programs in notepad.exe<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.<br />
-It doesn’t work to read a UTF-8 file as a Windows-31J file because they’re very different encoding system.<br />
-The <code>invalid byte sequence</code> error, shown at the head of this section, is caused by that inconsistency.<br />
-Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.</p>
-<h2 id="workaround"><span class="link-to-here-outer"><a href="#workaround" title="workaround"><span class="link-to-here">Link to<br />
-here</span></a></span>Workaround</h2>
-<h3 id="if-you-encounter-as-a-user"><span class="link-to-here-outer"><a href="#if-you-encounter-as-a-user" title="if-you-encounter-as-a-user"><span class="link-to-here">Link to<br />
-here</span></a></span>If you encounter as a user</h3>
-<p>In many cases you can avoid these kind of errors by running the below command in advance.</p>
-<pre><code>&gt; chcp 65001
-&gt; stack exec -- site rebuild
-... Should work!</code></pre>
-<p>This command temporarily changes the character encoding in the current Command Prompt session.<br />
-The number <code>65001</code> seems to stand for UTF-8.<br />
-To roll it back, run <code>chcp 932</code>.</p>
-<pre><code>&gt; chcp 932</code></pre>
-<p>It seems that the “932” of “CP932” is the same “932” entered here!</p>
-<p>The <code>chcp</code> command is available in MSYS2’s bash (Surprises me a little. Wondering how it works…😕).<br />
-But you should know that <code>chcp</code> exists at <code>C:\Windows\System32\</code>, which MSYS2 users usually don’t want to include in the <code>PATH</code>.<br />
-The directory contains many incompatible commands whose names conflict with the tools loved by Unix people (e.g. <code>find.exe</code>)!</p>
-<p>So I’ve dropped <code>C:\Windows\System32\</code> from <code>PATH</code> when using MSYS2.<br />
-If you’ve done like me, run by full path:</p>
-<pre><code>/c/Windows/System32/chcp.com 932</code></pre>
-<h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here-outer"><a href="#if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc." title="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here">Link to<br />
-here</span></a></span>If it still doesn’t work, or you’re the developer of the libraries etc.</h3>
-<p>Unfortunately, the error can often persist even after running <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.<br />
-According to my guess, the <code>chcp 65001</code> command doesn’t affect the grandchild processes of the Command Prompt (or bash etc.) on which the <code>chcp</code> is run (i.e. the child processes of the command you enter).</p>
-<p>If the error still happens you can either report to the developer, or fix it yourself!<br />
-When reporting; asking the developer to run after doing <code>chcp 932</code> could help him/her reproduce the bug (Sorry, I’ve never tried it).<br />
-When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the <code>Handle</code> object.</p>
-<p>This problem is caused by the inconsistency between the <code>Handle</code>'s character encoding and the encoding of the bytes that are actually transferred. So switching into the proper encoding should fix it.<br />
-If the error happens when reading/writing a common UTF-8 file via the <code>Handle</code>, writing like below can avoid it:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
-<a class="sourceLine" id="cb5-3" title="3"></a>
-<a class="sourceLine" id="cb5-4" title="4">hSetEncoding handle utf8</a></code></pre></div>
-<p>As a bonus, I’ll show you an example of how <a href="https://github.com/haskell/haddock/pull/566">I myself addressed a problem caused by the standard output (or standard error output), and fixed a bug in haddock</a>. In short, it can at least suppress the error to paste the code below before your program uses the <code>Handle</code> (Copied from <a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">this commit</a>).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</a>
-<a class="sourceLine" id="cb6-4" title="4"></a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="pp">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)</a>
-<a class="sourceLine" id="cb6-7" title="7"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))</a>
-<a class="sourceLine" id="cb6-8" title="8"><span class="pp">#endif</span></a>
-<a class="sourceLine" id="cb6-9" title="9"></a>
-<a class="sourceLine" id="cb6-10" title="10"><span class="op">...</span></a>
-<a class="sourceLine" id="cb6-11" title="11"></a>
-<a class="sourceLine" id="cb6-12" title="12"><span class="pp">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-13" title="13">  liftIO <span class="op">$</span> hSetEncoding stdout <span class="op">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></a>
-<a class="sourceLine" id="cb6-14" title="14"><span class="pp">#endif</span></a></code></pre></div>
-<p>CPP macros to <code>import</code> modules only available on Windows makes this code hard to read, so let’s cut out the verbose part:</p>
-<pre><code>hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure</code></pre>
-<p>Here’re the details:<br />
-First of all, <code>hSetEncoding</code> is the function to change the <code>Handle</code>‘s character encoding, as I referred before.<br />
-Then <code>stdout</code> is the <code>Handle</code> for the standard output as its name.<br />
-The last function call <code>mkLocaleEncoding TransliterateCodingFailure</code> returns a character encoding object for the current Windows’ character encoding (i.e. <code>chcp</code>ed character encoding), configured as “Even if the <code>Handle</code> detects any characters which can’t be converted into/from a Unicode character, don’t raise an error, convert it into some likable character instead.”.</p>
-<p>As the result of the <code>hSetEncoding</code> above, and the current character encoding is Windows-31J, the character used in the compilation error of GHC:</p>
-<pre><code>↓This character
-• No instance for (Transformation Nagisa CardCommune_Mepple)
-↑</code></pre>
-<p>is converted into</p>
-<pre><code>? No instance for (Transformation Nagisa CardCommune_Mepple)</code></pre>
-<p>the question mark. Yeah, this is the “?” I bet most users of GHC on Japanese Windows have seen at least once 😅<br />
-This makes me guess GHC executes <code>hSetEncoding stderr $ mkLocaleEncoding TransliterateCodingFailure</code> by default before printing out the compilation error.<br />
-Anyway, it’s good that the program doesn’t abort due to the error!</p>
-<p>As the last note of this section: Read <a href="https://hackage.haskell.org/package/base-4.10.1.0/docs/GHC-IO-Encoding.html">the document of GHC.IO.Encoding</a> for the details of how GHC handles various character encodings.</p>
-<h1 id="rebuild-if-permission-denied"><span class="link-to-here-outer"><a href="#rebuild-if-permission-denied" title="rebuild-if-permission-denied"><span class="link-to-here">Link to<br />
-here</span></a></span>Rebuild if “Permission Denied”</h1>
-<p>I’ve made the first section too long for “Quick-and-dirty checklist”, but I’ll tell you in short from this section.<br />
-We often encounter some errors like “Permission Denied”, “Directory not empty” and similar ones when running <code>stack build</code>, <code>ghc</code>, <code>elm-make</code>, and any other commands written in Haskell.<br />
-To tell the truth, I’m completely not sure of the cause, but those errors disappear by running the same command several times.<br />
-The key is to repeat many times. Never give up only by once or twice 😅<br />
-Turning off your antivirus software’s scanning of the problematic directory, Dropbox’s synchronisation, etc. might also fix such errors.</p>
-<h1 id="try-hard-to-build-libraries-in-c"><span class="link-to-here-outer"><a href="#try-hard-to-build-libraries-in-c" title="try-hard-to-build-libraries-in-c"><span class="link-to-here">Link to<br />
-here</span></a></span>Try hard to build libraries in C…</h1>
-<p>On Windows, it frequently troubles us to install libraries which depend on libraries written in C (registered as <code>lib***</code> in your OS’s package manager).<br />
-But this is not the case only for Haskell.</p>
-<p>The way to fix depends on the case, so let me give you some examples as external links (Sorry, all pages are written in Japanese!).</p>
-<ul>
-<li>HDBC-sqlite3:
-<ul>
-<li><a href="https://qiita.com/igrep/items/d947ab871eb5b20b57e4">Windows版stackでもHDBC-sqlite3をビルドする - Qiita</a></li>
-<li><a href="http://hiratara.hatenadiary.jp/entry/2017/01/29/110100">MSYS2でHDBC-sqlite3をコンパイル - 北海道苫小牧市出身の初老PGが書くブログ</a></li>
-</ul></li>
-<li><a href="https://teratail.com/questions/102462">Haskell - Haskellにてstackでiconvパッケージを利用する方法【Windows環境】(102462)｜teratail</a></li>
-</ul>
-<p>That’s all!<br />
-Then, Happy Hacking in Haskell on Windows 10!! I don’t know WSL!🏁🏁🏁</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>Translator’s note: In Japanese locale, notepad.exe saves the file in Windows-31J. This will be changed (into UTF-8) in the future release of Windows 10.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>By the way, when I once tried to build the compiler of <a href="http://eta-lang.org/">Eta</a>, (as far as I remember) <code>chcp 65001</code> didn’t fix the problem, but <code>chcp 20127</code> did.<br />
-As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environment of the developer of Eta is US-ASCII…<a href="#fnref2" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2018/derive-json-no-prefix.html" lang="ja">deriveJsonNoPrefixをリリースしました</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2018/about-ghc-exts-1.html" style="margin-left: auto;" lang="ja">GHC拡張ノック(Part 1)</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
