@@ -1,48 +1,23 @@
 ## v2.1.1
 
-**Changes since v1.9.3**
+**バージョン1.9.3からの変更点**
 
-Major changes:
+主要な変更：
 
 * Switch over to pantry for managing packages. This is a major change
   to Stack's internals, and affects user-visible behavior in a few
   places. Some highlights:
-    * Drop support for multiple package indices and legacy
-      `00-index.tar` style indices. See
-      [#4137](https://github.com/commercialhaskell/stack/issues/4137).
-    * Support for archives and repos in the `packages` section has
-      been removed. Instead, you must use `extra-deps` for such
-      dependencies. `packages` now only supports local filepaths.
-    * Add support for Git repositories containing (recursive) submodules.
-    * Addition of new configuration options for specifying a "pantry
-      tree" key, which provides more reproducibility around builds,
-      and (in the future) will be used for more efficient package
-      content downloads. You can also specify package name and version
-      for more efficient config parsing.
-          * __NOTE__ The new `stack freeze` command provides support
-            for automatically generating this additional
-            information.
-    * Package contents and metadata are stored in an SQLite database
-      in place of files on the filesystem. The `pantry` library can be
-      used for interacting with these contents.
-    * Internally, Stack has changed many datatypes, including moving
-      to Cabal's definition of many data types. As a result of such
-      changes, existing cache files will in general be invalidated,
-      resulting in Stack needing to rebuild many previously cached
-      builds in the new version. Sorry :(.
-    * A new command, `stack freeze` has been added which outputs
-      project and snapshot definitions with dependencies pinned to
-      their exact versions.
-    * The `ignore-revision-mismatch` setting is no longer needed, and
-      has been removed.
-    * Overriding GHC boot packages results in any other GHC boot
-      packages depending on it being no longer available as a dependency,
-      such packages need to be added explicitly when needed. See
-      [#4510] (https://github.com/commercialhaskell/stack/issues/4510).
-    * Cabal solver integration was not updated to support newer
-      `cabal-install` versions so `stack solver` command was removed as
-      well as a related option `--solver` from `stack new` and
-      `stack init`.
+    * マルチパッケージインデックスと古い`00-index.tar`形式インデックスをサポートから除外。[#4137](https://github.com/commercialhaskell/stack/issues/4137)を参照せよ。
+    * `package`セクションにおけるアーカイブとレポジトリーをサポートから除外。代替として、そのような依存には`extra-deps`を使用せよ。`packages`はローカルのファイルパスのみをサポートすることとなる。
+    * Gitリポジトリーのsubmoduleのサポートを追加（再帰していてもよい）。
+    * 「パントリー木」<!-- 原文：pantry tree 岡本：なんだそれ？ -->キーを指定するための新しい設定オプションの追加。それはビルドに関してよりよい再現性を提供し、（将来的には）より効果的なパッケージ内容のダウンロードのために使用される。より効果的な設定解析のためにパッケージ名やバージョンを指定することもできる。
+          * __備考__ 新しい`stack freeze`コマンドは自動的にこの追加情報を生成するようになった。
+    * ファイルシステム上のファイルの代わりにSQLiteデータベースにパッケージの内容と付加情報は保存される。`pantry`ライブラリーはこれらの内容を読み書きするために使用される。
+    * 内部的にStackのデータ型の多くは変更が入った。それらはCabal側の定義への移動も含む。その結果として、既存のキャッシュファイルは一般的に無効となりすでにあるキャッシュの再ビルドが必要となる。申し訳ない。m(_ _)m
+    * 新コマンド`stack freeze`の追加。これは依存をある特定のバージョンに固定するためプロジェクトとスナップショットの定義を出力する。
+    * `ignore-revision-mismatch`設定はもはや必要でないため削除。
+    * GHCブートパッケージを上書きすると、それに依存する他のGHCブートパッケージを依存として利用できなくなる。必要なときは、それらのパッケージを明示的に追加する必要がある。[#4510](https://github.com/commercialhaskell/stack/issues/4510)を参照せよ。
+    * Cabal解決統合は新しい`cabal-install`をサポートするよう更新されなかったので、`stack new`と`stack init`から`--solver`を削除するだけでなく`stack solver`コマンドも削除された。
 * Upgrade to Cabal 2.4
     * Note that, in this process, the behavior of file globbing has
       been modified to match that of Cabal. In particular, this means
