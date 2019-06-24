@@ -1,3 +1,13 @@
+---
+title: Stack 2.1.1
+headingBackgroundImage: ../../img/background.png
+headingDivClass: post-heading
+author: Kazuki Okamoto, …
+postedBy: <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a>, …
+date: June ?, 2019
+tags: Stack
+---
+
 ## v2.1.1
 
 **バージョン1.9.3からの変更点**
