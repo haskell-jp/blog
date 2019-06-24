@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Kazuki Okamoto, …
 postedBy: <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a>, …
-date: June ?, 2019
+date: June 30, 2019
 tags: Stack
 ---
 
