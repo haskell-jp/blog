@@ -14,8 +14,9 @@ tags:
 
 # なに作ったか
 
+[strip-ansi-escape](http://hackage.haskell.org/package/strip-ansi-escape)というパッケージです。  
 今回もメインの処理は100行にも満たないような小さなもので、また用途もニッチです。  
-具体的には、[ANSIエスケープコード](https://en.wikipedia.org/wiki/ANSI_escape_code)を文字列から取り除く、ただそれだけです。  
+具体的には、名前のとおり[ANSIエスケープコード](https://en.wikipedia.org/wiki/ANSI_escape_code)を文字列から取り除く、ただそれだけです。  
 使い方も極めてシンプル:
 
 ```haskell
