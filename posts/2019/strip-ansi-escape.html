@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="strip-ansi-escapeというパッケージをリリースしました">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="strip-ansi-escapeというパッケージをリリースしました - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/strip-ansi-escape.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---現職でHaskellを仕事で書き始めるようになってからというもの、度々小さなパッケージをリリースするようになりました。  敢えてパッケージにするほどのものでもなさそうなぐらい小さなものが多いですが、もし再利用したくなったらな、という気持ちで書いております。# なに作ったか[strip-ansi-escape](http://hackage.haskell.org/package/strip-" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>strip-ansi-escapeというパッケージをリリースしました - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>strip-ansi-escapeというパッケージをリリースしました</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on July 8, 2019</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>現職で<span class="ascii">Haskell</span>を仕事で書き始めるようになってからというもの、度々小さなパッケージをリリースするようになりました。<br />
+敢えてパッケージにするほどのものでもなさそうなぐらい小さなものが多いですが、もし再利用したくなったらな、という気持ちで書いております。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#なに作ったか" title="なに作ったか">なに作ったか</a></li>
+<li><a href="#なぜ作ったか" title="なぜ作ったか">なぜ作ったか</a></li>
+<li><a href="#最近のmmlh" title="最近のmmlh">最近の<span class="ascii">mmlh</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="なに作ったか"><span class="link-to-here-outer"><a href="#なに作ったか" title="なに作ったか"><span class="link-to-here">Link to<br />
+here</span></a></span>なに作ったか</h1>
+<p><a href="http://hackage.haskell.org/package/strip-ansi-escape"><span class="ascii">strip-ansi-escape</span></a>というパッケージです。<br />
+今回もメインの処理は<span class="ascii">100</span>行にも満たないような小さなもので、また用途もニッチです。<br />
+具体的には、名前のとおり<a href="https://en.wikipedia.org/wiki/ANSI_escape_code"><span class="ascii">ANSI</span>エスケープコード</a>を文字列から取り除く、ただそれだけです。<br />
+使い方も極めてシンプル<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.String.AnsiEscapeCodes.Strip.Text</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">-- 現状Text型向けにしか作っていないため、OverloadedStringsを有効にした方が使いやすい</span></a>
+<a class="sourceLine" id="cb1-4" title="4">ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedStrings</span></a>
+<a class="sourceLine" id="cb1-5" title="5">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.Text</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co">-- 出力すると下線付きで &quot;hello&quot; と表示されるANSIエスケープコード付きの文字列</span></a>
+<a class="sourceLine" id="cb1-8" title="8">ghci<span class="op">&gt;</span> <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="st">&quot;\ESC[4mhello\ESC[0m&quot;</span></a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11">ghci<span class="op">&gt;</span> stripAnsiEscapeCodes <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="st">&quot;hello&quot;</span></a></code></pre></div>
+<h1 id="なぜ作ったか"><span class="link-to-here-outer"><a href="#なぜ作ったか" title="なぜ作ったか"><span class="link-to-here">Link to<br />
+here</span></a></span>なぜ作ったか</h1>
+<p>通常我々が<span class="ascii">ANSI</span>エスケープコードを扱うときは、<strong>ユーザーのために</strong>端末に文字列を分かりやすく表示したいときで、それをプログラムで再利用することは想定していません。<br />
+そのため<span class="ascii">ANSI</span>エスケープコードを出力できるアプリケーションは、大抵の場合出力しないよう設定できる<small>（あるいは、出力先が<span class="ascii">tty</span>でないことを検出して出力しない）</small>ようになっています。<br />
+なので、プログラムが<span class="ascii">ANSI</span>エスケープコードの混ざった文字列を扱わざるを得ない、という事態は、何かがおかしい事態だと言えるでしょう。</p>
+<p>一体どういう事態なのかというと、それは私がずっと開発中の、対話的<span class="ascii">Haskell</span>入門コンテンツ — <a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell">「失敗しながら学ぶ<span class="ascii">Haskell</span>入門」</a> — で出遭った事態でした。<br />
+「失敗しながら学ぶ<span class="ascii">Haskell</span>入門」（以下、英語名を略して「<span class="ascii">mmlh</span>」と呼びます）では、ユーザーが書いた<span class="ascii">Haskell</span>のソースコードを受け取って、<span class="ascii">GHC</span>にコンパイルさせることで、型エラーなどのエラーメッセージを取得しています。<br />
+当初から<span class="ascii">mmlh</span>はそれを簡単にパースしてユーザーへのヒントを出すのに使ったり、ユーザーにそのまま表示したりするのに使うため、<code>-fdiagnostics-color=always</code>というオプションを<span class="ascii">GHC</span>に渡していました。<br />
+これは、エラーメッセージに色を着けるようになった<span class="ascii">GHC 8.2</span>から導入されたオプションで、「エラーメッセージに必ず<small>（<span class="ascii">ANSI</span>エスケープコードを使って）</small>色を着ける」というものです。<br />
+<span class="ascii">GHC</span>が出すエラーメッセージを「簡単にパース」しつつ「ユーザーにそのまま表示」する、という<span class="ascii">2</span>つの要件を満たすためには、このオプションを利用して、強制的にエラーメッセージに色を着ける必要がありました。</p>
+<p>さらに最近、<span class="ascii">GHC</span>が出したエラーメッセージをファイルに保存して、<a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell/issues/101"><span class="ascii">GitHub</span>で閲覧できるようにする</a><small>（正確には、閲覧して各行にコメントできるようにする）</small>、という機能も追加した結果、<span class="ascii">ANSI</span>エスケープコードを取り除かざるを得なくなってしまったのです。<br />
+というのも、<code>-fdiagnostics-color=always</code>を有効にしている限り、<span class="ascii">GHC</span>は必ず<span class="ascii">ANSI</span>エスケープコードをエラーメッセージに混ぜるので、ファイルに保存して<span class="ascii">GitHub</span>上で表示する際、下記のように余計な文字として混ざってしまい、エラーメッセージが読みづらくなってしまうためです。</p>
+<pre><code>�[;1m16.hs:19:18: �[;1m�[31merror:�[0m�[0m�[;1m�[0m�[0m�[;1m
+    • No instance for (Num ([Char], String))
+        arising from a use of ‘countWords’
+    • In the expression: countWords (concat wordsList)
+      In an equation for ‘countMap’:
+          countMap = countWords (concat wordsList)
+      In the expression:
+        do paths &lt;- getArgs
+           wordsList &lt;- for paths scrapeWords
+           let countMap = countWords (concat wordsList)
+           for_ (toList countMap) catCount�[0m�[0m
+�[;1m�[34m   |�[0m�[0m
+�[;1m�[34m19 |�[0m�[0m   let countMap = �[;1m�[31mcountWords (concat wordsList)�[0m�[0m
+�[;1m�[34m   |�[0m�[0m�[;1m�[31m                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^�[0m�[0m
+�[0m�[0m�[0m</code></pre>
+<p><code>-fdiagnostics-color=always</code>を有効にしなければこんな問題は起こらないのですが、そうすると今度はユーザーにエラーメッセージを表示させる際、色が着かなくなってしまいます。<br />
+せっかく<span class="ascii">GHC 8.2</span>以降を使っているのに色つきのエラーメッセージが見られないのは残念ですよね。<br />
+<span class="ascii">GHC</span>を<span class="ascii">2</span>回実行することで、ユーザーに表示する用のエラーメッセージとファイルに保存する用のエラーメッセージを分けることもできますが、それでは効率が悪いでしょうし。</p>
+<p>そんなわけで、<span class="ascii">GHC</span>が出力するエラーメッセージを<strong>ユーザーに端末上で表示する用途と、<span class="ascii">ANSI</span>エスケープコードを解釈しない箇所で表示する用途</strong>、両方に使用したくなったため、今回敢えて<span class="ascii">ANSI</span>エスケープコードを取り除くライブラリーを作りました。<br />
+もし他に同じような事態に出遭った方がいらっしゃいましたら、試してみてください🙏</p>
+<h1 id="最近のmmlh"><span class="link-to-here-outer"><a href="#最近のmmlh" title="最近のmmlh"><span class="link-to-here">Link to<br />
+here</span></a></span>最近の<span class="ascii">mmlh</span></h1>
+<p>ついでにここ数ヶ月弊社でやっている、<span class="ascii">mmlh</span>を使った社内勉強会のお話も書こうかと思いましたが、やっぱり社内でのことなんで、<a href="https://eng-blog.iij.ad.jp/">会社のブログ</a>に書くことにします。<br />
+多分今週中には上げますので乞うご期待！</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/asterius.html" style="margin-left: auto;" lang="ja">AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>

@@ -8,8 +8,131 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2019-05-04T00:00:00Z</updated>
+    <updated>2019-07-08T00:00:00Z</updated>
     <entry>
+    <title>strip-ansi-escapeというパッケージをリリースしました</title>
+    <link href="https://haskell.jp/blog/posts/2019/strip-ansi-escape.html" />
+    <id>https://haskell.jp/blog/posts/2019/strip-ansi-escape.html</id>
+    <published>2019-07-08T00:00:00Z</published>
+    <updated>2019-07-08T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>現職で<span class="ascii">Haskell</span>を仕事で書き始めるようになってからというもの、度々小さなパッケージをリリースするようになりました。<br />
+敢えてパッケージにするほどのものでもなさそうなぐらい小さなものが多いですが、もし再利用したくなったらな、という気持ちで書いております。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#なに作ったか" title="なに作ったか">なに作ったか</a></li>
+<li><a href="#なぜ作ったか" title="なぜ作ったか">なぜ作ったか</a></li>
+<li><a href="#最近のmmlh" title="最近のmmlh">最近の<span class="ascii">mmlh</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="なに作ったか"><span class="link-to-here-outer"><a href="#なに作ったか" title="なに作ったか"><span class="link-to-here">Link to<br />
+here</span></a></span>なに作ったか</h1>
+<p><a href="http://hackage.haskell.org/package/strip-ansi-escape"><span class="ascii">strip-ansi-escape</span></a>というパッケージです。<br />
+今回もメインの処理は<span class="ascii">100</span>行にも満たないような小さなもので、また用途もニッチです。<br />
+具体的には、名前のとおり<a href="https://en.wikipedia.org/wiki/ANSI_escape_code"><span class="ascii">ANSI</span>エスケープコード</a>を文字列から取り除く、ただそれだけです。<br />
+使い方も極めてシンプル<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.String.AnsiEscapeCodes.Strip.Text</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">-- 現状Text型向けにしか作っていないため、OverloadedStringsを有効にした方が使いやすい</span></a>
+<a class="sourceLine" id="cb1-4" title="4">ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedStrings</span></a>
+<a class="sourceLine" id="cb1-5" title="5">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.Text</span></a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co">-- 出力すると下線付きで &quot;hello&quot; と表示されるANSIエスケープコード付きの文字列</span></a>
+<a class="sourceLine" id="cb1-8" title="8">ghci<span class="op">&gt;</span> <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="st">&quot;\ESC[4mhello\ESC[0m&quot;</span></a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11">ghci<span class="op">&gt;</span> stripAnsiEscapeCodes <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="st">&quot;hello&quot;</span></a></code></pre></div>
+<h1 id="なぜ作ったか"><span class="link-to-here-outer"><a href="#なぜ作ったか" title="なぜ作ったか"><span class="link-to-here">Link to<br />
+here</span></a></span>なぜ作ったか</h1>
+<p>通常我々が<span class="ascii">ANSI</span>エスケープコードを扱うときは、<strong>ユーザーのために</strong>端末に文字列を分かりやすく表示したいときで、それをプログラムで再利用することは想定していません。<br />
+そのため<span class="ascii">ANSI</span>エスケープコードを出力できるアプリケーションは、大抵の場合出力しないよう設定できる<small>（あるいは、出力先が<span class="ascii">tty</span>でないことを検出して出力しない）</small>ようになっています。<br />
+なので、プログラムが<span class="ascii">ANSI</span>エスケープコードの混ざった文字列を扱わざるを得ない、という事態は、何かがおかしい事態だと言えるでしょう。</p>
+<p>一体どういう事態なのかというと、それは私がずっと開発中の、対話的<span class="ascii">Haskell</span>入門コンテンツ — <a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell">「失敗しながら学ぶ<span class="ascii">Haskell</span>入門」</a> — で出遭った事態でした。<br />
+「失敗しながら学ぶ<span class="ascii">Haskell</span>入門」（以下、英語名を略して「<span class="ascii">mmlh</span>」と呼びます）では、ユーザーが書いた<span class="ascii">Haskell</span>のソースコードを受け取って、<span class="ascii">GHC</span>にコンパイルさせることで、型エラーなどのエラーメッセージを取得しています。<br />
+当初から<span class="ascii">mmlh</span>はそれを簡単にパースしてユーザーへのヒントを出すのに使ったり、ユーザーにそのまま表示したりするのに使うため、<code>-fdiagnostics-color=always</code>というオプションを<span class="ascii">GHC</span>に渡していました。<br />
+これは、エラーメッセージに色を着けるようになった<span class="ascii">GHC 8.2</span>から導入されたオプションで、「エラーメッセージに必ず<small>（<span class="ascii">ANSI</span>エスケープコードを使って）</small>色を着ける」というものです。<br />
+<span class="ascii">GHC</span>が出すエラーメッセージを「簡単にパース」しつつ「ユーザーにそのまま表示」する、という<span class="ascii">2</span>つの要件を満たすためには、このオプションを利用して、強制的にエラーメッセージに色を着ける必要がありました。</p>
+<p>さらに最近、<span class="ascii">GHC</span>が出したエラーメッセージをファイルに保存して、<a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell/issues/101"><span class="ascii">GitHub</span>で閲覧できるようにする</a><small>（正確には、閲覧して各行にコメントできるようにする）</small>、という機能も追加した結果、<span class="ascii">ANSI</span>エスケープコードを取り除かざるを得なくなってしまったのです。<br />
+というのも、<code>-fdiagnostics-color=always</code>を有効にしている限り、<span class="ascii">GHC</span>は必ず<span class="ascii">ANSI</span>エスケープコードをエラーメッセージに混ぜるので、ファイルに保存して<span class="ascii">GitHub</span>上で表示する際、下記のように余計な文字として混ざってしまい、エラーメッセージが読みづらくなってしまうためです。</p>
+<pre><code>�[;1m16.hs:19:18: �[;1m�[31merror:�[0m�[0m�[;1m�[0m�[0m�[;1m
+    • No instance for (Num ([Char], String))
+        arising from a use of ‘countWords’
+    • In the expression: countWords (concat wordsList)
+      In an equation for ‘countMap’:
+          countMap = countWords (concat wordsList)
+      In the expression:
+        do paths &lt;- getArgs
+           wordsList &lt;- for paths scrapeWords
+           let countMap = countWords (concat wordsList)
+           for_ (toList countMap) catCount�[0m�[0m
+�[;1m�[34m   |�[0m�[0m
+�[;1m�[34m19 |�[0m�[0m   let countMap = �[;1m�[31mcountWords (concat wordsList)�[0m�[0m
+�[;1m�[34m   |�[0m�[0m�[;1m�[31m                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^�[0m�[0m
+�[0m�[0m�[0m</code></pre>
+<p><code>-fdiagnostics-color=always</code>を有効にしなければこんな問題は起こらないのですが、そうすると今度はユーザーにエラーメッセージを表示させる際、色が着かなくなってしまいます。<br />
+せっかく<span class="ascii">GHC 8.2</span>以降を使っているのに色つきのエラーメッセージが見られないのは残念ですよね。<br />
+<span class="ascii">GHC</span>を<span class="ascii">2</span>回実行することで、ユーザーに表示する用のエラーメッセージとファイルに保存する用のエラーメッセージを分けることもできますが、それでは効率が悪いでしょうし。</p>
+<p>そんなわけで、<span class="ascii">GHC</span>が出力するエラーメッセージを<strong>ユーザーに端末上で表示する用途と、<span class="ascii">ANSI</span>エスケープコードを解釈しない箇所で表示する用途</strong>、両方に使用したくなったため、今回敢えて<span class="ascii">ANSI</span>エスケープコードを取り除くライブラリーを作りました。<br />
+もし他に同じような事態に出遭った方がいらっしゃいましたら、試してみてください🙏</p>
+<h1 id="最近のmmlh"><span class="link-to-here-outer"><a href="#最近のmmlh" title="最近のmmlh"><span class="link-to-here">Link to<br />
+here</span></a></span>最近の<span class="ascii">mmlh</span></h1>
+<p>ついでにここ数ヶ月弊社でやっている、<span class="ascii">mmlh</span>を使った社内勉強会のお話も書こうかと思いましたが、やっぱり社内でのことなんで、<a href="https://eng-blog.iij.ad.jp/">会社のブログ</a>に書くことにします。<br />
+多分今週中には上げますので乞うご期待！</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2019/asterius.html" style="margin-left: auto;" lang="ja">AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</title>
     <link href="https://haskell.jp/blog/posts/2019/asterius.html" />
     <id>https://haskell.jp/blog/posts/2019/asterius.html</id>
@@ -174,6 +297,9 @@ here</span></a></span>✅おわりに</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2019/strip-ansi-escape.html" lang="ja">strip-ansi-escapeというパッケージをリリースしました</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2308,147 +2434,6 @@ here</span></a></span>まとめ</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2018/derive-json-no-prefix.html" style="margin-left: auto;" lang="ja">deriveJsonNoPrefixをリリースしました</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>deriveJsonNoPrefixをリリースしました</title>
-    <link href="https://haskell.jp/blog/posts/2018/derive-json-no-prefix.html" />
-    <id>https://haskell.jp/blog/posts/2018/derive-json-no-prefix.html</id>
-    <published>2018-07-18T00:00:00Z</published>
-    <updated>2018-07-18T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>前回の更新からちょっと時間が空いてしまいました 💦<br />
-小ネタです。掲題の通り<a href="http://hackage.haskell.org/package/deriveJsonNoPrefix"><span class="ascii">deriveJsonNoPrefix</span></a>というパッケージをリリースしました。<br />
-地味に有用だと思うので、<a href="https://gitlab.com/igrep/deriveJsonNoPrefix/blob/master/README.md"><span class="ascii">README</span></a>をやや意訳気味に翻訳して記事にします。<br />
-十分に単純なので、仕様が変わることもまさかないでしょうし。</p>
-<p>以下、<a href="https://gitlab.com/igrep/deriveJsonNoPrefix/blob/6114e0fc55cf5b57a771871e53971a51592f618b/README.md">こちらのコミットの時点の<span class="ascii">README</span></a>の翻訳です。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#derivejsonnoprefix" title="derivejsonnoprefix"><span class="ascii">deriveJsonNoPrefix</span></a>
-<ul>
-<li><a href="#例" title="例">例</a></li>
-<li><a href="#同じ問題を解決するほかのライブラリー" title="同じ問題を解決するほかのライブラリー">同じ問題を解決するほかのライブラリー</a></li>
-</ul></li>
-</ul>
-</div>
-</div>
-<h1 id="derivejsonnoprefix"><span class="link-to-here-outer"><a href="#derivejsonnoprefix" title="derivejsonnoprefix"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">deriveJsonNoPrefix</span></h1>
-<p>プレフィックスに優しい<code>ToJSON</code>と<code>FromJSON</code>のインスタンスを定義する<span class="ascii">Template Haskell</span>のマクロを提供します。</p>
-<h2 id="例"><span class="link-to-here-outer"><a href="#例" title="例"><span class="link-to-here">Link to<br />
-here</span></a></span>例</h2>
-<p>こんな感じの<span class="ascii">JSON</span>を作りたいとしましょう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">{</span></a>
-<a class="sourceLine" id="cb1-2" title="2">    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ID STRING&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-3" title="3">    <span class="dt">&quot;max&quot;</span><span class="fu">:</span> <span class="fl">0.789</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-4" title="4">    <span class="dt">&quot;min&quot;</span><span class="fu">:</span> <span class="fl">0.123</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="fu">}</span></a></code></pre></div>
-<p>きっと<a href="http://hackage.haskell.org/package/aeson/docs/Data-Aeson.html#t:ToJSON"><span class="ascii">ToJSON</span></a>（おそらくそれに加えて<a href="http://hackage.haskell.org/package/aeson/docs/Data-Aeson.html#t:FromJSON"><span class="ascii">FromJSON</span></a>も）のインスタンスを自動的に定義するための、次のようなレコード型を定義したくなるでしょう。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">import</span> <span class="dt">Data.Aeson.TH</span></a>
-<a class="sourceLine" id="cb2-4" title="4"></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="ot">=</span> <span class="dt">SomeRecord</span></a>
-<a class="sourceLine" id="cb2-6" title="6">  {<span class="ot"> id ::</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb2-7" title="7">  ,<span class="ot"> max ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb2-8" title="8">  ,<span class="ot"> min ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb2-9" title="9">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
-<a class="sourceLine" id="cb2-10" title="10"></a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="op">$</span>(deriveToJSON defaultOptions &#39;<span class="dt">&#39;SomeRecord</span>)</a></code></pre></div>
-<p>しかし、こんなレコード型は定義すべきではありません。<br />
-<code>id</code>も<code>max</code>も<code>min</code>も、<code>Prelude</code>に定義済みなのですから！</p>
-<p>この問題を回避するために、レコードラベルに型の名前をプレフィックスとして加える、ということをわれわれはよくやります。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="ot">=</span> <span class="dt">SomeRecord</span></a>
-<a class="sourceLine" id="cb3-2" title="2">  {<span class="ot"> someRecordId ::</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb3-3" title="3">  ,<span class="ot"> someRecordMax ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb3-4" title="4">  ,<span class="ot"> someRecordMin ::</span> <span class="dt">Double</span></a>
-<a class="sourceLine" id="cb3-5" title="5">  } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a></code></pre></div>
-<p>そして、<code>deriveToJSON</code>にデフォルトと異なるオプションを渡して実行します。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1">deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="ot">=</span> firstLower <span class="op">.</span> <span class="fu">drop</span> (<span class="fu">length</span> <span class="st">&quot;SomeRecord&quot;</span>) } &#39;<span class="dt">&#39;SomeRecord</span></a>
-<a class="sourceLine" id="cb4-2" title="2"></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb4-4" title="4">firstLower (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="fu">toLower</span> x <span class="op">:</span> xs</a>
-<a class="sourceLine" id="cb4-5" title="5">firstLower _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
-<p><code>fieldLabelModifier</code>オプションは文字通り、対象のレコードを<span class="ascii">JSON</span>に変換するとき、あるいは<span class="ascii">JSON</span>から対象のレコードの値に変換する時、レコードのラベルを変換する関数を設定するために使います。<br />
-👆の場合、プレフィックスである<code>SomeRecord</code>の文字数分レコードラベルから<code>drop</code>して、先頭の文字<small>（<code>someRecordId</code>で言えば<code>Id</code>の<code>I</code>に相当します）</small>を小文字に変換しているのがわかるでしょうか？</p>
-<p>そう、これが<code>deriveToJsonNoTypeNamePrefix</code>がやっていることとほぼ同等のことです。<br />
-<code>deriveToJsonNoTypeNamePrefix</code>は、実質次のように定義されています。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">deriveToJsonNoTypeNamePrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</a>
-<a class="sourceLine" id="cb5-2" title="2">deriveToJsonNoTypeNamePrefix deriver name <span class="ot">=</span></a>
-<a class="sourceLine" id="cb5-3" title="3">  deriveToJSON Json.defaultOptions { fieldLabelModifier <span class="ot">=</span> dropPrefix name } name</a>
-<a class="sourceLine" id="cb5-4" title="4"></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="ot">dropPrefix ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb5-6" title="6">dropPrefix name <span class="ot">=</span> firstLower <span class="op">.</span> <span class="fu">drop</span> (<span class="fu">length</span> <span class="op">$</span> nameBase name)</a>
-<a class="sourceLine" id="cb5-7" title="7"></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="ot">firstLower ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb5-9" title="9">firstLower (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="fu">toLower</span> x <span class="op">:</span> xs</a>
-<a class="sourceLine" id="cb5-10" title="10">firstLower _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;firstLower: Assertion failed: empty string&quot;</span></a></code></pre></div>
-<p>結果、これからは<code>fieldLabelModifier</code>をもう自分で定義する必要がありません！🙌</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">import</span> <span class="dt">Data.Aeson.DeriveNoPrefix</span></a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="op">$</span>(deriveJsonNoTypeNamePrefix &#39;<span class="dt">&#39;SomeRecord</span>)</a></code></pre></div>
-<p>👆 の<code>deriveJsonNoTypeNamePrefix</code> は <a href="https://hackage.haskell.org/package/aeson/docs/Data-Aeson-TH.html#v:deriveJSON"><span class="ascii">deriveJSON</span></a>と同様に、<code>ToJSON</code>と<code>FromJSON</code>のインスタンス、両方を生成します。<br />
-もちろん、<code>FromJSON</code>のインスタンスを生成するときのオプションとしても、プレフィックスを削除するための<code>fieldLabelModifier</code>を渡してくれます！</p>
-<h2 id="同じ問題を解決するほかのライブラリー"><span class="link-to-here-outer"><a href="#同じ問題を解決するほかのライブラリー" title="同じ問題を解決するほかのライブラリー"><span class="link-to-here">Link to<br />
-here</span></a></span>同じ問題を解決するほかのライブラリー</h2>
-<ul>
-<li><a href="https://hackage.haskell.org/package/extensible"><span class="ascii">extensible</span></a><span class="ascii">.</span></li>
-<li>など、<code>ToJSON</code>・<code>FromJSON</code>のインスタンスが定義された<span class="ascii">extensible record</span>を提供するライブラリー</li>
-</ul>
-<p>なので、そうした<span class="ascii">extensible record</span>を提供するライブラリーが学習コストや依存関係などの事情で「重たい」と感じたときにこのパッケージを使ってください。</p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2018/substring-parser.html" lang="ja">substring-parserで「タイプセーフプリキュア！」を移行した話</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2018/windows-gotchas-en.html" style="margin-left: auto;" lang="en">Errors and the workarounds frequently encountered when dealing with Haskell on Windows</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
