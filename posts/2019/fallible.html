@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="fallibleというパッケージをリリースしました">
+    
+      <meta name="author" content="Nobutada MATSUBARA">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="fallibleというパッケージをリリースしました - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/fallible.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---タイトルの通り、fallibleというパッケージを紹介します。- [matsubara0507/fallible: interface for fallible data type like Maybe and Either. - GitHub](https://github.com/matsubara0507/fallible)ちなみに、fallibleはHaskell-jp Slackで" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>fallibleというパッケージをリリースしました - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>fallibleというパッケージをリリースしました</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="https://matsubara0507.github.io/whoami">Nobutada MATSUBARA(@matsubara0507)</a> on July 18, 2019</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>タイトルの通り、<span class="ascii">fallible</span>というパッケージを紹介します。</p>
+<ul>
+<li><a href="https://github.com/matsubara0507/fallible"><span class="ascii">matsubara0507/fallible: interface for fallible data type like Maybe and Either. - GitHub</span></a></li>
+</ul>
+<p>ちなみに、<span class="ascii">fallible</span>は<span class="ascii">Haskell-jp Slack</span>で<span class="ascii">:</span></p>
+<p><img src="../../img/2019/fallible/slack.jpg" style="width: 100%;"></p>
+<p>と質問したところ、該当するようなパッケージは無さそうだったので作ったという経緯があります。 その際に助言をくれた <a href="https://github.com/fumieval"><span class="ascii">fumieval</span></a>氏のコードをほとんど引用した形になったので、<span class="ascii">Haskell-jp Blog</span>に紹介記事を載せることにしました<span class="ascii">(</span>僕は普段、自分のブログに自作したパッケージを書いています<span class="ascii">)</span>。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#fallibleパッケージ" title="fallibleパッケージ"><span class="ascii">fallible</span>パッケージ</a>
+<ul>
+<li><a href="#やってること" title="やってること">やってること</a></li>
+<li><a href="#基本演算子" title="基本演算子">基本演算子</a></li>
+</ul></li>
+<li><a href="#サンプルコード" title="サンプルコード">サンプルコード</a></li>
+<li><a href="#使い方" title="使い方">使い方</a></li>
+<li><a href="#おしまい" title="おしまい">おしまい</a></li>
+</ul>
+</div>
+</div>
+<h2 id="fallibleパッケージ"><span class="link-to-here-outer"><a href="#fallibleパッケージ" title="fallibleパッケージ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">fallible</span>パッケージ</h2>
+<p><span class="ascii">Haskell</span>でアプリケーションを記述してると次のようなコードを書くことがありますよね？</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.List</span> <span class="kw">as</span> <span class="dt">L</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="ot">run ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Token</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb1-4" title="4">run targetName token verbose <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  users <span class="ot">&lt;-</span> getUsers token</a>
+<a class="sourceLine" id="cb1-6" title="6">  <span class="kw">case</span> users <span class="kw">of</span></a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="dt">Left</span> err <span class="ot">-&gt;</span> logDebug' err</a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="dt">Right</span> us <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-9" title="9">      <span class="kw">case</span> userId <span class="op">&lt;$&gt;</span> L.find isTarget us <span class="kw">of</span></a>
+<a class="sourceLine" id="cb1-10" title="10">        <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> logDebug' emsg</a>
+<a class="sourceLine" id="cb1-11" title="11">        <span class="dt">Just</span> tid <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-12" title="12">          channels <span class="ot">&lt;-</span> getChannels token</a>
+<a class="sourceLine" id="cb1-13" title="13">          <span class="kw">case</span> channels <span class="kw">of</span></a>
+<a class="sourceLine" id="cb1-14" title="14">            <span class="dt">Left</span> err  <span class="ot">-&gt;</span> logDebug' err</a>
+<a class="sourceLine" id="cb1-15" title="15">            <span class="dt">Right</span> chs <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-16" title="16">              <span class="kw">let</span> chs' <span class="ot">=</span> <span class="fu">filter</span> (<span class="fu">elem</span> tid <span class="op">.</span> channelMembers) chs</a>
+<a class="sourceLine" id="cb1-17" title="17">              <span class="fu">mapM_</span> (logDebug' <span class="op">.</span> channelName) chs'</a>
+<a class="sourceLine" id="cb1-18" title="18">  <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-19" title="19">    logDebug' <span class="ot">=</span> logDebug verbose</a>
+<a class="sourceLine" id="cb1-20" title="20">    emsg <span class="ot">=</span> <span class="st">&quot;user not found: &quot;</span> <span class="op">++</span> targetName</a>
+<a class="sourceLine" id="cb1-21" title="21">    isTarget user <span class="ot">=</span> userName user <span class="op">==</span> targetName</a>
+<a class="sourceLine" id="cb1-22" title="22"></a>
+<a class="sourceLine" id="cb1-23" title="23"><span class="ot">logDebug ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb1-24" title="24">logDebug verbose msg <span class="ot">=</span> <span class="kw">if</span> verbose <span class="kw">then</span> <span class="fu">putStrLn</span> msg <span class="kw">else</span> <span class="fu">pure</span> ()</a></code></pre></div>
+<p><span class="ascii">Slack</span>のようなチャットツールをイメージしてください。 該当の名前<span class="ascii">(</span><code>targetName</code><span class="ascii">)</span>を持つユーザーを与えると、そのユーザーが参加しているチャンネルの一覧を表示するというような振る舞いです。 こう段々になってしまうのは気持ち悪いですよね。 <span class="ascii">fallible</span>の目的はこの段々を次のように平坦にすることです<span class="ascii">(</span><code>where</code> などは割愛<span class="ascii">):</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">import</span> <span class="dt">Data.Fallible</span> (evalContT, exit, lift, (!?=), (???))</a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="ot">run ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Token</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb2-4" title="4">run targetName token verbose <span class="ot">=</span> evalContT <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  users    <span class="ot">&lt;-</span> lift (getUsers token) <span class="op">!?=</span> exit <span class="op">.</span> logDebug'</a>
+<a class="sourceLine" id="cb2-6" title="6">  targetId <span class="ot">&lt;-</span> userId <span class="op">&lt;$&gt;</span> L.find isTarget users <span class="op">???</span> exit (logDebug' emsg)</a>
+<a class="sourceLine" id="cb2-7" title="7">  channels <span class="ot">&lt;-</span> lift (getChannels token) <span class="op">!?=</span> exit <span class="op">.</span> logDebug'</a>
+<a class="sourceLine" id="cb2-8" title="8">  lift <span class="op">$</span> <span class="fu">mapM_</span> (logDebug' <span class="op">.</span> channelName) <span class="op">$</span></a>
+<a class="sourceLine" id="cb2-9" title="9">    <span class="fu">filter</span> (<span class="fu">elem</span> targetId <span class="op">.</span> channelMembers) channels</a></code></pre></div>
+<h3 id="やってること"><span class="link-to-here-outer"><a href="#やってること" title="やってること"><span class="link-to-here">Link to<br />
+here</span></a></span>やってること</h3>
+<p>というか、もともとのアイデアは下記のブログです<span class="ascii">:</span></p>
+<ul>
+<li><a href="https://haskell.e-bigmoon.com/posts/2018/06-26-cont-param.html"><span class="ascii">ContT</span> を使ってコードを綺麗にしよう！ <span class="ascii">- BIGMOON Haskeller</span>’<span class="ascii">s BLOG</span></a></li>
+</ul>
+<p>これを一般化<span class="ascii">(</span><code>Maybe a</code> 固有ではなく <code>Either e a</code> でも使う<span class="ascii">)</span>できないかなぁというのがもともとの発想です。</p>
+<h3 id="基本演算子"><span class="link-to-here-outer"><a href="#基本演算子" title="基本演算子"><span class="link-to-here">Link to<br />
+here</span></a></span>基本演算子</h3>
+<p>次の<span class="ascii">4</span>つの演算子を利用します<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">(!?=) ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> m (<span class="dt">Either</span> e a) <span class="ot">-&gt;</span> (e <span class="ot">-&gt;</span> m a) <span class="ot">-&gt;</span> m a</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="ot">(!??) ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> m (<span class="dt">Maybe</span> a) <span class="ot">-&gt;</span> m a <span class="ot">-&gt;</span> m a</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="ot">(??=) ::</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> <span class="dt">Either</span> e a <span class="ot">-&gt;</span> (e <span class="ot">-&gt;</span> f a) <span class="ot">-&gt;</span> f a</a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="ot">(???) ::</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> <span class="dt">Maybe</span> a <span class="ot">-&gt;</span> f a <span class="ot">-&gt;</span> f a</a></code></pre></div>
+<p>ただし、内部実装的には <code>Maybe a</code> や <code>Either e a</code> は <code>Fallible</code> 型クラスで一般化されています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">class</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> <span class="dt">Fallible</span> f <span class="kw">where</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  <span class="kw">type</span> <span class="dt">Failure</span><span class="ot"> f ::</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="ot">  tryFallible ::</span> f a <span class="ot">-&gt;</span> <span class="dt">Either</span> (<span class="dt">Failure</span> f) a</a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">instance</span> <span class="dt">Fallible</span> <span class="dt">Maybe</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb4-6" title="6">  <span class="kw">type</span> <span class="dt">Failure</span> <span class="dt">Maybe</span> <span class="ot">=</span> ()</a>
+<a class="sourceLine" id="cb4-7" title="7">  tryFallible <span class="ot">=</span> <span class="fu">maybe</span> (<span class="dt">Left</span> ()) <span class="dt">Right</span></a>
+<a class="sourceLine" id="cb4-8" title="8"></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="kw">instance</span> <span class="dt">Fallible</span> (<span class="dt">Either</span> e) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb4-10" title="10">  <span class="kw">type</span> <span class="dt">Failure</span> (<span class="dt">Either</span> e) <span class="ot">=</span> e</a>
+<a class="sourceLine" id="cb4-11" title="11">  tryFallible <span class="ot">=</span> <span class="fu">id</span></a>
+<a class="sourceLine" id="cb4-12" title="12"></a>
+<a class="sourceLine" id="cb4-13" title="13"><span class="ot">(!?=) ::</span> (<span class="dt">Monad</span> m, <span class="dt">Fallible</span> t) <span class="ot">=&gt;</span> m (t a) <span class="ot">-&gt;</span> (<span class="dt">Failure</span> t <span class="ot">-&gt;</span> m a) <span class="ot">-&gt;</span> m a</a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="ot">(???) ::</span> (<span class="dt">Applicative</span> f, <span class="dt">Fallible</span> t) <span class="ot">=&gt;</span> t a <span class="ot">-&gt;</span> f a <span class="ot">-&gt;</span> f a</a></code></pre></div>
+<p>これらを継続モナドと組み合わせることで<span class="ascii">IO</span>と失敗系モナド<span class="ascii">(</span><code>Maybe a</code> や <code>Either e a</code><span class="ascii">)</span>を、モナドトランスフォーマーなしに<span class="ascii">Do</span>記法で書くことができます！</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="co">-- 継続モナドに関する関数</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="ot">evalConstT ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">ContT</span> r m r <span class="ot">-&gt;</span> m r</a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="ot">exit ::</span> m r <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m a</a>
+<a class="sourceLine" id="cb5-5" title="5">exit <span class="ot">=</span> <span class="dt">ContT</span> <span class="op">.</span> <span class="fu">const</span></a></code></pre></div>
+<h2 id="サンプルコード"><span class="link-to-here-outer"><a href="#サンプルコード" title="サンプルコード"><span class="link-to-here">Link to<br />
+here</span></a></span>サンプルコード</h2>
+<p>疑似的な<span class="ascii">IO</span>で良いなら<a href="https://github.com/matsubara0507/fallible/tree/master/example"><span class="ascii">fallible</span>リポジトリの<span class="ascii">example</span>ディレクトリ</a>にあります<span class="ascii">(</span>上述の例はそれです<span class="ascii">)</span>。</p>
+<p>実際の利用例であれば、最近自作した<a href="https://github.com/matsubara0507/mixlogue"><span class="ascii">matsubara0507/mixlogue</span></a>という<span class="ascii">Haskell</span>アプリケーションで多用しています<span class="ascii">(</span><a href="https://github.com/matsubara0507/mixlogue/blob/8afd16ab4048ff62976b8e38347078fdaa7417dd/src/Mixlogue/Cmd.hs#L81-L93">ココ</a>とか<a href="https://github.com/matsubara0507/mixlogue/blob/8afd16ab4048ff62976b8e38347078fdaa7417dd/src/Mixlogue/Message.hs#L15-L25">ココ</a>とか<span class="ascii">)</span>。 ちなみに、<span class="ascii">mixlogue</span>は特定の<span class="ascii">Slack</span>の分報チャンネル<span class="ascii">(</span><code>times_hoge</code><span class="ascii">)</span>の発言を収集するというだけのツールです。</p>
+<h2 id="使い方"><span class="link-to-here-outer"><a href="#使い方" title="使い方"><span class="link-to-here">Link to<br />
+here</span></a></span>使い方</h2>
+<p><span class="ascii">README</span>を参照してください。</p>
+<p>現状<span class="ascii">Hackage</span>にはあげてないので、<span class="ascii">stack</span>や<span class="ascii">Cabal</span>で<span class="ascii">GitHub</span>リポジトリから参照する方法を利用してください。</p>
+<h2 id="おしまい"><span class="link-to-here-outer"><a href="#おしまい" title="おしまい"><span class="link-to-here">Link to<br />
+here</span></a></span>おしまい</h2>
+<p><span class="ascii">fumieval</span>氏のコードをほとんど引用するだけになったので自分でリリースするか迷ったんですけど、リリースしてくれというのも丸投げがひどいので自分でリリースしました。 まぁこういう結果が生まれるのも<span class="ascii">OSS</span>コミュニティの醍醐味ということで。 <span class="ascii">fumieval</span>氏、いつもアドバイスをくれてありがとう！</p>
+<p><span class="ascii">(</span>もちろん他の<span class="ascii">Haskell-jp</span>の皆さんも！<span class="ascii">)</span></p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/strip-ansi-escape.html" style="margin-left: auto;" lang="ja">strip-ansi-escapeというパッケージをリリースしました</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Nobutada MATSUBARA 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
