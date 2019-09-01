@@ -1,5 +1,8 @@
 data MyTuple a b = MyTuple a b
 
+mkMyTuple :: a -> b -> MyTuple a b
+mkMyTuple ~a ~b = MyTuple a b
+
 main :: IO ()
 main = do
   let (a, _) = ("Default tuple", error "Error in default tuple")
@@ -9,5 +12,5 @@ main = do
   print b1
   print b2
 
-  let MyTuple c _ = MyTuple "MyTuple2" (error "Error in MyTuple2")
+  let MyTuple c _ = mkMyTuple "MyTuple2" (error "Error in MyTuple2")
   print c
