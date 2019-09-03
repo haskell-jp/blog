@@ -16,6 +16,6 @@ main = do
   let size = 10 ** 5
   defaultMain
     [ bench "foldl"  $ whnf (foldl  (\z x -> x : z) []) [1 .. size]
-    , bench "foldr"  $ whnf (foldr  (:)             []) [1 .. size]
+    , bench "foldr"  $ whnf (foldr  (\x z -> x : z) []) [1 .. size]
     , bench "foldl'" $ whnf (foldl' (\z x -> x : z) []) [1 .. size]
     ]
