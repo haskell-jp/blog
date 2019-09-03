@@ -1,8 +1,5 @@
 data MyTuple a b = MyTuple a b deriving Show
 
-mkMyTuple :: a -> b -> MyTuple a b
-mkMyTuple ~a ~b = MyTuple a b
-
 main :: IO ()
 main = do
   let (a, _) = ("Default tuple", error "Error in default tuple")
