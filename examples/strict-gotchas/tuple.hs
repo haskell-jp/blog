@@ -1,3 +1,5 @@
+-- The result of this example doesn't change whether with or without Strict.
+
 data MyTuple a b = MyTuple a b deriving Show
 
 main :: IO ()
