@@ -1,7 +1,7 @@
 -- The result of this example doesn't change whether with or without Strict.
 {-
-  stack exec ghc -- -O0 -rtsopts -with-rtsopts=-K1k          .\folding.hs
-  stack exec ghc -- -O0 -rtsopts -with-rtsopts=-K1k -XStrict .\folding.hs
+  stack exec ghc -- -O0 -rtsopts -with-rtsopts=-K1k          ./stackoverflow.hs
+  stack exec ghc -- -O0 -rtsopts -with-rtsopts=-K1k -XStrict ./stackoverflow.hs
 -}
 
 import Control.Exception
