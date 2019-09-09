@@ -54,7 +54,7 @@ GitLabへの移行やHadrianと呼ばれる新しいビルドシステムの導�
 
 言及された主な追加機能は以下のとおりです。
 
-- [`TypeApplications`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeApplication)という言語拡張が、型変数だけでなくカインド変数に対しても適用できるようになりました。  
+- [`TypeApplications`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeApplications)という言語拡張が、型変数だけでなくカインド変数に対しても適用できるようになりました。  
   正直に言って、個人的に使いどころがまだまだなさそうな機能ではありますが...。
 - [`ScopedTypeVariables`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ScopedTypeVariables)という言語拡張を使った場合に、パターンマッチした変数に型注釈を付けることができるようになる、という機能がありまして、これが拡張されました。  
   具体的には、従来下記のように書くことで、関数自体の型注釈にある型変数`a`と、パターンマッチした変数`x`に型注釈した`b`が等しくなるように書くことができたのを、  
