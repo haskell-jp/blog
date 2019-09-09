@@ -12,16 +12,15 @@ tags: GHC, Haskell Implementors' Workshop
 
 こんにちは。  
 今回からいくつか、「[Haskell Implementors' Workshop 2019](https://icfp19.sigplan.org/home/hiw-2019#About)」に私が先月参加した際のレポートとして、印象深い発表をテーマごとに分けた短い記事を執筆します。  
-最近公開された[GHC 8.8](https://www.haskell.org/ghc/download_ghc_8_8_1.html)の話はもちろん、未来のGHCやその他のHaskellの処理系を知るのによいイベントでしたのでその一部だけでも伝われば幸いです。
+最近公開された[GHC 8.8](https://www.haskell.org/ghc/download_ghc_8_8_1.html)の話はもちろん、未来のGHCやその他のHaskellの処理系を知るのによいイベントでしたので、その一部だけでも伝われば幸いです。
 
 # そもそもHaskell Implementors' Workshop (HIW)とは？
 
-シリーズ（？）第1回目なので、簡単HIWそのものについて紹介しておきましょう。  
+シリーズ（？）第1回目なので、簡単にHIWそのものについて紹介しておきましょう。  
 HIWは、[ICFP (International Conference on Functional Programming)](https://icfp19.sigplan.org/home)という関数型プログラミングについての国際会議に併設された、Haskellの実装者のためのワークショップです。  
-名前の通り、GHCをはじめとするHaskellの処理系<small>（あるいは、Haskellで実装された言語処理系）</small>の実装に関する発表だけでなく、かなり緩いテーマのLightning Talkの時間があったり、GHCの将来の方向性について自由に議論する時間もあります。
+名前の通り、GHCをはじめとするHaskellの処理系<small>（あるいは、Haskellで実装された言語処理系）</small>の実装に関する発表だけでなく、かなり緩いテーマのLightning Talkの時間があったり、GHCの将来の方向性について自由に議論する時間もあったりしました。
 
-それでは今回は、掲題のとおり「HIW 2019で発表された、GHC 8.8で導入された機能」を紹介します。  
-まずは「HIE files in GHC 8.8」から。
+今回はそのうち、掲題のとおり「HIW 2019で発表された、GHC 8.8で導入された機能」を紹介します。まずは「HIE files in GHC 8.8」から。
 
 # HIE files in GHC 8.8
 
@@ -66,7 +65,7 @@ GitLabへの移行やHadrianと呼ばれる新しいビルドシステムの導�
   ```
 
   さらに拡張して、関数自体の型注釈にある型変数**ではない**`Int`と、パターンマッチした変数`x`に型注釈した`b`が等しくなるように書くことができるようにした、という拡張です。  
-  あたかも型変数でパターンマッチしているかのようにですね。
+  あたかも型変数でパターンマッチしているかのようですね。
 
   ```haskell
   f :: Maybe Int -> Int
