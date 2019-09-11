@@ -1,5 +1,5 @@
 ---
-title: HIW 2019で発表された、GHCにこれから導入されるであろう機能
+title: HIW 2019で発表された、GHC 8.10に導入されるであろう機能
 subHeading: ～HIW 2019参加レポート その2～
 headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
@@ -11,12 +11,14 @@ tags: GHC, Haskell Implementors' Workshop
 ---
 
 [前回](/posts/2019/hiw-ghc8.8.html)から引き続き、[Haskell Implementors' Workshop 2019](https://icfp19.sigplan.org/home/hiw-2019#About)への参加レポートとして、私の印象に残った発表をいくつか紹介します。  
-今回は、「GHCにこれから導入されるであろう機能」です。  
-早ければGHC 8.10で導入されそうな機能を中心に紹介しましょう。
+今回は、「GHC 8.10に導入されるであろう機能」です。  
+いずれも該当するMerge Requestはmasterブランチにマージ済みなので、おそらくGHC 8.10で提供されるでしょう。
 
 ## HoleFitPlugins and the future of interactive development in GHC
 
-発表者: Matthías Páll Gissurarson *Chalmers University of Technology, Sweden*
+- 発表者: Matthías Páll Gissurarson *Chalmers University of Technology, Sweden*
+- 該当のMerge Request: [!153](https://gitlab.haskell.org/ghc/ghc/merge_requests/153)
+- 該当のGHC Proposal: なし
 
 [昨年のHaskell Symposiumでも発表](https://icfp18.sigplan.org/details/haskellsymp-2018-papers/10/Suggesting-Valid-Hole-Fits-for-Typed-Holes-Experience-Report-)されてGHC 8.6で導入された、「Valid Hole Fits」という機能のさらなる拡張について。
 
@@ -83,9 +85,11 @@ Valid Hole Fitsの検索方法をその場で微調整したい、というと�
 
 ## Visible dependent quantification
 
-発表者: Ryan Scott *Indiana University at Bloomington, USA*
+- 発表者: Ryan Scott *Indiana University at Bloomington, USA*
+- 該当のMerge Request: [!378](https://gitlab.haskell.org/ghc/ghc/merge_requests/378)
+- 該当のGHC Proposal: [0081-forall-arrow](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0081-forall-arrow.rst)
 
-GHC 8.10で実装予定の、「Visible dependent quantification」という機能の紹介です。
+タイトルのとおり、「Visible dependent quantification」という機能の紹介です。
 
 最近のバージョンのGHCiにおける`:kind`コマンドは、次のような、GHCの構文がサポートしていない構文の型注釈を出力することがあります。  
 例えば
