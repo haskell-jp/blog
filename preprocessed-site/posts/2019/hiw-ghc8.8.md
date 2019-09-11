@@ -5,7 +5,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Yuji Yamamoto
 postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
-date: September 14, 2019
+date: September 11, 2019
 tags: GHC, Haskell Implementors' Workshop
 ...
 ---
