@@ -95,11 +95,14 @@ Valid Hole Fitsの検索方法をその場で微調整したい、というと�
 例えば
 
 ```haskell
+> :set -XKindSignatures
+> :set -XPolyKinds
+> data SomeType k (a :: k)
 > :kind SomeType
 SomeType :: forall k -> k -> *
 ```
 
-`SomeType :: forall k -> k -> *`の`forall k ->`という部分です。  
+における、`SomeType :: forall k -> k -> *`の`forall k ->`という部分です。  
 現在のHaskellで`forall k`などと書くときは、必ず
 
 ```haskell
