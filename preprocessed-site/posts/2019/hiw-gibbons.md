@@ -10,7 +10,7 @@ tags: Haskell Implementors' Workshop
 ...
 ---
 
-[前回](/posts/2019/hiw-ghc8.8.html)から引き続き、[Haskell Implementors' Workshop 2019](https://icfp19.sigplan.org/home/hiw-2019#About)への参加レポートとして、私の印象に残った発表を紹介します。  
+[前回](/posts/2019/hiw-ghc-future.html)から引き続き、[Haskell Implementors' Workshop 2019](https://icfp19.sigplan.org/home/hiw-2019#About)への参加レポートとして、私の印象に残った発表を紹介します。  
 今回は、[Gibbon](http://iu-parfunc.github.io/gibbon/)という、GHC以外のHaskell<small>（の、サブセット）</small>の処理系についての発表です。
 
 # The Gibbon Compiler: Accelerating a small subset of Haskell
