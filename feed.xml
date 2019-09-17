@@ -8,8 +8,154 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2019-09-11T00:00:00Z</updated>
+    <updated>2019-09-17T00:00:00Z</updated>
     <entry>
+    <title>HIW 2019で発表された、GHC 8.10に導入されるであろう機能</title>
+    <link href="https://haskell.jp/blog/posts/2019/hiw-ghc-future.html" />
+    <id>https://haskell.jp/blog/posts/2019/hiw-ghc-future.html</id>
+    <published>2019-09-17T00:00:00Z</published>
+    <updated>2019-09-17T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><a href="/posts/2019/hiw-ghc8.8.html">前回</a>から引き続き、<a href="https://icfp19.sigplan.org/home/hiw-2019#About"><span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop 2019</span></a>への参加レポートとして、私の印象に残った発表をいくつか紹介します。<br />
+今回は、「<span class="ascii">GHC 8.10</span>に導入されるであろう機能」です。<br />
+いずれも該当する<span class="ascii">Merge Request</span>は<span class="ascii">master</span>ブランチにマージ済みなので、おそらく<span class="ascii">GHC 8.10</span>で提供されるでしょう。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#holefitplugins-and-the-future-of-interactive-development-in-ghc" title="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="ascii">HoleFitPlugins and the future of interactive development in GHC</span></a></li>
+<li><a href="#visible-dependent-quantification" title="visible-dependent-quantification"><span class="ascii">Visible dependent quantification</span></a></li>
+</ul>
+</div>
+</div>
+<h2 id="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="link-to-here-outer"><a href="#holefitplugins-and-the-future-of-interactive-development-in-ghc" title="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">HoleFitPlugins and the future of interactive development in GHC</span></h2>
+<ul>
+<li>発表者<span class="ascii">: Matthías Páll Gissurarson</span> <em><span class="ascii">Chalmers University of Technology, Sweden</span></em></li>
+<li>該当の<span class="ascii">Merge Request:</span> <a href="https://gitlab.haskell.org/ghc/ghc/merge_requests/153"><span class="ascii">!153</span></a></li>
+<li>該当の<span class="ascii">GHC Proposal:</span> なし</li>
+</ul>
+<p><a href="https://icfp18.sigplan.org/details/haskellsymp-2018-papers/10/Suggesting-Valid-Hole-Fits-for-Typed-Holes-Experience-Report-">昨年の<span class="ascii">Haskell Symposium</span>でも発表</a>されて<span class="ascii">GHC 8.6</span>で導入された、「<span class="ascii">Valid Hole Fits</span>」という機能のさらなる拡張について。</p>
+<p>まず、「<span class="ascii">Valid Hole Fits</span>」という機能について軽く紹介します<small>（詳しくは<a href="https://wataru86.github.io/slides/vhs/">こちらのスライド</a>が参考になるかと思います）</small>。<br />
+「<span class="ascii">Valid Hole Fits</span>」はアンダースコア <code>_</code>で始まる識別子を書いたとき、<span class="ascii">GHC</span>が推論した型にマッチする関数をエラーメッセージに付記することで、ユーザーがどんな式を書けばよいか、ヒントを与えてくれるものです。</p>
+<p>例えば、</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">map</span> (<span class="fu">length</span> <span class="op">.</span> _someFunc) [<span class="dt">True</span>, <span class="dt">False</span>, <span class="dt">True</span>]</a></code></pre></div>
+<p>上記のように、アンダースコア <code>_</code>で始まる識別子を書いたとき、</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">1</span><span class="op">:</span><span class="dv">16</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="op">...</span></a>
+<a class="sourceLine" id="cb2-3" title="3">      <span class="dt">Valid</span> hole fits include</a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="ot">        enumFrom ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Enum</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a]</a>
+<a class="sourceLine" id="cb2-5" title="5">          with <span class="fu">enumFrom</span> <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-6" title="6">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Enum</span>’))</a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="ot">        show ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb2-8" title="8">          with <span class="fu">show</span> <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-9" title="9">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Show</span>’))</a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="ot">        repeat ::</span> <span class="kw">forall</span> a<span class="op">.</span> a <span class="ot">-&gt;</span> [a]</a>
+<a class="sourceLine" id="cb2-11" title="11">          with <span class="fu">repeat</span> <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-12" title="12">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.List</span>’))</a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="ot">        return ::</span> <span class="kw">forall</span> (<span class="ot">m ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> m a</a>
+<a class="sourceLine" id="cb2-14" title="14">          with <span class="fu">return</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-15" title="15">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="ot">        pure ::</span> <span class="kw">forall</span> (<span class="ot">f ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> f a</a>
+<a class="sourceLine" id="cb2-17" title="17">          with <span class="fu">pure</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-18" title="18">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
+<a class="sourceLine" id="cb2-19" title="19"><span class="ot">        mempty ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span> a</a>
+<a class="sourceLine" id="cb2-20" title="20">          with <span class="fu">mempty</span> <span class="op">@</span>(<span class="dt">Bool</span> <span class="ot">-&gt;</span> [a0])</a>
+<a class="sourceLine" id="cb2-21" title="21">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a></code></pre></div>
+<p>といった具合に、アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>、実際にその型に該当する関数を、当該のスコープにおいてアクセスできる関数の中から探して教えてくれる、それが「<span class="ascii">Valid Hole Fits</span>」という機能です。</p>
+<p>今回発表された「<span class="ascii">HoleFitPlugins</span>」という機能は、名前のとおりこの「<span class="ascii">Valid Hole Fits</span>」に対するプラグイン機構です。<br />
+「<span class="ascii">Valid Hole Fits</span>」が表示する「型にマッチした関数」を探す処理を、<span class="ascii">Haskell</span>のコードで書き換えられるようにしてくれます！</p>
+<p>「そこまでする必要あるの？」という気もしてきますが、発表者曰く</p>
+<ul>
+<li><span class="ascii">Hoogle</span>をはじめ、<span class="ascii">TensorFlow</span>など<span class="ascii">GHC</span>の外部にあるものを利用して「型にマッチした関数」を探せるようにするために必要</li>
+<li><span class="ascii">GHCi</span>とこの機構を組み合わせることで、もっとインタラクティブな開発を促進したい</li>
+</ul>
+<p>という意図があるそうです。</p>
+<p>最新安定版の<span class="ascii">GHC</span>では利用できませんが、<a href="https://ghc.gitlab.haskell.org/ghc/doc/users_guide/extending_ghc.html#hole-fit-plugins">ドキュメントがこちら</a>にあるので、<span class="ascii">GHC</span>の<span class="ascii">HEAD</span><small>（<span class="ascii">master</span>ブランチで開発中のバージョン）</small>をコンパイルすれば使用できるようです。</p>
+<p>加えて発表では、<code>_</code>で始まる識別子を書く際の構文を拡張することで、どのように<span class="ascii">candidate</span>を探すか指定できるようにする、なんて機能も紹介されました<small>（ドキュメントを読む限りこの機能はまだ<span class="ascii">HEAD</span>に入ってない？）</small>。<br />
+例えば、<span class="ascii">Hoogle</span>を使って<span class="ascii">Valid Hole Fits</span>を探したいとき、次のように書くことで検索対象を<code>Control.Applicative</code>に限定する、といったことをできるようしてくれます。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">g ::</span> [a] <span class="ot">-&gt;</span> [[a]]</a>
+<a class="sourceLine" id="cb3-2" title="2">g <span class="ot">=</span> _{hoogleLookup <span class="st">&quot;+Control.Applicative&quot;</span>}</a></code></pre></div>
+<p><span class="ascii">Valid Hole Fits</span>の検索方法をその場で微調整したい、というときに使うものですね。</p>
+<h2 id="visible-dependent-quantification"><span class="link-to-here-outer"><a href="#visible-dependent-quantification" title="visible-dependent-quantification"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Visible dependent quantification</span></h2>
+<ul>
+<li>発表者<span class="ascii">: Ryan Scott</span> <em><span class="ascii">Indiana University at Bloomington, USA</span></em></li>
+<li>該当の<span class="ascii">Merge Request:</span> <a href="https://gitlab.haskell.org/ghc/ghc/merge_requests/378"><span class="ascii">!378</span></a></li>
+<li>該当の<span class="ascii">GHC Proposal:</span> <a href="https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0081-forall-arrow.rst"><span class="ascii">0081-forall-arrow</span></a></li>
+</ul>
+<p>タイトルのとおり、「<span class="ascii">Visible dependent quantification</span>」という機能の紹介です。</p>
+<p>最近のバージョンの<span class="ascii">GHCi</span>における<code>:kind</code>コマンドは、次のような、<span class="ascii">GHC</span>がサポートしていない構文の型注釈を出力することがあります。<br />
+例えば</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XKindSignatures</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XPolyKinds</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">SomeType</span> k (<span class="ot">a ::</span> k)</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="op">&gt;</span> <span class="op">:</span>kind <span class="dt">SomeType</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
+<p>における、<code>SomeType :: forall k -&gt; k -&gt; *</code>の<code>forall k -&gt;</code>という部分です。<br />
+現在の<span class="ascii">Haskell</span>で<code>forall k</code>などと書くときは、必ず</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k<span class="op">.</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
+<p>といった具合に、ピリオドで区切った構文になります。<br />
+ところが先ほどの<code>:kind</code>の出力では、<code>forall k -&gt;</code>とあるとおり、<code>forall k</code>に<small>（型ではなく、カインドとしての）</small>関数を表す<code>-&gt;</code>が使われています。<br />
+「<span class="ascii">Visible dependent quantification</span>」はまさにこれを、<code>:kind</code>コマンドによって出力される構文だけではなく、ユーザーが直接書ける構文にしよう、というものです。 <span class="ascii">GHC</span>に「依存型」という機能を加える「<span class="ascii">Dependent Haskell</span>」にも必要な機能だそうです。<br />
+私自身はこの機能を使う機会がちょっと思い浮かばなかったので省略しますが、より詳しい解説は発表者である<a href="https://ryanglscott.github.io/2019/03/15/visible-dependent-quantification-in-haskell/"><span class="ascii">Ryan</span>自身による記事（英語）</a>をご覧ください。何が「<span class="ascii">Visible</span>」でどう「<span class="ascii">Dependent</span>」なのかわかるはずです。</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>復習<span class="ascii">:</span> この、「アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で」エラーメッセージにおいて<code>Found hole: _someFunc :: Bool -&gt; [a0]</code>と教えてくれるのが「<span class="ascii">Type Hole</span>」という機能なのでした。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2019/hiw-ghc8.8.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、GHC 8.8で導入された機能</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>HIW 2019で発表された、GHC 8.8で導入された機能</title>
     <link href="https://haskell.jp/blog/posts/2019/hiw-ghc8.8.html" />
     <id>https://haskell.jp/blog/posts/2019/hiw-ghc8.8.html</id>
@@ -123,6 +269,9 @@ here</span></a></span>とりあえず今回はここまで</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2019/hiw-ghc-future.html" lang="ja">HIW 2019で発表された、GHC 8.10に導入されるであろう機能</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -1915,191 +2064,6 @@ Failed, no modules loaded.</code></pre>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2018/haskell-day-2018.html" style="margin-left: auto;" lang="ja">Haskell Day 2018 開催レポート</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>Haskell Day 2018 開催レポート</title>
-    <link href="https://haskell.jp/blog/posts/2018/haskell-day-2018.html" />
-    <id>https://haskell.jp/blog/posts/2018/haskell-day-2018.html</id>
-    <published>2018-11-20T00:00:00Z</published>
-    <updated>2018-11-20T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <p>こんにちは<span class="ascii">kakkun61</span>こと岡本和樹です。</p>
-<p>去る<span class="ascii">11</span>月<span class="ascii">10</span>日に<span class="ascii">Haskell Day 2018</span>が開催されましたので、そのイベントレポートをお送りします。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#haskell-day-2018とは" title="haskell-day-2018とは"><span class="ascii">Haskell Day 2018</span>とは</a></li>
-<li><a href="#セッション" title="セッション">セッション</a>
-<ul>
-<li><a href="#作りながら学ぶhaskell入門を使ったハンズオン" title="作りながら学ぶhaskell入門を使ったハンズオン">「作りながら学ぶ<span class="ascii">Haskell</span>入門」を使ったハンズオン</a></li>
-<li><a href="#haskellを導入した話とhrrの紹介" title="haskellを導入した話とhrrの紹介"><span class="ascii">Haskell</span>を導入した話と<span class="ascii">HRR</span>の紹介</a></li>
-<li><a href="#servantで実現する高速かつ安全なapi開発" title="servantで実現する高速かつ安全なapi開発"><span class="ascii">Servant</span>で実現する高速かつ安全な<span class="ascii">API</span>開発</a></li>
-<li><a href="#並列並行言語haskell" title="並列並行言語haskell">並列並行言語<span class="ascii">Haskell</span></a></li>
-<li><a href="#dhall-haskellの新たなキラーアプリ" title="dhall-haskellの新たなキラーアプリ"><span class="ascii">Dhall: Haskell</span>の新たなキラーアプリ</a></li>
-<li><a href="#semigroupとはmonoid環" title="semigroupとはmonoid環"><span class="ascii">Semigroup</span>とは？<span class="ascii">Monoid</span>？環？</a></li>
-<li><a href="#haskellでcli" title="haskellでcli"><span class="ascii">Haskell</span>で<span class="ascii">CLI</span></a></li>
-<li><a href="#gloss-動かして遊んで学ぶhaskell" title="gloss-動かして遊んで学ぶhaskell"><span class="ascii">gloss:</span> 動かして遊んで学ぶ<span class="ascii">Haskell</span></a></li>
-<li><a href="#lisztあるいは永続データ構造を真に永続させる方法" title="lisztあるいは永続データ構造を真に永続させる方法"><span class="ascii">Liszt</span>あるいは永続データ構造を真に永続させる方法</a></li>
-<li><a href="#懇親会" title="懇親会">懇親会</a></li>
-</ul></li>
-<li><a href="#アンケート" title="アンケート">アンケート</a>
-<ul>
-<li><a href="#haskellを始めてどれくらい経ちますか" title="haskellを始めてどれくらい経ちますか"><span class="ascii">Haskell</span>を始めてどれくらい経ちますか？</a></li>
-<li><a href="#読んだことのある日本語のhaskell本は" title="読んだことのある日本語のhaskell本は">読んだことのある日本語の<span class="ascii">Haskell</span>本は？</a></li>
-</ul></li>
-<li><a href="#終わりに" title="終わりに">終わりに</a></li>
-</ul>
-</div>
-</div>
-<h1 id="haskell-day-2018とは"><span class="link-to-here-outer"><a href="#haskell-day-2018とは" title="haskell-day-2018とは"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell Day 2018</span>とは</h1>
-<p><img src="../../img/2018/haskell-day-2018/connpass.png" alt="Connpass" style="width: 100%; max-width: 600px;"></p>
-<p><a href="https://haskell-jp.connpass.com/event/92617/"><span class="ascii">https://haskell-jp.connpass.com/event/92617/</span></a></p>
-<p><span class="ascii">Haskell Day</span>は<span class="ascii">2012</span>年<span class="ascii">2016</span>年と不定期に開催しており今回で<span class="ascii">3</span>度目となります。</p>
-<p><span class="ascii">2018</span>年の今回は「<span class="ascii">Haskell</span>ちょっと興味あるからちょっとできるまで」というテーマで開催されました。</p>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1173.jpg" alt="受付" style="width: 100%; max-width: 600px;"></p>
-<h1 id="セッション"><span class="link-to-here-outer"><a href="#セッション" title="セッション"><span class="link-to-here">Link to<br />
-here</span></a></span>セッション</h1>
-<h2 id="作りながら学ぶhaskell入門を使ったハンズオン"><span class="link-to-here-outer"><a href="#作りながら学ぶhaskell入門を使ったハンズオン" title="作りながら学ぶhaskell入門を使ったハンズオン"><span class="link-to-here">Link to<br />
-here</span></a></span>「作りながら学ぶ<span class="ascii">Haskell</span>入門」を使ったハンズオン</h2>
-<p>開発中の対話的チュートリアル<a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell">「作りながら学ぶ<span class="ascii">Haskell</span>入門」</a>を使って、参加者の皆さんにもくもくと入門していただきました。「作りながら学ぶ<span class="ascii">Haskell</span>入門」では、簡単な課題を解くことで、<span class="ascii">Haskell</span>の初歩的な使い方を学びつつ、学んだ知識をその場でテストできます。</p>
-<p><a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell"><span class="ascii">https://github.com/haskell-jp/makeMistakesToLearnHaskell</span></a></p>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1176.jpg" alt="ハンズオン" style="width: 100%; max-width: 600px;"></p>
-<hr />
-<h2 id="haskellを導入した話とhrrの紹介"><span class="link-to-here-outer"><a href="#haskellを導入した話とhrrの紹介" title="haskellを導入した話とhrrの紹介"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span>を導入した話と<span class="ascii">HRR</span>の紹介</h2>
-<p><a href="https://htmlpreview.github.io/?https://github.com/khibino/haskell-day-2018/blob/master/presentation.html"><img src="../../img/2018/haskell-day-2018/khibino.png" alt="Haskell を導入した話と HRR の紹介" style="width: 100%; max-width: 600px;"></a></p>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1177.jpg" alt="khibino" style="width: 100%; max-width: 600px;"></p>
-<hr />
-<h2 id="servantで実現する高速かつ安全なapi開発"><span class="link-to-here-outer"><a href="#servantで実現する高速かつ安全なapi開発" title="servantで実現する高速かつ安全なapi開発"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Servant</span>で実現する高速かつ安全な<span class="ascii">API</span>開発</h2>
-<script async class="speakerdeck-embed" data-id="413d120b6bee433c985c1d2b3395ff0e" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1193.jpg" alt="nakaji-dayo" style="width: 100%; max-width: 600px;"></p>
-<hr />
-<h2 id="並列並行言語haskell"><span class="link-to-here-outer"><a href="#並列並行言語haskell" title="並列並行言語haskell"><span class="link-to-here">Link to<br />
-here</span></a></span>並列並行言語<span class="ascii">Haskell</span></h2>
-<script async class="speakerdeck-embed" data-id="07d92af9d7aa40bca6cc3959d3f56b28" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1178.jpg" alt="syocy" style="width: 100%; max-width: 600px;"></p>
-<hr />
-<h2 id="dhall-haskellの新たなキラーアプリ"><span class="link-to-here-outer"><a href="#dhall-haskellの新たなキラーアプリ" title="dhall-haskellの新たなキラーアプリ"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Dhall: Haskell</span>の新たなキラーアプリ</h2>
-<script async class="speakerdeck-embed" data-id="7a16b1e09882433ca2dac9a6a81eb236" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
-<hr />
-<h2 id="semigroupとはmonoid環"><span class="link-to-here-outer"><a href="#semigroupとはmonoid環" title="semigroupとはmonoid環"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Semigroup</span>とは？<span class="ascii">Monoid</span>？環？</h2>
-<p><a href="https://aiya000.github.io/Maid/haskell-day-2018-algebra/#/"><img src="../../img/2018/haskell-day-2018/aiya000.png" alt="Semigroup とは？Monoid？環？" style="width: 100%; max-width: 600px;"></a></p>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1179.jpg" alt="aiya000" style="width: 100%; max-width: 600px;"></p>
-<hr />
-<h2 id="haskellでcli"><span class="link-to-here-outer"><a href="#haskellでcli" title="haskellでcli"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span>で<span class="ascii">CLI</span></h2>
-<iframe src="//www.slideshare.net/slideshow/embed_code/key/FQE1QxbCST8kYi" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen>
-</iframe>
-<div style="margin-bottom:5px">
-<strong> <a href="//www.slideshare.net/noob00/haskell-cli" title="Haskell で CLI" target="_blank"><span class="ascii">Haskell</span> で <span class="ascii">CLI</span></a> </strong> <span class="ascii">from</span> <strong><a href="https://www.slideshare.net/noob00" target="_blank"><span class="ascii">Nobutada Matsubara</span></a></strong>
-</div>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1183.jpg" alt="matsubara0507" style="width: 100%; max-width: 600px;"></p>
-<hr />
-<h2 id="gloss-動かして遊んで学ぶhaskell"><span class="link-to-here-outer"><a href="#gloss-動かして遊んで学ぶhaskell" title="gloss-動かして遊んで学ぶhaskell"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">gloss:</span> 動かして遊んで学ぶ<span class="ascii">Haskell</span></h2>
-<p><a href="https://qiita.com/lotz/items/bdb04c771efc8919b79c"><img src="../../img/2018/haskell-day-2018/lotz.png" alt="動かして遊んで学ぶ Haskell" style="width: 100%; max-width: 600px;"></a></p>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1186.jpg" alt="lotz" style="width: 100%; max-width: 600px;"></p>
-<hr />
-<h2 id="lisztあるいは永続データ構造を真に永続させる方法"><span class="link-to-here-outer"><a href="#lisztあるいは永続データ構造を真に永続させる方法" title="lisztあるいは永続データ構造を真に永続させる方法"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Liszt</span>あるいは永続データ構造を真に永続させる方法</h2>
-<p><a href="https://shared-assets.adobe.com/link/353213c2-281a-4a53-6cff-a52bff1314c1"><img src="../../img/2018/haskell-day-2018/fumieval.png" alt="Liszt あるいは永続データ構造を真に永続させる方法" style="width: 100%; max-width: 600px; border: solid 1px black;"></a></p>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1191.jpg" alt="fumieval" style="width: 100%; max-width: 600px;"></p>
-<h2 id="懇親会"><span class="link-to-here-outer"><a href="#懇親会" title="懇親会"><span class="link-to-here">Link to<br />
-here</span></a></span>懇親会</h2>
-<p>スポンサーとして<span class="ascii">IIJ</span>に飲食物の提供をしていただきました。</p>
-<p><img src="../../img/2018/haskell-day-2018/_DSC1194.jpg" alt="懇親会" style="width: 100%; max-width: 600px;"></p>
-<h1 id="アンケート"><span class="link-to-here-outer"><a href="#アンケート" title="アンケート"><span class="link-to-here">Link to<br />
-here</span></a></span>アンケート</h1>
-<p>約<span class="ascii">110</span>名の方が出席し約<span class="ascii">40</span>名の方が回答してくださいました。</p>
-<p>参加できなくなった約<span class="ascii">40</span>名の方は事前のキャンセルをよろしくお願いします。</p>
-<h2 id="haskellを始めてどれくらい経ちますか"><span class="link-to-here-outer"><a href="#haskellを始めてどれくらい経ちますか" title="haskellを始めてどれくらい経ちますか"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span>を始めてどれくらい経ちますか？</h2>
-<p><img src="../../img/2018/haskell-day-2018/questionnaire1.png" alt="Haskell を始めてどれくらい経ちますか？" style="width: 100%; max-width: 600px;"></p>
-<p>ここ<span class="ascii">1</span>年以内に始めた方が全体の<span class="ascii">21.4</span>％、<span class="ascii">1</span>年以上<span class="ascii">5</span>年未満前に始めた方がちょうど半分程度となりました。<span class="ascii">1</span>年以上<span class="ascii">5</span>年未満前に始めた方の<span class="ascii">57%</span>の方は今でも<span class="ascii">Haskell</span>を使い続けているようです。</p>
-<p><span class="ascii">5</span>年以上前に始めた方は全体の<span class="ascii">1/4</span>となりました。</p>
-<h2 id="読んだことのある日本語のhaskell本は"><span class="link-to-here-outer"><a href="#読んだことのある日本語のhaskell本は" title="読んだことのある日本語のhaskell本は"><span class="link-to-here">Link to<br />
-here</span></a></span>読んだことのある日本語の<span class="ascii">Haskell</span>本は？</h2>
-<p><img src="../../img/2018/haskell-day-2018/questionnaire2.png" alt="Haskell を始めてどれくらい経ちますか？" style="width: 100%; max-width: 600px;"></p>
-<p>項目は下記となります。</p>
-<ul>
-<li>すごい <span class="ascii">Haskell</span> たのしく学ぼう！</li>
-<li>プログラミング <span class="ascii">Haskell</span></li>
-<li><span class="ascii">Haskell</span> による並列・並行プログラミング</li>
-<li>関数プログラミング実践入門 ── 完結で正しいコードを書くために</li>
-<li>関数プログラミング入門 ── <span class="ascii">Haskell</span> で学ぶ原理と技法</li>
-<li><span class="ascii">Real World Haskell</span></li>
-<li>関数プログラミング ── 珠玉のアルゴリズムデザイン</li>
-<li>簡約！λカ娘</li>
-<li><span class="ascii">Haskell</span> ── 教養としての関数型プログラミング</li>
-<li>その他（自由記述）</li>
-</ul>
-<p>この項目にはアンケートの途中で追加したものもあるので、結果があまり厳密でないことに注意してください。</p>
-<p>その他の選択肢で自由記述では次の票がありました。</p>
-<ul>
-<li><span class="ascii">Haskell</span>入門 <span class="ascii">10</span>票</li>
-<li>ふつうの<span class="ascii">Haskell 1</span>票</li>
-<li><span class="ascii">Haskell</span>による関数プログラミングの思考法 <span class="ascii">1</span>票</li>
-</ul>
-<h1 id="終わりに"><span class="link-to-here-outer"><a href="#終わりに" title="終わりに"><span class="link-to-here">Link to<br />
-here</span></a></span>終わりに</h1>
-<p>参加者の発表者、スタッフのみなさんのおかげで無事開催することができました。ありがとうございました。</p>
-<p>今後とも<span class="ascii">Haskell-jp</span>をよろしくお願いします。</p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2018/super-precure-monad.html" lang="ja">モナドの新しい力！スーパープリキュアモナド！</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2018/tech-book-fest-5.html" style="margin-left: auto;" lang="ja">技術書典 5 での Haskell 関連サークルのまとめ</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>

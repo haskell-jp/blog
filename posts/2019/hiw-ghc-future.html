@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HIW 2019で発表された、GHC 8.10に導入されるであろう機能">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="HIW 2019で発表された、GHC 8.10に導入されるであろう機能 - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/hiw-ghc-future.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---[前回](/posts/2019/hiw-ghc8.8.html)から引き続き、[Haskell Implementors' Workshop 2019](https://icfp19.sigplan.org/home/hiw-2019#About)への参加レポートとして、私の印象に残った発表をいくつか紹介します。  今回は、「GHC 8.10に導入されるであろう機能」です。  いず" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>HIW 2019で発表された、GHC 8.10に導入されるであろう機能 - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>HIW 2019で発表された、GHC 8.10に導入されるであろう機能</h1>
+                      <h2 class="subheading">～HIW 2019参加レポート その2～</h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on September 17, 2019</span><span class="meta">Tags: GHC, Haskell Implementors' Workshop</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><a href="../../posts/2019/hiw-ghc8.8.html">前回</a>から引き続き、<a href="https://icfp19.sigplan.org/home/hiw-2019#About"><span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop 2019</span></a>への参加レポートとして、私の印象に残った発表をいくつか紹介します。<br />
+今回は、「<span class="ascii">GHC 8.10</span>に導入されるであろう機能」です。<br />
+いずれも該当する<span class="ascii">Merge Request</span>は<span class="ascii">master</span>ブランチにマージ済みなので、おそらく<span class="ascii">GHC 8.10</span>で提供されるでしょう。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#holefitplugins-and-the-future-of-interactive-development-in-ghc" title="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="ascii">HoleFitPlugins and the future of interactive development in GHC</span></a></li>
+<li><a href="#visible-dependent-quantification" title="visible-dependent-quantification"><span class="ascii">Visible dependent quantification</span></a></li>
+</ul>
+</div>
+</div>
+<h2 id="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="link-to-here-outer"><a href="#holefitplugins-and-the-future-of-interactive-development-in-ghc" title="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">HoleFitPlugins and the future of interactive development in GHC</span></h2>
+<ul>
+<li>発表者<span class="ascii">: Matthías Páll Gissurarson</span> <em><span class="ascii">Chalmers University of Technology, Sweden</span></em></li>
+<li>該当の<span class="ascii">Merge Request:</span> <a href="https://gitlab.haskell.org/ghc/ghc/merge_requests/153"><span class="ascii">!153</span></a></li>
+<li>該当の<span class="ascii">GHC Proposal:</span> なし</li>
+</ul>
+<p><a href="https://icfp18.sigplan.org/details/haskellsymp-2018-papers/10/Suggesting-Valid-Hole-Fits-for-Typed-Holes-Experience-Report-">昨年の<span class="ascii">Haskell Symposium</span>でも発表</a>されて<span class="ascii">GHC 8.6</span>で導入された、「<span class="ascii">Valid Hole Fits</span>」という機能のさらなる拡張について。</p>
+<p>まず、「<span class="ascii">Valid Hole Fits</span>」という機能について軽く紹介します<small>（詳しくは<a href="https://wataru86.github.io/slides/vhs/">こちらのスライド</a>が参考になるかと思います）</small>。<br />
+「<span class="ascii">Valid Hole Fits</span>」はアンダースコア <code>_</code>で始まる識別子を書いたとき、<span class="ascii">GHC</span>が推論した型にマッチする関数をエラーメッセージに付記することで、ユーザーがどんな式を書けばよいか、ヒントを与えてくれるものです。</p>
+<p>例えば、</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">map</span> (<span class="fu">length</span> <span class="op">.</span> _someFunc) [<span class="dt">True</span>, <span class="dt">False</span>, <span class="dt">True</span>]</a></code></pre></div>
+<p>上記のように、アンダースコア <code>_</code>で始まる識別子を書いたとき、</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">1</span><span class="op">:</span><span class="dv">16</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="op">...</span></a>
+<a class="sourceLine" id="cb2-3" title="3">      <span class="dt">Valid</span> hole fits include</a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="ot">        enumFrom ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Enum</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a]</a>
+<a class="sourceLine" id="cb2-5" title="5">          with <span class="fu">enumFrom</span> <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-6" title="6">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Enum</span>’))</a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="ot">        show ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb2-8" title="8">          with <span class="fu">show</span> <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-9" title="9">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Show</span>’))</a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="ot">        repeat ::</span> <span class="kw">forall</span> a<span class="op">.</span> a <span class="ot">-&gt;</span> [a]</a>
+<a class="sourceLine" id="cb2-11" title="11">          with <span class="fu">repeat</span> <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-12" title="12">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.List</span>’))</a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="ot">        return ::</span> <span class="kw">forall</span> (<span class="ot">m ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> m a</a>
+<a class="sourceLine" id="cb2-14" title="14">          with <span class="fu">return</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-15" title="15">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="ot">        pure ::</span> <span class="kw">forall</span> (<span class="ot">f ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> f a</a>
+<a class="sourceLine" id="cb2-17" title="17">          with <span class="fu">pure</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-18" title="18">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
+<a class="sourceLine" id="cb2-19" title="19"><span class="ot">        mempty ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span> a</a>
+<a class="sourceLine" id="cb2-20" title="20">          with <span class="fu">mempty</span> <span class="op">@</span>(<span class="dt">Bool</span> <span class="ot">-&gt;</span> [a0])</a>
+<a class="sourceLine" id="cb2-21" title="21">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a></code></pre></div>
+<p>といった具合に、アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>、実際にその型に該当する関数を、当該のスコープにおいてアクセスできる関数の中から探して教えてくれる、それが「<span class="ascii">Valid Hole Fits</span>」という機能です。</p>
+<p>今回発表された「<span class="ascii">HoleFitPlugins</span>」という機能は、名前のとおりこの「<span class="ascii">Valid Hole Fits</span>」に対するプラグイン機構です。<br />
+「<span class="ascii">Valid Hole Fits</span>」が表示する「型にマッチした関数」を探す処理を、<span class="ascii">Haskell</span>のコードで書き換えられるようにしてくれます！</p>
+<p>「そこまでする必要あるの？」という気もしてきますが、発表者曰く</p>
+<ul>
+<li><span class="ascii">Hoogle</span>をはじめ、<span class="ascii">TensorFlow</span>など<span class="ascii">GHC</span>の外部にあるものを利用して「型にマッチした関数」を探せるようにするために必要</li>
+<li><span class="ascii">GHCi</span>とこの機構を組み合わせることで、もっとインタラクティブな開発を促進したい</li>
+</ul>
+<p>という意図があるそうです。</p>
+<p>最新安定版の<span class="ascii">GHC</span>では利用できませんが、<a href="https://ghc.gitlab.haskell.org/ghc/doc/users_guide/extending_ghc.html#hole-fit-plugins">ドキュメントがこちら</a>にあるので、<span class="ascii">GHC</span>の<span class="ascii">HEAD</span><small>（<span class="ascii">master</span>ブランチで開発中のバージョン）</small>をコンパイルすれば使用できるようです。</p>
+<p>加えて発表では、<code>_</code>で始まる識別子を書く際の構文を拡張することで、どのように<span class="ascii">candidate</span>を探すか指定できるようにする、なんて機能も紹介されました<small>（ドキュメントを読む限りこの機能はまだ<span class="ascii">HEAD</span>に入ってない？）</small>。<br />
+例えば、<span class="ascii">Hoogle</span>を使って<span class="ascii">Valid Hole Fits</span>を探したいとき、次のように書くことで検索対象を<code>Control.Applicative</code>に限定する、といったことをできるようしてくれます。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">g ::</span> [a] <span class="ot">-&gt;</span> [[a]]</a>
+<a class="sourceLine" id="cb3-2" title="2">g <span class="ot">=</span> _{hoogleLookup <span class="st">&quot;+Control.Applicative&quot;</span>}</a></code></pre></div>
+<p><span class="ascii">Valid Hole Fits</span>の検索方法をその場で微調整したい、というときに使うものですね。</p>
+<h2 id="visible-dependent-quantification"><span class="link-to-here-outer"><a href="#visible-dependent-quantification" title="visible-dependent-quantification"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Visible dependent quantification</span></h2>
+<ul>
+<li>発表者<span class="ascii">: Ryan Scott</span> <em><span class="ascii">Indiana University at Bloomington, USA</span></em></li>
+<li>該当の<span class="ascii">Merge Request:</span> <a href="https://gitlab.haskell.org/ghc/ghc/merge_requests/378"><span class="ascii">!378</span></a></li>
+<li>該当の<span class="ascii">GHC Proposal:</span> <a href="https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0081-forall-arrow.rst"><span class="ascii">0081-forall-arrow</span></a></li>
+</ul>
+<p>タイトルのとおり、「<span class="ascii">Visible dependent quantification</span>」という機能の紹介です。</p>
+<p>最近のバージョンの<span class="ascii">GHCi</span>における<code>:kind</code>コマンドは、次のような、<span class="ascii">GHC</span>がサポートしていない構文の型注釈を出力することがあります。<br />
+例えば</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XKindSignatures</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XPolyKinds</span></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">SomeType</span> k (<span class="ot">a ::</span> k)</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="op">&gt;</span> <span class="op">:</span>kind <span class="dt">SomeType</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
+<p>における、<code>SomeType :: forall k -&gt; k -&gt; *</code>の<code>forall k -&gt;</code>という部分です。<br />
+現在の<span class="ascii">Haskell</span>で<code>forall k</code>などと書くときは、必ず</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k<span class="op">.</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
+<p>といった具合に、ピリオドで区切った構文になります。<br />
+ところが先ほどの<code>:kind</code>の出力では、<code>forall k -&gt;</code>とあるとおり、<code>forall k</code>に<small>（型ではなく、カインドとしての）</small>関数を表す<code>-&gt;</code>が使われています。<br />
+「<span class="ascii">Visible dependent quantification</span>」はまさにこれを、<code>:kind</code>コマンドによって出力される構文だけではなく、ユーザーが直接書ける構文にしよう、というものです。 <span class="ascii">GHC</span>に「依存型」という機能を加える「<span class="ascii">Dependent Haskell</span>」にも必要な機能だそうです。<br />
+私自身はこの機能を使う機会がちょっと思い浮かばなかったので省略しますが、より詳しい解説は発表者である<a href="https://ryanglscott.github.io/2019/03/15/visible-dependent-quantification-in-haskell/"><span class="ascii">Ryan</span>自身による記事（英語）</a>をご覧ください。何が「<span class="ascii">Visible</span>」でどう「<span class="ascii">Dependent</span>」なのかわかるはずです。</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>復習<span class="ascii">:</span> この、「アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で」エラーメッセージにおいて<code>Found hole: _someFunc :: Bool -&gt; [a0]</code>と教えてくれるのが「<span class="ascii">Type Hole</span>」という機能なのでした。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/hiw-ghc8.8.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、GHC 8.8で導入された機能</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
