@@ -15,7 +15,7 @@ tags: Haskell Implementors' Workshop
 
 # The Gibbon Compiler: Accelerating a small subset of Haskell
 
-Ryan R. Newton *Indiana University*, Michael Vollmer *Indiana University, USA*, Chaitanya Koparkar *Indiana University*
+発表者: Ryan R. Newton *Indiana University*, Michael Vollmer *Indiana University, USA*, Chaitanya Koparkar *Indiana University*
 
 Gibbonは最適化の手法を研究するために作られたコンパイラーです。  
 具体的には、我々<small>（特にHaskeller）</small>がよく使う、木構造全体に対する処理の最適化です。
