@@ -23,7 +23,7 @@ tags: GHC, Haskell Implementors' Workshop
 [昨年のHaskell Symposiumでも発表](https://icfp18.sigplan.org/details/haskellsymp-2018-papers/10/Suggesting-Valid-Hole-Fits-for-Typed-Holes-Experience-Report-)されてGHC 8.6で導入された、「Valid Hole Fits」という機能のさらなる拡張について。
 
 まず、「Valid Hole Fits」という機能について軽く紹介します<small>（詳しくは[こちらのスライド](https://wataru86.github.io/slides/vhs/)が参考になるかと思います）</small>。  
-「Valid Hole Fits」はアンダースコア `_`で始まる識別子を書いたとき、エラーメッセージにGHCが推論した型にマッチする関数を付記することで、ユーザーがどんな式を書けばよいか、ヒントを与えてくれるものです。
+「Valid Hole Fits」はアンダースコア `_`で始まる識別子を書いたとき、GHCが推論した型にマッチする関数をエラーメッセージに付記することで、ユーザーがどんな式を書けばよいか、ヒントを与えてくれるものです。
 
 例えば、
 
