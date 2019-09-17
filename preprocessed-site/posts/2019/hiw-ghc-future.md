@@ -76,7 +76,7 @@ map (length . _someFunc) [True, False, True]
 加えて発表では、`_`で始まる識別子を書く際の構文を拡張することで、どのようにcandidateを探すか指定できるようにする、なんて機能も紹介されました<small>（ドキュメントを読む限りこの機能はまだHEADに入ってない？）</small>。  
 例えば、Hoogleを使ってValid Hole Fitsを探したいとき、次のように書くことで検索対象を`Control.Applicative`に限定する、といったことをできるようしてくれます。
 
-```hskell
+```haskell
 g :: [a] -> [[a]]
 g = _{hoogleLookup "+Control.Applicative"}
 ```
