@@ -59,7 +59,7 @@ map (length . _someFunc) [True, False, True]
 
 といった具合に、アンダースコアで始まる識別子`_someFunc`の型を`Bool -> [a0]`と推論した上で[^type-hole]、実際にその型に該当する関数を、当該のスコープにおいてアクセスできる関数の中から探して教えてくれる、それが「Valid Hole Fits」という機能です。
 
-[^type-hole]: 復習: この、「アンダースコアで始まる識別子、`_someFunc`の型を`Bool -> [a0]`と推論した上で」エラーメッセージにおいて`Found hole: _someFunc :: Bool -> [a0]`と教えてくれるのが「Type Hole」という機能なのでした。
+[^type-hole]: 復習: この、「アンダースコアで始まる識別子`_someFunc`の型を`Bool -> [a0]`と推論した上で」エラーメッセージにおいて`Found hole: _someFunc :: Bool -> [a0]`と教えてくれるのが「Type Hole」という機能なのでした。
 
 今回発表された「HoleFitPlugins」という機能は、名前のとおりこの「Valid Hole Fits」に対するプラグイン機構です。  
 「Valid Hole Fits」が表示する「型にマッチした関数」を探す処理を、Haskellのコードで書き換えられるようにしてくれます！
