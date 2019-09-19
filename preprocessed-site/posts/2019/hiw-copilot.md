@@ -28,9 +28,9 @@ Haskell製の内部DSLからC言語のソースコードを生成する、[Copil
 
 # Copilotを試してみる
 
-- ℹ️実際に使用したコードは[Haskell-jp BlogのGitHubのリポジトリー](https://github.com/haskell-jp/blog/tree/master/examples/2019/hiw-copilot)にあります。
-- ℹ️使用したcopilotパッケージのバージョンは、3.0.1です。
-- ℹ️サンプルコードの解説については、notogawaさんのアドバイスも参考になりました<small>（[Haskell-jpのslack-logではこのあたり](https://haskell.jp/slack-log/html/C4M4TT8JJ/46.html#message-1554858057.072700)。執筆時点でCSSが当たってないため読みづらいですが一応）</small>。ありがとうございます！
+- ℹ️ 実際に使用したコードは[Haskell-jp BlogのGitHubのリポジトリー](https://github.com/haskell-jp/blog/tree/master/examples/2019/hiw-copilot)にあります。
+- ℹ️ 使用したcopilotパッケージのバージョンは、3.0.1です。
+- ℹ️ サンプルコードの解説については、notogawaさんのアドバイスも参考になりました<small>（[Haskell-jpのslack-logではこのあたり](https://haskell.jp/slack-log/html/C4M4TT8JJ/46.html#message-1554858057.072700)。執筆時点でCSSが当たってないため読みづらいですが一応）</small>。ありがとうございます！
 
 せっかくなんでCopilotを試してみましょう。  
 公式サイトにあったサンプルコードそのまんまですが、生成されるCのコードを眺めてみます。
@@ -124,12 +124,12 @@ void step(void) {
 }
 ```
 
-先ほど`Stream`型の値として定義した値のうち、`temp`は、`temperature`というグローバル変数と、それを一時的に保存する`temperature_cpy`という二つの変数に翻訳されました。  
+先ほど`Stream`として定義した値のうち、`temp`は、`temperature`というグローバル変数と、それを一時的に保存する`temperature_cpy`という二つの変数に翻訳されました。  
 `spec`において`trigger`という関数で列挙した「どのセンサーから信号を受け取って、どんな条件を満たした場合にどの処理を実行するか」というルールは、`step`という関数に現れたようです。  
-この関数を利用する側では、`heaton`関数と`heatoff`関数を別途定義した上で、`temperature`にセンサーから受け取った値を代入して`step`を呼ぶ処理を無限ループで繰り返し実行することで、`temperature`の値が条件に一致したときに、`heaton`関数と`heatoff`関数を実行してハードウェアの制御ができるのでしょう。  
+この関数を利用する側では、`heaton`関数と`heatoff`関数を別途定義した上で、`temperature`にセンサーから受け取った値を代入して`step`を呼ぶことによって、`temperature`の値が条件に一致したとき、`heaton`関数と`heatoff`関数を実行してハードウェアの制御ができるのでしょう。  
 Haskell側で定義したもう一つの`Stream`、`ctemp`は、`heaton_guard`、`heaton_arg0`、`heatoff_guard`、`heatoff_arg0`、それぞれの関数に書かれた、`temperature_cpy`の値を変換する式に現れているようです。
 
-正直なところこの程度であれば直接Cで書いた方が余計なカッコもないし読みやすそうではあります。  
+正直なところこの程度であれば、直接Cで書いた方が余計なカッコもないし読みやすそうではあります。  
 `temp`を`ctemp`に変換する式`(150.0 / 255.0) - 50.0`が変換後のソースコードでは冗長に適用されていることから、もっと最適化できそうですし。  
 とはいえ、わざわざDSLを作ったからには、より複雑で、Haskellでなければ書いてられないようなケースが、Copilotの開発者の現場ではあるのでしょう<small>（なんせNASAの方も関わっているぐらいですから！）</small>。  
 詳しいユースケースや、ビルド時のフローといった運用方法を聞きたいところですね。
