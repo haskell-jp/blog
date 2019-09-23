@@ -12,12 +12,5 @@ main :: IO ()
 main = do
   let size = 5000
   putStrLn "BEGIN"
-
-  evaluate $ foldr (:) [] [1 .. size]
-  putStrLn "DONE: foldr 1"
-
   evaluate $ foldl (\z x -> x : z) [] [1 .. size]
-  putStrLn "DONE: foldl"
-
-  evaluate $ foldr (\x z -> x : z) [] [1 .. size]
-  putStrLn "DONE: foldr 2"
+  putStrLn "DONE"
