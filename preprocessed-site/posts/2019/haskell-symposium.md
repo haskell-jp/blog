@@ -1,7 +1,7 @@
 ---
 title: Haskell Symposium 2019 レポート
 subHeading: ""
-headingBackgroundImage: ../../img/2019/haskell-symposium/background.png
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Kazuki Okamoto
 postedBy: <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a>
