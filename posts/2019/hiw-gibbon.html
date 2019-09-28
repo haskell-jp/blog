@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HIW 2019で発表された、Gibbonコンパイラーについて">
+    
+      <meta name="author" content="Yuji Yamamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="HIW 2019で発表された、Gibbonコンパイラーについて - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/hiw-gibbon.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---[前回](/posts/2019/hiw-ghc-future.html)から引き続き、[Haskell Implementors' Workshop 2019](https://icfp19.sigplan.org/home/hiw-2019#About)への参加レポートとして、私の印象に残った発表を紹介します。  今回は、[Gibbon](http://iu-parfunc.gi" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>HIW 2019で発表された、Gibbonコンパイラーについて - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLTAzZGNkZDlkMWYxZDRlODI3NmNlNTQ1ZDc3MjQxNzg3OTg4YzUzNmUyNmU5YWVkMjFmMjFjYzk1OTE3Yzg4ZTM">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>HIW 2019で発表された、Gibbonコンパイラーについて</h1>
+                      <h2 class="subheading">～HIW 2019参加レポート その3～</h2><span class="meta">Posted by <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a> on September 28, 2019</span><span class="meta">Tags: Haskell Implementors' Workshop</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><a href="../../posts/2019/hiw-ghc-future.html">前回</a>から引き続き、<a href="https://icfp19.sigplan.org/home/hiw-2019#About"><span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop 2019</span></a>への参加レポートとして、私の印象に残った発表を紹介します。<br />
+今回は、<a href="http://iu-parfunc.github.io/gibbon/"><span class="ascii">Gibbon</span></a>という、<span class="ascii">GHC</span>以外の<span class="ascii">Haskell</span><small>（の、サブセット）</small>の処理系についての発表です。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#the-gibbon-compiler-accelerating-a-small-subset-of-haskell" title="the-gibbon-compiler-accelerating-a-small-subset-of-haskell"><span class="ascii">The Gibbon Compiler: Accelerating a small subset of Haskell</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="the-gibbon-compiler-accelerating-a-small-subset-of-haskell"><span class="link-to-here-outer"><a href="#the-gibbon-compiler-accelerating-a-small-subset-of-haskell" title="the-gibbon-compiler-accelerating-a-small-subset-of-haskell"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">The Gibbon Compiler: Accelerating a small subset of Haskell</span></h1>
+<p>発表者<span class="ascii">: Ryan R. Newton</span> <em><span class="ascii">Indiana University</span></em><span class="ascii">, Michael Vollmer</span> <em><span class="ascii">Indiana University, USA</span></em><span class="ascii">, Chaitanya Koparkar</span> <em><span class="ascii">Indiana University</span></em></p>
+<p><span class="ascii">Gibbon</span>は最適化の手法を研究するために作られたコンパイラーです。<br />
+具体的には、我々<small>（特に<span class="ascii">Haskeller</span>）</small>がよく使う、木構造全体に対する処理の最適化です。</p>
+<p>こうした木構造のデータは、通常ポインターを使ってメモリー内にバラバラに格納されますが、<span class="ascii">Gibbon</span>による最適化を行うと、実際にプログラムがどのような順番で木を処理しているのか解析して、（元のデータ構造を配列に変換した上で）その順番に並べられた配列として処理するコードに変換する、という大胆な変換を行います。 図にするとこんなイメージでしょうか？</p>
+<figure>
+<img src="../../img/2019/hiw-gibbon/tree-and-array1.svg" alt="変換前の木構造。各ノードがそれぞれ（レベル順で）A, B, … , Gという値を持っている" /><figcaption>変換前の木構造。各ノードがそれぞれ（レベル順で）<span class="ascii">A, B,</span> … <span class="ascii">, G</span>という値を持っている</figcaption>
+</figure>
+<p>👆のような木構造があったとして、</p>
+<figure>
+<img src="../../img/2019/hiw-gibbon/tree-and-array2.svg" alt="行きがけ順（A, B, D, E, C, F, Gの順）でアクセスする" /><figcaption>行きがけ順（<span class="ascii">A, B, D, E, C, F, G</span>の順）でアクセスする</figcaption>
+</figure>
+<p>👆における、赤い線の順番<small>（行きがけ順）</small>にアクセスする関数があったとします。<br />
+適当に<span class="ascii">Haskell</span>の再帰関数として書くと、👇こういうコードです。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">data</span> <span class="dt">Tree</span> <span class="ot">=</span> <span class="dt">Node</span> <span class="dt">Char</span> (<span class="dt">Maybe</span> <span class="dt">Tree</span>) (<span class="dt">Maybe</span> <span class="dt">Tree</span>) <span class="kw">deriving</span> <span class="dt">Show</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="ot">tree ::</span> <span class="dt">Tree</span></a>
+<a class="sourceLine" id="cb1-4" title="4">tree <span class="ot">=</span></a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="dt">Node</span> <span class="ch">'A'</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    ( <span class="dt">Just</span></a>
+<a class="sourceLine" id="cb1-7" title="7">      ( <span class="dt">Node</span> <span class="ch">'B'</span></a>
+<a class="sourceLine" id="cb1-8" title="8">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'D'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
+<a class="sourceLine" id="cb1-9" title="9">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'E'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
+<a class="sourceLine" id="cb1-10" title="10">      )</a>
+<a class="sourceLine" id="cb1-11" title="11">    )</a>
+<a class="sourceLine" id="cb1-12" title="12">    ( <span class="dt">Just</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      ( <span class="dt">Node</span> <span class="ch">'C'</span></a>
+<a class="sourceLine" id="cb1-14" title="14">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'F'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
+<a class="sourceLine" id="cb1-15" title="15">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'G'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
+<a class="sourceLine" id="cb1-16" title="16">      )</a>
+<a class="sourceLine" id="cb1-17" title="17">    )</a>
+<a class="sourceLine" id="cb1-18" title="18"></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="ot">preOrder ::</span> (<span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">Tree</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb1-20" title="20">preOrder access (<span class="dt">Node</span> char mLeft mRight) <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-21" title="21">  access char</a>
+<a class="sourceLine" id="cb1-22" title="22"></a>
+<a class="sourceLine" id="cb1-23" title="23">  <span class="kw">case</span> mLeft <span class="kw">of</span></a>
+<a class="sourceLine" id="cb1-24" title="24">    <span class="dt">Just</span> left <span class="ot">-&gt;</span> preOrder access left</a>
+<a class="sourceLine" id="cb1-25" title="25">    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</a>
+<a class="sourceLine" id="cb1-26" title="26"></a>
+<a class="sourceLine" id="cb1-27" title="27">  <span class="kw">case</span> mRight <span class="kw">of</span></a>
+<a class="sourceLine" id="cb1-28" title="28">    <span class="dt">Just</span> right <span class="ot">-&gt;</span> preOrder access right</a>
+<a class="sourceLine" id="cb1-29" title="29">    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</a></code></pre></div>
+<p><span class="ascii">Gibbon</span>はこの関数と、それが処理する木構造を解析して、</p>
+<figure>
+<img src="../../img/2019/hiw-gibbon/tree-and-array3.svg" alt="変換された配列。A, B, D, E, C, F, Gの順に要素が並んだただの配列" /><figcaption>変換された配列。<span class="ascii">A, B, D, E, C, F, G</span>の順に要素が並んだただの配列</figcaption>
+</figure>
+<p>👆のような、ただの配列（とそれに対する関数）にまとめて変換してしまう、というのです！</p>
+<p>現代のコンピューターは、このような配列の要素にまとめてアクセス処理する方が、ポインターをたどって各要素を処理するより、たいてい遙かに速いです。<br />
+<span class="ascii">Gibbon</span>はこの特性を活かすべく、我々<span class="ascii">Haskeller</span>が好んで使うような、ポインターだらけの木構造を可能な限り配列に変換することで、要素をまとめて処理する（<span class="ascii">traverse</span>する）演算の最適化を図るコンパイラーです。</p>
+<p>ちなみに、元の木に対するノードの追加に相当する処理は、新しいノードに対するポインターを書き込む処理に変換するそうです。<br />
+なので何度も追加を繰り返すと、あまり恩恵が受けられなくなってしまいそうです。</p>
+<p>なかなか興味深いアイディアですが、個人的に聞きそびれた疑問が<span class="ascii">2</span>つあります。<br />
+一つは、そもそも木構造を定義するような状況というのは、いろいろな順番でアクセスしたいし、新しい要素の追加も繰り返し行いたいケースではないでしょうか？<br />
+例えば<a href="http://hackage.haskell.org/package/unordered-containers"><span class="ascii">unordered-containers</span></a>にある<code>HashMap</code>型は探索木を使った頻繁に使われるデータ構造ですが、<code>HashMap</code>を使う場合に行う処理の多くは、ランダムアクセスや要素の追加・削除でしょう。</p>
+<p>なので、<span class="ascii">Gibbon</span>が最適化したい「木構造」というのは、どちらかというと探索木のような木ではなく、構文木のような、要素をまとめて処理することを前提とした木のことなのかもしれません。<br />
+確かに人間が書く言語の構文木程度であれば、すべてメモリー上で処理できる程度のサイズに収まる<small>（という想定でなければコンパイラー作りがものすごく難しくなる）</small>でしょうし、構文木の処理を高速化できれば、遅い遅いと言われる<span class="ascii">GHC</span>のコンパイル速度も高められるはずです。それはそれでありがたい。</p>
+<p>もう一つは、これまた例えば<code>HashMap</code>型のような木をベースにした連想配列も、配列ベースのハッシュテーブルに変換することができるのでしょうか？<br />
+もしそうだとすると、ランダムアクセスに対する計算量のオーダーも<span class="ascii">O(log n)</span>から<span class="ascii">O(1)</span>に変わるわけですし、要素をまとめて処理する以外の演算についても劇的な改善が見込めるかもしれません。<br />
+もちろんこれも先ほどの推測が正しければ無意味な想像ですが、夢のある話ですね。</p>
+<p><span class="ascii">Gibbon</span>は将来的には、<code>Packed</code>という型クラスを提供することで、<span class="ascii">GHC</span>本体への統合も視野に入れているそうです。<br />
+<code>Packed</code>を実装した型は、値をどのように配列に変換するのか定義することで、<span class="ascii">Gibbon</span>による最適化のためのヒントを与えることができます。</p>
+<p>参考<span class="ascii">:</span> <a href="https://ja.wikipedia.org/w/index.php?title=%E6%9C%A8%E6%A7%8B%E9%80%A0_(%E3%83%87%E3%83%BC%E3%82%BF%E6%A7%8B%E9%80%A0)&amp;oldid=72655479">木構造 <span class="ascii">(</span>データ構造<span class="ascii">) - Wikipedia</span></a></p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/hiw-ghc-future.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、GHC 8.10に導入されるであろう機能</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Yuji Yamamoto 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
