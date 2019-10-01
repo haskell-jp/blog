@@ -161,6 +161,285 @@ here</span></a></span><span class="ascii">Copilot</span>を試してみる</h1>
             </div>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
+                <a href="/posts/2019/haskell-symposium.html" style="margin-left: auto;" lang="ja">Haskell Symposium 2019 レポート</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
+    <title>Haskell Symposium 2019 レポート</title>
+    <link href="https://haskell.jp/blog/posts/2019/haskell-symposium.html" />
+    <id>https://haskell.jp/blog/posts/2019/haskell-symposium.html</id>
+    <published>2019-10-01T00:00:00Z</published>
+    <updated>2019-10-01T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p><a href="https://icfp19.sigplan.org/home/haskellsymp-2019"><span class="ascii">Haskell Symposium 2019</span></a>に<span class="ascii">IIJ</span>として参加してきました。</p>
+<p>聴講した発表についての概要をまとめましたので、どの論文を読んでみるか決めるなどの際にご活用ください。内容については私の聞きまちがい・読みまちがいなどあると思いますのでご了承ください。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#haskell-symposiumとは" title="haskell-symposiumとは"><span class="ascii">Haskell Symposium</span>とは</a></li>
+<li><a href="#bidirectional-type-class-instances" title="bidirectional-type-class-instances"><span class="ascii">Bidirectional Type Class Instances</span></a></li>
+<li><a href="#generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances" title="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="ascii">Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances</span></a></li>
+<li><a href="#modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study" title="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="ascii">Modular effects in Haskell through effect polymorphism and explicit dictionary applications - A new approach and the</span> μ<span class="ascii">VeriFast verifier as a case study</span></a></li>
+<li><a href="#verifying-effectful-haskell-programs-in-coq" title="verifying-effectful-haskell-programs-in-coq"><span class="ascii">Verifying Effectful Haskell Programs in Coq</span></a></li>
+<li><a href="#solving-haskell-equality-constraints-using-coq" title="solving-haskell-equality-constraints-using-coq"><span class="ascii">Solving Haskell equality constraints using Coq</span></a></li>
+<li><a href="#formal-verification-of-spacecraft-control-programs-an-experience-report" title="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="ascii">Formal Verification of Spacecraft Control Programs: An Experience Report</span></a></li>
+<li><a href="#g2q-haskell-constraint-solving" title="g2q-haskell-constraint-solving"><span class="ascii">G2Q: Haskell Constraint Solving</span></a></li>
+<li><a href="#making-a-faster-curry-with-extensional-types" title="making-a-faster-curry-with-extensional-types"><span class="ascii">Making a Faster Curry with Extensional Types</span></a></li>
+<li><a href="#multi-stage-programs-in-context" title="multi-stage-programs-in-context"><span class="ascii">Multi-Stage Programs in Context</span></a></li>
+<li><a href="#working-with-source-plugins" title="working-with-source-plugins"><span class="ascii">Working with Source Plugins</span></a></li>
+<li><a href="#stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism" title="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="ascii">STCLang: State Thread Composition as a Foundation for Monadic Dataflow Parallelism</span></a></li>
+<li><a href="#synthesizing-functional-reactive-programs" title="synthesizing-functional-reactive-programs"><span class="ascii">Synthesizing Functional Reactive Programs</span></a></li>
+<li><a href="#the-essence-of-live-coding-change-the-program-keep-the-state" title="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="ascii">The essence of live coding: Change the program, keep the state!</span></a></li>
+<li><a href="#monad-transformers-and-modular-algebraic-effects-what-binds-them-together" title="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="ascii">Monad Transformers and Modular Algebraic Effects: What Binds Them Together</span></a></li>
+<li><a href="#scoping-monadic-relational-database-queries" title="scoping-monadic-relational-database-queries"><span class="ascii">Scoping Monadic Relational Database Queries</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="haskell-symposiumとは"><span class="link-to-here-outer"><a href="#haskell-symposiumとは" title="haskell-symposiumとは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell Symposium</span>とは</h1>
+<p><a href="https://icfp19.sigplan.org/"><span class="ascii">International Conference on Functional Programming</span></a>（<span class="ascii">ICFP</span>）に合わせて開催される<span class="ascii">Haskell</span>に関する国際会議です。<span class="ascii">Haskell</span>に関する研究を発表したり、実践的な経験や将来の言語の開発について議論したり、その他の宣言的プログラミングを促進したりします。</p>
+<h1 id="bidirectional-type-class-instances"><span class="link-to-here-outer"><a href="#bidirectional-type-class-instances" title="bidirectional-type-class-instances"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Bidirectional Type Class Instances</span></h1>
+<ul>
+<li>著者：<span class="ascii">Koen Pauwels (KU Leuven), Georgios Karachalias (KU Leuven), Michiel Derhaeg (Guardsquare), Tom Schrijvers (KU Leuven)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances</span></a></li>
+<li>論文：<a href="https://arxiv.org/abs/1906.12242" class="uri"><span class="ascii">https://arxiv.org/abs/1906.12242</span></a></li>
+</ul>
+<p><span class="ascii">GADT</span>と型クラスはそれぞれ便利だが混ぜると問題が起きる場合がある。</p>
+<p>次のような<code>Term</code>があるとき、その<code>Show</code>インスタンスを考える。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">data</span> <span class="dt">Term</span><span class="ot"> ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">Con</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">Term</span> a</a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">Tup</span><span class="ot"> ::</span> <span class="dt">Term</span> b <span class="ot">-&gt;</span> <span class="dt">Term</span> c <span class="ot">-&gt;</span> <span class="dt">Term</span> (b, c)</a></code></pre></div>
+<p>次のように<code>Show</code>インスタンスを定義すると型エラーになる。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">instance</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Term</span> a) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="fu">show</span> (<span class="dt">Con</span> a) <span class="ot">=</span> <span class="fu">show</span> a</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="fu">show</span> (<span class="dt">Tup</span> x y) <span class="ot">=</span> <span class="fu">unwords</span> [<span class="st">&quot;(&quot;</span>, <span class="fu">show</span> x, <span class="st">&quot;,&quot;</span>, <span class="fu">show</span> y, <span class="st">&quot;)&quot;</span>]</a></code></pre></div>
+<pre><code>Could not deduce (Show b) arising from a use of `show&#39;
+from the context (Show a) or from (a ~ (b, c))</code></pre>
+<p>これは<code>Show (b, c)</code>ならば<code>Show b</code>という関係がないために起こる。</p>
+<p>一方タプルについての<code>Show</code>は、<code>Show a</code>かつ<code>Show b</code>ならば<code>Show (a, b)</code>という関係である。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Show</span> b) <span class="ot">=&gt;</span> <span class="dt">Show</span> (a, b) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  …</a></code></pre></div>
+<p>この「ならば」を両方向にすれば問題は解決できるのではないかというのが、この論文の主張である。</p>
+<h1 id="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here-outer"><a href="#generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances" title="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances</span></h1>
+<ul>
+<li>著者：<span class="ascii">Ryan Scott (Indiana University), Ryan R. Newton (Indiana University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances</span></a></li>
+<li>論文：<a href="https://ryanglscott.github.io/papers/verified-classes.pdf" class="uri"><span class="ascii">https://ryanglscott.github.io/papers/verified-classes.pdf</span></a></li>
+</ul>
+<p>型クラスの法則は依存型を使えば証明できるが、インスタンスごとに書くのはめんどうなので<code>Generics</code>で出来るようにしようという話である。</p>
+<h1 id="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="link-to-here-outer"><a href="#modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study" title="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Modular effects in Haskell through effect polymorphism and explicit dictionary applications - A new approach and the</span> μ<span class="ascii">VeriFast verifier as a case study</span></h1>
+<ul>
+<li>著者：<span class="ascii">Dominique Devriese (Vrije Universiteit Brussel)</span></li>
+<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic</span></a></li>
+</ul>
+<p>様々な種類の効果が複雑に絡み合うアプリケーションを整理するために、「効果を伴う処理を持った辞書」を明示的に渡す方式の提案である。</p>
+<p>提案した方式によって<span class="ascii">VeriFast</span>を再実装してみることで、実際に発生した問題と解決方法を解説している。</p>
+<h1 id="verifying-effectful-haskell-programs-in-coq"><span class="link-to-here-outer"><a href="#verifying-effectful-haskell-programs-in-coq" title="verifying-effectful-haskell-programs-in-coq"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Verifying Effectful Haskell Programs in Coq</span></h1>
+<ul>
+<li>著者：<span class="ascii">Jan Christiansen (Flensburg University of Applied Sciences), Sandra Dylus (University of Kiel), Niels Bunkenburg (University of Kiel)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342592" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342592</span></a></li>
+</ul>
+<p><span class="ascii">Coq</span>による、効果を伴うプログラムの証明に関する話。</p>
+<p>効果について直接証明することはせず、<span class="ascii">Free</span>モナドを用いての証明を試みても、そのまま<span class="ascii">Coq</span>に翻訳すると停止性チェックによってエラーになってしまう。</p>
+<p>そのために行った工夫に加え、具体例として、<code>trace</code>や（部分関数による）エラーなど、<span class="ascii">Haskell</span>において暗黙に発生する効果を考慮したモデル化について検討した。</p>
+<h1 id="solving-haskell-equality-constraints-using-coq"><span class="link-to-here-outer"><a href="#solving-haskell-equality-constraints-using-coq" title="solving-haskell-equality-constraints-using-coq"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Solving Haskell equality constraints using Coq</span></h1>
+<ul>
+<li>著者：<span class="ascii">Zubin Duggal</span></li>
+<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq</span></a></li>
+</ul>
+<p><span class="ascii">data kinds</span>や<span class="ascii">type families</span>といった<span class="ascii">GHC</span>拡張によって厳格なデータ型を定義できるが、それに対する操作を定義すると<span class="ascii">GHC</span>には解けない型レベルの等式が生成されることがある。</p>
+<p>制約カインドの型に対する型クラスとして<code>Proven</code>を提供し、この制約がある箇所を<span class="ascii">GHC</span>型検査プラグインが検出して対応する<span class="ascii">Coq</span>コードのテンプレートを生成する。</p>
+<p>その<span class="ascii">Coq</span>コードに証明がなければ警告を表示する。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">type</span> <span class="dt">ProofName</span> <span class="ot">=</span> <span class="dt">Symbol</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">class</span> c <span class="ot">=&gt;</span> <span class="dt">Proven</span> (<span class="ot">prf ::</span> <span class="dt">ProofName</span>) (<span class="ot">c ::</span> <span class="dt">Constraint</span>)</a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">where</span> {}</a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="ot">applyProof ::</span> <span class="kw">forall</span> prf c a<span class="op">.</span> <span class="dt">Proven</span> prf c <span class="ot">=&gt;</span> (c <span class="ot">=&gt;</span> a) <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb5-7" title="7">applyProof x <span class="ot">=</span> x</a>
+<a class="sourceLine" id="cb5-8" title="8"></a>
+<a class="sourceLine" id="cb5-9" title="9">lemma3 <span class="ot">=</span> applyProof <span class="op">@</span><span class="st">&quot;nonzero_pop&quot;</span> <span class="op">@</span>(<span class="dt">NNonZero</span> (<span class="dt">Popcount</span> b) <span class="op">~</span> <span class="dt">True</span>) <span class="dt">Refl</span></a></code></pre></div>
+<p>いくつか制約があるが<span class="ascii">Haskell</span>の型を<span class="ascii">Coq</span>に自動的に変換している。</p>
+<h1 id="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here-outer"><a href="#formal-verification-of-spacecraft-control-programs-an-experience-report" title="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Formal Verification of Spacecraft Control Programs: An Experience Report</span></h1>
+<ul>
+<li>著者：<span class="ascii">Andrey Mokhov (Newcastle University), Georgy Lukyanov (Newcastle University), Jakob Lechner (RUAG Space Austria GmbH)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342593" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342593</span></a></li>
+</ul>
+<p><span class="ascii">REDFIN</span>という固定小数演算と整数演算のための処理系があるのだが、そのアセンブリーコードに対して形式検証をしたという報告である。</p>
+<h1 id="g2q-haskell-constraint-solving"><span class="link-to-here-outer"><a href="#g2q-haskell-constraint-solving" title="g2q-haskell-constraint-solving"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">G2Q: Haskell Constraint Solving</span></h1>
+<ul>
+<li>著者：<span class="ascii">William T. Hallahan (Yale University), Anton Xue (Yale University), Ruzica Piskac (Yale University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342590" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342590</span></a></li>
+</ul>
+<p><span class="ascii">G2Q</span>は<span class="ascii">Haskell</span>のソースに<span class="ascii">quasi quote</span>で埋め込む<span class="ascii">DSL</span>である。</p>
+<p><span class="ascii">Haskell</span>で書いた条件式を<span class="ascii">symbolic execution</span>して、<span class="ascii">SMT solver</span>に渡す式に変換して、<span class="ascii">SMT solver</span>に条件を満たす関数を導出させる。</p>
+<h1 id="making-a-faster-curry-with-extensional-types"><span class="link-to-here-outer"><a href="#making-a-faster-curry-with-extensional-types" title="making-a-faster-curry-with-extensional-types"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Making a Faster Curry with Extensional Types</span></h1>
+<ul>
+<li>著者：<span class="ascii">Paul Downen (University of Oregon), Zachary Sullivan, Zena M. Ariola (University of Oregon), Simon Peyton Jones (Microsoft)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types</span></a></li>
+<li>論文：<a href="https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf" class="uri"><span class="ascii">https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf</span></a></li>
+</ul>
+<p>パフォーマンスのためにη変換してほしいところを明示したいことがある。</p>
+<p>例えば、次のような意味論上は等価な関数<code>f1</code>と<code>f2</code>があるとする。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">f1 <span class="ot">=</span> \x <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> \y <span class="ot">-&gt;</span> e y z</a>
+<a class="sourceLine" id="cb6-2" title="2">f2 <span class="ot">=</span> \x <span class="ot">-&gt;</span> \y <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> e y z</a></code></pre></div>
+<p>実際は<code>f1</code>は引数<code>x</code>を取った後クロージャー生成のためにヒープ確保するのに対して、<code>f2</code>はアリティが<span class="ascii">2</span>の関数と解釈されて中間のクロージャーが必要なくなる。</p>
+<p><code>~&gt;</code>というアリティの情報を持った関数型を新たに導入して<code>-&gt;</code>の代わりに使えるようにする。</p>
+<p><code>TYPE (a :: RuntimeRep (FunRep 2))</code>というような新たなポリモーフィズムを導入する。ここでの<code>2</code>がアリティ。</p>
+<p><code>Int</code>に対して<code>Int#</code>があるように基本的にはパフォーマンスが必要なライブラリーなど内部的に使用する想定。</p>
+<h1 id="multi-stage-programs-in-context"><span class="link-to-here-outer"><a href="#multi-stage-programs-in-context" title="multi-stage-programs-in-context"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Multi-Stage Programs in Context</span></h1>
+<ul>
+<li>著者：<span class="ascii">Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Csongor Kiss (Imperial College London)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342597" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342597</span></a></li>
+</ul>
+<p>次のような準引用があったときに、組み合わせると元々あったはずの情報が欠落する場合がある。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">qshow ::</span> <span class="dt">Code</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
+<a class="sourceLine" id="cb7-2" title="2">qshow <span class="ot">=</span> [q| show |]</a>
+<a class="sourceLine" id="cb7-3" title="3"></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="ot">qread ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>)</a>
+<a class="sourceLine" id="cb7-5" title="5">qread <span class="ot">=</span> [q| read |]</a>
+<a class="sourceLine" id="cb7-6" title="6"></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="ot">trim ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
+<a class="sourceLine" id="cb7-8" title="8">trim <span class="ot">=</span> [q| $(qshow) . $(qread) |]</a></code></pre></div>
+<p><code>qshow</code>と<code>qread</code>にあった<code>Int</code>という情報が、組み合わせて<code>trim</code>とすると欠落してコンパイルエラーになってしまう。</p>
+<p><span class="ascii">splice</span>するときに<span class="ascii">Haskell</span>ソースコードの構文木ではなく<span class="ascii">Core</span>に対するものを出力すればそれは型が明示されているし問題がない。</p>
+<p>しかも、<span class="ascii">splice</span>後の型検査を省略できるのでコンパイルの高速化にも寄与する。</p>
+<h1 id="working-with-source-plugins"><span class="link-to-here-outer"><a href="#working-with-source-plugins" title="working-with-source-plugins"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Working with Source Plugins</span></h1>
+<ul>
+<li>著者：<span class="ascii">Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Boldizsár Németh (Eötvös Loránd University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342599" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342599</span></a></li>
+</ul>
+<p><span class="ascii">souce plugins</span>のしくみや、書き方、実装時のテクニックの紹介である。</p>
+<h1 id="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="link-to-here-outer"><a href="#stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism" title="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">STCLang: State Thread Composition as a Foundation for Monadic Dataflow Parallelism</span></h1>
+<ul>
+<li>著者：<span class="ascii">Sebastian Ertel, Justus Adam (Technische Universität Dresden), Norman A. Rink (TU Dresden), Andrés Goens, Jeronimo Castrillon (TU Dresden)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342600" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342600</span></a></li>
+</ul>
+<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
+<h1 id="synthesizing-functional-reactive-programs"><span class="link-to-here-outer"><a href="#synthesizing-functional-reactive-programs" title="synthesizing-functional-reactive-programs"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Synthesizing Functional Reactive Programs</span></h1>
+<ul>
+<li>著者：<span class="ascii">Bernd Finkbeiner, Felix Klein (Saarland University), Ruzica Piskac (Yale University, Mark Santolucito (Yale University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342601" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342601</span></a></li>
+</ul>
+<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
+<h1 id="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="link-to-here-outer"><a href="#the-essence-of-live-coding-change-the-program-keep-the-state" title="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">The essence of live coding: Change the program, keep the state!</span></h1>
+<ul>
+<li>著者：<span class="ascii">Manuel Bärenz (sonnen eServices GmbH)</span></li>
+<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state-" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state-</span></a></li>
+</ul>
+<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
+<h1 id="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="link-to-here-outer"><a href="#monad-transformers-and-modular-algebraic-effects-what-binds-them-together" title="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Monad Transformers and Modular Algebraic Effects: What Binds Them Together</span></h1>
+<ul>
+<li>著者：<span class="ascii">Tom Schrijvers (KU Leuven), Maciej Piróg (University of Wroc</span>ł<span class="ascii">aw), Nicolas Wu (Imperial College London), Mauro Jaskelioff (CONICET)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342595" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342595</span></a></li>
+</ul>
+<p>モナドトランスフォーマーと代数的効果との対比である。</p>
+<p>モナドトランスフォーマーから代数的効果への変換またその逆のときにどういう手法があって、それぞれを構成する要素がどう対応しているかを説明している。</p>
+<p>モナドトランスフォーマーと代数的効果だとモナドトランスフォーマーの方が表現できるものが大きいのでモナドトランスフォーマーから代数的効果へはどんなものでも変換できるわけではない。</p>
+<p>例えば<code>catch</code>や<code>local</code>は代数的効果にできない。</p>
+<h1 id="scoping-monadic-relational-database-queries"><span class="link-to-here-outer"><a href="#scoping-monadic-relational-database-queries" title="scoping-monadic-relational-database-queries"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Scoping Monadic Relational Database Queries</span></h1>
+<ul>
+<li>著者：<span class="ascii">Anton Ekblad (Chalmers University of Technology)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342598" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342598</span></a></li>
+</ul>
+<p>モナドは<span class="ascii">Haskell</span>界隈で非常に普及しているので<span class="ascii">SQL</span>に対する<span class="ascii">EDSL</span>としてモナドの構造を採用したい。</p>
+<p>このとき<span class="ascii">SQL</span>の結合を表現すると、<span class="ascii">SQL</span>としてはスコープ外にもかかわらず<span class="ascii">EDSL</span>としてはスコープ内となって使える変数ができてしまう。</p>
+<p>これを<span class="ascii">EDSL</span>としてもエラーとしたい。</p>
+<p>例えば、次のような例で実行時エラーとなってしまう。ここで<code>a0</code>は<code>tableA</code>の列とする。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">SELECT</span> a0, b0</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">FROM</span></a>
+<a class="sourceLine" id="cb8-3" title="3">  tableA</a>
+<a class="sourceLine" id="cb8-4" title="4">    <span class="kw">LEFT</span> <span class="kw">JOIN</span></a>
+<a class="sourceLine" id="cb8-5" title="5">      (<span class="kw">SELECT</span> b0 <span class="kw">FROM</span> tableB <span class="kw">WHERE</span> a0 <span class="op">==</span> b1)</a>
+<a class="sourceLine" id="cb8-6" title="6">  <span class="kw">ON</span> tableA.a2 <span class="op">==</span> tableb.b2</a></code></pre></div>
+<p><code>SELECT b0 FROM tableB WHERE a0 == b1</code>の部分でスコープ外の<code>a0</code>を参照しているためエラーとなる。</p>
+<p>単純なモナド<span class="ascii">EDSL</span>だと次のようになりコンパイルが通る。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">do</span></a>
+<a class="sourceLine" id="cb9-2" title="2">  a0 <span class="op">:*:</span> a1 <span class="op">:*:</span> a2 <span class="ot">&lt;-</span> from table0</a>
+<a class="sourceLine" id="cb9-3" title="3">  leftJoin <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb9-4" title="4">    b0 <span class="op">:*:</span> b1 <span class="op">:*:</span> b2 <span class="ot">&lt;-</span> from table1</a>
+<a class="sourceLine" id="cb9-5" title="5">    ristrict <span class="op">$</span> a0 <span class="op">.==</span> b1</a>
+<a class="sourceLine" id="cb9-6" title="6">  on <span class="op">$</span> a2 <span class="op">.==</span> b2</a></code></pre></div>
+<p><code>ristrict $ a0 .== b1</code>の部分において<code>a0</code>は<span class="ascii">Haskell</span>としてはスコープ内にある。</p>
+<p>この問題を次のような型レベル関数を駆使することで<span class="ascii">EDSL</span>においてもコンパイル時エラーとすることができた。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Cols</span> a</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Outer</span> a</a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">UnAggr</span> a</a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">FromRow</span> a</a></code></pre></div>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2019/hiw-copilot.html" lang="ja">HIW 2019で発表された、Copilotという内部DSLについて</a>
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
                 <a href="/posts/2019/hiw-gibbon.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、Gibbonコンパイラーについて</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
@@ -287,7 +566,7 @@ here</span></a></span><span class="ascii">The Gibbon Compiler: Accelerating a sm
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
                 
                 <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/hiw-copilot.html" lang="ja">HIW 2019で発表された、Copilotという内部DSLについて</a>
+                <a href="/posts/2019/haskell-symposium.html" lang="ja">Haskell Symposium 2019 レポート</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -1434,312 +1713,6 @@ here</span></a></span>まとめ</h2>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/hourly-antenna.html" style="margin-left: auto;" lang="ja">DroneでHaskell Antennaを毎時更新する</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>DroneでHaskell Antennaを毎時更新する</title>
-    <link href="https://haskell.jp/blog/posts/2019/hourly-antenna.html" />
-    <id>https://haskell.jp/blog/posts/2019/hourly-antenna.html</id>
-    <published>2019-01-25T00:00:00Z</published>
-    <updated>2019-01-25T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p><span class="ascii">Haskell-jp</span>のコンテンツの一つとして<a href="https://haskell.jp/antenna/"><span class="ascii">Haskell Antenna</span></a>という <span class="ascii">Web</span> ページの開発・運用をしております。</p>
-<p><img src="../../img/2019/hourly-antenna/antenna-page.jpg" style="width: 100%;"></p>
-<p>この<span class="ascii">Web</span>ページは<a href="https://github.com/haskell-jp/antenna"><span class="ascii">Haskell-jp</span>のリポジトリ</a>で開発し、<span class="ascii">GitHub Pages</span>として公開しています。 更新は<a href="https://travis-ci.org/"><span class="ascii">TravisCI</span></a>の<span class="ascii">Daily Cron</span>を使って行なっていましたが、なんとかして <strong>毎時更新を実現したい</strong> と思案していました。 ひょんなことから<a href="https://cloud.drone.io/"><span class="ascii">Drone Cloud</span></a>という<span class="ascii">CI</span>サービスを見つけ、このサービスでは<span class="ascii">Hourly Cron</span>が可能だったので試しに更新の部分だけ移行してみました。 という話です。</p>
-<p>ちなみに、本稿は全く<span class="ascii">Haskell</span>のコードが出て来ません <span class="ascii">;)</span></p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#drone.io" title="drone.io"><span class="ascii">Drone.io</span></a></li>
-<li><a href="#毎時更新を実現するために" title="毎時更新を実現するために">毎時更新を実現するために</a>
-<ul>
-<li><a href="#antennaのdockerイメージ化" title="antennaのdockerイメージ化"><span class="ascii">Antenna</span>の<span class="ascii">Docker</span>イメージ化</a></li>
-<li><a href="#dockerイメージの自動更新" title="dockerイメージの自動更新"><span class="ascii">Docker</span>イメージの自動更新</a></li>
-<li><a href="#drone-cloudの設定" title="drone-cloudの設定"><span class="ascii">Drone Cloud</span>の設定</a></li>
-<li><a href="#personal-tokenからdeploy-keyに移行" title="personal-tokenからdeploy-keyに移行"><span class="ascii">Personal Token</span>から<span class="ascii">Deploy Key</span>に移行</a></li>
-<li><a href="#slackの通知回りを整理" title="slackの通知回りを整理"><span class="ascii">Slack</span>の通知回りを整理</a></li>
-</ul></li>
-<li><a href="#今後やりたいこと" title="今後やりたいこと">今後やりたいこと</a></li>
-</ul>
-</div>
-</div>
-<h1 id="drone.io"><span class="link-to-here-outer"><a href="#drone.io" title="drone.io"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Drone.io</span></h1>
-<p><span class="ascii">Drone Cloud</span>はパブリックリポジトリであれば無料で利用できる<span class="ascii">CI</span>サービスです。 内部では<a href="https://drone.io/"><span class="ascii">Drone</span></a>という<span class="ascii">OSS</span>の<span class="ascii">CI</span>プラットフォームを利用しています。 <span class="ascii">Drone</span>は以下のような特徴を持っています<span class="ascii">:</span></p>
-<ul>
-<li><span class="ascii">Jenkins</span>のような<span class="ascii">OSS</span>である<span class="ascii">(Go</span>言語製<span class="ascii">)</span></li>
-<li><span class="ascii">TravisCI</span>や<span class="ascii">CircleCI</span>のようなパイプラインによる設定を行う<span class="ascii">(YAML</span>形式<span class="ascii">)</span></li>
-<li><span class="ascii">Docker</span>との親和性が高く<span class="ascii">k8s</span>などでの動作もサポートしている</li>
-<li><span class="ascii">Plugin</span>システムによって外部サービスとの連携が可能</li>
-</ul>
-<p><span class="ascii">OSS</span>のためお好みのクラウドサービスなどで自前運用も可能ですし、<span class="ascii">Drone Enterprise</span>という有料のクラウドサービスも提供しています。</p>
-<h1 id="毎時更新を実現するために"><span class="link-to-here-outer"><a href="#毎時更新を実現するために" title="毎時更新を実現するために"><span class="link-to-here">Link to<br />
-here</span></a></span>毎時更新を実現するために</h1>
-<p>単純に<span class="ascii">Drone</span>の設定ファイルを記述するだけではなく、次のような作業を行いました<span class="ascii">:</span></p>
-<ul>
-<li><span class="ascii">Haskell Antenna</span>の<span class="ascii">Docker</span>イメージ化</li>
-<li><span class="ascii">Antenna</span>の<span class="ascii">Docker</span>イメージを自動更新</li>
-<li><span class="ascii">Drone Cloud</span>の設定</li>
-<li><span class="ascii">Personal Token</span>から<span class="ascii">Deploy Key</span>に移行</li>
-<li><span class="ascii">Slack</span>の通知回りを整理</li>
-</ul>
-<p>順に説明していきましょう。</p>
-<h2 id="antennaのdockerイメージ化"><span class="link-to-here-outer"><a href="#antennaのdockerイメージ化" title="antennaのdockerイメージ化"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Antenna</span>の<span class="ascii">Docker</span>イメージ化</h2>
-<p><span class="ascii">Drone Cloud</span>では無償でキャッシュを利用することができません<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。 <span class="ascii">Haskell(</span>というか<span class="ascii">Stack)</span>の<span class="ascii">CI</span>をしている方ならわかると思いますが、キャッシュなしにビルドするとすごい時間がかかります。 なので、<span class="ascii">Haskell Antenna</span>の静的ページの生成を行う <code>antenna</code> コマンドを<span class="ascii">Docker</span>イメージとしておき、<span class="ascii">Drone</span>内ではこのイメージを利用して静的ページの生成を行う方針でいきます。</p>
-<p>もちろん<span class="ascii">Docker</span>イメージの生成には、<span class="ascii">Stack</span>の<span class="ascii">Docker</span>インテグレーションを使います。 以下のような設定を<span class="ascii">stack.yaml</span>に追記し<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># stack.yaml</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="fu">docker:</span></a>
-<a class="sourceLine" id="cb1-3" title="3">  <span class="fu">repo:</span><span class="at"> fpco/stack-build</span></a>
-<a class="sourceLine" id="cb1-4" title="4">  <span class="fu">enable:</span><span class="at"> </span><span class="ch">false</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="fu">image:</span></a>
-<a class="sourceLine" id="cb1-6" title="6">  <span class="fu">container:</span></a>
-<a class="sourceLine" id="cb1-7" title="7">    <span class="fu">name:</span><span class="at"> antenna</span></a>
-<a class="sourceLine" id="cb1-8" title="8">    <span class="fu">base:</span><span class="at"> fpco/ubuntu-with-libgmp</span></a></code></pre></div>
-<p>次のようなコマンドを実行するだけで<code>antenna</code>という<span class="ascii">Docker</span>イメージが生成されます<span class="ascii">:</span></p>
-<pre><code>stack docker pull
-stack --docker image container</code></pre>
-<p><span class="ascii">Docker Hub</span>に<a href="https://hub.docker.com/r/haskelljp/antenna/"><code>haskelljp/antenna</code></a>というネームスペースを確保した<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>のでここにプッシュしました<span class="ascii">:</span></p>
-<pre><code>docker tag antenna haskelljp/antenna
-docker push haskelljp/antenna</code></pre>
-<p>ちなみに、<code>haskell-jp</code> ではなく <code>haskelljp</code> なのは、<span class="ascii">Docker Hub</span>の組織アカウント名には <code>-</code> が使えなかったからです。</p>
-<h2 id="dockerイメージの自動更新"><span class="link-to-here-outer"><a href="#dockerイメージの自動更新" title="dockerイメージの自動更新"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Docker</span>イメージの自動更新</h2>
-<p><span class="ascii">Docker Hub</span>には<span class="ascii">Automated builds</span>と呼ばれる<span class="ascii">GitHub</span>などのプッシュによって行う自動ビルドがありますが、<span class="ascii">Stack</span>の<span class="ascii">Docker Integration</span>を使うと、その機能を利用することができません。 そこで、<span class="ascii">TravisCI</span>を使って自動ビルドすることにしました。 この辺りは「<a href="https://matsubara0507.github.io/posts/2018-12-02-stack-docker-travici.html"><span class="ascii">Stack</span> の <span class="ascii">Docker Integration</span> とイメージの自動更新 <span class="ascii">-</span> ひげメモ</a>」で記事にしてあるので、細かい話は割愛します。</p>
-<p>今回は次のような設定をして、<span class="ascii">master</span> ブランチにプッシュがあった時にのみ<span class="ascii">Docker Hub</span>にプッシュします<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb4-1" title="1"><span class="co"># .travis.yml</span></a>
-<a class="sourceLine" id="cb4-2" title="2"></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="co"># ...</span></a>
-<a class="sourceLine" id="cb4-4" title="4"></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="fu">install:</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="kw">-</span> mkdir -p ~/.local/bin</a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="kw">-</span> export PATH=$HOME/.local/bin:$PATH</a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="kw">-</span> travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin <span class="st">&#39;*/stack&#39;</span></a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="kw">-</span> stack docker pull</a>
-<a class="sourceLine" id="cb4-10" title="10"><span class="fu">jobs:</span></a>
-<a class="sourceLine" id="cb4-11" title="11">  <span class="fu">include:</span></a>
-<a class="sourceLine" id="cb4-12" title="12">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> build dependencies</span></a>
-<a class="sourceLine" id="cb4-13" title="13">      <span class="fu">script:</span><span class="at"> stack --no-terminal --docker --install-ghc test --bench --only-dependencies</span></a>
-<a class="sourceLine" id="cb4-14" title="14">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> build antenna</span></a>
-<a class="sourceLine" id="cb4-15" title="15">      <span class="fu">script:</span><span class="at"> stack --no-terminal --docker build --bench --no-run-benchmarks --no-haddock-deps --pedantic</span></a>
-<a class="sourceLine" id="cb4-16" title="16">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> push docker image</span></a>
-<a class="sourceLine" id="cb4-17" title="17">      <span class="fu">if:</span><span class="at"> branch = master AND type = push</span></a>
-<a class="sourceLine" id="cb4-18" title="18">      <span class="fu">script:</span></a>
-<a class="sourceLine" id="cb4-19" title="19">      <span class="kw">-</span> stack --docker image container</a>
-<a class="sourceLine" id="cb4-20" title="20">      <span class="kw">-</span> docker tag antenna haskelljp/antenna</a>
-<a class="sourceLine" id="cb4-21" title="21">      <span class="kw">-</span> echo <span class="st">&quot;$DOCKER_PASSWORD&quot;</span> | docker login -u <span class="st">&quot;$DOCKER_USERNAME&quot;</span> --password-stdin</a>
-<a class="sourceLine" id="cb4-22" title="22">      <span class="kw">-</span> docker push haskelljp/antenna</a></code></pre></div>
-<p><span class="ascii">Docker</span>で<span class="ascii">Haskell</span>のビルドもするために毎回<span class="ascii">Docker Pull</span>が走るようになり少し遅くなったのが辛いですね<span class="ascii">(</span>今後要検討<span class="ascii">)</span>。</p>
-<h2 id="drone-cloudの設定"><span class="link-to-here-outer"><a href="#drone-cloudの設定" title="drone-cloudの設定"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Drone Cloud</span>の設定</h2>
-<p>いよいよ<span class="ascii">Drone</span>による <code>antenna</code> コマンドの実行を設定します。 元々は <span class="ascii">TravisCI</span> でこんな感じでした<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb5-1" title="1"><span class="fu">jobs:</span></a>
-<a class="sourceLine" id="cb5-2" title="2">  <span class="fu">include:</span></a>
-<a class="sourceLine" id="cb5-3" title="3">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> install anttena</span></a>
-<a class="sourceLine" id="cb5-4" title="4">      <span class="fu">script:</span><span class="at"> stack --no-terminal install</span></a>
-<a class="sourceLine" id="cb5-5" title="5">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> exec antenna</span></a>
-<a class="sourceLine" id="cb5-6" title="6">      <span class="fu">script:</span><span class="at"> git clone -b gh-pages &quot;https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git&quot; temp</span></a>
-<a class="sourceLine" id="cb5-7" title="7">      <span class="fu">if:</span><span class="at"> branch = master AND type IN (push, cron)</span></a>
-<a class="sourceLine" id="cb5-8" title="8">      <span class="fu">after_success:</span></a>
-<a class="sourceLine" id="cb5-9" title="9">        <span class="kw">-</span> cp sites.yaml temp/sites.yaml</a>
-<a class="sourceLine" id="cb5-10" title="10">        <span class="kw">-</span> cp -r image/* temp/image</a>
-<a class="sourceLine" id="cb5-11" title="11">        <span class="kw">-</span> cd temp</a>
-<a class="sourceLine" id="cb5-12" title="12">        <span class="kw">-</span> stack exec -- antenna sites.yaml</a>
-<a class="sourceLine" id="cb5-13" title="13">        <span class="kw">-</span> git config user.name <span class="st">&quot;${GIT_NAME}&quot;</span></a>
-<a class="sourceLine" id="cb5-14" title="14">        <span class="kw">-</span> git status</a>
-<a class="sourceLine" id="cb5-15" title="15">        <span class="kw">-</span> git add -A</a>
-<a class="sourceLine" id="cb5-16" title="16">        <span class="kw">-</span> git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am <span class="st">&quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></a>
-<a class="sourceLine" id="cb5-17" title="17">        <span class="kw">-</span> git push origin gh-pages</a></code></pre></div>
-<p><code>stack install</code> で <code>antenna</code> コマンドの実行ファイルを生成し<span class="ascii">(</span>これはキャッシュされるので早い<span class="ascii">)</span>、<code>gh-pages</code> ブランチへページの更新をプッシュするために<span class="ascii">GitHub</span>の<span class="ascii">Personal Token</span>を使って再度クローンしていました。 更新の有無は <code>git diff</code> を使って確認しています。</p>
-<p>まずはこれをこのまま<span class="ascii">Drone</span>に移植します<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># .drone.yml</span></a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="fu">kind:</span><span class="at"> pipeline</span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="fu">name:</span><span class="at"> default</span></a>
-<a class="sourceLine" id="cb6-5" title="5"></a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="fu">steps:</span></a>
-<a class="sourceLine" id="cb6-7" title="7"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> exec antenna</span></a>
-<a class="sourceLine" id="cb6-8" title="8">  <span class="fu">image:</span><span class="at"> matsubara0507/antenna</span></a>
-<a class="sourceLine" id="cb6-9" title="9">  <span class="fu">environment:</span></a>
-<a class="sourceLine" id="cb6-10" title="10">    <span class="fu">GH_TOKEN:</span></a>
-<a class="sourceLine" id="cb6-11" title="11">      <span class="fu">from_secret:</span><span class="at"> github_api_token</span></a>
-<a class="sourceLine" id="cb6-12" title="12">    <span class="fu">GIT_NAME:</span><span class="at"> BOT</span></a>
-<a class="sourceLine" id="cb6-13" title="13">  <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb6-14" title="14">  <span class="kw">-</span> git clone -b gh-pages <span class="st">&quot;https://${GH_TOKEN}@github.com/haskell-jp/antenna.git&quot;</span> temp</a>
-<a class="sourceLine" id="cb6-15" title="15">  <span class="kw">-</span> cp sites.yaml temp/sites.yaml</a>
-<a class="sourceLine" id="cb6-16" title="16">  <span class="kw">-</span> cp -r image/* temp/image</a>
-<a class="sourceLine" id="cb6-17" title="17">  <span class="kw">-</span> cd temp</a>
-<a class="sourceLine" id="cb6-18" title="18">  <span class="kw">-</span> antenna sites.yaml</a>
-<a class="sourceLine" id="cb6-19" title="19">  <span class="kw">-</span> git config user.name <span class="st">&quot;${GIT_NAME}&quot;</span></a>
-<a class="sourceLine" id="cb6-20" title="20">  <span class="kw">-</span> git status</a>
-<a class="sourceLine" id="cb6-21" title="21">  <span class="kw">-</span> git add -A</a>
-<a class="sourceLine" id="cb6-22" title="22">  <span class="kw">-</span> git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am <span class="st">&quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></a>
-<a class="sourceLine" id="cb6-23" title="23">  <span class="kw">-</span> git push origin gh-pages</a>
-<a class="sourceLine" id="cb6-24" title="24">  <span class="fu">when:</span></a>
-<a class="sourceLine" id="cb6-25" title="25">    <span class="fu">branch:</span></a>
-<a class="sourceLine" id="cb6-26" title="26">    <span class="kw">-</span> master</a>
-<a class="sourceLine" id="cb6-27" title="27">    <span class="fu">event:</span></a>
-<a class="sourceLine" id="cb6-28" title="28">      <span class="fu">exclude:</span></a>
-<a class="sourceLine" id="cb6-29" title="29">      <span class="kw">-</span> pull_request</a></code></pre></div>
-<p>記法は違うもののそのまま移植ができました。 条件<span class="ascii">(</span><code>if</code>や<code>when</code><span class="ascii">)</span>のところですが、<span class="ascii">Drone</span>で<code>cron</code>のイベントを指定する方法がわからなかったので、動作しては困る<code>pull_request</code>だけ弾くようにしました。</p>
-<p><span class="ascii">Cron</span>の設定は<span class="ascii">Web UI</span>上で行います<span class="ascii">:</span></p>
-<p><img src="../../img/2019/hourly-antenna/drone-cron-setting.jpg" style="width: 100%;"></p>
-<p>これで毎時間<code>master</code>ブランチのビルドが実行されます。</p>
-<h2 id="personal-tokenからdeploy-keyに移行"><span class="link-to-here-outer"><a href="#personal-tokenからdeploy-keyに移行" title="personal-tokenからdeploy-keyに移行"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Personal Token</span>から<span class="ascii">Deploy Key</span>に移行</h2>
-<p><span class="ascii">Personal Token</span>は他の個人のリポジトリも操作できてしまうので、兼ねてからできれば使いたくないなと思っていました<span class="ascii">(</span>特に個人プロジェクトじゃない<span class="ascii">Haskell-jp</span>のプロジェクトでは<span class="ascii">)</span>。 なので、これを機にリポジトリ固有の<span class="ascii">Deploy Key</span>に移行しました。</p>
-<p><span class="ascii">CircleCI</span>のような書き込み用の<span class="ascii">SSH Key</span>を登録する機能は<span class="ascii">Drone</span>にはありません。 代わりに次のように書くと良いです<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">steps:</span></a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> clone gh-pages</span></a>
-<a class="sourceLine" id="cb7-3" title="3">  <span class="fu">image:</span><span class="at"> docker:git</span></a>
-<a class="sourceLine" id="cb7-4" title="4">  <span class="fu">environment:</span></a>
-<a class="sourceLine" id="cb7-5" title="5">    <span class="fu">SSH_KEY:</span></a>
-<a class="sourceLine" id="cb7-6" title="6">      <span class="fu">from_secret:</span><span class="at"> deploy_key</span></a>
-<a class="sourceLine" id="cb7-7" title="7">  <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb7-8" title="8">  <span class="kw">-</span> mkdir /root/.ssh &amp;&amp; echo <span class="st">&quot;$SSH_KEY&quot;</span> &gt; /root/.ssh/id_rsa &amp;&amp; chmod 0600 /root/.ssh/id_rsa</a>
-<a class="sourceLine" id="cb7-9" title="9">  <span class="kw">-</span> echo -e <span class="st">&quot;Host github.com</span><span class="sc">\n\t</span><span class="st">StrictHostKeyChecking no</span><span class="sc">\n</span><span class="st">&quot;</span> &gt; /root/.ssh/config</a>
-<a class="sourceLine" id="cb7-10" title="10">  <span class="kw">-</span> git clone -b gh-pages git@github.com:haskell-jp/antenna.git temp</a></code></pre></div>
-<p><span class="ascii">Secret</span>というのは<span class="ascii">Drone</span>側で保持・秘匿できる環境変数のような機能です<span class="ascii">(</span>名前が違うだけでだいたいどの<span class="ascii">CI</span>プラットフォームにもありますね<span class="ascii">)</span>。 今回はせっかくなので、これを<span class="ascii">Drone Plugin</span>として自作した<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>、<a href="https://github.com/matsubara0507/drone-git-with-ssh"><code>matsubara0507/git-with-ssh</code></a> というのを使います<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># .drone.yml</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="fu">kind:</span><span class="at"> pipeline</span></a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="fu">name:</span><span class="at"> default</span></a>
-<a class="sourceLine" id="cb8-4" title="4"></a>
-<a class="sourceLine" id="cb8-5" title="5"><span class="fu">steps:</span></a>
-<a class="sourceLine" id="cb8-6" title="6"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> clone gh-pages</span></a>
-<a class="sourceLine" id="cb8-7" title="7">  <span class="fu">image:</span><span class="at"> matsubara0507/git-with-ssh</span></a>
-<a class="sourceLine" id="cb8-8" title="8">  <span class="fu">settings:</span></a>
-<a class="sourceLine" id="cb8-9" title="9">    <span class="fu">ssh_private_key:</span></a>
-<a class="sourceLine" id="cb8-10" title="10">      <span class="fu">from_secret:</span><span class="at"> deploy_key</span></a>
-<a class="sourceLine" id="cb8-11" title="11">    <span class="fu">ssh_hosts:</span></a>
-<a class="sourceLine" id="cb8-12" title="12">    <span class="kw">-</span> github.com</a>
-<a class="sourceLine" id="cb8-13" title="13">    <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb8-14" title="14">    <span class="kw">-</span> git clone -b gh-pages git@github.com:haskell-jp/antenna.git temp</a>
-<a class="sourceLine" id="cb8-15" title="15">  <span class="fu">when:</span></a>
-<a class="sourceLine" id="cb8-16" title="16">    <span class="fu">branch:</span></a>
-<a class="sourceLine" id="cb8-17" title="17">    <span class="kw">-</span> master</a>
-<a class="sourceLine" id="cb8-18" title="18">    <span class="fu">event:</span></a>
-<a class="sourceLine" id="cb8-19" title="19">      <span class="fu">exclude:</span></a>
-<a class="sourceLine" id="cb8-20" title="20">      <span class="kw">-</span> pull_request</a>
-<a class="sourceLine" id="cb8-21" title="21"></a>
-<a class="sourceLine" id="cb8-22" title="22"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> exec antenna</span></a>
-<a class="sourceLine" id="cb8-23" title="23">  <span class="fu">image:</span><span class="at"> haskelljp/antenna</span></a>
-<a class="sourceLine" id="cb8-24" title="24">  <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb8-25" title="25">  <span class="kw">-</span> mkdir -p temp</a>
-<a class="sourceLine" id="cb8-26" title="26">  <span class="kw">-</span> cp sites.yaml temp/sites.yaml</a>
-<a class="sourceLine" id="cb8-27" title="27">  <span class="kw">-</span> cp -r image/* temp/image</a>
-<a class="sourceLine" id="cb8-28" title="28">  <span class="kw">-</span> cd temp</a>
-<a class="sourceLine" id="cb8-29" title="29">  <span class="kw">-</span> antenna sites.yaml</a>
-<a class="sourceLine" id="cb8-30" title="30"></a>
-<a class="sourceLine" id="cb8-31" title="31"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> push gh-pages</span></a>
-<a class="sourceLine" id="cb8-32" title="32">  <span class="fu">image:</span><span class="at"> matsubara0507/git-with-ssh</span></a>
-<a class="sourceLine" id="cb8-33" title="33">  <span class="fu">settings:</span></a>
-<a class="sourceLine" id="cb8-34" title="34">    <span class="fu">ssh_private_key:</span></a>
-<a class="sourceLine" id="cb8-35" title="35">      <span class="fu">from_secret:</span><span class="at"> deploy_key</span></a>
-<a class="sourceLine" id="cb8-36" title="36">    <span class="fu">ssh_hosts:</span></a>
-<a class="sourceLine" id="cb8-37" title="37">    <span class="kw">-</span> github.com</a>
-<a class="sourceLine" id="cb8-38" title="38">    <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb8-39" title="39">    <span class="kw">-</span> cd temp &amp;&amp; git config user.name  BOT</a>
-<a class="sourceLine" id="cb8-40" title="40">    <span class="kw">-</span> cd temp &amp;&amp; git config user.email bot@example.com</a>
-<a class="sourceLine" id="cb8-41" title="41">    <span class="kw">-</span> cd temp &amp;&amp; git status</a>
-<a class="sourceLine" id="cb8-42" title="42">    <span class="kw">-</span> cd temp &amp;&amp; git add -A</a>
-<a class="sourceLine" id="cb8-43" title="43">    <span class="kw">-</span> cd temp &amp;&amp; git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am <span class="st">&quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></a>
-<a class="sourceLine" id="cb8-44" title="44">    <span class="kw">-</span> cd temp &amp;&amp; git push origin gh-pages</a>
-<a class="sourceLine" id="cb8-45" title="45">  <span class="fu">when:</span></a>
-<a class="sourceLine" id="cb8-46" title="46">    <span class="fu">branch:</span></a>
-<a class="sourceLine" id="cb8-47" title="47">    <span class="kw">-</span> master</a>
-<a class="sourceLine" id="cb8-48" title="48">    <span class="fu">event:</span></a>
-<a class="sourceLine" id="cb8-49" title="49">      <span class="fu">exclude:</span></a>
-<a class="sourceLine" id="cb8-50" title="50">      <span class="kw">-</span> pull_request</a></code></pre></div>
-<p><code>cd temp &amp;&amp;</code> というのがダサいですが、そこはおいおい直します<span class="ascii">(</span><code>git-with-ssh</code> の方を<span class="ascii">)</span>。</p>
-<h2 id="slackの通知回りを整理"><span class="link-to-here-outer"><a href="#slackの通知回りを整理" title="slackの通知回りを整理"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Slack</span>の通知回りを整理</h2>
-<p>元々は<span class="ascii">Haskell-jp</span>の <code>#antenna</code> チャンネルに<span class="ascii">GitHub</span>の通知設定をしているだけでした。 今回の開発中、ずっとコミットの通知などが来てうるさかったので次のように分けました<span class="ascii">:</span></p>
-<ul>
-<li><code>#antenna</code> チャンネルは <code>gh-pages</code> ブランチのコミットだけ通知
-<ul>
-<li>ついでに<span class="ascii">Haskell Antenna</span>の<span class="ascii">RSS</span>を設定した</li>
-</ul></li>
-<li><code>#antenna-dev</code> チャンネルを新しく作り<span class="ascii">GitHub</span>の全ての更新はこっちに設定</li>
-<li><code>#dockerhub</code> チャンネルもついでに作って <code>haskelljp</code> の更新を通知する</li>
-</ul>
-<p>最近、<span class="ascii">Docker Hub</span>の大リニューアルがあって、いつのまにか<span class="ascii">Docker Hub</span>と<span class="ascii">Slack</span>を連携できるようになっていました。 なので試しに連携して更新の通知が飛ぶようにしてみました<span class="ascii">:</span></p>
-<p><img src="../../img/2019/hourly-antenna/dockerhub-slack.jpg" style="width: 100%;"></p>
-<h1 id="今後やりたいこと"><span class="link-to-here-outer"><a href="#今後やりたいこと" title="今後やりたいこと"><span class="link-to-here">Link to<br />
-here</span></a></span>今後やりたいこと</h1>
-<p>いくつかあります<span class="ascii">:</span></p>
-<ul>
-<li><span class="ascii">LTS</span>の更新<span class="ascii">(</span>最新<span class="ascii">GHC</span>が<span class="ascii">Windows</span>でも動作したらかな<span class="ascii">)</span></li>
-<li><span class="ascii">Feed</span>の改善
-<ul>
-<li><span class="ascii">Slack</span>の<span class="ascii">RSS</span>でもちゃんと更新が通知されるように</li>
-</ul></li>
-<li>ないしは更新差分の通知
-<ul>
-<li><span class="ascii">Haskell-jp Slack</span>の<span class="ascii">App</span>が満杯なので厳しいかも</li>
-</ul></li>
-</ul>
-<p>あと、<span class="ascii">Qiita</span>の<span class="ascii">Feed</span>がコメントや追記などでも更新され、その通知が <code>#antenna</code> チャンネルに飛んで来てうるさいので修正したいです<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>。</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>キャッシュの導入の仕方は記事にしたので興味のある方は是非「<a href="https://matsubara0507.github.io/posts/2019-01-06-use-drone-cache-with-gcs.html"><span class="ascii">GCS</span> で <span class="ascii">Drone 1.0</span> をキャッシュする <span class="ascii">-</span> ひげメモ</a>」<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>もし<span class="ascii">Docker Hub</span>の<span class="ascii">haskelljp</span>組織アカウントのメンバーになりたい場合は<span class="ascii">Haskell-jp Slack</span>で声をかけてください<span class="ascii">(</span>チャンネルはどこでも良いですよ<span class="ascii">)</span>。<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>この話も記事にしておきました「<a href="https://matsubara0507.github.io/posts/2019-01-20-create-drone-git-with-ssh.html"><span class="ascii">Drone Plugin</span> を作ってみた<span class="ascii">: git-with-ssh -</span> ひげメモ</a>」<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>この修正は <code>haskell-jp/antenna</code> ではなく、<a href="https://github.com/matsubara0507/scrapbook"><code>matsubara0507/scrapbook</code></a> からやる必要があります。<a href="#fnref4" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/string-gap-for-heredoc-like.html" lang="ja">Haskell でも heredoc がしたい</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/tidalcycles-stack.html" style="margin-left: auto;" lang="ja">TidalCyclesをstackで確実にインストールする</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>

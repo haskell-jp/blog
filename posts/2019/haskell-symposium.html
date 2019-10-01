@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Haskell Symposium 2019 レポート">
+    
+      <meta name="author" content="Kazuki Okamoto">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="Haskell Symposium 2019 レポート - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/haskell-symposium.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="[Haskell Symposium 2019](https://icfp19.sigplan.org/home/haskellsymp-2019)にIIJとして参加してきました。聴講した発表についての概要をまとめましたので、どの論文を読んでみるか決めるなどの際にご活用ください。内容については私の聞きまちがい・読みまちがいなどあると思いますのでご了承ください。# Haskell Symposium" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>Haskell Symposium 2019 レポート - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLWY1ZDVhZjIzMGE1MDMzZDAyNGZmYTU5M2VlODg5NTNmY2QwNGU1NjJjMjYzN2VjZmRjMDNiNGU0NjI5NDdlMTc">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>Haskell Symposium 2019 レポート</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a> on October 1, 2019</span><span class="meta">Tags: ICFP, Haskell Symposium</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p><a href="https://icfp19.sigplan.org/home/haskellsymp-2019"><span class="ascii">Haskell Symposium 2019</span></a>に<span class="ascii">IIJ</span>として参加してきました。</p>
+<p>聴講した発表についての概要をまとめましたので、どの論文を読んでみるか決めるなどの際にご活用ください。内容については私の聞きまちがい・読みまちがいなどあると思いますのでご了承ください。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#haskell-symposiumとは" title="haskell-symposiumとは"><span class="ascii">Haskell Symposium</span>とは</a></li>
+<li><a href="#bidirectional-type-class-instances" title="bidirectional-type-class-instances"><span class="ascii">Bidirectional Type Class Instances</span></a></li>
+<li><a href="#generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances" title="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="ascii">Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances</span></a></li>
+<li><a href="#modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study" title="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="ascii">Modular effects in Haskell through effect polymorphism and explicit dictionary applications - A new approach and the</span> μ<span class="ascii">VeriFast verifier as a case study</span></a></li>
+<li><a href="#verifying-effectful-haskell-programs-in-coq" title="verifying-effectful-haskell-programs-in-coq"><span class="ascii">Verifying Effectful Haskell Programs in Coq</span></a></li>
+<li><a href="#solving-haskell-equality-constraints-using-coq" title="solving-haskell-equality-constraints-using-coq"><span class="ascii">Solving Haskell equality constraints using Coq</span></a></li>
+<li><a href="#formal-verification-of-spacecraft-control-programs-an-experience-report" title="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="ascii">Formal Verification of Spacecraft Control Programs: An Experience Report</span></a></li>
+<li><a href="#g2q-haskell-constraint-solving" title="g2q-haskell-constraint-solving"><span class="ascii">G2Q: Haskell Constraint Solving</span></a></li>
+<li><a href="#making-a-faster-curry-with-extensional-types" title="making-a-faster-curry-with-extensional-types"><span class="ascii">Making a Faster Curry with Extensional Types</span></a></li>
+<li><a href="#multi-stage-programs-in-context" title="multi-stage-programs-in-context"><span class="ascii">Multi-Stage Programs in Context</span></a></li>
+<li><a href="#working-with-source-plugins" title="working-with-source-plugins"><span class="ascii">Working with Source Plugins</span></a></li>
+<li><a href="#stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism" title="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="ascii">STCLang: State Thread Composition as a Foundation for Monadic Dataflow Parallelism</span></a></li>
+<li><a href="#synthesizing-functional-reactive-programs" title="synthesizing-functional-reactive-programs"><span class="ascii">Synthesizing Functional Reactive Programs</span></a></li>
+<li><a href="#the-essence-of-live-coding-change-the-program-keep-the-state" title="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="ascii">The essence of live coding: Change the program, keep the state!</span></a></li>
+<li><a href="#monad-transformers-and-modular-algebraic-effects-what-binds-them-together" title="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="ascii">Monad Transformers and Modular Algebraic Effects: What Binds Them Together</span></a></li>
+<li><a href="#scoping-monadic-relational-database-queries" title="scoping-monadic-relational-database-queries"><span class="ascii">Scoping Monadic Relational Database Queries</span></a></li>
+</ul>
+</div>
+</div>
+<h1 id="haskell-symposiumとは"><span class="link-to-here-outer"><a href="#haskell-symposiumとは" title="haskell-symposiumとは"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell Symposium</span>とは</h1>
+<p><a href="https://icfp19.sigplan.org/"><span class="ascii">International Conference on Functional Programming</span></a>（<span class="ascii">ICFP</span>）に合わせて開催される<span class="ascii">Haskell</span>に関する国際会議です。<span class="ascii">Haskell</span>に関する研究を発表したり、実践的な経験や将来の言語の開発について議論したり、その他の宣言的プログラミングを促進したりします。</p>
+<h1 id="bidirectional-type-class-instances"><span class="link-to-here-outer"><a href="#bidirectional-type-class-instances" title="bidirectional-type-class-instances"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Bidirectional Type Class Instances</span></h1>
+<ul>
+<li>著者：<span class="ascii">Koen Pauwels (KU Leuven), Georgios Karachalias (KU Leuven), Michiel Derhaeg (Guardsquare), Tom Schrijvers (KU Leuven)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances</span></a></li>
+<li>論文：<a href="https://arxiv.org/abs/1906.12242" class="uri"><span class="ascii">https://arxiv.org/abs/1906.12242</span></a></li>
+</ul>
+<p><span class="ascii">GADT</span>と型クラスはそれぞれ便利だが混ぜると問題が起きる場合がある。</p>
+<p>次のような<code>Term</code>があるとき、その<code>Show</code>インスタンスを考える。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">data</span> <span class="dt">Term</span><span class="ot"> ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">Con</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">Term</span> a</a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">Tup</span><span class="ot"> ::</span> <span class="dt">Term</span> b <span class="ot">-&gt;</span> <span class="dt">Term</span> c <span class="ot">-&gt;</span> <span class="dt">Term</span> (b, c)</a></code></pre></div>
+<p>次のように<code>Show</code>インスタンスを定義すると型エラーになる。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">instance</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Term</span> a) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="fu">show</span> (<span class="dt">Con</span> a) <span class="ot">=</span> <span class="fu">show</span> a</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="fu">show</span> (<span class="dt">Tup</span> x y) <span class="ot">=</span> <span class="fu">unwords</span> [<span class="st">&quot;(&quot;</span>, <span class="fu">show</span> x, <span class="st">&quot;,&quot;</span>, <span class="fu">show</span> y, <span class="st">&quot;)&quot;</span>]</a></code></pre></div>
+<pre><code>Could not deduce (Show b) arising from a use of `show'
+from the context (Show a) or from (a ~ (b, c))</code></pre>
+<p>これは<code>Show (b, c)</code>ならば<code>Show b</code>という関係がないために起こる。</p>
+<p>一方タプルについての<code>Show</code>は、<code>Show a</code>かつ<code>Show b</code>ならば<code>Show (a, b)</code>という関係である。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Show</span> b) <span class="ot">=&gt;</span> <span class="dt">Show</span> (a, b) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  …</a></code></pre></div>
+<p>この「ならば」を両方向にすれば問題は解決できるのではないかというのが、この論文の主張である。</p>
+<h1 id="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here-outer"><a href="#generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances" title="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances</span></h1>
+<ul>
+<li>著者：<span class="ascii">Ryan Scott (Indiana University), Ryan R. Newton (Indiana University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances</span></a></li>
+<li>論文：<a href="https://ryanglscott.github.io/papers/verified-classes.pdf" class="uri"><span class="ascii">https://ryanglscott.github.io/papers/verified-classes.pdf</span></a></li>
+</ul>
+<p>型クラスの法則は依存型を使えば証明できるが、インスタンスごとに書くのはめんどうなので<code>Generics</code>で出来るようにしようという話である。</p>
+<h1 id="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="link-to-here-outer"><a href="#modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study" title="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Modular effects in Haskell through effect polymorphism and explicit dictionary applications - A new approach and the</span> μ<span class="ascii">VeriFast verifier as a case study</span></h1>
+<ul>
+<li>著者：<span class="ascii">Dominique Devriese (Vrije Universiteit Brussel)</span></li>
+<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic</span></a></li>
+</ul>
+<p>様々な種類の効果が複雑に絡み合うアプリケーションを整理するために、「効果を伴う処理を持った辞書」を明示的に渡す方式の提案である。</p>
+<p>提案した方式によって<span class="ascii">VeriFast</span>を再実装してみることで、実際に発生した問題と解決方法を解説している。</p>
+<h1 id="verifying-effectful-haskell-programs-in-coq"><span class="link-to-here-outer"><a href="#verifying-effectful-haskell-programs-in-coq" title="verifying-effectful-haskell-programs-in-coq"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Verifying Effectful Haskell Programs in Coq</span></h1>
+<ul>
+<li>著者：<span class="ascii">Jan Christiansen (Flensburg University of Applied Sciences), Sandra Dylus (University of Kiel), Niels Bunkenburg (University of Kiel)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342592" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342592</span></a></li>
+</ul>
+<p><span class="ascii">Coq</span>による、効果を伴うプログラムの証明に関する話。</p>
+<p>効果について直接証明することはせず、<span class="ascii">Free</span>モナドを用いての証明を試みても、そのまま<span class="ascii">Coq</span>に翻訳すると停止性チェックによってエラーになってしまう。</p>
+<p>そのために行った工夫に加え、具体例として、<code>trace</code>や（部分関数による）エラーなど、<span class="ascii">Haskell</span>において暗黙に発生する効果を考慮したモデル化について検討した。</p>
+<h1 id="solving-haskell-equality-constraints-using-coq"><span class="link-to-here-outer"><a href="#solving-haskell-equality-constraints-using-coq" title="solving-haskell-equality-constraints-using-coq"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Solving Haskell equality constraints using Coq</span></h1>
+<ul>
+<li>著者：<span class="ascii">Zubin Duggal</span></li>
+<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq</span></a></li>
+</ul>
+<p><span class="ascii">data kinds</span>や<span class="ascii">type families</span>といった<span class="ascii">GHC</span>拡張によって厳格なデータ型を定義できるが、それに対する操作を定義すると<span class="ascii">GHC</span>には解けない型レベルの等式が生成されることがある。</p>
+<p>制約カインドの型に対する型クラスとして<code>Proven</code>を提供し、この制約がある箇所を<span class="ascii">GHC</span>型検査プラグインが検出して対応する<span class="ascii">Coq</span>コードのテンプレートを生成する。</p>
+<p>その<span class="ascii">Coq</span>コードに証明がなければ警告を表示する。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">type</span> <span class="dt">ProofName</span> <span class="ot">=</span> <span class="dt">Symbol</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">class</span> c <span class="ot">=&gt;</span> <span class="dt">Proven</span> (<span class="ot">prf ::</span> <span class="dt">ProofName</span>) (<span class="ot">c ::</span> <span class="dt">Constraint</span>)</a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">where</span> {}</a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="ot">applyProof ::</span> <span class="kw">forall</span> prf c a<span class="op">.</span> <span class="dt">Proven</span> prf c <span class="ot">=&gt;</span> (c <span class="ot">=&gt;</span> a) <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb5-7" title="7">applyProof x <span class="ot">=</span> x</a>
+<a class="sourceLine" id="cb5-8" title="8"></a>
+<a class="sourceLine" id="cb5-9" title="9">lemma3 <span class="ot">=</span> applyProof <span class="op">@</span><span class="st">&quot;nonzero_pop&quot;</span> <span class="op">@</span>(<span class="dt">NNonZero</span> (<span class="dt">Popcount</span> b) <span class="op">~</span> <span class="dt">True</span>) <span class="dt">Refl</span></a></code></pre></div>
+<p>いくつか制約があるが<span class="ascii">Haskell</span>の型を<span class="ascii">Coq</span>に自動的に変換している。</p>
+<h1 id="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here-outer"><a href="#formal-verification-of-spacecraft-control-programs-an-experience-report" title="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Formal Verification of Spacecraft Control Programs: An Experience Report</span></h1>
+<ul>
+<li>著者：<span class="ascii">Andrey Mokhov (Newcastle University), Georgy Lukyanov (Newcastle University), Jakob Lechner (RUAG Space Austria GmbH)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342593" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342593</span></a></li>
+</ul>
+<p><span class="ascii">REDFIN</span>という固定小数演算と整数演算のための処理系があるのだが、そのアセンブリーコードに対して形式検証をしたという報告である。</p>
+<h1 id="g2q-haskell-constraint-solving"><span class="link-to-here-outer"><a href="#g2q-haskell-constraint-solving" title="g2q-haskell-constraint-solving"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">G2Q: Haskell Constraint Solving</span></h1>
+<ul>
+<li>著者：<span class="ascii">William T. Hallahan (Yale University), Anton Xue (Yale University), Ruzica Piskac (Yale University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342590" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342590</span></a></li>
+</ul>
+<p><span class="ascii">G2Q</span>は<span class="ascii">Haskell</span>のソースに<span class="ascii">quasi quote</span>で埋め込む<span class="ascii">DSL</span>である。</p>
+<p><span class="ascii">Haskell</span>で書いた条件式を<span class="ascii">symbolic execution</span>して、<span class="ascii">SMT solver</span>に渡す式に変換して、<span class="ascii">SMT solver</span>に条件を満たす関数を導出させる。</p>
+<h1 id="making-a-faster-curry-with-extensional-types"><span class="link-to-here-outer"><a href="#making-a-faster-curry-with-extensional-types" title="making-a-faster-curry-with-extensional-types"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Making a Faster Curry with Extensional Types</span></h1>
+<ul>
+<li>著者：<span class="ascii">Paul Downen (University of Oregon), Zachary Sullivan, Zena M. Ariola (University of Oregon), Simon Peyton Jones (Microsoft)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types</span></a></li>
+<li>論文：<a href="https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf" class="uri"><span class="ascii">https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf</span></a></li>
+</ul>
+<p>パフォーマンスのためにη変換してほしいところを明示したいことがある。</p>
+<p>例えば、次のような意味論上は等価な関数<code>f1</code>と<code>f2</code>があるとする。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">f1 <span class="ot">=</span> \x <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> \y <span class="ot">-&gt;</span> e y z</a>
+<a class="sourceLine" id="cb6-2" title="2">f2 <span class="ot">=</span> \x <span class="ot">-&gt;</span> \y <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> e y z</a></code></pre></div>
+<p>実際は<code>f1</code>は引数<code>x</code>を取った後クロージャー生成のためにヒープ確保するのに対して、<code>f2</code>はアリティが<span class="ascii">2</span>の関数と解釈されて中間のクロージャーが必要なくなる。</p>
+<p><code>~&gt;</code>というアリティの情報を持った関数型を新たに導入して<code>-&gt;</code>の代わりに使えるようにする。</p>
+<p><code>TYPE (a :: RuntimeRep (FunRep 2))</code>というような新たなポリモーフィズムを導入する。ここでの<code>2</code>がアリティ。</p>
+<p><code>Int</code>に対して<code>Int#</code>があるように基本的にはパフォーマンスが必要なライブラリーなど内部的に使用する想定。</p>
+<h1 id="multi-stage-programs-in-context"><span class="link-to-here-outer"><a href="#multi-stage-programs-in-context" title="multi-stage-programs-in-context"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Multi-Stage Programs in Context</span></h1>
+<ul>
+<li>著者：<span class="ascii">Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Csongor Kiss (Imperial College London)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342597" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342597</span></a></li>
+</ul>
+<p>次のような準引用があったときに、組み合わせると元々あったはずの情報が欠落する場合がある。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">qshow ::</span> <span class="dt">Code</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
+<a class="sourceLine" id="cb7-2" title="2">qshow <span class="ot">=</span> [q| show |]</a>
+<a class="sourceLine" id="cb7-3" title="3"></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="ot">qread ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>)</a>
+<a class="sourceLine" id="cb7-5" title="5">qread <span class="ot">=</span> [q| read |]</a>
+<a class="sourceLine" id="cb7-6" title="6"></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="ot">trim ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
+<a class="sourceLine" id="cb7-8" title="8">trim <span class="ot">=</span> [q| $(qshow) . $(qread) |]</a></code></pre></div>
+<p><code>qshow</code>と<code>qread</code>にあった<code>Int</code>という情報が、組み合わせて<code>trim</code>とすると欠落してコンパイルエラーになってしまう。</p>
+<p><span class="ascii">splice</span>するときに<span class="ascii">Haskell</span>ソースコードの構文木ではなく<span class="ascii">Core</span>に対するものを出力すればそれは型が明示されているし問題がない。</p>
+<p>しかも、<span class="ascii">splice</span>後の型検査を省略できるのでコンパイルの高速化にも寄与する。</p>
+<h1 id="working-with-source-plugins"><span class="link-to-here-outer"><a href="#working-with-source-plugins" title="working-with-source-plugins"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Working with Source Plugins</span></h1>
+<ul>
+<li>著者：<span class="ascii">Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Boldizsár Németh (Eötvös Loránd University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342599" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342599</span></a></li>
+</ul>
+<p><span class="ascii">souce plugins</span>のしくみや、書き方、実装時のテクニックの紹介である。</p>
+<h1 id="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="link-to-here-outer"><a href="#stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism" title="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">STCLang: State Thread Composition as a Foundation for Monadic Dataflow Parallelism</span></h1>
+<ul>
+<li>著者：<span class="ascii">Sebastian Ertel, Justus Adam (Technische Universität Dresden), Norman A. Rink (TU Dresden), Andrés Goens, Jeronimo Castrillon (TU Dresden)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342600" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342600</span></a></li>
+</ul>
+<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
+<h1 id="synthesizing-functional-reactive-programs"><span class="link-to-here-outer"><a href="#synthesizing-functional-reactive-programs" title="synthesizing-functional-reactive-programs"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Synthesizing Functional Reactive Programs</span></h1>
+<ul>
+<li>著者：<span class="ascii">Bernd Finkbeiner, Felix Klein (Saarland University), Ruzica Piskac (Yale University, Mark Santolucito (Yale University)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342601" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342601</span></a></li>
+</ul>
+<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
+<h1 id="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="link-to-here-outer"><a href="#the-essence-of-live-coding-change-the-program-keep-the-state" title="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">The essence of live coding: Change the program, keep the state!</span></h1>
+<ul>
+<li>著者：<span class="ascii">Manuel Bärenz (sonnen eServices GmbH)</span></li>
+<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state-" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state-</span></a></li>
+</ul>
+<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
+<h1 id="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="link-to-here-outer"><a href="#monad-transformers-and-modular-algebraic-effects-what-binds-them-together" title="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Monad Transformers and Modular Algebraic Effects: What Binds Them Together</span></h1>
+<ul>
+<li>著者：<span class="ascii">Tom Schrijvers (KU Leuven), Maciej Piróg (University of Wroc</span>ł<span class="ascii">aw), Nicolas Wu (Imperial College London), Mauro Jaskelioff (CONICET)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342595" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342595</span></a></li>
+</ul>
+<p>モナドトランスフォーマーと代数的効果との対比である。</p>
+<p>モナドトランスフォーマーから代数的効果への変換またその逆のときにどういう手法があって、それぞれを構成する要素がどう対応しているかを説明している。</p>
+<p>モナドトランスフォーマーと代数的効果だとモナドトランスフォーマーの方が表現できるものが大きいのでモナドトランスフォーマーから代数的効果へはどんなものでも変換できるわけではない。</p>
+<p>例えば<code>catch</code>や<code>local</code>は代数的効果にできない。</p>
+<h1 id="scoping-monadic-relational-database-queries"><span class="link-to-here-outer"><a href="#scoping-monadic-relational-database-queries" title="scoping-monadic-relational-database-queries"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Scoping Monadic Relational Database Queries</span></h1>
+<ul>
+<li>著者：<span class="ascii">Anton Ekblad (Chalmers University of Technology)</span></li>
+<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries</span></a></li>
+<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342598" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342598</span></a></li>
+</ul>
+<p>モナドは<span class="ascii">Haskell</span>界隈で非常に普及しているので<span class="ascii">SQL</span>に対する<span class="ascii">EDSL</span>としてモナドの構造を採用したい。</p>
+<p>このとき<span class="ascii">SQL</span>の結合を表現すると、<span class="ascii">SQL</span>としてはスコープ外にもかかわらず<span class="ascii">EDSL</span>としてはスコープ内となって使える変数ができてしまう。</p>
+<p>これを<span class="ascii">EDSL</span>としてもエラーとしたい。</p>
+<p>例えば、次のような例で実行時エラーとなってしまう。ここで<code>a0</code>は<code>tableA</code>の列とする。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">SELECT</span> a0, b0</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">FROM</span></a>
+<a class="sourceLine" id="cb8-3" title="3">  tableA</a>
+<a class="sourceLine" id="cb8-4" title="4">    <span class="kw">LEFT</span> <span class="kw">JOIN</span></a>
+<a class="sourceLine" id="cb8-5" title="5">      (<span class="kw">SELECT</span> b0 <span class="kw">FROM</span> tableB <span class="kw">WHERE</span> a0 <span class="op">==</span> b1)</a>
+<a class="sourceLine" id="cb8-6" title="6">  <span class="kw">ON</span> tableA.a2 <span class="op">==</span> tableb.b2</a></code></pre></div>
+<p><code>SELECT b0 FROM tableB WHERE a0 == b1</code>の部分でスコープ外の<code>a0</code>を参照しているためエラーとなる。</p>
+<p>単純なモナド<span class="ascii">EDSL</span>だと次のようになりコンパイルが通る。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">do</span></a>
+<a class="sourceLine" id="cb9-2" title="2">  a0 <span class="op">:*:</span> a1 <span class="op">:*:</span> a2 <span class="ot">&lt;-</span> from table0</a>
+<a class="sourceLine" id="cb9-3" title="3">  leftJoin <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb9-4" title="4">    b0 <span class="op">:*:</span> b1 <span class="op">:*:</span> b2 <span class="ot">&lt;-</span> from table1</a>
+<a class="sourceLine" id="cb9-5" title="5">    ristrict <span class="op">$</span> a0 <span class="op">.==</span> b1</a>
+<a class="sourceLine" id="cb9-6" title="6">  on <span class="op">$</span> a2 <span class="op">.==</span> b2</a></code></pre></div>
+<p><code>ristrict $ a0 .== b1</code>の部分において<code>a0</code>は<span class="ascii">Haskell</span>としてはスコープ内にある。</p>
+<p>この問題を次のような型レベル関数を駆使することで<span class="ascii">EDSL</span>においてもコンパイル時エラーとすることができた。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Cols</span> a</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Outer</span> a</a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">UnAggr</span> a</a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">FromRow</span> a</a></code></pre></div>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="../../posts/2019/hiw-copilot.html" lang="ja">HIW 2019で発表された、Copilotという内部DSLについて</a>
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/hiw-gibbon.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、Gibbonコンパイラーについて</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Kazuki Okamoto 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
