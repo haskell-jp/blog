@@ -5,7 +5,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Kazuki Okamoto
 postedBy: <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a>
-date: September 28, 2019
+date: October 1, 2019
 tags: ICFP, Haskell Symposium
 ---
 
