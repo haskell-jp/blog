@@ -9,15 +9,19 @@ date: September 28, 2019
 tags: ICFP, Haskell Symposium
 ---
 
-Haskell Symposium 2019にIIJとして参加してきました。
+[Haskell Symposium 2019](https://icfp19.sigplan.org/home/haskellsymp-2019)にIIJとして参加してきました。
 
 聴講した発表についての概要をまとめましたので、どの論文を読んでみるか決めるなどの際にご活用ください。内容については私の聞きまちがい・読みまちがいなどあると思いますのでご了承ください。
 
+# Haskell Symposiumとは
+
+[International Conference on Functional Programming](https://icfp19.sigplan.org/)（ICFP）に合わせて開催されるHaskellに関する国際会議です。Haskellに関する研究を発表したり、実践的な経験や将来の言語の開発について議論したり、その他の宣言的プログラミングを促進したりします。
+
 # Bidirectional Type Class Instances
 
-- Koen Pauwels (KU Leuven), Georgios Karachalias (KU Leuven), Michiel Derhaeg (Guardsquare), Tom Schrijvers (KU Leuven)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances>
-- <https://arxiv.org/abs/1906.12242>
+- 著者：Koen Pauwels (KU Leuven), Georgios Karachalias (KU Leuven), Michiel Derhaeg (Guardsquare), Tom Schrijvers (KU Leuven)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances>
+- 論文：<https://arxiv.org/abs/1906.12242>
 
 GADTと型クラスはそれぞれ便利だが混ぜると問題が起きる場合がある。
 
@@ -55,16 +59,16 @@ instance (Show a, Show b) => Show (a, b) where
 
 # Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances
 
-- Ryan Scott (Indiana University), Ryan R. Newton (Indiana University)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances>
-- <https://ryanglscott.github.io/papers/verified-classes.pdf>
+- 著者：Ryan Scott (Indiana University), Ryan R. Newton (Indiana University)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances>
+- 論文：<https://ryanglscott.github.io/papers/verified-classes.pdf>
 
 型クラスの法則は依存型を使えば証明できるが、インスタンスごとに書くのはめんどうなので`Generics`で出来るようにしようという話である。
 
 # Modular effects in Haskell through effect polymorphism and explicit dictionary applications - A new approach and the μVeriFast verifier as a case study
 
-- Dominique Devriese (Vrije Universiteit Brussel)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic>
+- 著者：Dominique Devriese (Vrije Universiteit Brussel)
+- 概要・論文：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic>
 
 様々な種類の効果が複雑に絡み合うアプリケーションを整理するために、「効果を伴う処理を持った辞書」を明示的に渡す方式の提案である。
 
@@ -72,9 +76,9 @@ instance (Show a, Show b) => Show (a, b) where
 
 # Verifying Effectful Haskell Programs in Coq
 
-- Jan Christiansen (Flensburg University of Applied Sciences), Sandra Dylus (University of Kiel), Niels Bunkenburg (University of Kiel)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq>
-- <https://dl.acm.org/citation.cfm?id=3342592>
+- 著者：Jan Christiansen (Flensburg University of Applied Sciences), Sandra Dylus (University of Kiel), Niels Bunkenburg (University of Kiel)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342592>
 
 Coqによる、効果を伴うプログラムの証明に関する話。
 
@@ -84,8 +88,8 @@ Coqによる、効果を伴うプログラムの証明に関する話。
 
 # Solving Haskell equality constraints using Coq
 
-- Zubin Duggal
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq>
+- 著者：Zubin Duggal
+- 概要・論文：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq>
 
 data kindsやtype familiesといったGHC拡張によって厳格なデータ型を定義できるが、それに対する操作を定義するとGHCには解けない型レベルの等式が生成されることがある。
 
@@ -109,17 +113,17 @@ lemma3 = applyProof @"nonzero_pop" @(NNonZero (Popcount b) ~ True) Refl
 
 # Formal Verification of Spacecraft Control Programs: An Experience Report
 
-- Andrey Mokhov (Newcastle University), Georgy Lukyanov (Newcastle University), Jakob Lechner (RUAG Space Austria GmbH)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report>
-- <https://dl.acm.org/citation.cfm?id=3342593>
+- 著者：Andrey Mokhov (Newcastle University), Georgy Lukyanov (Newcastle University), Jakob Lechner (RUAG Space Austria GmbH)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342593>
 
 REDFINという固定小数演算と整数演算のための処理系があるのだが、そのアセンブリーコードに対して形式検証をしたという報告である。
 
 # G2Q: Haskell Constraint Solving
 
-- William T. Hallahan (Yale University), Anton Xue (Yale University), Ruzica Piskac (Yale University)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving>
-- <https://dl.acm.org/citation.cfm?id=3342590>
+- 著者：William T. Hallahan (Yale University), Anton Xue (Yale University), Ruzica Piskac (Yale University)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342590>
 
 G2QはHaskellのソースにquasi quoteで埋め込むDSLである。
 
@@ -127,9 +131,9 @@ Haskellで書いた条件式をsymbolic executionして、SMT solverに渡す式
 
 # Making a Faster Curry with Extensional Types
 
-- Paul Downen (University of Oregon), Zachary Sullivan, Zena M. Ariola (University of Oregon), Simon Peyton Jones (Microsoft)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types>
-- <https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf>
+- 著者：Paul Downen (University of Oregon), Zachary Sullivan, Zena M. Ariola (University of Oregon), Simon Peyton Jones (Microsoft)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types>
+- 論文：<https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf>
 
 パフォーマンスのためにη変換してほしいところを明示したいことがある。
 
@@ -150,9 +154,9 @@ f2 = \x -> \y -> let z = h x x in e y z
 
 # Multi-Stage Programs in Context
 
-- Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Csongor Kiss (Imperial College London)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context>
-- <https://dl.acm.org/citation.cfm?id=3342597>
+- 著者：Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Csongor Kiss (Imperial College London)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342597>
 
 次のような準引用があったときに、組み合わせると元々あったはずの情報が欠落する場合がある。
 
@@ -175,40 +179,40 @@ spliceするときにHaskellソースコードの構文木ではなくCoreに対
 
 # Working with Source Plugins
 
-- Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Boldizsár Németh (Eötvös Loránd University)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins>
-- <https://dl.acm.org/citation.cfm?id=3342599>
+- 著者：Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Boldizsár Németh (Eötvös Loránd University)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342599>
 
 souce pluginsのしくみや、書き方、実装時のテクニックの紹介である。
 
 # STCLang: State Thread Composition as a Foundation for Monadic Dataflow Parallelism
 
-- Sebastian Ertel, Justus Adam (Technische Universität Dresden), Norman A. Rink (TU Dresden), Andrés Goens, Jeronimo Castrillon (TU Dresden)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism>
-- <https://dl.acm.org/citation.cfm?id=3342600>
+- 著者：Sebastian Ertel, Justus Adam (Technische Universität Dresden), Norman A. Rink (TU Dresden), Andrés Goens, Jeronimo Castrillon (TU Dresden)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342600>
 
-不聴講
+同じ時刻のHIWの発表を聴講していたためこちらは聴講していません。
 
 # Synthesizing Functional Reactive Programs
 
-- Bernd Finkbeiner, Felix Klein (Saarland University), Ruzica Piskac (Yale University, Mark Santolucito (Yale University)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs>
-- <https://dl.acm.org/citation.cfm?id=3342601>
+- 著者：Bernd Finkbeiner, Felix Klein (Saarland University), Ruzica Piskac (Yale University, Mark Santolucito (Yale University)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342601>
 
-不聴講
+同じ時刻のHIWの発表を聴講していたためこちらは聴講していません。
 
 # The essence of live coding: Change the program, keep the state!
 
-- Manuel Bärenz (sonnen eServices GmbH)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state->
+- 著者：Manuel Bärenz (sonnen eServices GmbH)
+- 概要・論文：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state->
 
-不聴講
+同じ時刻のHIWの発表を聴講していたためこちらは聴講していません。
 
 # Monad Transformers and Modular Algebraic Effects: What Binds Them Together
 
-- Tom Schrijvers (KU Leuven), Maciej Piróg (University of Wrocław), Nicolas Wu (Imperial College London), Mauro Jaskelioff (CONICET)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together>
-- <https://dl.acm.org/citation.cfm?id=3342595>
+- 著者：Tom Schrijvers (KU Leuven), Maciej Piróg (University of Wrocław), Nicolas Wu (Imperial College London), Mauro Jaskelioff (CONICET)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342595>
 
 モナドトランスフォーマーと代数的効果との対比である。
 
@@ -220,9 +224,9 @@ souce pluginsのしくみや、書き方、実装時のテクニックの紹介�
 
 # Scoping Monadic Relational Database Queries
 
-- Anton Ekblad (Chalmers University of Technology)
-- <https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries>
-- <https://dl.acm.org/citation.cfm?id=3342598>
+- 著者：Anton Ekblad (Chalmers University of Technology)
+- 概要：<https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries>
+- 論文：<https://dl.acm.org/citation.cfm?id=3342598>
 
 モナドはHaskell界隈で非常に普及しているのでSQLに対するEDSLとしてモナドの構造を採用したい。
 
