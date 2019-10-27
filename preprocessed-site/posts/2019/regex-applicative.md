@@ -201,7 +201,7 @@ Just Nothing
 
 ### 組み込みの正規表現を使う
 
-例えば、`[Text.Regex.Applicative.Common`モジュールにある`digit`](http://hackage.haskell.org/package/regex-applicative-0.3.3.1/docs/Text-Regex-Applicative-Common.html#v:digit)は、一桁の数字<small>（つまり`0`から`9`）</small>にマッチした上で、結果としてマッチした値を**文字ではなく、整数として**返す正規表現を提供します。
+例えば、[`Text.Regex.Applicative.Common`モジュールにある`digit`](http://hackage.haskell.org/package/regex-applicative-0.3.3.1/docs/Text-Regex-Applicative-Common.html#v:digit)は、一桁の数字<small>（つまり`0`から`9`）</small>にマッチした上で、結果としてマッチした値を**文字ではなく、整数として**返す正規表現を提供します。
 
 ```haskell
 > match digit "1"
@@ -231,7 +231,7 @@ Just 15
 ### `(<*>) :: RE s (a -> b) -> RE s a -> RE s b`: 任意の関数を適用する
 
 Applicativeスタイルのもう一つの重要な関数といえば、やっぱり`<*>`でしょう。  
-`many digit`を再利用して、「銭湯に書かれた桁数だけ数字を取得する」という例を書いてみます。
+`many digit`を再利用して、「先頭に書かれた桁数だけ数字を取得する」という例を書いてみます。
 
 ```haskell
 > match (take <$> digit <*> many digit) "312345"
@@ -368,6 +368,7 @@ regex-applicativeを使うことで、URLのオリジンにマッチさせるだ
 - Haskell向けのパーサーコンビネーターの多くは`Applicative`ベースのAPIなので、ぱっと見よく似てる
     - 場合によっては使うライブラリーだけ換えて式をコピペしてもコンパイルは通る（かも）
 - バックトラックするかしないか
+    - hoge: コード例で示そう
 - regex-applicativeの方が部分文字列へのマッチが簡単
     - パーサーコンビネーターを、部分文字列のマッチに使いやすくするライブラリーもあるにはある
         - [replace-attoparsec](https://github.com/jamesdbrock/replace-attoparsec)
