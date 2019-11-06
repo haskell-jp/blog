@@ -186,7 +186,7 @@ GHCへの変更提案に対するコード修正は、パッチを作成して�
 ## 補足
 
 わからないことがあれば、[ghc-devsのML](https://mail.haskell.org/cgi-bin/mailman/listinfo/ghc-devs)に問い合わせると親切に教えてもらえます。
-もちろん、[Haskell-jpのslack](https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLWY1ZDVhZjIzMGE1MDMzZDAyNGZmYTU5M2VlODg5NTNmY2QwNGU1NjJjMjYzN2VjZmRjMDNiNGU0NjI5NDdlMTc)の#questionsチャネルなどで尋ねるのも良いでしょう。
+もちろん、[Haskell-jpのslack](https://haskell.jp/signin-slack.html)の#questionsチャネルなどで尋ねるのも良いでしょう。
 
 なお、GHCでの開発作業については、[Working on GHC](https://ghc.haskell.org/trac/ghc/wiki/WorkingConventions)も参考にどうぞ。  
 また、GHCの開発フロー全体については、[こちら](https://takenobu-hs.github.io/downloads/ghc_development_flow.pdf)も参考にどうぞ。GHC関連のサイトの情報を力づくで検索するには、[こちら](https://takenobu-hs.github.io/haskell-wiki-search/)もどうぞ。
