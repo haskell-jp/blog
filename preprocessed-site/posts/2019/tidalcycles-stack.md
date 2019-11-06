@@ -257,6 +257,6 @@ TidalCyclesの技術的な側面で気になった点は以上です。
 
 もし、今回の記事やTidalCyclesをきっかけにHaskellを勉強してみたいと思ったら、[Haskell-jp Wikiの日本語のリンク集](https://wiki.haskell.jp/Links)を読んで、自分に合う入門コンテンツを見つけてみてください！  
 それから、何か困ったことがあれば[Haskell-jpのSlack Workspaceにある、#questionsチャンネル](https://haskell-jp.slack.com/messages/C5666B6BB/convo/C4M4TT8JJ-1547294914.091800/)で質問してみてください。  
-[登録はこちら](https://join.slack.com/t/haskell-jp/shared_invite/enQtNDY4Njc1MTA5MDQxLWY1ZDVhZjIzMGE1MDMzZDAyNGZmYTU5M2VlODg5NTNmY2QwNGU1NjJjMjYzN2VjZmRjMDNiNGU0NjI5NDdlMTc)からどうぞ！
+[登録はこちら](https://haskell.jp/signin-slack.html)からどうぞ！
 
 それでは2019年もHaskellとTidalCyclesでHappy Hacking!! 🎶🎶🎶
