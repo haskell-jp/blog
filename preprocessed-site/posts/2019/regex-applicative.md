@@ -284,7 +284,7 @@ data Origin =
 あとは`<$>`や`<*>`を使って組み合わせて、`Origin`値コンストラクターに食わせるだけです！  
 ポート番号はオリジンにおいてはなくても良いので、省略した場合は仮に`80`としておきましょう[^https]。
 
-[^https]: もちろん、実際のところhttpsの場合デフォルトのポート番号は443ですが、ちゃんと実装しようとすると結構複雑になるのでご容赦を！
+[^https]: もちろん、実際のところhttpsの場合デフォルトのポート番号は443であるべきですが、ちゃんと実装しようとすると結構複雑になるのでご容赦を！
 
 ```haskell
 originRe = Origin   <$>
@@ -306,74 +306,237 @@ regex-applicativeを使うことで、URLのオリジンにマッチさせるだ
 
 # 👍regex-applicativeのメリット
 
-- 内部DSLとして書けるので、コンパイラーによる型チェックの恩恵を受けやすい
+regex-applicativeパッケージには、他の正規表現ライブラリーと比べて、以下のメリットがあります。
+
 - 文字列以外の扱いにも強い
     - マッチした結果から（文字列以外の）Haskellの値に割り当てるのが簡単！
-        - 「生のデータ」から「コアの処理が欲しいデータ」への変換がワンストップ
+        - 「生のデータ」からアプリケーションにおける「コアの処理が欲しいデータ」への変換がワンストップ
     - 文字列だけでなく、任意のリストに対してマッチできる
+- 内部DSLとして書けるので、コンパイラーによる型チェックの恩恵を受けやすい
+    - 前述の「マッチした結果から（文字列以外の）Haskellの値に割り当てる」処理も、すべて型チェックされる
 
 # 👎regex-applicativeのデメリット
 
+一方regex-applicativeパッケージには、他の正規表現ライブラリーに対する以下のデメリットがあります。
+
 - コードは長い
+    - 内部DSLなのでやむなし
+    - 専用のメタキャラクターより分かりやすい、とも言える
+- ユーザーからの入力として、正規表現を受け取ることは難しい
+    - これも内部DSLなのでやむなし
 - 速度はおそらくCとかで書いたものほど速くはない
     - そんなに細かい最適化をしているわけではないし、Pure Haskellなので...
-- Haskellの`String`以外の文字列にはマッチできない...
+- `String`以外の文字列にはマッチできない...
+    - これがHaskellerにとって一番痛い
+    - `Text`や`ByteString`向けのものも、原理的に実装できないというわけではないはず
     - 参考: [Haskell Tips (文字列編) - りんごがでている](http://bicycle1885.hatenablog.com/entry/2012/12/24/234707)
 
 # ⚙️regex-applicativeの仕組み
 
-- 継続渡しで作られたNFA
-- バックトラックするときは継続を切り替える
+ここからは、regex-applicativeにおける正規表現エンジンがどのように作られているか、『[正規表現技術入門](https://gihyo.jp/book/2015/978-4-7741-7270-5)』における正規表現エンジンの分類を参考に説明しましょう。
 
-# 📑正規表現エンジンの分類
+## 📑正規表現エンジンの分類
 
-※[正規表現技術入門](https://gihyo.jp/book/2015/978-4-7741-7270-5) p. 56より
+『正規表現技術入門』のp.56では、正規表現エンジンを次の二つに分類しています。
 
 - DFA型
     - 正規表現を決定性有限オートマトン（deterministic finite automaton）と呼ばれるものに変換して正規表現マッチングを行う
 - VM型
     - 正規表現をバイトコード（bytecode）と呼ばれるものに変換して正規表現マッチングを行う
 
-# regex-applicativeの場合は...？
+さて、regex-applicativeの場合はどちらなのでしょうか？  
+[ソースコード](https://github.com/feuerbach/regex-applicative/)を読んでみると、どうやらどちらでもなさそうなことがわかります。  
+というのも、正規表現オブジェクト`RE s a`をNFAに[`compile`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L110-L111)という関数で変換した後、DFAに変換しないでそのまま使っているからです。  
+一般的に、NFAはDFAに変換可能で、変換してからマッチさせた方がしばしば高速にマッチできることが知られています。  
+ところがregex-applicativeではその変換を行わず、NFAとして使用しているのです。
 
-😕どちらでもなさそう？
+なぜそうした仕様になっているかについて、私の推測を述べましょう[^few]。  
+regex-applicativeでは先ほど紹介した`psym`関数のように、「任意の文字を受け取る関数」を正規表現オブジェクトに含められなければなりません。  
+結果、関数がどんな文字の時にどんな値を返すのか<small>（マッチが成功するのかしないのか）</small>、正規表現オブジェクトをコンパイルする関数にはわからなくなってしまうのです。  
+一方、効率の良いDFAの実装では、DFAの一つ一つの状態ごとに「どの文字を受け取ったら次はどの状態に遷移するか」という情報を、連想配列として持っておかなければなりません[^dfa-impl]。  
+そのため、どの文字を受け取ったらマッチが成功するのかわからない箇所が正規表現オブジェクトに混ざっている限り、効率の良いDFAの実装にはできないのです。
 
-- NFAをDFAに変えずにそのまま使っている
-- NFAにおける状態遷移を「文字を受け取って次の状態のリストを返す関数」で表す
+[^few]: この記事の最後の方を書いていて思い出しました。regex-applicativeはDFAベースの正規表現エンジンでは不可能な「控えめな繰り返し」をサポートしているから、という理由もあるようです。なぜDFAベースでは「控えめな繰り返し」ができないかは私もうまく説明できません...。
+[^dfa-impl]: 『正規表現技術入門』のp. 132における実装例では、これを状態と文字による二次元配列として実装しています。
 
-# regex-applicativeの実際の実装
+その分、regex-applicativeでは任意の文字を受け取る関数が使えるので、普通の正規表現ライブラリーよりも柔軟に書くことができるようになっています。  
+その点を考慮したトレードオフなんでしょう。
 
-- [`compile`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L110-L111)という関数で、正規表現オブジェクト`RE s a`を[`ReObject`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L38-L43)という、[`Thread`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Types.hs#L9-L16)オブジェクトのキューに変換する
-- `Thread`は👇の二通りの値をとりうる型
-    - ⏩`s -> [Thread s r]`: 文字を受け取って次に分岐しうる`Thread`のリストを返す関数。文字が条件にマッチしなければ空リストを返して次に進まない
-    - ✅`Accept r`: 文字どおり受理状態を表す
-    - ⚠️並行並列プログラミングで出てくるあの「スレッド」とは違うので注意！
+## regex-applicativeの実際の実装
 
-# regex-applicativeの実際の実装（続き）
+さらにregex-applicativeの実装を掘ってみましょう。  
+先ほど紹介した`compile`関数は、正規表現オブジェクト`RE s a`を[`ReObject s r`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L38-L43)という型の、[`Thread s r`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Types.hs#L9-L16)の値のキューに変換します。  
+これがregex-applicativeにおけるNFAと呼べそうですね。
 
-- ➡️ `s -> [Thread s r]`の実行が成功したとき
-    - 返却された`[Thread s r]`の要素をすべてキューに追加して、引き続き実行する
-- ↩️ `s -> [Thread s r]`の実行が失敗したとき
-    - バックトラック: 次に実行する`Thread`に切り替える
-- ℹ️ 実際には`Thread`を一つずつ実行してみて、結果が条件に合うものを選ぶ、といった方が近い
-    - `findLongestPrefix`関数などはそうした処理特性によって実現
+```haskell
+newtype ReObject s r = ReObject (SQ.StateQueue (Thread s r))
+```
+
+`Thread s r`型の値は、NFAにおける状態遷移を表します。
+
+```haskell
+data Thread s r
+    = Thread
+        { threadId_ :: ThreadId
+        , _threadCont :: s -> [Thread s r]
+        }
+    | Accept r
+```
+
+型定義のとおり、`Thread`と`Accept`という二通りの値をとります[^parconc-thread]。
+
+[^parconc-thread]: 並行並列プログラミングで出てくるあの「スレッド」とは違うのでご注意ください。
+
+- ⏩`Thread`はその用途からして、事実上`s -> [Thread s r]`という関数と同等の型です。regex-applicativeは`ReObject`によって文字列`[s]`の値をマッチさせる際、この`s -> [Thread s r]`に文字を渡します。
+    - ➡️そして、関数が結果として返した、`Thread s r`型の値を<small>（そのリストから）</small>一つずつキューに追加して、また次の文字にマッチさせます。  
+      <small>（キューなんで関数が返した新しい`Thread s r`型の値が直ちに実行されます）</small>
+    - ↩️一方、関数が空リストを返した場合は --- そう、マッチが失敗した、ということなのです。その場合は、キューからさらに`Thread s r`の値を取り出して<small>（値コンストラクターが`Thread`であれば）</small>マッチしなかった文字をまた`s -> [Thread s r]`に渡します。
+    - なお、`threadId_`はキューに追加する際同じ`threadId_`の`Thread`を追加してしまうのを防ぐためのキーです。詳細は割愛します。
+- ✅`Accept r`は名前のとおりNFAの受理状態を表しています。`s -> [Thread s r]`を繰り返し適用して最終的に`Accept r`を返した`Thread`のみが「マッチした」と解釈されます。
+
+このように、regex-applicativeにおけるNFAは`s -> [Thread s r]`を返す関数、すなわち「文字を受け取って次の状態のリストを返す継続」として作られています。
+
+ただ実際に実行する際の流れを見てみると、`ReObject`に含まれる`Thread`を一つずつ実行してみて、結果が条件に合うものを選ぶ、といった方が近いです。  
+例えば[`match`関数](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Interface.hs#L81-L85)では、`ReObject`に文字を一文字ずつ与えた結果の中から、`listToMaybe`を使って最初に`Accept`にたどり着く`Thread`を取得しています。  
+それから、最長マッチする部分文字列を検索する[`findLongestPrefix`関数](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Interface.hs#L141-L149)は、マッチが失敗するか残りの文字列が空になるまで繰り返し文字を`ReObject`に与えることで、できるだけ長いマッチが返るように調整しています。  
+このようにregex-applicativeは、`ReObject`(NFA)に文字を一つずつ与えてマッチ結果を生成する処理と、そのマッチ結果を選び取る処理とを分離することで、様々な方針でマッチできるようになっているのです。
 
 # 類似のライブラリーとの比較を軽く
 
-- 各種パーサーコンビネーター
-- VerbalExpressions
-
 ## 各種パーサーコンビネーター
 
-- Haskell向けのパーサーコンビネーターの多くは`Applicative`ベースのAPIなので、ぱっと見よく似てる
-    - 場合によっては使うライブラリーだけ換えて式をコピペしてもコンパイルは通る（かも）
-- バックトラックするかしないか
-    - hoge: コード例で示そう
-- regex-applicativeの方が部分文字列へのマッチが簡単
-    - パーサーコンビネーターを、部分文字列のマッチに使いやすくするライブラリーもあるにはある
-        - [replace-attoparsec](https://github.com/jamesdbrock/replace-attoparsec)
+さて、ここまでこの文章を読んでいただけた方の中には、「これってmegaparsecとかattoparsecとかのパーサーコンビネーターライブラリーと何が違うんだ？」という疑問をお持ちの方も多いでしょう。  
+そう、大抵の場合、パーサーコンビネーターライブラリーも下記のような特徴を持ち合わせています。
+
+- Haskellの内部DSLとして実装されている
+    - `Applicative`や`Alternative`型クラスのメソッドを利用したAPI
+- マッチした結果から（文字列以外の）Haskellの値に割り当てるのが簡単
+- 「文字(`Char`)」の列以外にもマッチできる
+
+特に「`Applicative`や`Alternative`型クラスのメソッドを利用したAPI」である点は興味深く、場合によっては、使うライブラリーだけ換えて式をコピペしてもコンパイルは通る、なんてことが普通にあり得るくらい似ています。  
+ただし、当然コンパイルが通るだけでは意図通りに動くとは限りません。  
+regex-alternativeと一般的なパーサーコンビネーターライブラリーには、「**自動的にバックトラックをするかしないか**」という違いがあるためです。
+
+例えば、次の式はregex-applicativeでもattoparsecでも有効な式ですが、regex-applicativeの`match`関数では、「`ab`が1回以上繰り返される文字列」にマッチして最後の`ab`を返すことができるのに、attoparsecの`parse`関数ではパースに失敗してしまいます。
+
+```haskell
+many (string "ab") *> string "ab"
+```
+
+`stack build regex-applicative attoparsec`した上で以下のように書いて試してみましょう。  
+まずはregex-applicativeで試す場合:
+
+```haskell
+> import Text.Regex.Applicative
+
+> match (many (string "ab") *> string "ab") "abab"
+Just "ab"
+
+> match (many (string "ab") *> string "ab") "ab"
+Just "ab"
+
+> match (many (string "ab") *> string "ab") "ababab"
+Just "ab"
+```
+
+いずれの文字列でも`Just "ab"`が返ってきてますね😌。
+
+続いてattoparsecで試す場合:
+
+```haskell
+-- attoparsecは`String`をサポートしてないのでOverloadedStringsでTextとして扱う
+> :set -XOverloadedStrings
+
+> import Control.Applicative
+> import Data.Attoparsec.Text
+
+-- 文字列の終端であることを明確にするために、空文字列をfeedしておく
+> feed (parse (many (string "ab") *> string "ab") "abab") ""
+Fail "" [] "not enough input"
+
+> feed (parse (many (string "ab") *> string "ab") "ab") ""
+Fail "" [] "not enough input"
+
+> feed (parse (many (string "ab") *> string "ab") "ababab") ""
+Fail "" [] "not enough input"
+```
+
+いずれの文字列でも失敗になってしまいました。なぜうまくいかないのでしょう？  
+それは文字列`"ababab"`における`ab`を、`many (string "ab")`が消費してしまい、`*>`の右辺に書いた`string "ab"`が処理できなくなってしまうためです。  
+対するregex-applicativeにおける`many (string "ab") *> string "ab"`では、正規表現全体がマッチするよう、自動でバックトラックしてくれます。  
+regex-applicativeでも最初に`many (string "ab")`が`"ababab"`全体を消費した直後では、`*>`の右辺に書いた`string "ab"`のマッチは当然失敗してしまいます。  
+しかし、regex-applicativeはそれではあきらめません。`*>`の右辺に書いた`string "ab"`が成功するまで、失敗する度に`many (string "ab")`が消費した文字を1文字ずつ返却してくれるのです。これがバックトラックです。  
+regex-alternativeに限らず、大抵の正規表現エンジンがこのように自動的なバックトラックを行います。
+
+こうした性質の違いにより、regex-applicativeは**文字列の中間に指定したパターンをマッチさせる**のが、パーサーコンビネーターライブラリーよりも得意です。
+
+例えば「文字列の中間にある1桁以上の10進数」にマッチさせる場合、regex-alternativeでは次のように書きます。
+
+```haskell
+> import Text.Regex.Applicative.Common
+> match (few anySym *> decimal <* few anySym) "abc12345def"
+Just 12345
+```
+
+`few`は「控えめな繰り返し」を実現するための関数です。引数で指定した正規表現を0回以上マッチさせる、という点では`many`と同じですが、前後にある正規表現がなるべく長くマッチするよう、優先してマッチさせてくれます。  
+`few anySym`は普通の正規表現ライブラリーでいうところの`.*?`に相当します。
+
+同じことをattoparsecで実現するために`many anyChar *> decimal <* many anyChar`と書いてみても、やはりうまくいきません。
+
+```haskell
+> import Data.Attoparsec.Text
+
+> feed (parse (many anyChar *> decimal <* many anyChar) "abc12345def") ""
+Fail "" [] "not enough input"
+```
+
+理由は先ほどと同様で、最初に書いた`many anyChar`がすべての文字列を消費してしまい、それ以降の`decimal`などがマッチできないのです。  
+正しく処理するには、「`decimal`の先頭以外の文字列」、すなわち「数字以外の文字列」が`many`であることを明示する方法をとるしかありません[^regex]。
+
+[^regex]: ただし、一般に、正規表現ライブラリーであってもこのような書き方をした方が効率よくマッチさせやすいでしょう。
+
+```haskell
+> import Data.Char
+
+> nonDigits = many (satisfy (not . isDigit))
+> feed ((parse (nonDigits *> decimal <* nonDigits)) "abc12345def") ""
+Done "" 12345
+```
+
+そんなわけで、regex-applicativeは、Haskellによくあるパーサーコンビネーターのように**Applicativeスタイルで書けて、なおかつ他の正規表現ライブラリーのように中間マッチがしやすい**という、両方の良さを持ち合わせていると言えます。
+
+### 番外編: replace-attoparsec・replace-megaparsec
+
+...と、regex-applicativeのよさを語ったところで舌の根も乾かぬうちに恐縮ですが、実はattoparsecをはじめパーサーコンビネーターライブラリーの「中間マッチがやりにくい」という弱点を改善するためのパッケージがあります。  
+[replace-attoparsec](http://hackage.haskell.org/package/replace-attoparsec)や[replace-megaparsec](http://hackage.haskell.org/package/replace-megaparsec)といいます[^substring-parser]。  
+名前のとおりreplace-attoparsecがattoparsecを改善するパッケージで、replace-megaparsecがmegaparsecを改善するパッケージです。  
+名前もAPIもお互いそっくりなんで<small>（作者も同じですしね）</small>、今回はreplace-attoparsecの方を紹介しましょう。
+
+[^substring-parser]: [こちらの記事](https://haskell.jp/blog/posts/2018/substring-parser.html)でも触れているとおり、かつて私も同じ目的のパッケージを作成しました。しかし、これらのパッケージの方が明らかにドキュメントが充実していて、機能も豊富なので今回はこれらを紹介します。将来的にはsubstring-parserはdeprecatedにするかも知れません。
+
+replace-attoparsecを使えば、次のように書くだけで「文字列の中間にある1桁以上の10進数」を取り出すことができます。
+
+```hakell
+import Replace.Attoparsec.Text
+
+> feed (parse (sepCap decimal) "abc12345def") ""
+Done "" [Left "abc",Right 12345,Left "def"]
+```
+
+`"abc12345def"`の中間にある`12345`だけでなく、パースできなかった`abc`、`def`という文字列もおまけで取得できました！  
+`decimal`がパースできた箇所が`Right`として、パースできなかった箇所が`Left`として返却されていることに注意してください。
+
+replace-attoparsecの`sepCap`<small>（「Separate and Capture」の略だそうです）</small>は、引数として受け取ったパーサーを、
+
+1. とりあえず先頭からマッチさせてみて、
+1. 失敗したら先頭の一文字をスキップして、次の文字からまたマッチさせてみる
+
+という処理を繰り返しています。  
+結果的にパースできない文字列はすべてスキップして、文字列の中間にある、パースできる文字列のみにパーサーを適用できるのです。
 
 ## VerbalExpressions
+
+そろそろ力尽きてきたのでここからはスライドのコピペで失礼します...🙏
 
 - 詳細わかりませんが作りはよく似てる
     - [JavaScriptの例がこちら](https://github.com/VerbalExpressions/JSVerbalExpressions#examples)
@@ -382,6 +545,9 @@ regex-applicativeを使うことで、URLのオリジンにマッチさせるだ
 - さっと[Haskell版のドキュメント](http://hackage.haskell.org/package/verbalexpressions-1.0.0.0/docs/Text-Regex-VerbalExpressions.html)読んだ感じ、文字列のマッチに特化してるっぽい？
 
 # まとめ
+
+以上です！👋  
+まとめもスライドからのコピペで！
 
 - regex-applicativeは、Haskellの式で正規表現を書ける内部DSL
 - パーサーコンビネーターっぽく使えて、かつ正規表現の良さを持ち合わせている
