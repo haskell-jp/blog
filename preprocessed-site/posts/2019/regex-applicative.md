@@ -57,11 +57,11 @@ stack build regex-applicative
 stack exec ghci
 ```
 
-<small>（最近の）</small>`cabal`の場合は`cabal.project`があるディレクトリーで👇を実行すればできるはずです。
+<small>（最近の）</small>`cabal`の場合は👇を実行すればできるはずです。
 
 ```bash
-cabal v2-install --lib regex-applicative 
-cabal v2-repl -b regex-applicative 
+cabal v2-install --lib regex-applicative
+cabal v2-repl -b regex-applicative
 ```
 
 GHCiが起動したら、こちらの`import`文を張って、本記事のサンプルを実行する準備をしてください。
@@ -106,7 +106,7 @@ Just 'b'
 
 と書けば、文字クラスっぽいことができます。
 
-## 空文字（ε）: `pure` :: a -> RE s a
+## 空文字（ε）: `pure :: a -> RE s a`
 
 正規表現に欠かせない、空文字（ε）を表す正規表現も作れます。  
 `Applicative`型クラスの`pure`で表現します。
@@ -253,7 +253,7 @@ URLのスキームにマッチさせるために、「`http`の後にオプシ�
       <* string "://"
 ```
 
-`<*`を使うことで、`://`の部分にはマッチさせてもマッチした結果は無視している点にご注意ください。  
+`<*`を使うことで、`://`の部分にはマッチしてもマッチした結果は無視している点にご注意ください。  
 regex-applicativeはこのように、「マッチしたら関数に渡す文字列」と「マッチしても関数に渡さない文字列」をユーザーが書き分けられるようになっているので、他の正規表現ライブラリーにあるようなキャプチャー[^capture]や、先読み言明・後読み言明などの機能が必要ないのです。
 
 [^capture]: 正確には、キャプチャーした文字列を正規表現の中で再利用することができないので、他の正規表現ライブラリーのキャプチャー機能と完全に同等のことができるわけではありません。これは現状のregex-applicativeの制限です。
@@ -302,7 +302,7 @@ Just (Origin {scheme = "https", host = "example.com", port = 8080})
 Just (Origin {scheme = "http", host = "example.com", port = 80})
 ```
 
-regex-applicativeを使うことで、URLのオリジンにマッチさせるだけでなく、待ちした結果を`Origin`型の値として割り当てる正規表現が作れました！🎉
+regex-applicativeを使うことで、URLのオリジンにマッチさせるだけでなく、マッチした結果を`Origin`型の値として割り当てる正規表現が作れました！🎉
 
 # 👍regex-applicativeのメリット
 
@@ -324,7 +324,7 @@ regex-applicativeパッケージには、他の正規表現ライブラリーと
     - 専用のメタキャラクターより分かりやすい、とも言える
 - ユーザーからの入力として、正規表現を受け取ることは難しい
     - これも内部DSLなのでやむなし
-- 速度はおそらくCとかで書いたものほど速くはない
+- おそらくCとかで書いたものほど速くはない
     - そんなに細かい最適化をしているわけではないし、Pure Haskellなので...
 - `String`以外の文字列にはマッチできない...
     - これがHaskellerにとって一番痛い
@@ -365,7 +365,7 @@ regex-applicativeでは先ほど紹介した`psym`関数のように、「任意
 ## regex-applicativeの実際の実装
 
 さらにregex-applicativeの実装を掘ってみましょう。  
-先ほど紹介した`compile`関数は、正規表現オブジェクト`RE s a`を[`ReObject s r`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L38-L43)という型の、[`Thread s r`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Types.hs#L9-L16)の値のキューに変換します。  
+先ほど紹介した`compile`関数は、正規表現オブジェクト`RE s a`を[`ReObject s r`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L38-L43)という型の、[`Thread s r`](https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Types.hs#L9-L16)型の値のキューに変換します。  
 これがregex-applicativeにおけるNFAと呼べそうですね。
 
 ```haskell
@@ -490,7 +490,7 @@ Just 12345
 Fail "" [] "not enough input"
 ```
 
-理由は先ほどと同様で、最初に書いた`many anyChar`がすべての文字列を消費してしまい、それ以降の`decimal`などがマッチできないのです。  
+理由は先ほどと同様で、最初に書いた`many anyChar`がすべての文字列を消費してしまい、それ以降の`decimal`などがマッチできないためです。  
 正しく処理するには、「`decimal`の先頭以外の文字列」、すなわち「数字以外の文字列」が`many`であることを明示する方法をとるしかありません[^regex]。
 
 [^regex]: ただし、一般に、正規表現ライブラリーであってもこのような書き方をした方が効率よくマッチさせやすいでしょう。
