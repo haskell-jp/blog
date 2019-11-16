@@ -20,32 +20,31 @@ tags: イベント
 
 [資料はこちら](https://github.com/nobsun/hday2019/blob/master/doc/ftype.pdf)
 
-![](/img/2019/haskell-day-2019/nobsun.jpg)
+<img src="/img/2019/haskell-day-2019/nobsun.jpg" width="808" height="540" />
 
 ## HKD(Higher Kinded Datatype)
 
 [資料はこちら](https://assets.adobe.com/public/b93f214d-58c2-482f-5528-a939d3e83660)
 
-![](/img/2019/haskell-day-2019/fumieval.jpg)
+<img src="/img/2019/haskell-day-2019/fumieval.jpg" width="674" height="450" />
 
 ## 「しんさんきぼう」のDerivingストラテジー
 
 [資料はこちら](https://aiya000.github.io/Maid/haskell-day-2019-deriving/#/)
 
-![](/img/2019/haskell-day-2019/aiya000.jpg)
+<img src="/img/2019/haskell-day-2019/aiya000.jpg" width="729" height="487" />
 
 ## HaskellメタプログラミングによるEgisonのパターンマッチの実装
 
 [資料はこちら](https://www.egison.org/download/20191109HaskellDay.pdf)
 
-![](/img/2019/haskell-day-2019/egison.jpg)
-
+<img src="/img/2019/haskell-day-2019/egison.jpg" width="808" height="540" />
 
 ## 関数と型で理解する自動微分
 
 [資料はこちら](https://speakerdeck.com/lotz84/guan-shu-toxing-deli-jie-suruzi-dong-wei-fen)
 
-![](/img/2019/haskell-day-2019/lotz.jpg)
+<img src="/img/2019/haskell-day-2019/lotz.jpg" width="808" height="540" />
 
 ## GHCJS によるWebフロントエンド開発
 
@@ -53,25 +52,25 @@ tags: イベント
 
 [発表中に使用したソースコードはこちら](https://github.com/y-taka-23/miso-firebase-tutorial)
 
-![](/img/2019/haskell-day-2019/y_taka_23.jpg)
+<img src="/img/2019/haskell-day-2019/y_taka_23.jpg" width="808" height="540" />
 
 ## Haskellで作る競技型イベントの裏側
 
 [資料はこちら](https://www.slideshare.net/noob00/haskell-191796924)
 
-![](/img/2019/haskell-day-2019/matsubara0507.jpg)
+<img src="/img/2019/haskell-day-2019/matsubara0507.jpg" width="808" height="540" />
 
 ## 大規模数値計算を支える Haskell ── Pragmatic Haskell in Large-Scale Numerical Computation──
 
 [資料はこちら](https://speakerdeck.com/konn/da-gui-mo-shu-zhi-ji-suan-wozhi-eru-haskell-nil-nil-pragmatic-haskell-in-large-scale-numerical-computation-nil-nil)
 
-![](/img/2019/haskell-day-2019/mr_konn.jpg)
+<img src="/img/2019/haskell-day-2019/mr_konn.jpg" width="808" height="540" />
 
 ## Cadenza: Building fast functional languages on the JVM
 
 [資料はまだ！]()
 
-![](/img/2019/haskell-day-2019/ekmett.jpg)
+<img src="/img/2019/haskell-day-2019/ekmett.jpg" width="808" height="540" />
 
 ## LT
 
