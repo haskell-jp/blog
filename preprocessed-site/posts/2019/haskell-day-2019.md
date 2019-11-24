@@ -96,7 +96,8 @@ Tagless Finalを活用することで知っているべき領域を区分して�
 ## Cadenza: Building fast functional languages on the JVM
 
 [cadenza](https://ekmett.github.io/cadenza/cadenza/index.html)という、Truffle（GraalVMに含まれている、高速なインタープリター作成フレームワーク）製の関数型言語の紹介です。  
-将来的には依存型言語における型チェックや、GHCの高速化に寄与したいとのことです（TODO: konnさんなどに認識を確認したい）
+Truffleがもたらす強力なJITと「Normalization by Evaluation」という技術を応用することで、型検査と実行時両方における高いスピードを得ることが狙いだそうです。
+将来的には依存型言語における型チェックや、GHCのランタイムの高速化に寄与したいとのことです。
 
 [TODO: 資料はまだ！]()
 
