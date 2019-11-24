@@ -99,7 +99,7 @@ Tagless Finalを活用することで知っているべき領域を区分して�
 Truffleがもたらす強力なJITと「Normalization by Evaluation」という技術を応用することで、型検査と実行時両方における高いスピードを得ることが狙いだそうです。
 将来的には依存型言語における型チェックや、GHCのランタイムの高速化に寄与したいとのことです。
 
-[TODO: 資料はまだ！]()
+[資料はこちら](https://drive.google.com/file/d/1bwYO66xUKeHyR4YCNm_1C82JlDNQLUXv/view)
 
 [紹介しているアプリケーションのソースコードはこちら](https://github.com/ekmett/cadenza)
 
