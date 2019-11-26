@@ -121,6 +121,71 @@ Truffleがもたらす強力なJITと「Normalization by Evaluation」という�
 
 # アンケート結果
 
+Haskell Day の各セッションや、参加者のバックグランドなどについてアンケートをとりました。
+なので、後者の方の集計結果を載せたいと思います（前者はセッション発表者へのフィードバック）。
+
+## Haskell 以外のプログラミングに関する質問
+
+大きく分けて Haskell に関する質問とそうでない質問がありました。
+まずは Haskell 以外に関する質問の方を集計結果を紹介します。
+
+### エンジニアの経験年数はどれくらいですか？
+
+<img src="../../img/2019/haskell-day-2019/question1.jpg" style="width: 100%;" />
+
+### 得意なプログラミング言語はなんですか？
+
+ちなみに、言語のリストは [Haskell Survey 2019](https://haskellweekly.news/survey/2019.html) を参考にしました。
+
+<img src="../../img/2019/haskell-day-2019/question2.jpg" style="width: 100%;" />
+
+### 得意・好きな技術領域はどれですか？
+
+<img src="../../img/2019/haskell-day-2019/question3.jpg" style="width: 100%;" />
+
+### 最近注目している技術があれば記述してください
+
+自由記述形式にしたところ、ほとんど重複が無かったので箇条書きにします。
+
+- FP
+- 匿名暗号通貨(Monero,Zcash,Dash,Koto)
+- Cardano ADA
+- GraphQL
+- extensible
+- Enigma
+- workerベースの非同期プログラミング
+- フロント界隈
+- Next.js
+- 自然言語処理
+- 型レベルプログラミング
+- 自動微分
+- AWSによるサーバーレスアーキテクチャでのフルスタックWebアプリケーション開発
+- Rust
+- Kubernetes
+- TLA+
+- algebraic effects and handlers
+- 深層学習コンパイラ
+- AR
+- 定理証明支援系
+
+## Haskell に関する質問
+
+ちなみに、Haskell に関する質問は Haskell Day 2018 でもアンケートしました。
+
+### Haskell をいつ頃始めましたか？
+
+<img src="../../img/2019/haskell-day-2019/question4.jpg" style="width: 100%;" />
+
+### Haskell を初めてどれくらい経ちますか？
+
+<img src="../../img/2019/haskell-day-2019/question5.jpg" style="width: 100%;" />
+
+### 読んだことのある日本語の Haskell 本は？
+
+参照: https://wiki.haskell.jp/Links#書籍
+
+<img src="../../img/2019/haskell-day-2019/question6.jpg" style="width: 100%;" />
+
 # おわりに
 
 以上の発表のに加えて、今回は、下記のスポンサー企業の皆様や@fumievalくんのおかげで、大変満足度の高い懇親会ができました。
