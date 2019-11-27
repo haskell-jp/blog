@@ -182,7 +182,7 @@ Haskell Day の各セッションや、参加者のバックグランドなど�
 
 ### 読んだことのある日本語の Haskell 本は？
 
-参照: https://wiki.haskell.jp/Links#書籍
+参照: <https://wiki.haskell.jp/Links#書籍>
 
 ![](/img/2019/haskell-day-2019/question6.jpg)
 
