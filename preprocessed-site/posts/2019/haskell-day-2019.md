@@ -22,7 +22,7 @@ tags: イベント
 
 [資料はこちら](https://github.com/nobsun/hday2019/blob/master/doc/ftype.pdf)
 
-<img src="/img/2019/haskell-day-2019/nobsun.jpg" width="808" height="540" />
+![](/img/2019/haskell-day-2019/nobsun.jpg)
 
 ## HKD(Higher Kinded Datatype)
 
@@ -32,7 +32,7 @@ Higher Kinded Datatype (HKD)という、昨今Haskell界で流行りの型定義
 
 [資料はこちら](https://assets.adobe.com/public/b93f214d-58c2-482f-5528-a939d3e83660)
 
-<img src="/img/2019/haskell-day-2019/fumieval.jpg" width="674" height="450" />
+![](/img/2019/haskell-day-2019/fumieval.jpg)
 
 ## 「しんさんきぼう」のDerivingストラテジー
 
@@ -40,7 +40,7 @@ Haskellの`deriving`機能 --- 型を定義したとき、型クラスのイン�
 
 [資料はこちら](https://aiya000.github.io/Maid/haskell-day-2019-deriving/#/)
 
-<img src="/img/2019/haskell-day-2019/aiya000.jpg" width="729" height="487" />
+![](/img/2019/haskell-day-2019/aiya000.jpg)
 
 ## HaskellメタプログラミングによるEgisonのパターンマッチの実装
 
@@ -50,7 +50,7 @@ Haskellの`deriving`機能 --- 型を定義したとき、型クラスのイン�
 
 [紹介しているライブラリーのソースコードはこちら](https://github.com/egison/egison-haskell)
 
-<img src="/img/2019/haskell-day-2019/egison.jpg" width="808" height="540" />
+![](/img/2019/haskell-day-2019/egison.jpg)
 
 ## 関数と型で理解する自動微分
 
@@ -58,7 +58,7 @@ Haskellの`deriving`機能 --- 型を定義したとき、型クラスのイン�
 
 [資料はこちら](https://speakerdeck.com/lotz84/guan-shu-toxing-deli-jie-suruzi-dong-wei-fen)
 
-<img src="/img/2019/haskell-day-2019/lotz.jpg" width="808" height="540" />
+![](/img/2019/haskell-day-2019/lotz.jpg)
 
 ## GHCJS によるWebフロントエンド開発
 
@@ -70,7 +70,7 @@ misoを使えば、GHCJSを使ってElm Architecture風の設計に基づいて�
 
 [発表中に使用したソースコードはこちら](https://github.com/y-taka-23/miso-firebase-tutorial)
 
-<img src="/img/2019/haskell-day-2019/y_taka_23.jpg" width="808" height="540" />
+![](/img/2019/haskell-day-2019/y_taka_23.jpg)
 
 ## Haskellで作る競技型イベントの裏側
 
@@ -81,7 +81,7 @@ misoを使えば、GHCJSを使ってElm Architecture風の設計に基づいて�
 
 [紹介しているアプリケーションのソースコードはこちら](https://github.com/matsubara0507/git-plantation)
 
-<img src="/img/2019/haskell-day-2019/matsubara0507.jpg" width="808" height="540" />
+![](/img/2019/haskell-day-2019/matsubara0507.jpg)
 
 ## 大規模数値計算を支える Haskell ── Pragmatic Haskell in Large-Scale Numerical Computation──
 
@@ -91,7 +91,7 @@ Tagless Finalを活用することで知っているべき領域を区分して�
 
 [資料はこちら](https://speakerdeck.com/konn/da-gui-mo-shu-zhi-ji-suan-wozhi-eru-haskell-nil-nil-pragmatic-haskell-in-large-scale-numerical-computation-nil-nil)
 
-<img src="/img/2019/haskell-day-2019/mr_konn.jpg" width="808" height="540" />
+![](/img/2019/haskell-day-2019/mr_konn.jpg)
 
 ## Cadenza: Building fast functional languages on the JVM
 
@@ -103,7 +103,7 @@ Truffleがもたらす強力なJITと「Normalization by Evaluation」という�
 
 [紹介しているアプリケーションのソースコードはこちら](https://github.com/ekmett/cadenza)
 
-<img src="/img/2019/haskell-day-2019/ekmett.jpg" width="808" height="540" />
+![](/img/2019/haskell-day-2019/ekmett.jpg)
 
 ## LT
 
@@ -131,17 +131,17 @@ Haskell Day の各セッションや、参加者のバックグランドなど�
 
 ### エンジニアの経験年数はどれくらいですか？
 
-<img src="../../img/2019/haskell-day-2019/question1.jpg" style="width: 100%;" />
+![](/img/2019/haskell-day-2019/question1.jpg)
 
 ### 得意なプログラミング言語はなんですか？
 
 ちなみに、言語のリストは [Haskell Survey 2019](https://haskellweekly.news/survey/2019.html) を参考にしました。
 
-<img src="../../img/2019/haskell-day-2019/question2.jpg" style="width: 100%;" />
+![](/img/2019/haskell-day-2019/question2.jpg)
 
 ### 得意・好きな技術領域はどれですか？
 
-<img src="../../img/2019/haskell-day-2019/question3.jpg" style="width: 100%;" />
+![](/img/2019/haskell-day-2019/question3.jpg)
 
 ### 最近注目している技術があれば記述してください
 
@@ -174,17 +174,17 @@ Haskell Day の各セッションや、参加者のバックグランドなど�
 
 ### Haskell をいつ頃始めましたか？
 
-<img src="../../img/2019/haskell-day-2019/question4.jpg" style="width: 100%;" />
+![](/img/2019/haskell-day-2019/question4.jpg)
 
 ### Haskell を初めてどれくらい経ちますか？
 
-<img src="../../img/2019/haskell-day-2019/question5.jpg" style="width: 100%;" />
+![](/img/2019/haskell-day-2019/question5.jpg)
 
 ### 読んだことのある日本語の Haskell 本は？
 
 参照: https://wiki.haskell.jp/Links#書籍
 
-<img src="../../img/2019/haskell-day-2019/question6.jpg" style="width: 100%;" />
+![](/img/2019/haskell-day-2019/question6.jpg)
 
 # おわりに
 

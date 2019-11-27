@@ -32,6 +32,11 @@ span.meta {
   padding: 6px 13px;
 }
 
+#md-post-content img {
+  max-width:100%;
+  height: auto;
+}
+
 ul.social-buttons {
   list-style: none;
   vertical-align: middle;
