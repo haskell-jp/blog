@@ -5,7 +5,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: YAMAMOTO Yuji
 postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji (@igrep)</a>
-date: November 17, 2019
+date: November 29, 2019
 tags: イベント
 ---
 
