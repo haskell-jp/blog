@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Haskell Day 2019を開催しました！">
+    
+      <meta name="author" content="YAMAMOTO Yuji">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="Haskell Day 2019を開催しました！ - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/haskell-day-2019.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="先日2019年11月9日、[TECH PLAY SHIBUYA](https://techplay.jp/space)にて[Haskell Day 2019](https://techplay.jp/event/727059)を開催しました。  今回は、各発表の概要や、アンケートの結果をお伝えしたいと思います。# 発表まずは各種発表の紹介から。## 関数型(function type)を見つめるプ" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>Haskell Day 2019を開催しました！ - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://haskell.jp/signin-slack.html">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>Haskell Day 2019を開催しました！</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="http://the.igreque.info/">YAMAMOTO Yuji (@igrep)</a> on November 29, 2019</span><span class="meta">Tags: イベント</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>先日<span class="ascii">2019</span>年<span class="ascii">11</span>月<span class="ascii">9</span>日、<a href="https://techplay.jp/space"><span class="ascii">TECH PLAY SHIBUYA</span></a>にて<a href="https://techplay.jp/event/727059"><span class="ascii">Haskell Day 2019</span></a>を開催しました。<br />
+今回は、各発表の概要や、アンケートの結果をお伝えしたいと思います。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#発表" title="発表">発表</a>
+<ul>
+<li><a href="#関数型function-typeを見つめるプログラミング" title="関数型function-typeを見つめるプログラミング">関数型<span class="ascii">(function type)</span>を見つめるプログラミング</a></li>
+<li><a href="#hkdhigher-kinded-datatype" title="hkdhigher-kinded-datatype"><span class="ascii">HKD(Higher Kinded Datatype)</span></a></li>
+<li><a href="#しんさんきぼうのderivingストラテジー" title="しんさんきぼうのderivingストラテジー">「しんさんきぼう」の<span class="ascii">Deriving</span>ストラテジー</a></li>
+<li><a href="#haskellメタプログラミングによるegisonのパターンマッチの実装" title="haskellメタプログラミングによるegisonのパターンマッチの実装"><span class="ascii">Haskell</span>メタプログラミングによる<span class="ascii">Egison</span>のパターンマッチの実装</a></li>
+<li><a href="#関数と型で理解する自動微分" title="関数と型で理解する自動微分">関数と型で理解する自動微分</a></li>
+<li><a href="#ghcjs-によるwebフロントエンド開発" title="ghcjs-によるwebフロントエンド開発"><span class="ascii">GHCJS</span> による<span class="ascii">Web</span>フロントエンド開発</a></li>
+<li><a href="#haskellで作る競技型イベントの裏側" title="haskellで作る競技型イベントの裏側"><span class="ascii">Haskell</span>で作る競技型イベントの裏側</a></li>
+<li><a href="#大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation" title="大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation">大規模数値計算を支える <span class="ascii">Haskell</span> ── <span class="ascii">Pragmatic Haskell in Large-Scale Numerical Computation</span>──</a></li>
+<li><a href="#cadenza-building-fast-functional-languages-on-the-jvm" title="cadenza-building-fast-functional-languages-on-the-jvm"><span class="ascii">Cadenza: Building fast functional languages on the JVM</span></a></li>
+<li><a href="#lt" title="lt"><span class="ascii">LT</span></a></li>
+</ul></li>
+<li><a href="#アンケート結果" title="アンケート結果">アンケート結果</a>
+<ul>
+<li><a href="#haskell-以外のプログラミングに関する質問" title="haskell-以外のプログラミングに関する質問"><span class="ascii">Haskell</span> 以外のプログラミングに関する質問</a>
+<ul>
+<li><a href="#エンジニアの経験年数はどれくらいですか" title="エンジニアの経験年数はどれくらいですか">エンジニアの経験年数はどれくらいですか？</a></li>
+<li><a href="#得意なプログラミング言語はなんですか" title="得意なプログラミング言語はなんですか">得意なプログラミング言語はなんですか？</a></li>
+<li><a href="#得意好きな技術領域はどれですか" title="得意好きな技術領域はどれですか">得意・好きな技術領域はどれですか？</a></li>
+<li><a href="#最近注目している技術があれば記述してください" title="最近注目している技術があれば記述してください">最近注目している技術があれば記述してください</a></li>
+</ul></li>
+<li><a href="#haskell-に関する質問" title="haskell-に関する質問"><span class="ascii">Haskell</span> に関する質問</a>
+<ul>
+<li><a href="#haskell-をいつ頃始めましたか" title="haskell-をいつ頃始めましたか"><span class="ascii">Haskell</span> をいつ頃始めましたか？</a></li>
+<li><a href="#haskell-を初めてどれくらい経ちますか" title="haskell-を初めてどれくらい経ちますか"><span class="ascii">Haskell</span> を初めてどれくらい経ちますか？</a></li>
+<li><a href="#読んだことのある日本語の-haskell-本は" title="読んだことのある日本語の-haskell-本は">読んだことのある日本語の <span class="ascii">Haskell</span> 本は？</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#おわりに" title="おわりに">おわりに</a></li>
+<li><a href="#あわせて読みたい" title="あわせて読みたい">あわせて読みたい</a></li>
+</ul>
+</div>
+</div>
+<h1 id="発表"><span class="link-to-here-outer"><a href="#発表" title="発表"><span class="link-to-here">Link to<br />
+here</span></a></span>発表</h1>
+<p>まずは各種発表の紹介から。</p>
+<h2 id="関数型function-typeを見つめるプログラミング"><span class="link-to-here-outer"><a href="#関数型function-typeを見つめるプログラミング" title="関数型function-typeを見つめるプログラミング"><span class="link-to-here">Link to<br />
+here</span></a></span>関数型<span class="ascii">(function type)</span>を見つめるプログラミング</h2>
+<p>「関数型」 — すなわち<span class="ascii">Haskell</span>でいうところの<code>a -&gt; b</code>で表される、<span class="ascii">Haskell</span>の関数について、ちょっと見方を変えた新しい発見を教えてくれました。</p>
+<p><a href="https://github.com/nobsun/hday2019/blob/master/doc/ftype.pdf">資料はこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/nobsun.jpg" /></p>
+<h2 id="hkdhigher-kinded-datatype"><span class="link-to-here-outer"><a href="#hkdhigher-kinded-datatype" title="hkdhigher-kinded-datatype"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">HKD(Higher Kinded Datatype)</span></h2>
+<p><span class="ascii">Higher Kinded Datatype (HKD)</span>という、昨今<span class="ascii">Haskell</span>界で流行りの型定義方法を解説しています。<br />
+レコード型を定義する際<span class="ascii">HKD</span>にすることで、より柔軟に扱うことができるようになります。<br />
+さらに、<a href="http://hackage.haskell.org/package/barbies"><span class="ascii">barbies</span></a>や<a href="http://hackage.haskell.org/package/extensible"><span class="ascii">extensible</span></a>といった、<span class="ascii">HKD</span>の利用を飛躍的に促進するパッケージも紹介されました。</p>
+<p><a href="https://assets.adobe.com/public/b93f214d-58c2-482f-5528-a939d3e83660">資料はこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/fumieval.jpg" /></p>
+<h2 id="しんさんきぼうのderivingストラテジー"><span class="link-to-here-outer"><a href="#しんさんきぼうのderivingストラテジー" title="しんさんきぼうのderivingストラテジー"><span class="link-to-here">Link to<br />
+here</span></a></span>「しんさんきぼう」の<span class="ascii">Deriving</span>ストラテジー</h2>
+<p><span class="ascii">Haskell</span>の<code>deriving</code>機能 — 型を定義したとき、型クラスのインスタンスまで自動で定義してくれるあの機能ですね — の、適用範囲を広げる<span class="ascii">GHC</span>の言語拡張をいろいろ紹介してくれました。</p>
+<p><a href="https://aiya000.github.io/Maid/haskell-day-2019-deriving/#/">資料はこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/aiya000.jpg" /></p>
+<h2 id="haskellメタプログラミングによるegisonのパターンマッチの実装"><span class="link-to-here-outer"><a href="#haskellメタプログラミングによるegisonのパターンマッチの実装" title="haskellメタプログラミングによるegisonのパターンマッチの実装"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>メタプログラミングによる<span class="ascii">Egison</span>のパターンマッチの実装</h2>
+<p>プログラミング言語<a href="https://www.egison.org/ja/"><span class="ascii">Egison</span></a>の核となる機能である強力なパターンマッチを、<span class="ascii">GHC</span>の各種拡張を駆使することで、<span class="ascii">Haskell</span>のソースコードに自然に埋め込めるような形で実装した、という話です。</p>
+<p><a href="https://www.egison.org/download/20191109HaskellDay.pdf">資料はこちら</a></p>
+<p><a href="https://github.com/egison/egison-haskell">紹介しているライブラリーのソースコードはこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/egison.jpg" /></p>
+<h2 id="関数と型で理解する自動微分"><span class="link-to-here-outer"><a href="#関数と型で理解する自動微分" title="関数と型で理解する自動微分"><span class="link-to-here">Link to<br />
+here</span></a></span>関数と型で理解する自動微分</h2>
+<p>関数の自動微分を行うパッケージ<a href="http://hackage.haskell.org/package/ad"><span class="ascii">ad</span></a>の仕組みを自力で実装してみることで解説してくれました。</p>
+<p><a href="https://speakerdeck.com/lotz84/guan-shu-toxing-deli-jie-suruzi-dong-wei-fen">資料はこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/lotz.jpg" /></p>
+<h2 id="ghcjs-によるwebフロントエンド開発"><span class="link-to-here-outer"><a href="#ghcjs-によるwebフロントエンド開発" title="ghcjs-によるwebフロントエンド開発"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">GHCJS</span> による<span class="ascii">Web</span>フロントエンド開発</h2>
+<p><a href="http://hackage.haskell.org/package/miso"><span class="ascii">miso</span></a>というおいしそうな名前のアプリケーションフレームワークと、<span class="ascii">Firebase</span>と連携する<span class="ascii">miso</span>のサンプルを、ライブコーディングを通して紹介してくれました。<br />
+<span class="ascii">miso</span>を使えば、<span class="ascii">GHCJS</span>を使って<span class="ascii">Elm Architecture</span>風の設計に基づいてアプリケーションを作ったり、さらにそのコードを利用してサーバーサイドレンダリングをしたりできます。</p>
+<p>ℹ️資料はまだ公開されていません！当日はライブコーディングが大半の時間を占めていたため、同等の解説を文章にして公開したいというチェシャ猫さんの意向によるものです。<br />
+現在執筆中のためお待ちください。🙇</p>
+<p><a href="https://github.com/y-taka-23/miso-firebase-tutorial">発表中に使用したソースコードはこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/y_taka_23.jpg" /></p>
+<h2 id="haskellで作る競技型イベントの裏側"><span class="link-to-here-outer"><a href="#haskellで作る競技型イベントの裏側" title="haskellで作る競技型イベントの裏側"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span>で作る競技型イベントの裏側</h2>
+<p>「<span class="ascii">mixi git challenge</span>」というイベントにおいてユーザーが投稿した解答を採点するサーバーを、<span class="ascii">Haskell</span>と<span class="ascii">Elm</span>で一から書き直した、という事例を発表してくれました。<br />
+<a href="http://hackage.haskell.org/package/rio"><span class="ascii">rio</span></a>や<a href="http://hackage.haskell.org/package/servant"><span class="ascii">servant</span></a>といった著名なパッケージを使うだけでなく、足りないところを自力で補って新しいパッケージとして公開したり、さらに作成したアプリケーション自体を<span class="ascii">OSS</span>として公開したりすることで、大きな資産を残していただけました。</p>
+<p><a href="https://www.slideshare.net/noob00/haskell-191796924">資料はこちら</a></p>
+<p><a href="https://github.com/matsubara0507/git-plantation">紹介しているアプリケーションのソースコードはこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/matsubara0507.jpg" /></p>
+<h2 id="大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation"><span class="link-to-here-outer"><a href="#大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation" title="大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation"><span class="link-to-here">Link to<br />
+here</span></a></span>大規模数値計算を支える <span class="ascii">Haskell</span> ── <span class="ascii">Pragmatic Haskell in Large-Scale Numerical Computation</span>──</h2>
+<p><a href="https://www.deepflow.co.jp/"><span class="ascii">DeepFlow</span>株式会社</a>における<span class="ascii">Haskell</span>の事例の紹介です。<br />
+超高速で大規模な数値計算システムを、<span class="ascii">GHC</span>の多様な言語拡張を駆使して作っているそうです。<br />
+<span class="ascii">Tagless Final</span>を活用することで知っているべき領域を区分して仕事を分けることに成功しているという点が印象的でした。</p>
+<p><a href="https://speakerdeck.com/konn/da-gui-mo-shu-zhi-ji-suan-wozhi-eru-haskell-nil-nil-pragmatic-haskell-in-large-scale-numerical-computation-nil-nil">資料はこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/mr_konn.jpg" /></p>
+<h2 id="cadenza-building-fast-functional-languages-on-the-jvm"><span class="link-to-here-outer"><a href="#cadenza-building-fast-functional-languages-on-the-jvm" title="cadenza-building-fast-functional-languages-on-the-jvm"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Cadenza: Building fast functional languages on the JVM</span></h2>
+<p><a href="https://ekmett.github.io/cadenza/cadenza/index.html"><span class="ascii">cadenza</span></a>という、<span class="ascii">Truffle</span>（<span class="ascii">GraalVM</span>に含まれている、高速なインタープリター作成フレームワーク）製の関数型言語の紹介です。<br />
+<span class="ascii">Truffle</span>がもたらす強力な<span class="ascii">JIT</span>と「<span class="ascii">Normalization by Evaluation</span>」という技術を応用することで、型検査と実行時両方における高いスピードを得ることが狙いだそうです。 将来的には依存型言語における型チェックや、<span class="ascii">GHC</span>のランタイムの高速化に寄与したいとのことです。</p>
+<p><a href="https://drive.google.com/file/d/1bwYO66xUKeHyR4YCNm_1C82JlDNQLUXv/view">資料はこちら</a></p>
+<p><a href="https://github.com/ekmett/cadenza">紹介しているアプリケーションのソースコードはこちら</a></p>
+<p><img src="../../img/2019/haskell-day-2019/ekmett.jpg" /></p>
+<h2 id="lt"><span class="link-to-here-outer"><a href="#lt" title="lt"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">LT</span></h2>
+<p>今回は<span class="ascii">Hakell Day</span>史上初めての試みとして、<span class="ascii">Lightning Talk</span>を当日公募しました。<br />
+残念ながら<span class="ascii">5</span>分間という短い制限時間に収められない発表が大半でしたので、ぜひ👇の資料を読んでみてください！</p>
+<p><strong>順番が間違っていたら済みません！ご指摘を！</strong></p>
+<ul>
+<li><a href="https://docs.google.com/presentation/d/1TiDWz3zLUwEWgpzXfgVZFIib6JtYriB03TVgHsimJC0/edit#slide=id.gc6f73a04f_0_0"><span class="ascii">3D Model in Haskell - Haskell</span>で<span class="ascii">3D</span>モデルに触れる</a></li>
+<li><a href="https://speakerdeck.com/cyclone_t/iot-cases-with-haskell"><span class="ascii">Haskell</span>で<span class="ascii">IoT</span>やってます</a></li>
+<li><a href="https://www.slideshare.net/jabaraster/haskell-day-2019-lt-tomoyuki-kawano"><span class="ascii">Quora</span>で<span class="ascii">Haskell</span>への愛を語る</a></li>
+<li><a href="https://gitpitch.com/coord-e/slide-type-class-impl"><span class="ascii">Haskell</span>で作ってわかる型クラス</a></li>
+<li><a href="https://drive.google.com/file/d/1YGKjl8S-LlfuB8yrHnKSK5G5MGsP9xd3/view"><span class="ascii">Abstract Typeclasses - How To Design a Future-Proof Typeclass</span></a></li>
+<li><a href="http://www.mew.org/~kazu/material/2019-gc.pdf"><span class="ascii">GHC</span>の<span class="ascii">GC</span></a></li>
+</ul>
+<h1 id="アンケート結果"><span class="link-to-here-outer"><a href="#アンケート結果" title="アンケート結果"><span class="link-to-here">Link to<br />
+here</span></a></span>アンケート結果</h1>
+<p><span class="ascii">Haskell Day</span> の各セッションや、参加者のバックグランドなどについてアンケートをとりました。 なので、後者の方の集計結果を載せたいと思います（前者はセッション発表者へのフィードバック）。</p>
+<h2 id="haskell-以外のプログラミングに関する質問"><span class="link-to-here-outer"><a href="#haskell-以外のプログラミングに関する質問" title="haskell-以外のプログラミングに関する質問"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span> 以外のプログラミングに関する質問</h2>
+<p>大きく分けて <span class="ascii">Haskell</span> に関する質問とそうでない質問がありました。 まずは <span class="ascii">Haskell</span> 以外に関する質問の方を集計結果を紹介します。</p>
+<h3 id="エンジニアの経験年数はどれくらいですか"><span class="link-to-here-outer"><a href="#エンジニアの経験年数はどれくらいですか" title="エンジニアの経験年数はどれくらいですか"><span class="link-to-here">Link to<br />
+here</span></a></span>エンジニアの経験年数はどれくらいですか？</h3>
+<p><img src="../../img/2019/haskell-day-2019/question1.jpg" /></p>
+<h3 id="得意なプログラミング言語はなんですか"><span class="link-to-here-outer"><a href="#得意なプログラミング言語はなんですか" title="得意なプログラミング言語はなんですか"><span class="link-to-here">Link to<br />
+here</span></a></span>得意なプログラミング言語はなんですか？</h3>
+<p>ちなみに、言語のリストは <a href="https://haskellweekly.news/survey/2019.html"><span class="ascii">Haskell Survey 2019</span></a> を参考にしました。</p>
+<p><img src="../../img/2019/haskell-day-2019/question2.jpg" /></p>
+<h3 id="得意好きな技術領域はどれですか"><span class="link-to-here-outer"><a href="#得意好きな技術領域はどれですか" title="得意好きな技術領域はどれですか"><span class="link-to-here">Link to<br />
+here</span></a></span>得意・好きな技術領域はどれですか？</h3>
+<p><img src="../../img/2019/haskell-day-2019/question3.jpg" /></p>
+<h3 id="最近注目している技術があれば記述してください"><span class="link-to-here-outer"><a href="#最近注目している技術があれば記述してください" title="最近注目している技術があれば記述してください"><span class="link-to-here">Link to<br />
+here</span></a></span>最近注目している技術があれば記述してください</h3>
+<p>自由記述形式にしたところ、ほとんど重複が無かったので箇条書きにします。</p>
+<ul>
+<li><span class="ascii">FP</span></li>
+<li>匿名暗号通貨<span class="ascii">(Monero,Zcash,Dash,Koto)</span></li>
+<li><span class="ascii">Cardano ADA</span></li>
+<li><span class="ascii">GraphQL</span></li>
+<li><span class="ascii">extensible</span></li>
+<li><span class="ascii">Enigma</span></li>
+<li><span class="ascii">worker</span>ベースの非同期プログラミング</li>
+<li>フロント界隈</li>
+<li><span class="ascii">Next.js</span></li>
+<li>自然言語処理</li>
+<li>型レベルプログラミング</li>
+<li>自動微分</li>
+<li><span class="ascii">AWS</span>によるサーバーレスアーキテクチャでのフルスタック<span class="ascii">Web</span>アプリケーション開発</li>
+<li><span class="ascii">Rust</span></li>
+<li><span class="ascii">Kubernetes</span></li>
+<li><span class="ascii">TLA+</span></li>
+<li><span class="ascii">algebraic effects and handlers</span></li>
+<li>深層学習コンパイラ</li>
+<li><span class="ascii">AR</span></li>
+<li>定理証明支援系</li>
+</ul>
+<h2 id="haskell-に関する質問"><span class="link-to-here-outer"><a href="#haskell-に関する質問" title="haskell-に関する質問"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span> に関する質問</h2>
+<p>ちなみに、<span class="ascii">Haskell</span> に関する質問は <span class="ascii">Haskell Day 2018</span> でもアンケートしました。</p>
+<h3 id="haskell-をいつ頃始めましたか"><span class="link-to-here-outer"><a href="#haskell-をいつ頃始めましたか" title="haskell-をいつ頃始めましたか"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span> をいつ頃始めましたか？</h3>
+<p><img src="../../img/2019/haskell-day-2019/question4.jpg" /></p>
+<h3 id="haskell-を初めてどれくらい経ちますか"><span class="link-to-here-outer"><a href="#haskell-を初めてどれくらい経ちますか" title="haskell-を初めてどれくらい経ちますか"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Haskell</span> を初めてどれくらい経ちますか？</h3>
+<p><img src="../../img/2019/haskell-day-2019/question5.jpg" /></p>
+<h3 id="読んだことのある日本語の-haskell-本は"><span class="link-to-here-outer"><a href="#読んだことのある日本語の-haskell-本は" title="読んだことのある日本語の-haskell-本は"><span class="link-to-here">Link to<br />
+here</span></a></span>読んだことのある日本語の <span class="ascii">Haskell</span> 本は？</h3>
+<p>参照<span class="ascii">:</span> <a href="https://wiki.haskell.jp/Links#書籍" class="uri"><span class="ascii">https://wiki.haskell.jp/Links#</span>書籍</a></p>
+<p><img src="../../img/2019/haskell-day-2019/question6.jpg" /></p>
+<h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
+here</span></a></span>おわりに</h1>
+<p>以上の発表に加えて今回は、下記のスポンサー企業の皆様や<span class="ascii">@fumieval</span>くんのおかげで、大変満足度の高い懇親会ができました。</p>
+<ul>
+<li><a href="https://www.mvrck.co.jp/">マーベリック株式会社</a></li>
+<li><a href="https://herp.co.jp/">株式会社<span class="ascii">HERP</span></a></li>
+<li><a href="https://www.iij.ad.jp/">株式会社インターネットイニシアティブ</a></li>
+<li><a href="https://www.cryptact.com/">株式会社クリプタクト</a></li>
+</ul>
+<figure>
+<img src="../../img/2019/haskell-day-2019/after-party.jpg" alt="懇親会で振る舞われた料理" /><figcaption>懇親会で振る舞われた料理</figcaption>
+</figure>
+<p>発表について。<br />
+昨年は「<a href="https://haskell-jp.connpass.com/event/92617/"><span class="ascii">Haskell</span>ちょっと興味あるからちょっとできるまで</a>」というテーマを意識して、発表の難易度別に時間帯が分かれるよう調整しましたが、残念ながらうまくいきませんでした。<br />
+そこで難易度調整の難しさを痛感したため、今回は敢えて難易度調整を行わなかったのです。<br />
+結果、全体として難しい発表に偏ってしまった点は少し反省です。<a href="https://eng-blog.iij.ad.jp/archives/3467">私が会社で開いている<span class="ascii">Haskell</span>勉強会</a>に毎回参加いただいている同僚も、総じて難しくて追いつくのが大変だった、と仰ってました。<br />
+次回は特別に難易度を下げた発表枠をいくつか作り、内容を事前に精査する、なんてプランを考えています。</p>
+<p>会場について。<br />
+<span class="ascii">TECHPLAY SHIBUYA</span>は素晴らしいですね！<br />
+我々のようなお金がないコミュニティーが今回の規模のイベントを行うのにうってつけでした。<br />
+元々イベントを開催する前提で作られており、受付と演壇が近いため受付しながら発表を聞くことができるのも、持ち回りで受付をしている我々にとって好都合でした。<br />
+来年も是非使わせていただきたいです🙏</p>
+<p>最後に。<br />
+発表者のみなさんはもちろん、支えていただいたスタッフ、スポンサー企業、会場まで足を運んでいただいた参加者の皆様、その他この会の実現に関わったすべての方々に、この場を借りて感謝の意を示したいと思います。<br />
+みなさんのご協力おかげで、大きなトラブルもなく、楽しいイベントが開催できました。ありがとうございます。<br />
+今後も日本<span class="ascii">Haskell</span>ユーザーグループ（<span class="ascii">a.k.a. Haskell-jp</span>）をよろしくお願いします！<br />
+<span class="ascii">hask(_ _)eller</span></p>
+<h1 id="あわせて読みたい"><span class="link-to-here-outer"><a href="#あわせて読みたい" title="あわせて読みたい"><span class="link-to-here">Link to<br />
+here</span></a></span>あわせて読みたい</h1>
+<ul>
+<li>参加者による参加レポート<span class="ascii">:</span>
+<ul>
+<li><a href="http://hiratara.hatenadiary.jp/entry/2019/11/09/110030">今日は <span class="ascii">Haskell Day 2019</span> の日です <span class="ascii">-</span> 北海道苫小牧市出身の初老<span class="ascii">PG</span>が書くブログ</a></li>
+<li><a href="https://www.ncaq.net/2019/11/09/20/56/00/"><span class="ascii">Haskell Day 2019</span>に参加しました <span class="ascii">- ncaq</span></a></li>
+<li><a href="https://matsubara0507.github.io/posts/2019-11-10-join-haskell-day-2019"><span class="ascii">Haskell Day 2019</span> に参加してきた</a></li>
+</ul></li>
+<li><a href="https://haskell.jp/blog/posts/2018/haskell-day-2018.html">去年の開催レポート</a></li>
+</ul>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/hiw-copilot.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、Copilotという内部DSLについて</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; YAMAMOTO Yuji 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
