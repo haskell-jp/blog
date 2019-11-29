@@ -195,7 +195,7 @@ Haskell Day の各セッションや、参加者のバックグランドなど�
 - [株式会社インターネットイニシアティブ](https://www.iij.ad.jp/)
 - [株式会社クリプタクト](https://www.cryptact.com/)
 
-![懇親会で振る舞われた料理](/img/2019/haskell-day-2019/question6.jpg)
+![懇親会で振る舞われた料理](/img/2019/haskell-day-2019/after-party.jpg)
 
 発表について。  
 昨年は「[Haskellちょっと興味あるからちょっとできるまで](https://haskell-jp.connpass.com/event/92617/)」というテーマを意識して、発表の難易度別に時間帯が分かれるよう調整しましたが、残念ながらうまくいきませんでした。  
