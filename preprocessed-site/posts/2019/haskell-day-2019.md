@@ -114,7 +114,7 @@ Truffleがもたらす強力なJITと「Normalization by Evaluation」という�
 
 - [3D Model in Haskell - Haskellで3Dモデルに触れる](https://docs.google.com/presentation/d/1TiDWz3zLUwEWgpzXfgVZFIib6JtYriB03TVgHsimJC0/edit#slide=id.gc6f73a04f_0_0)
 - [HaskellでIoTやってます](https://speakerdeck.com/cyclone_t/iot-cases-with-haskell)
-- QuoraでHaskellへの愛を語る（資料なし）
+- [QuoraでHaskellへの愛を語る](https://www.slideshare.net/jabaraster/haskell-day-2019-lt-tomoyuki-kawano)
 - [Haskellで作ってわかる型クラス](https://gitpitch.com/coord-e/slide-type-class-impl)
 - [Abstract Typeclasses - How To Design a Future-Proof Typeclass](https://drive.google.com/file/d/1YGKjl8S-LlfuB8yrHnKSK5G5MGsP9xd3/view)
 - [GHCのGC](http://www.mew.org/~kazu/material/2019-gc.pdf)
