@@ -56,10 +56,10 @@ VRC-LTという名前で6回ほど開催しているのですが、場所の制�
 
 VRChatはPCのみでも利用することができます。
 VRC-LTはほぼ月イチペースで不定期開催ですので、もしよろしければ参加していただけると嬉しいです。
-https://vrc-lt.github.io
+[https://vrc-lt.github.io](https://vrc-lt.github.io)
 
 # リポジトリ
 そんなこんなで開発中のリポジトリはこちらになります。  
 拙いところもいっぱいですがIssueやPRなどで気になった点を教えていただければ幸いです！  
-https://github.com/vrc-lt/VRC-Slide-Server
+[https://github.com/vrc-lt/VRC-Slide-Server](https://github.com/vrc-lt/VRC-Slide-Server)
 
