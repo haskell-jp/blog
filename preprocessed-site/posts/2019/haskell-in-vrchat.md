@@ -5,7 +5,7 @@ headingDivClass: post-heading
 author: Haruka Nakajima
 postedBy: <a href="https://twitter.com/haru2036">Haruka Nakajima(@haru2036)</a>
 date: December 02, 2019
-tags: Windows, VRChat
+tags: Spock, VRChat
 ...
 ---
 
