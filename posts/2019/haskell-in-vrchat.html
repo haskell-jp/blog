@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="VRのためにHaskellを使った話">
+    
+      <meta name="author" content="Haruka Nakajima">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="VRのためにHaskellを使った話 - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/haskell-in-vrchat.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---# はじめにはじめまして。趣味でHaskellしているはる(haru2036)と申します。まったり進行で開発しているのでGHCのバージョンアップの速さについていけてない感があります……さて、今回はあんまり深い話はありません。どちらかと言うとこんなニッチなところにHaskell使ったよというネタで書きます。# VR空間でLTがしたい突然ですが、私は[VRChat](https://vrchat" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>VRのためにHaskellを使った話 - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://haskell.jp/signin-slack.html">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>VRのためにHaskellを使った話</h1>
+                      <h2 class="subheading"></h2><span class="meta">Posted by <a href="https://twitter.com/haru2036">Haruka Nakajima(@haru2036)</a> on December 03, 2019</span><span class="meta">Tags: Spock, VRChat</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#はじめに" title="はじめに">はじめに</a></li>
+<li><a href="#vr空間でltがしたい" title="vr空間でltがしたい"><span class="ascii">VR</span>空間で<span class="ascii">LT</span>がしたい</a></li>
+<li><a href="#webフレームワーク" title="webフレームワーク"><span class="ascii">Web</span>フレームワーク</a></li>
+<li><a href="#はじめてのhaskellペアプロ" title="はじめてのhaskellペアプロ">はじめての<span class="ascii">Haskell</span>ペアプロ</a></li>
+<li><a href="#デプロイ" title="デプロイ">デプロイ</a></li>
+<li><a href="#実際に開催してみて" title="実際に開催してみて">実際に開催してみて</a></li>
+<li><a href="#リポジトリ" title="リポジトリ">リポジトリ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめに</h1>
+<p>はじめまして。趣味で<span class="ascii">Haskell</span>しているはる<span class="ascii">(haru2036)</span>と申します。まったり進行で開発しているので<span class="ascii">GHC</span>のバージョンアップの速さについていけてない感があります…… さて、今回はあんまり深い話はありません。どちらかと言うとこんなニッチなところに<span class="ascii">Haskell</span>使ったよというネタで書きます。</p>
+<h1 id="vr空間でltがしたい"><span class="link-to-here-outer"><a href="#vr空間でltがしたい" title="vr空間でltがしたい"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">VR</span>空間で<span class="ascii">LT</span>がしたい</h1>
+<p>突然ですが、私は<a href="https://vrchat.com/"><span class="ascii">VRChat</span></a>（以下<span class="ascii">VRC</span>）というソーシャル<span class="ascii">VR</span>サービス（<span class="ascii">Second Life</span>の<span class="ascii">VR</span>版みたいなものです）にハマっています。<br />
+友人との雑談の中で<span class="ascii">VRC</span>の中で<span class="ascii">LT</span>会ができればプログラミングなどの話題で盛り上がれる人が集まってワイワイ楽しくできるのではないかと話して、その場のノリでとりあえず実装してみることにしました。</p>
+<figure>
+<img src="../../img/2019/haskell-in-vrchat/vrc-lt-room.png" title="完成したワールド" alt="完成したワールド" /><figcaption>完成したワールド</figcaption>
+</figure>
+<p>今回作りたかったのはスライドを表示するためのスクリーンと、ページ送りに使うボタンを実装したワールドです。</p>
+<figure>
+<img src="../../img/2019/haskell-in-vrchat/vrc-lt-control-panel.png" title="発表者用コントロールパネル" alt="発表者用コントロールパネル" /><figcaption>発表者用コントロールパネル</figcaption>
+</figure>
+<p><span class="ascii">VRC</span>ではアバターやワールドを自由に作ることができるのですが、<span class="ascii">VRC</span>が提供するコンポーネント以外のスクリプトは利用できません。<span class="ascii">Haskell</span>ユーザとしては得意なことを活用しづらい土壌です。<br />
+幸いスライドを表示する手段はゲーム内で<span class="ascii">URL</span>から画像を取得し表示する<span class="ascii">VRC_Panorama</span>というコンポーネントを利用することにより確保できましたが、<span class="ascii">VRC_Panorama</span>が取得できる画像はワールド作成時に決め打ちで指定された<span class="ascii">URL</span>のリストに含まれるもののみです。<br />
+そのため、スライド画像への<span class="ascii">URL</span>のリストを直接<span class="ascii">VRC_Panorama</span>に渡していると、イベントを開催する際よくある飛び入り参加やスライドの用意が遅れた参加者に対応できなくなってしまいます。</p>
+<p>その問題を解決するために、イベント開始時からのページ数とスライドの画像<span class="ascii">URL</span>をマップする<span class="ascii">WebAPI</span>を用意しました。<br />
+具体的には、<code>/slides/{pageCount}</code> のような形のエンドポイントを持った<span class="ascii">API</span>を用意し、そこから実際の画像へリダイレクトをかけるという方法を取りました。</p>
+<figure>
+<img src="../../img/2019/haskell-in-vrchat/vrc-lt-image.png" title="実装イメージ図" alt="実装イメージ図" /><figcaption>実装イメージ図</figcaption>
+</figure>
+<h1 id="webフレームワーク"><span class="link-to-here-outer"><a href="#webフレームワーク" title="webフレームワーク"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Web</span>フレームワーク</h1>
+<p>今回は自分で使うだけだしということでさらっとやってみたかったので<span class="ascii">Spock</span>を利用しました。もう少し誰でも使えるサービスにしたいと考えているので<span class="ascii">Servant</span>に載せ替えてかっちり作り直そうかと思い移植しているところです。</p>
+<h1 id="はじめてのhaskellペアプロ"><span class="link-to-here-outer"><a href="#はじめてのhaskellペアプロ" title="はじめてのhaskellペアプロ"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめての<span class="ascii">Haskell</span>ペアプロ</h1>
+<p>じつは<span class="ascii">LT</span>会をやろうと思いついた友人の<a href="https://twitter.com/b0xp2"><span class="ascii">BOXP</span></a>は<span class="ascii">Clojure</span>ユーザで、せっかくだからと<span class="ascii">API</span>の開発を手伝ってくれました。<br />
+あまり<span class="ascii">Haskell</span>に馴染みはなかったものの、いわゆる関数型プログラミング的な概念はバッチリなのでスススっと書いてくれました。<br />
+書いてくれる上での障壁になったのは、型関連の要素<span class="ascii">(</span><code>data</code>や<code>type</code>や<code>newtype</code>がぱっと見わからなかった、型コンストラクタ、値コンストラクタの概念）に馴染みが薄かったことでした。<br />
+<span class="ascii">Discord</span>で画面共有しながら説明を行ったのですが、やはり同じ画面を見ながら説明するのはとてもやりやすいと感じました。<br />
+本人からのメッセージはこちら。</p>
+<blockquote>
+<p>プログラミング<span class="ascii">Haskell</span>を昔読んでかじったことがある程度で素人もいいところでしたが、当人のサポートもあり思いついた数日後には実装が終わっていました。 はるくんの話にもある通り<span class="ascii">Discord</span>で画面共有しながらペアプロし、<span class="ascii">Haskell</span>でのテストコードの書き方も一から教えてもらいながら書きました。これは願ってもない体験だったので根気よく教えてくれたことに非常に感謝しています。</p>
+<p>また、個人的には実装以外でのブレストや実際の会場でのデバッグを<span class="ascii">VRChat</span>上でできた事もとてもよかったなと思っています。 単純に実装を確認するためには二人以上で<span class="ascii">VRChat</span>に入る必要があるというのもありましたが、完全リモートでも身振り手振りありでブレストができたことや、アバターのおかげで環境に囚われないコミュニケーションができていたことも<span class="ascii">Good</span>でした。</p>
+</blockquote>
+<h1 id="デプロイ"><span class="link-to-here-outer"><a href="#デプロイ" title="デプロイ"><span class="link-to-here">Link to<br />
+here</span></a></span>デプロイ</h1>
+<p>今回は自分で使うだけな上に常時稼働している必要もなく、コストを最小限に抑えたかったので<span class="ascii">Heroku</span>にデプロイしました。<br />
+<span class="ascii">Dockerfile</span>を書き、スタティックリンク周りで悩みながらもイメージを生成して<span class="ascii">Heroku</span>のレジストリに<span class="ascii">Push</span>し、後はいつもの<span class="ascii">Heroku</span>という感じでうまくいきました。</p>
+<p>余談ですが、最近参加した<span class="ascii">Gotanda.hs</span>というイベントで<code>cabal build --enable-executable-static</code>でいい感じにシングルバイナリが生成できるというお話を聞いたので、最近<span class="ascii">stack</span>ばっかり使ってたのを改めて適材適所で使い分けていきたいなーと思っています。</p>
+<h1 id="実際に開催してみて"><span class="link-to-here-outer"><a href="#実際に開催してみて" title="実際に開催してみて"><span class="link-to-here">Link to<br />
+here</span></a></span>実際に開催してみて</h1>
+<p>ここは<span class="ascii">Haskell</span>ほぼ全く関係ないですが……</p>
+<p><img src="../../img/2019/haskell-in-vrchat/vrc-lt.png" /> <span class="ascii">VRC-LT</span>という名前で<span class="ascii">6</span>回ほど開催しているのですが、場所の制約を受けずに勉強会ができ、その後の懇親会も会場の撤収時刻や終電を気にせず話したい人はとことん話し続ける事ができるというところが非常に良かったです。<br />
+ホワイトボードはまだ未実装ですが、空間に書けるペンも配布されているのでその手のアイテムも取り入れれば懇親会での話も更にはずむのではないでしょうか。</p>
+<p><span class="ascii">VRChat</span>は<span class="ascii">PC</span>のみでも利用することができます。 <span class="ascii">VRC-LT</span>はほぼ月イチペースで不定期開催ですので、もしよろしければ参加していただけると嬉しいです。 開催時のアーカイブ等も以下の<span class="ascii">Web</span>サイトにて公開中です。合わせてご覧ください。 <a href="https://vrc-lt.github.io"><span class="ascii">https://vrc-lt.github.io</span></a></p>
+<h1 id="リポジトリ"><span class="link-to-here-outer"><a href="#リポジトリ" title="リポジトリ"><span class="link-to-here">Link to<br />
+here</span></a></span>リポジトリ</h1>
+<p>そんなこんなで開発中のリポジトリはこちらになります。<br />
+拙いところもいっぱいですが<span class="ascii">Issue</span>や<span class="ascii">PR</span>などで気になった点を教えていただければ幸いです！<br />
+<a href="https://github.com/vrc-lt/VRC-Slide-Server"><span class="ascii">https://github.com/vrc-lt/VRC-Slide-Server</span></a></p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/haskell-day-2019.html" style="margin-left: auto;" lang="ja">Haskell Day 2019を開催しました！</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Haruka Nakajima 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>

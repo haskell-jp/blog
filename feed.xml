@@ -8,8 +8,131 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2019-11-29T00:00:00Z</updated>
+    <updated>2019-12-03T00:00:00Z</updated>
     <entry>
+    <title>VRのためにHaskellを使った話</title>
+    <link href="https://haskell.jp/blog/posts/2019/haskell-in-vrchat.html" />
+    <id>https://haskell.jp/blog/posts/2019/haskell-in-vrchat.html</id>
+    <published>2019-12-03T00:00:00Z</published>
+    <updated>2019-12-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#はじめに" title="はじめに">はじめに</a></li>
+<li><a href="#vr空間でltがしたい" title="vr空間でltがしたい"><span class="ascii">VR</span>空間で<span class="ascii">LT</span>がしたい</a></li>
+<li><a href="#webフレームワーク" title="webフレームワーク"><span class="ascii">Web</span>フレームワーク</a></li>
+<li><a href="#はじめてのhaskellペアプロ" title="はじめてのhaskellペアプロ">はじめての<span class="ascii">Haskell</span>ペアプロ</a></li>
+<li><a href="#デプロイ" title="デプロイ">デプロイ</a></li>
+<li><a href="#実際に開催してみて" title="実際に開催してみて">実際に開催してみて</a></li>
+<li><a href="#リポジトリ" title="リポジトリ">リポジトリ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめに</h1>
+<p>はじめまして。趣味で<span class="ascii">Haskell</span>しているはる<span class="ascii">(haru2036)</span>と申します。まったり進行で開発しているので<span class="ascii">GHC</span>のバージョンアップの速さについていけてない感があります…… さて、今回はあんまり深い話はありません。どちらかと言うとこんなニッチなところに<span class="ascii">Haskell</span>使ったよというネタで書きます。</p>
+<h1 id="vr空間でltがしたい"><span class="link-to-here-outer"><a href="#vr空間でltがしたい" title="vr空間でltがしたい"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">VR</span>空間で<span class="ascii">LT</span>がしたい</h1>
+<p>突然ですが、私は<a href="https://vrchat.com/"><span class="ascii">VRChat</span></a>（以下<span class="ascii">VRC</span>）というソーシャル<span class="ascii">VR</span>サービス（<span class="ascii">Second Life</span>の<span class="ascii">VR</span>版みたいなものです）にハマっています。<br />
+友人との雑談の中で<span class="ascii">VRC</span>の中で<span class="ascii">LT</span>会ができればプログラミングなどの話題で盛り上がれる人が集まってワイワイ楽しくできるのではないかと話して、その場のノリでとりあえず実装してみることにしました。</p>
+<figure>
+<img src="/img/2019/haskell-in-vrchat/vrc-lt-room.png" title="完成したワールド" alt="完成したワールド" /><figcaption>完成したワールド</figcaption>
+</figure>
+<p>今回作りたかったのはスライドを表示するためのスクリーンと、ページ送りに使うボタンを実装したワールドです。</p>
+<figure>
+<img src="/img/2019/haskell-in-vrchat/vrc-lt-control-panel.png" title="発表者用コントロールパネル" alt="発表者用コントロールパネル" /><figcaption>発表者用コントロールパネル</figcaption>
+</figure>
+<p><span class="ascii">VRC</span>ではアバターやワールドを自由に作ることができるのですが、<span class="ascii">VRC</span>が提供するコンポーネント以外のスクリプトは利用できません。<span class="ascii">Haskell</span>ユーザとしては得意なことを活用しづらい土壌です。<br />
+幸いスライドを表示する手段はゲーム内で<span class="ascii">URL</span>から画像を取得し表示する<span class="ascii">VRC_Panorama</span>というコンポーネントを利用することにより確保できましたが、<span class="ascii">VRC_Panorama</span>が取得できる画像はワールド作成時に決め打ちで指定された<span class="ascii">URL</span>のリストに含まれるもののみです。<br />
+そのため、スライド画像への<span class="ascii">URL</span>のリストを直接<span class="ascii">VRC_Panorama</span>に渡していると、イベントを開催する際よくある飛び入り参加やスライドの用意が遅れた参加者に対応できなくなってしまいます。</p>
+<p>その問題を解決するために、イベント開始時からのページ数とスライドの画像<span class="ascii">URL</span>をマップする<span class="ascii">WebAPI</span>を用意しました。<br />
+具体的には、<code>/slides/{pageCount}</code> のような形のエンドポイントを持った<span class="ascii">API</span>を用意し、そこから実際の画像へリダイレクトをかけるという方法を取りました。</p>
+<figure>
+<img src="/img/2019/haskell-in-vrchat/vrc-lt-image.png" title="実装イメージ図" alt="実装イメージ図" /><figcaption>実装イメージ図</figcaption>
+</figure>
+<h1 id="webフレームワーク"><span class="link-to-here-outer"><a href="#webフレームワーク" title="webフレームワーク"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Web</span>フレームワーク</h1>
+<p>今回は自分で使うだけだしということでさらっとやってみたかったので<span class="ascii">Spock</span>を利用しました。もう少し誰でも使えるサービスにしたいと考えているので<span class="ascii">Servant</span>に載せ替えてかっちり作り直そうかと思い移植しているところです。</p>
+<h1 id="はじめてのhaskellペアプロ"><span class="link-to-here-outer"><a href="#はじめてのhaskellペアプロ" title="はじめてのhaskellペアプロ"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめての<span class="ascii">Haskell</span>ペアプロ</h1>
+<p>じつは<span class="ascii">LT</span>会をやろうと思いついた友人の<a href="https://twitter.com/b0xp2"><span class="ascii">BOXP</span></a>は<span class="ascii">Clojure</span>ユーザで、せっかくだからと<span class="ascii">API</span>の開発を手伝ってくれました。<br />
+あまり<span class="ascii">Haskell</span>に馴染みはなかったものの、いわゆる関数型プログラミング的な概念はバッチリなのでスススっと書いてくれました。<br />
+書いてくれる上での障壁になったのは、型関連の要素<span class="ascii">(</span><code>data</code>や<code>type</code>や<code>newtype</code>がぱっと見わからなかった、型コンストラクタ、値コンストラクタの概念）に馴染みが薄かったことでした。<br />
+<span class="ascii">Discord</span>で画面共有しながら説明を行ったのですが、やはり同じ画面を見ながら説明するのはとてもやりやすいと感じました。<br />
+本人からのメッセージはこちら。</p>
+<blockquote>
+<p>プログラミング<span class="ascii">Haskell</span>を昔読んでかじったことがある程度で素人もいいところでしたが、当人のサポートもあり思いついた数日後には実装が終わっていました。 はるくんの話にもある通り<span class="ascii">Discord</span>で画面共有しながらペアプロし、<span class="ascii">Haskell</span>でのテストコードの書き方も一から教えてもらいながら書きました。これは願ってもない体験だったので根気よく教えてくれたことに非常に感謝しています。</p>
+<p>また、個人的には実装以外でのブレストや実際の会場でのデバッグを<span class="ascii">VRChat</span>上でできた事もとてもよかったなと思っています。 単純に実装を確認するためには二人以上で<span class="ascii">VRChat</span>に入る必要があるというのもありましたが、完全リモートでも身振り手振りありでブレストができたことや、アバターのおかげで環境に囚われないコミュニケーションができていたことも<span class="ascii">Good</span>でした。</p>
+</blockquote>
+<h1 id="デプロイ"><span class="link-to-here-outer"><a href="#デプロイ" title="デプロイ"><span class="link-to-here">Link to<br />
+here</span></a></span>デプロイ</h1>
+<p>今回は自分で使うだけな上に常時稼働している必要もなく、コストを最小限に抑えたかったので<span class="ascii">Heroku</span>にデプロイしました。<br />
+<span class="ascii">Dockerfile</span>を書き、スタティックリンク周りで悩みながらもイメージを生成して<span class="ascii">Heroku</span>のレジストリに<span class="ascii">Push</span>し、後はいつもの<span class="ascii">Heroku</span>という感じでうまくいきました。</p>
+<p>余談ですが、最近参加した<span class="ascii">Gotanda.hs</span>というイベントで<code>cabal build --enable-executable-static</code>でいい感じにシングルバイナリが生成できるというお話を聞いたので、最近<span class="ascii">stack</span>ばっかり使ってたのを改めて適材適所で使い分けていきたいなーと思っています。</p>
+<h1 id="実際に開催してみて"><span class="link-to-here-outer"><a href="#実際に開催してみて" title="実際に開催してみて"><span class="link-to-here">Link to<br />
+here</span></a></span>実際に開催してみて</h1>
+<p>ここは<span class="ascii">Haskell</span>ほぼ全く関係ないですが……</p>
+<p><img src="/img/2019/haskell-in-vrchat/vrc-lt.png" /> <span class="ascii">VRC-LT</span>という名前で<span class="ascii">6</span>回ほど開催しているのですが、場所の制約を受けずに勉強会ができ、その後の懇親会も会場の撤収時刻や終電を気にせず話したい人はとことん話し続ける事ができるというところが非常に良かったです。<br />
+ホワイトボードはまだ未実装ですが、空間に書けるペンも配布されているのでその手のアイテムも取り入れれば懇親会での話も更にはずむのではないでしょうか。</p>
+<p><span class="ascii">VRChat</span>は<span class="ascii">PC</span>のみでも利用することができます。 <span class="ascii">VRC-LT</span>はほぼ月イチペースで不定期開催ですので、もしよろしければ参加していただけると嬉しいです。 開催時のアーカイブ等も以下の<span class="ascii">Web</span>サイトにて公開中です。合わせてご覧ください。 <a href="https://vrc-lt.github.io"><span class="ascii">https://vrc-lt.github.io</span></a></p>
+<h1 id="リポジトリ"><span class="link-to-here-outer"><a href="#リポジトリ" title="リポジトリ"><span class="link-to-here">Link to<br />
+here</span></a></span>リポジトリ</h1>
+<p>そんなこんなで開発中のリポジトリはこちらになります。<br />
+拙いところもいっぱいですが<span class="ascii">Issue</span>や<span class="ascii">PR</span>などで気になった点を教えていただければ幸いです！<br />
+<a href="https://github.com/vrc-lt/VRC-Slide-Server"><span class="ascii">https://github.com/vrc-lt/VRC-Slide-Server</span></a></p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2019/haskell-day-2019.html" style="margin-left: auto;" lang="ja">Haskell Day 2019を開催しました！</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>Haskell Day 2019を開催しました！</title>
     <link href="https://haskell.jp/blog/posts/2019/haskell-day-2019.html" />
     <id>https://haskell.jp/blog/posts/2019/haskell-day-2019.html</id>
@@ -253,6 +376,9 @@ here</span></a></span>あわせて読みたい</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2019/haskell-in-vrchat.html" lang="ja">VRのためにHaskellを使った話</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -1601,248 +1727,6 @@ here</span></a></span>✅おわりに</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/stack-ghc8.8.html" style="margin-left: auto;" lang="ja">GHC 8.8.1 alphaをstackでダウンロードして手持ちのパッケージをビルドする</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>GHC 8.8.1 alphaをstackでダウンロードして手持ちのパッケージをビルドする</title>
-    <link href="https://haskell.jp/blog/posts/2019/stack-ghc8.8.html" />
-    <id>https://haskell.jp/blog/posts/2019/stack-ghc8.8.html</id>
-    <published>2019-05-02T00:00:00Z</published>
-    <updated>2019-05-02T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>先日、我らが<span class="ascii">Haskell</span>のデファクトスタンダードなコンパイラー、<a href="https://mail.haskell.org/pipermail/ghc-devs/2019-April/017550.html"><span class="ascii">GHC</span>のバージョン<span class="ascii">8.8.1-alpha1</span>がリリースされました</a>。<br />
-このリリースはまだアルファ版であることからわかるとおり、主にテスト目的で使用するためのものです。<br />
-なのでいち早く試してみて、<span class="ascii">GHC</span>のデバッグに貢献してみましょう。</p>
-<p>そこで今回は、最近<span class="ascii">Haskell</span>を始めた方なら使っている方も多いであろう、<span class="ascii">stack</span>を使ってこの新しい<span class="ascii">GHC</span>をインストールし、あなたのライブラリー・アプリケーションでテストする方法を紹介いたします。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#tldr-cabal-installでやったほうがよさそう" title="tldr-cabal-installでやったほうがよさそう"><span class="ascii">TL;DR cabal-install</span>でやったほうがよさそう</a></li>
-<li><a href="#setup-infoを作る" title="setup-infoを作る"><span class="ascii">1.</span> <code>setup-info</code>を作る</a></li>
-<li><a href="#必要ならallow-newerを有効にする" title="必要ならallow-newerを有効にする"><span class="ascii">2.</span> （必要なら）<span class="ascii">allow-newer</span>を有効にする</a></li>
-<li><a href="#package-indicesを設定してhead.hackageを利用できるようにする" title="package-indicesを設定してhead.hackageを利用できるようにする"><span class="ascii">3. package-indices</span>を設定して、<span class="ascii">head.hackage</span>を利用できるようにする</a></li>
-<li><a href="#stack-buildを実行しつつひたすらextra-depsを追加編集" title="stack-buildを実行しつつひたすらextra-depsを追加編集"><span class="ascii">4. stack build</span>を実行しつつ、ひたすら<span class="ascii">extra-deps</span>を追加・編集</a>
-<ul>
-<li><a href="#それでもうまくいかない場合-extra-depsを使い倒す" title="それでもうまくいかない場合-extra-depsを使い倒す">それでもうまくいかない場合<span class="ascii">:</span> <code>extra-deps</code>を使い倒す</a>
-<ul>
-<li><a href="#自分以外の人が対象のパッケージを修正した場合" title="自分以外の人が対象のパッケージを修正した場合">自分以外の人が対象のパッケージを修正した場合<span class="ascii">:</span></a></li>
-<li><a href="#自分で対象のパッケージを修正するという場合" title="自分で対象のパッケージを修正するという場合">自分で対象のパッケージを修正する、という場合<span class="ascii">:</span></a></li>
-<li><a href="#対象のパッケージがgitリポジトリーで管理されてない場合は" title="対象のパッケージがgitリポジトリーで管理されてない場合は">対象のパッケージが<span class="ascii">Git</span>リポジトリーで管理されてない場合は？</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#番外編-operation-vanguard" title="番外編-operation-vanguard">番外編<span class="ascii">: Operation Vanguard</span></a></li>
-</ul>
-</div>
-</div>
-<h1 id="tldr-cabal-installでやったほうがよさそう"><span class="link-to-here-outer"><a href="#tldr-cabal-installでやったほうがよさそう" title="tldr-cabal-installでやったほうがよさそう"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">TL;DR cabal-install</span>でやったほうがよさそう</h1>
-<p>いきなりやろうとすることを真っ向から否定するようで恐縮ですが…😅<br />
-実際に私が試しにビルドしてみた感じ、普通に<a href="https://www.haskell.org/cabal/download.html"><span class="ascii">cabal-install</span>をこちらから</a>インストールして、<code>cabal new-build --with-ghc=ghc-8.8.0.20190424</code>などと実行した方がいいんじゃないかという気がしました…。<br />
-<span class="ascii">cabal-install</span>には<span class="ascii">GHC</span>をインストールする機能はないので、その場合は<span class="ascii">GHC</span>は別途インストールすることになります<small>（<a href="https://github.com/haskell/ghcup"><code>ghcup</code></a>が使える？）</small>。<br />
-<a href="../2017/06-ghc-install.html"><span class="ascii">@takenobu-hs</span>さんが書いてくれた、こちらの記事</a>を参考にどうぞ！</p>
-<p>なお、<span class="ascii">stack</span>でやると面倒な理由についての詳細はこれから述べる手順で適宜触れます…。</p>
-<h1 id="setup-infoを作る"><span class="link-to-here-outer"><a href="#setup-infoを作る" title="setup-infoを作る"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">1.</span> <code>setup-info</code>を作る</h1>
-<p>まずはじめに、<span class="ascii">stack</span>が<span class="ascii">GHC</span>をインストールする際に参照する、<a href="https://docs.haskellstack.org/en/stable/yaml_configuration/#setup-info"><code>setup-info</code></a>という<span class="ascii">YAML</span>を作りましょう。<br />
-<code>setup-info</code>は<code>stack setup</code>や<code>stack build</code>を実行したとき、<span class="ascii">GHC</span>などの必要なソフトウェアがインストールされていなかった際、自動で<span class="ascii">GHC</span>をインストールするために必要な情報です。<br />
-<span class="ascii">GHC</span>のバージョンや対象となるプラットフォームごとに、<span class="ascii">GHC</span>のビルド済み<span class="ascii">tarball</span>への<span class="ascii">URL</span>やそのチェックサムが書いてあります。<br />
-<span class="ascii">stack</span>はここに書かれた<span class="ascii">URL</span>にアクセスすることで、<span class="ascii">GHC</span>をインストールしているんですね。</p>
-<p>デフォルトでは、<span class="ascii">stack</span>は<a href="https://raw.githubusercontent.com/commercialhaskell/stackage-content/master/stack/stack-setup-2.yaml">こちらの<span class="ascii">YAML</span></a>ファイルを<code>setup-info</code>として扱っています。<br />
-この<span class="ascii">YAML</span>には<a href="https://www.stackage.org/"><span class="ascii">Stackage</span></a>が参照している、安定版の<span class="ascii">GHC</span>については書いてあるものの、<span class="ascii">LTS Haskell</span>にも<span class="ascii">Stackage Nightly</span>にもまだ採用されていない<span class="ascii">GHC</span>については、書かれていません。<br />
-当然アルファ版である<span class="ascii">GHC 8.8.1-alpha1</span>が書かれることはないため、<span class="ascii">GHC 8.8.1-alpha1</span>用の<code>setup-info</code>を作る必要があります。</p>
-<p>それでは書いてみましょう… と、言いたいところですが、この<code>setup-info</code>、実際のところ自分で直接書く必要はなく、<span class="ascii">YAML</span>ファイルへの<span class="ascii">URL</span>やパスを指定するだけで<span class="ascii">stack</span>は参照しに行ってくれます！<br />
-と、言うわけで、<a href="https://gist.github.com/igrep/7298e1e2515059ae332feaf5501c41a4">こちらに<span class="ascii">GHC 8.8.1-alpha1</span>向けの<code>setup-info</code></a>を作ってアップロードしておきました！<br />
-<small>（申し訳なくも<span class="ascii">Linux</span>についてはどう書けばいいかわからず、<span class="ascii">macOS</span>と<span class="ascii">Windows 64bit</span>のみ対応いたしました… あしからず。🙇）</small></p>
-<p>ひとまずみなさんは、下記のいずれかの方法で指定するだけでこの手順はクリアできます。</p>
-<ul>
-<li><p><code>stack.yaml</code>に記載する<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">resolver:</span><span class="at"> ghc-8.8</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="fu">setup-info:</span><span class="at"> </span><span class="st">&quot;https://gist.githubusercontent.com/igrep/7298e1e2515059ae332feaf5501c41a4/raw/d69cc0b75d9be6735bdfcca6aa3eb6398d98983f/stack-setup-info.yaml&quot;</span></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co"># ... 以下略 ...</span></a></code></pre></div>
-<ul>
-<li>ビルドしたいプロジェクトや、<span class="ascii">GHC 8.8</span>を試す用のディレクトリーを作って、そこに👆の内容が書かれた<code>stack.yaml</code>を置きましょう。<br />
-ちょっと試したいだけならそのディレクトリーで<code>stack exec ghci</code>などと実行すれば<span class="ascii">OK</span>です！</li>
-</ul></li>
-<li><p><code>stack setup</code>コマンドのオプションとして渡す<span class="ascii">:</span></p>
-<pre><code>stack setup 8.8.0.20190424 --setup-info-yaml https://gist.github.com/igrep/7298e1e2515059ae332feaf5501c41a4/raw/d69cc0b75d9be6735bdfcca6aa3eb6398d98983f/stack-setup-info.yaml</code></pre>
-<ul>
-<li><code>--setup-info-yaml</code>オプションを指定した上で<code>8.8.0.20190424</code>という引数を与えるのがポイントです。<br />
-<span class="ascii">GHC</span>の開発版の慣習上、<code>8.8.1-alpha1</code><strong>ではなく</strong><code>8.8.0.20190424</code>となっている点に注意してください！</li>
-</ul></li>
-</ul>
-<p>「<span class="ascii">8.8.1-alpha1</span>じゃなくて、自分でビルドした<span class="ascii">GHC</span>を<code>stack</code>でインストールできるようにしたい！」というマニアなあなたは、<a href="https://gist.github.com/igrep/7298e1e2515059ae332feaf5501c41a4">今回私が作った<code>setup-info</code></a>をどうぞ参考にしてください！🙇</p>
-<h1 id="必要ならallow-newerを有効にする"><span class="link-to-here-outer"><a href="#必要ならallow-newerを有効にする" title="必要ならallow-newerを有効にする"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">2.</span> （必要なら）<span class="ascii">allow-newer</span>を有効にする</h1>
-<p>ここからは、何かしら依存するパッケージがあるライブラリー・アプリケーションを<span class="ascii">GHC 8.8.1-alpha1</span>で試しにビルドしたいという方向けです。<br />
-<span class="ascii">GHC 8.8.1-alpha1</span>をちょっと試したいだけという方はこれ以降を読む必要はありません。</p>
-<p>まずは、ひとまず対象となるプロジェクトの<code>stack.yaml</code>に</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">allow-newer:</span><span class="at"> </span><span class="ch">true</span></a></code></pre></div>
-<p>を追記しましょう。<br />
-これは、依存している<span class="ascii">Cabal</span>パッケージのバージョンの、上限を取っ払うというものです。<br />
-依存パッケージのバージョンの上限は、パッケージの開発者が自身のパッケージを確実にビルドできるよう、「このパッケージはあのパッケージのバージョン<span class="ascii">N.M</span><strong>以下</strong>じゃないとビルドできないよ！」と<span class="ascii">Cabal</span>の依存関係リゾルバーに教えてあげるためのものです。<br />
-<span class="ascii">cabal-install</span><small>（と、恐らく<span class="ascii">stack</span>も必要に応じて）</small>は、通常であればこの上限を見て、どのバージョンのパッケージをインストールするか決めます。<br />
-その上限により、残念ながら依存関係の解決に失敗することがあるのです。<br />
-そこでそうしたエラーを避けるためにも<code>allow-newer: true</code>と設定して、上限を無視してみましょう。</p>
-<p>というのも、このバージョンの上限はしばしば、予防のために実際より厳しめに設定されることがあるためです<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
-そりゃそうですよね。今作っているパッケージが依存している<span class="ascii">API</span>が、どのバージョンで使用できなくなるかなんて、大抵のパッケージではわかりませんし。<br />
-<span class="ascii">Haskell</span>の世界には<a href="https://pvp.haskell.org/"><span class="ascii">PVP</span></a>という、<a href="https://semver.org/lang/ja/"><span class="ascii">Semantic Versioning</span></a>と似た思想のバージョン変更ポリシーがありまして、<span class="ascii">API</span>の互換性がなくなるような修正が含まれる場合、次のバージョンでは<code>A.B.C</code>の<code>A.B</code>の箇所を変更することになっています。<br />
-これを信じて依存バージョンの上限（と下限）を設定してみても、実際にあなたが依存している<span class="ascii">API</span>が使用できなくなるとは限らないのです。</p>
-<p>したがって、依存パッケージのバージョンの上限は、実際には無視してもよい場合がしばしばあります。<br />
-もちろん、自分で依存パッケージのバージョンを正しく書き換えて対応するというのもアリですし、将来的にはそうした方がより望ましいやり方です。<br />
-また、<code>allow-newer: true</code>を設定することにより、<strong><span class="ascii">GHC 8.8</span>とは関係のない原因でビルドが失敗</strong>する可能性がある点にも注意してください。<br />
-とは言え、今回は手っ取り早くビルドしてみるために、敢えて<code>allow-newer: true</code>を設定することと致しました。<br />
-「私はバージョンの上限を直してみたいんだー！」という方は、是非チャレンジしてみてください。</p>
-<h1 id="package-indicesを設定してhead.hackageを利用できるようにする"><span class="link-to-here-outer"><a href="#package-indicesを設定してhead.hackageを利用できるようにする" title="package-indicesを設定してhead.hackageを利用できるようにする"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">3. package-indices</span>を設定して、<span class="ascii">head.hackage</span>を利用できるようにする</h1>
-<p><code>stack.yaml</code>に書いておいた方が良い設定がもう一つあります。<br />
-それは、<a href="http://head.hackage.haskell.org/"><span class="ascii">HEAD.hackage</span></a>の設定です。</p>
-<p>これからビルドするあなたのパッケージは、きっとたくさんのパッケージに依存していることでしょう。<br />
-残念ながら、その中には<span class="ascii">GHC 8.8</span>に対応できていないものも数多くあるでしょう😰。<br />
-特に今回は<a href="https://scrapbox.io/haskell-shoen/MonadFail"><code>MonadFail</code> <span class="ascii">Proposal</span></a>による、<code>Monad</code>型クラスの仕様変更を適切に周知できていなかったこともあり、まだ多くのパッケージが対応できていないようです。</p>
-<p>しかし、まだ希望はあります。<br />
-あなたの依存パッケージに対する必要な修正は、すでに<span class="ascii">master</span>ブランチにマージされているかも知れませんし、すでに誰かが<span class="ascii">Pull request</span>を送っているかも知れません。<br />
-さらにラッキーな場合、<span class="ascii">HEAD.hackage</span>にパッチを当てたバージョンが上がっていることでしょう！</p>
-<p><span class="ascii">HEAD.hackage</span>は、今回のように<span class="ascii">GHC</span>の開発版をいち早く試したい人が、新しい<span class="ascii">GHC</span>に向けて修正を加えたパッケージを、いち早くアップロードするサイトです。<br />
-<a href="https://github.com/hvr/head.hackage">こちらのリポジトリー</a>にパッチをアップロードすることで、<span class="ascii">cabal-install</span>や<span class="ascii">stack</span>から、普通の<span class="ascii">hackage</span>にあるパッケージとしてダウンロードできるようにしてくれます。</p>
-<p><span class="ascii">HEAD.hackage</span>を<span class="ascii">stack</span>で利用するには、下記のように、<code>package-indices:</code>という設定を、<code>stack.yaml</code>に加えてください。<br />
-下記のように記載することで、<span class="ascii">stack</span>は、<span class="ascii">HEAD.hackage</span>にある修正済みのパッケージを優先して取得してくれるようになります<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">package-indices:</span></a>
-<a class="sourceLine" id="cb4-2" title="2">  <span class="kw">-</span> <span class="fu">name:</span><span class="at"> head.hackage</span></a>
-<a class="sourceLine" id="cb4-3" title="3">    <span class="fu">download-prefix:</span><span class="at"> http://head.hackage.haskell.org/package/</span></a>
-<a class="sourceLine" id="cb4-4" title="4">    <span class="fu">http:</span><span class="at"> http://head.hackage.haskell.org/01-index.tar.gz</span></a>
-<a class="sourceLine" id="cb4-5" title="5">  <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Hackage</span></a>
-<a class="sourceLine" id="cb4-6" title="6">    <span class="fu">download-prefix:</span><span class="at"> https://hackage.haskell.org/package/</span></a>
-<a class="sourceLine" id="cb4-7" title="7">    <span class="fu">http:</span><span class="at"> https://hackage.haskell.org/01-index.tar.gz</span></a></code></pre></div>
-<p>これで<span class="ascii">GHC 8.8</span>対応済みのパッケージを、簡単に取得できるようになります！</p>
-<h1 id="stack-buildを実行しつつひたすらextra-depsを追加編集"><span class="link-to-here-outer"><a href="#stack-buildを実行しつつひたすらextra-depsを追加編集" title="stack-buildを実行しつつひたすらextra-depsを追加編集"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">4. stack build</span>を実行しつつ、ひたすら<span class="ascii">extra-deps</span>を追加・編集</h1>
-<p>ここまで設定できたら、いよいよ<code>stack build</code>してみましょう<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>！<br />
-とは言え、この状態ではほぼ間違いなく失敗が続くので、<code>stack build --file-watch</code>と、<strong><code>--file-watch</code>オプションを付けて、<code>stack.yaml</code>を編集する度に再度</strong>ビルドが実行されるようにするのをおすすめします。</p>
-<p>と、言うのも、恐らく次👇のようなエラーがたくさん出ると思われるからです。</p>
-<pre><code>...
-In the dependencies for wss-client-0.2.1.1:
-    http-client must match &gt;=0.5.13, but the stack configuration has no specified version  (latest
-                matching version is 0.6.4)
-    http-client-tls needed, but the stack configuration has no specified version  (latest matching
-                    version is 0.3.5.3)
-    network-uri needed, but the stack configuration has no specified version  (latest matching
-                version is 2.6.1.0)
-    websockets must match &gt;=0.12.0 &amp;&amp; &lt;0.13, but the stack configuration has no specified version
-               (latest matching version is 0.12.5.3)
-needed since wss-client is a build target.
-
-Some different approaches to resolving this:
-
-  * Consider trying &#39;stack solver&#39;, which uses the cabal-install solver to attempt to find some
-    working build configuration. This can be convenient when dealing with many complicated
-    constraint errors, but results may be unpredictable.
-
-  * Recommended action: try adding the following to your extra-deps
-    in C:\Users\igrep\Downloads\direct-hs\stack-ghc-8.8.yaml:
-
-attoparsec-0.13.2.2@sha256:6a0baba19991e84ef939056e7b411ad3a1ea0fb5e1e8fce7ca50e96c84b206c8
-base-compat-0.10.5@sha256:d49e174ed0daecd059c52d13d4f4de87b5609c81212a22adbb92431f9cd58fff
-...</code></pre>
-<p>このエラー、見かけたことがある人も多いでしょう。<br />
-そう、指定した<span class="ascii">resolver</span><small>（<span class="ascii">stack</span>が使用するパッケージのバージョンの一覧。<span class="ascii">Stackage</span>に登録されている<code>lts-13.12</code>などもその一つ）</small>に、必要なバージョンのパッケージが登録されていない場合に起こるエラーです。<br />
-みなさんが普段利用する<code>lts-13.12</code>などの<span class="ascii">resolver</span>では、数多くのパッケージが登録されています<small>（<a href="https://www.stackage.org/lts-13.19">最新版の<span class="ascii">LTS Haskell 13.19</span></a>で<span class="ascii">2346</span>件。<span class="ascii">Stackage</span>をメンテしている皆さんのおかげですね）</small>。</p>
-<p>一方、最初の手順で我々が指定した<span class="ascii">resolver</span>、すなわち<code>resolver: ghc-8.8</code>は、<span class="ascii">GHC 8.8</span>に添付されたパッケージ<small>（<code>base</code>パッケージや、<code>array</code>パッケージなど）</small>しか入っていない、実質空っぽな<span class="ascii">resolver</span>なのです<small>（<a href="https://docs.haskellstack.org/en/stable/yaml_configuration/#resolver">参考</a>）</small>。<br />
-そのため、あなたが必要なほとんどのパッケージはないため、<span class="ascii">stack</span>はやむなく「<code>extra-deps</code>にこれらのパッケージを追加してね！」というエラーを出すことになります。<br />
-これでは<span class="ascii">stack</span>の良さを生かせません…。<span class="ascii">cabal-install</span>で<code>cabal new-build</code>していれば、<span class="ascii">cabal-install</span>は黙って必要なパッケージのバージョンを決定し、あとは<code>cabal new-freeze</code>でもすれば、完全にビルドを再現可能な状態にしてくれます。<br />
-やっぱり<span class="ascii">stack</span>はあくまでも<span class="ascii">Stackage</span>を活かすためのツールと捉えた方がいいのかも知れません😥。</p>
-<p><code>extra-deps</code>へのパッケージの追記を何度か繰り返すと、ようやくパッケージのビルドが始まります。<br />
-<span class="ascii">HEAD.hackage</span>に収録されたパッケージを正しく取得できていれば、現在<span class="ascii">Hackage</span>にアップロードされているバージョンではビルドできない依存パッケージも、無事ビルドできることでしょう。<br />
-依存するパッケージの数にもよりますが、やっぱり時間がかかるかと思います。待ちましょう☕️。</p>
-<h2 id="それでもうまくいかない場合-extra-depsを使い倒す"><span class="link-to-here-outer"><a href="#それでもうまくいかない場合-extra-depsを使い倒す" title="それでもうまくいかない場合-extra-depsを使い倒す"><span class="link-to-here">Link to<br />
-here</span></a></span>それでもうまくいかない場合<span class="ascii">:</span> <code>extra-deps</code>を使い倒す</h2>
-<p>しかしやっぱり、必要な変更が施されたパッケージが、<span class="ascii">HEAD.hackage</span>にもアップロードされていない場合はあります。<br />
-そうした場合、自分で修正して<small>（<span class="ascii">Pull request</span>を送りつつ）</small>パッチを<a href="https://github.com/hvr/head.hackage"><span class="ascii">HEAD.hackage</span>のリポジトリー</a>にアップロードすることもできますが、<code>stack.yaml</code>の<code>extra-deps</code>を次のように使えば、もっと手っ取り早く修正したバージョンのビルドを試すことができます。</p>
-<h3 id="自分以外の人が対象のパッケージを修正した場合"><span class="link-to-here-outer"><a href="#自分以外の人が対象のパッケージを修正した場合" title="自分以外の人が対象のパッケージを修正した場合"><span class="link-to-here">Link to<br />
-here</span></a></span>自分以外の人が対象のパッケージを修正した場合<span class="ascii">:</span></h3>
-<p>自分以外の人が対象のパッケージを修正したので、すでにどこかのリポジトリーに<span class="ascii">push</span>済みのコミットがある、という場合、下記👇のように書くと、<span class="ascii">Git</span>リポジトリーの特定のコミットを直接参照した状態で、依存関係に加えることができます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb6-1" title="1"><span class="fu">extra-deps:</span></a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="kw">-</span> <span class="fu">git:</span><span class="at"> https://github.com/github_user/repository_name.git</span></a>
-<a class="sourceLine" id="cb6-3" title="3">  <span class="fu">commit:</span><span class="at"> &lt;修正したコミットのSHA&gt;</span></a></code></pre></div>
-<h3 id="自分で対象のパッケージを修正するという場合"><span class="link-to-here-outer"><a href="#自分で対象のパッケージを修正するという場合" title="自分で対象のパッケージを修正するという場合"><span class="link-to-here">Link to<br />
-here</span></a></span>自分で対象のパッケージを修正する、という場合<span class="ascii">:</span></h3>
-<p>そうでない場合、対象のパッケージのリポジトリーを一旦<code>git submodule add</code>して、自分のリポジトリーの一部に含めてしまいましょう。<br />
-その上で、<code>extra-deps</code>には下記のように書けば、<span class="ascii">stack</span>はローカルのファイルシステムに置かれたディレクトリーも、直接依存するパッケージとして追加してくれます。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">extra-deps:</span></a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="kw">-</span> ./path/to/package</a></code></pre></div>
-<p>逐一別のディレクトリーに<code>git clone</code>して<code>git commit</code>して<code>git push</code>して作られたコミットの<span class="ascii">SHA</span>を参照して… なんてのを繰り返していたら、面倒だからです。</p>
-<h3 id="対象のパッケージがgitリポジトリーで管理されてない場合は"><span class="link-to-here-outer"><a href="#対象のパッケージがgitリポジトリーで管理されてない場合は" title="対象のパッケージがgitリポジトリーで管理されてない場合は"><span class="link-to-here">Link to<br />
-here</span></a></span>対象のパッケージが<span class="ascii">Git</span>リポジトリーで管理されてない場合は？</h3>
-<p>臨機応変に対応しましょう…😰<br />
-ちなみに、<a href="https://docs.haskellstack.org/en/stable/yaml_configuration/#git-and-mercurial-repos"><span class="ascii">extra-deps</span>のドキュメント</a>いわく<span class="ascii">stack</span>は<span class="ascii">Mercurial</span>もサポートしています。</p>
-<h1 id="番外編-operation-vanguard"><span class="link-to-here-outer"><a href="#番外編-operation-vanguard" title="番外編-operation-vanguard"><span class="link-to-here">Link to<br />
-here</span></a></span>番外編<span class="ascii">: Operation Vanguard</span></h1>
-<p>以上が<span class="ascii">stack</span>を使った<span class="ascii">GHC 8.8-alpha1</span>のインストール方法や、それを利用したパッケージのビルド手順です。自分で<span class="ascii">GHC</span>をビルドしたときなども参考にしてみてください。<br />
-これで終わり…！と、言いたいところですが、<span class="ascii">GHC 8.8</span>に関連して、非常に意欲的なプロジェクト💪を紹介させてください。</p>
-<p>それは、<a href="https://github.com/haskell-vanguard/haskell-vanguard"><span class="ascii">Operation Vanguard</span></a>です。<br />
-<a href="https://github.com/fumieval/"><span class="ascii">@fumieval</span></a>さんが始めた、「エコシステムの主要なパッケージの最新版を一挙に<span class="ascii">GHC 8.8</span>に対応させる」プロジェクトです。<br />
-一旦<span class="ascii">submodule</span>として対象のパッケージのリポジトリーを<span class="ascii">clone</span>する、という方法は、<span class="ascii">Operation Vanguard</span>のリポジトリーを見ていて知りました💡。</p>
-<p>すでに対応のほとんどが終了したとのことですが、<span class="ascii">GHC 8.8</span>に対応していないパッケージは恐らくまだたくさんあります。<br />
-ゴールデンウィークももう半分が終わりましたが、時間をとって<span class="ascii">Operation Vanguard</span>のようにチャレンジしてみるのはいかがでしょうか💪💪💪</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>もっとも、私のようにものぐさな人間が作るパッケージには、そもそも上限も何も書いてないことが多いのですが…😰<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>本来であれば<span class="ascii">Hackage Security</span>の設定も必要なはずなんですが、なぜかうまくいかず…😱。<a href="https://github.com/commercialhaskell/stack/issues/3844">こちら</a>で紹介された<span class="ascii">workaround</span>にしたがって、関連する設定を除くことにしました…。<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p><code>stack solver</code>コマンドを使えば、この節で紹介するエラーは簡単にクリアできそうだということを聞いて試した<small>（<span class="ascii">Thanks,</span> <a href="https://github.com/mizunashi-mana"><span class="ascii">@mizunashi-mana</span></a>さん！）</small>のですが、手元のパッケージでは依存関係を解決できず、エラーになってしまいました…。<a href="#fnref3" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/asterius.html" lang="ja">AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/string-gap-for-heredoc-like.html" style="margin-left: auto;" lang="ja">Haskell でも heredoc がしたい</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
