@@ -112,7 +112,7 @@ import qualified Text.Show.Unicode
 :set -interactive-print=Text.Show.Unicode.uprint
 ```
 
-# unicode-showの（ものすごく近い）将来
+# unicode-showの最近の修正
 
 そんなunicode-showですが、残念ながら一昨年、作者である村主崇行さんが亡くなってしまいました[^nushio]。  
 日本に住むHaskellerをサポートする日本Haskellユーザーグループとしては、このパッケージをメンテナンスし続けることに大きな意義があると判断し、私はこのパッケージを[Haskell-jp](https://github.com/haskell-jp/)のGitHubリポジトリーでメンテナンスすることにしました。  
