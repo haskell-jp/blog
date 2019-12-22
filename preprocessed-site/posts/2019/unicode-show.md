@@ -141,7 +141,9 @@ ghci> uprint (repeat "ああああ！")
 
 今日記事にした一番の理由はこの話をするためです。  
 [Kaiepi](https://github.com/Kaiepi)さんありがとうございます！  
-警告を終始していただけたらマージしてリリースします。
+先ほどリリースしました！🎉
+
+<http://hackage.haskell.org/package/unicode-show-0.1.0.4>
 
 # （番外編）pretty-simpleも使おう
 
