@@ -8,8 +8,173 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2019-12-03T00:00:00Z</updated>
+    <updated>2019-12-22T00:00:00Z</updated>
     <entry>
+    <title>日本語をshowしてうまく表示されなかったら</title>
+    <link href="https://haskell.jp/blog/posts/2019/unicode-show.html" />
+    <id>https://haskell.jp/blog/posts/2019/unicode-show.html</id>
+    <published>2019-12-22T00:00:00Z</published>
+    <updated>2019-12-22T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#ℹ️この記事は" title="ℹ️この記事は">ℹ️この記事は🎄</a></li>
+<li><a href="#日本語などの話者がhaskellを始めるとあるある" title="日本語などの話者がhaskellを始めるとあるある">日本語（などの）話者が<span class="ascii">Haskell</span>を始めるとあるある</a></li>
+<li><a href="#unicode-showを使おう" title="unicode-showを使おう">🌐<span class="ascii">unicode-show</span>を使おう</a></li>
+<li><a href="#unicode-showのものすごく近い将来" title="unicode-showのものすごく近い将来"><span class="ascii">unicode-show</span>の（ものすごく近い）将来</a></li>
+<li><a href="#番外編pretty-simpleも使おう" title="番外編pretty-simpleも使おう">（番外編）<span class="ascii">pretty-simple</span>も使おう</a></li>
+</ul>
+</div>
+</div>
+<h1 id="ℹ️この記事は"><span class="link-to-here-outer"><a href="#ℹ️この記事は" title="ℹ️この記事は"><span class="link-to-here">Link to<br />
+here</span></a></span>ℹ️この記事は🎄</h1>
+<p>この記事は、<a href="https://qiita.com/advent-calendar/2019/haskell"><span class="ascii">Haskell Advent Calendar 2019</span></a> <span class="ascii">22</span>日目の記事です。<br />
+例年どおりタイプセーフプリキュア！の話をするつもりでしたが、ネタが実装できなかったので<a href="http://hackage.haskell.org/package/unicode-show"><span class="ascii">unicode-show</span></a>の話をします<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+まぁ、こちらの方がみなさんにとっては有益でしょうし🙃</p>
+<h1 id="日本語などの話者がhaskellを始めるとあるある"><span class="link-to-here-outer"><a href="#日本語などの話者がhaskellを始めるとあるある" title="日本語などの話者がhaskellを始めるとあるある"><span class="link-to-here">Link to<br />
+here</span></a></span>日本語（などの）話者が<span class="ascii">Haskell</span>を始めるとあるある</h1>
+<p><span class="ascii">GHCi</span>に日本語を入力したり…</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">ghci<span class="op">&gt;</span> <span class="st">&quot;みんなで幸せゲットだよ！&quot;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="st">&quot;\12415\12435\12394\12391\24184\12379\12466\12483\12488\12384\12424\65281&quot;</span></a></code></pre></div>
+<p>日本語を<code>print</code>したり…</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1">ghci<span class="op">&gt;</span> <span class="fu">print</span> <span class="st">&quot;私、堪忍袋の緒が切れました！&quot;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="st">&quot;\31169\12289\22570\24525\34955\12398\32210\12364\20999\12428\12414\12375\12383\65281&quot;</span></a></code></pre></div>
+<p>日本語を<code>show</code>したり…</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1">ghci<span class="op">&gt;</span> iimashita x <span class="ot">=</span> <span class="st">&quot;今、&quot;</span> <span class="op">++</span> <span class="fu">show</span> x <span class="op">++</span> <span class="st">&quot;って言いました！？&quot;</span></a>
+<a class="sourceLine" id="cb3-2" title="2">ghci<span class="op">&gt;</span> <span class="fu">putStrLn</span> (iimashita <span class="st">&quot;ハスケル&quot;</span>)</a>
+<a class="sourceLine" id="cb3-3" title="3">今、<span class="st">&quot;\12495\12473\12465\12523&quot;</span>って言いました！？</a></code></pre></div>
+<p>すると、日本語の大半が変な文字列に変わってしまいました😥。</p>
+<p>へ… 変な文字列じゃないし！エスケープシーケンスに変換しただけだから！</p>
+<p>これは、<span class="ascii">Haskell</span>標準における<code>show</code>関数の残念な仕様です。<br />
+<code>show</code>関数に文字列を渡すと、ダブルクォートで囲った上で、<span class="ascii">ASCII</span>範囲外の文字列や、<span class="ascii">ASCII</span>の非表示文字などをエスケープシーケンスに変換して返します。<br />
+これは、<code>show</code>関数をデバッグで使用した際、指定した文字列にどんな文字が含まれているか、簡単にわかるようにするための仕様です。<br />
+文字の文字コードを表示すれば、<span class="ascii">NULL</span>文字や制御文字、ゼロ幅文字、特殊なスペースなど、視認しにくいおかしな文字が含まれていても、一目でわかるのです。</p>
+<p>しかしこれは日本語話者である我々にとって、少なくとも日本語の文字に関しては「余計なお世話」です。<br />
+<span class="ascii">NULL</span>文字や<span class="ascii">ASCII</span>の制御文字といった本来画面に表示することがない文字列ならともかく、<span class="ascii">ASCII</span>範囲外の文字列すべてをエスケープしてしまうのはやり過ぎでしょう。<br />
+現代は<span class="ascii">Unicode</span>があるおかげで、日本語に限らずとも<span class="ascii">ASCII</span>範囲外の文字を扱うのは当たり前になりましたから。</p>
+<h1 id="unicode-showを使おう"><span class="link-to-here-outer"><a href="#unicode-showを使おう" title="unicode-showを使おう"><span class="link-to-here">Link to<br />
+here</span></a></span>🌐<span class="ascii">unicode-show</span>を使おう</h1>
+<p>そこで便利なのが<a href="http://hackage.haskell.org/package/unicode-show"><span class="ascii">unicode-show</span></a>です。<br />
+<span class="ascii">unicode-show</span>の<code>ushow</code>関数は、<code>show</code>がエスケープシーケンスに変換した日本語などの文字列を、元の文字列に戻してくれます。<br />
+なので、新しい型クラスを定義する必要もなく、そのまま<code>Show</code>型クラスのインスタンスを再利用できるのです。</p>
+<p>早速先ほどの<code>show</code>を使った例に適用してみましょう。</p>
+<p>まずは👇のコマンドでインストールして、<span class="ascii">GHCi</span>を起動します。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="ex">stack</span> build unicode-show</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="ex">stack</span> exec ghci</a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co"># あるいは、最近のcabalを使っている場合は...</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="ex">cabal</span> v2-install --lib unicode-show</a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="ex">cabal</span> v2-repl -b unicode-show</a></code></pre></div>
+<p><code>Text.Show.Unicode</code>モジュールを<code>import</code>して<code>show</code>を使っている箇所を<code>ushow</code>に変えれば、お望みどおりの挙動になります。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Text.Show.Unicode</span></a>
+<a class="sourceLine" id="cb5-2" title="2">ghci<span class="op">&gt;</span> iimashita x <span class="ot">=</span> <span class="st">&quot;今、&quot;</span> <span class="op">++</span> ushow x <span class="op">++</span> <span class="st">&quot;って言いました！？&quot;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">ghci<span class="op">&gt;</span> <span class="fu">putStrLn</span> (iimashita <span class="st">&quot;ハスケル&quot;</span>)</a>
+<a class="sourceLine" id="cb5-4" title="4">今、<span class="st">&quot;ハスケル&quot;</span>って言いました！？</a></code></pre></div>
+<p>わくわくもんですね！</p>
+<p><code>print</code>の例も、<code>uprint</code>に変えれば🆗です。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">ghci<span class="op">&gt;</span> uprint <span class="st">&quot;私、堪忍袋の緒が切れました！&quot;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="st">&quot;私、堪忍袋の緒が切れました！&quot;</span></a></code></pre></div>
+<p>ウルトラハッピーですね！！</p>
+<p>さらに、次のコマンドを<span class="ascii">GHCi</span>に入力すれば、<span class="ascii">GHCi</span>に直接入力した日本語文字列もそのまま表示されるようになります。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1">ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span>interactive<span class="op">-</span><span class="fu">print</span><span class="ot">=</span>uprint</a>
+<a class="sourceLine" id="cb7-2" title="2">ghci<span class="op">&gt;</span> <span class="st">&quot;みんなで幸せゲットだよ！&quot;</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="st">&quot;みんなで幸せゲットだよ！&quot;</span></a></code></pre></div>
+<p>カンペキ✨</p>
+<p>えっ、常に<code>uprint</code>したいからいちいち<code>:set -interactive-print=uprint</code>するのが面倒くさい？<br />
+そんなあなたは👇を<code>~/.ghci</code>に書くことけって～いでしょう。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Text.Show.Unicode</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="op">:</span>set <span class="op">-</span>interactive<span class="op">-</span><span class="fu">print</span><span class="ot">=</span>Text.Show.Unicode.uprint</a></code></pre></div>
+<h1 id="unicode-showのものすごく近い将来"><span class="link-to-here-outer"><a href="#unicode-showのものすごく近い将来" title="unicode-showのものすごく近い将来"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">unicode-show</span>の（ものすごく近い）将来</h1>
+<p>そんな<span class="ascii">unicode-show</span>ですが、残念ながら一昨年、作者である村主崇行さんが亡くなってしまいました<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。<br />
+日本に住む<span class="ascii">Haskeller</span>をサポートする日本<span class="ascii">Haskell</span>ユーザーグループとしては、このパッケージをメンテナンスし続けることに大きな意義があると判断し、私はこのパッケージを<a href="https://github.com/haskell-jp/"><span class="ascii">Haskell-jp</span></a>の<span class="ascii">GitHub</span>リポジトリーでメンテナンスすることにしました。<br />
+以下がそのリポジトリーです。</p>
+<p><a href="https://github.com/haskell-jp/unicode-show" class="uri"><span class="ascii">https://github.com/haskell-jp/unicode-show</span></a></p>
+<p>といっても、メンテナーの名前や<code>LICENSE</code>ファイルを書き換えて最新版をアップロードして以降特に何もしていなかったのですが<small>（<a href="https://github.com/nushio3/unicode-show/issues/2">バグはあるけど直すのも難しそう</a>だし、概ね使えるし）</small>、なんと先日、<span class="ascii">Pull request</span>が来ました！</p>
+<p><a href="https://github.com/haskell-jp/unicode-show/pull/4"><span class="ascii">Do not show values eagerly by Kaiepi · Pull Request #4 · haskell-jp/unicode-show</span></a></p>
+<p>この修正を適用する前の<span class="ascii">unicode-show</span>は、文字列全体を評価してからエスケープシーケンスを元に戻す、という挙動だったため、長い文字列を与えた場合や無限の長さの文字列を与えた場合に、なかなか<small>（あるいは永遠に）</small>結果が返ってこないという問題がありました。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1">ghci<span class="op">&gt;</span> uprint (<span class="fu">repeat</span> <span class="st">&quot;ああああ！&quot;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">-- 何も表示されず、Ctrl + C を押すまで処理が返らない</span></a></code></pre></div>
+<p>修正後はちゃんと遅延評価を利用することで、無限の長さの文字列でも少しずつ変換することができます。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1">ghci<span class="op">&gt;</span> uprint (<span class="fu">repeat</span> <span class="st">&quot;ああああ！&quot;</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2">[<span class="st">&quot;ああああ！&quot;</span>,<span class="st">&quot;ああああ！&quot;</span>, <span class="op">...</span> <span class="st">&quot;ああああ！&quot;</span>,<span class="st">&quot;ああInterrupted.</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="st">-- Ctrl + Cを押すまで出力し続ける</span></a></code></pre></div>
+<p>今日記事にした一番の理由はこの話をするためです。<br />
+<a href="https://github.com/Kaiepi"><span class="ascii">Kaiepi</span></a>さんありがとうございます！<br />
+先ほどリリースしました！🎉</p>
+<p><a href="http://hackage.haskell.org/package/unicode-show-0.1.0.4" class="uri"><span class="ascii">http://hackage.haskell.org/package/unicode-show-0.1.0.4</span></a></p>
+<h1 id="番外編pretty-simpleも使おう"><span class="link-to-here-outer"><a href="#番外編pretty-simpleも使おう" title="番外編pretty-simpleも使おう"><span class="link-to-here">Link to<br />
+here</span></a></span>（番外編）<span class="ascii">pretty-simple</span>も使おう</h1>
+<p>時間がないので詳しくは省略しますが、実は<a href="http://hackage.haskell.org/package/pretty-simple"><span class="ascii">pretty-simple</span></a>というパッケージを使えば、日本語をそのまま出力するのに加えて、プリティープリントできます。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Text.Pretty.Simple</span></a>
+<a class="sourceLine" id="cb11-2" title="2">ghci<span class="op">&gt;</span> pPrint [<span class="st">&quot;きーらーめーくー♪&quot;</span>, <span class="st">&quot;ほーしーの力でー♪&quot;</span>, <span class="st">&quot;あこがーれのー♪&quot;</span>, <span class="st">&quot;わーたーし描くよー♪&quot;</span>]</a>
+<a class="sourceLine" id="cb11-3" title="3">[ <span class="st">&quot;きーらーめーくー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-4" title="4">, <span class="st">&quot;ほーしーの力でー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-5" title="5">, <span class="st">&quot;あこがーれのー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-6" title="6">, <span class="st">&quot;わーたーし描くよー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-7" title="7">]</a></code></pre></div>
+<p>例ではわかりづらいですが、ちゃんと色も着けてくれます！<br />
+それでは<span class="ascii">2020</span>年も、<span class="ascii">Happy Haskell Hacking</span>🎁</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>例年どおりですとプリキュア<span class="ascii">Advent Calendar</span>と同時投稿をしている予定でしたが、例年参加者が減っていたこともあり、今年はプリキュア<span class="ascii">Advent Calendar</span>はなくなってしまいました😞<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>村主崇行さんは「<a href="https://shop.ohmsha.co.jp/shopdetail/000000001926/">すごい<span class="ascii">Haskell</span>たのしく学ぼう！</a>」の翻訳を担当されるなど、<span class="ascii">unicode-show</span>以外にも日本の<span class="ascii">Haskell</span>界に多大な功績をもたらした方でした。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2019/haskell-in-vrchat.html" style="margin-left: auto;" lang="ja">VRのためにHaskellを使った話</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>VRのためにHaskellを使った話</title>
     <link href="https://haskell.jp/blog/posts/2019/haskell-in-vrchat.html" />
     <id>https://haskell.jp/blog/posts/2019/haskell-in-vrchat.html</id>
@@ -115,6 +280,9 @@ here</span></a></span>リポジトリ</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2019/unicode-show.html" lang="ja">日本語をshowしてうまく表示されなかったら</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -1542,191 +1710,6 @@ here</span></a></span>最近の<span class="ascii">mmlh</span></h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/asterius.html" style="margin-left: auto;" lang="ja">AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>AsteriusでHaskellの関数をJSから呼べるようにしてみた（けど失敗）（拡大版）</title>
-    <link href="https://haskell.jp/blog/posts/2019/asterius.html" />
-    <id>https://haskell.jp/blog/posts/2019/asterius.html</id>
-    <published>2019-05-04T00:00:00Z</published>
-    <updated>2019-05-04T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>先日、<a href="https://emsn.connpass.com/event/121028/"><span class="ascii">Emscripten &amp; WebAssembly night !! #7</span></a>というイベントにて、<a href="https://tweag.github.io/asterius/"><span class="ascii">Asterius</span></a>という<span class="ascii">Haskell</span>を<span class="ascii">WebAssembly</span>にコンパイルするツールについて紹介いたしました。<br />
-資料はこちら👇です。</p>
-<p><a href="https://the.igreque.info/slides/2019-04-19-asterius.html#(1)"><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>の関数を<span class="ascii">JS</span>から呼べるようにしてみた（けど失敗）</a></p>
-<p>本日は、スライドの英語で書いていた箇所を和訳しつつ、いろいろ捕捉してブログ記事の形で共有します。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#asteriusとは何か" title="asteriusとは何か">🔍<span class="ascii">Asterius</span>とは何か</a></li>
-<li><a href="#asteriusのいいところ" title="asteriusのいいところ">👍<span class="ascii">Asterius</span>のいいところ</a></li>
-<li><a href="#asteriusのイマイチなところ" title="asteriusのイマイチなところ">👎<span class="ascii">Asterius</span>のイマイチなところ</a></li>
-<li><a href="#asteriusの仕組み" title="asteriusの仕組み">⚙️<span class="ascii">Asterius</span>の仕組み</a></li>
-<li><a href="#asteriusでhaskell製の関数を実行してみた" title="asteriusでhaskell製の関数を実行してみた"><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>製の関数を実行してみた</a>
-<ul>
-<li><a href="#結果" title="結果">結果</a></li>
-</ul></li>
-<li><a href="#おわりに" title="おわりに">✅おわりに</a></li>
-</ul>
-</div>
-</div>
-<h1 id="asteriusとは何か"><span class="link-to-here-outer"><a href="#asteriusとは何か" title="asteriusとは何か"><span class="link-to-here">Link to<br />
-here</span></a></span>🔍<span class="ascii">Asterius</span>とは何か</h1>
-<p>冒頭でも触れたとおり、<a href="https://tweag.github.io/asterius/"><span class="ascii">Asterius</span></a>は<span class="ascii">Haskell</span>のソースを<a href="https://developer.mozilla.org/ja/docs/WebAssembly"><span class="ascii">WebAssembly</span></a>にコンパイルするコンパイラーです。<br />
-<span class="ascii">GHC</span>の<span class="ascii">HEAD</span><small>（開発中のバージョン）</small>を都度フォークして、現在活発に開発中です。<br />
-<span class="ascii">Template Haskell</span>と、<span class="ascii">GHC</span>標準における<span class="ascii">IO</span>を行う関数（の大半）を除いた、すべての機能が利用できるようになっています。<br />
-現状の<span class="ascii">WebAssembly</span>を実用する上で必要不可欠であろう、<span class="ascii">FFI</span>もサポートされています。<br />
-つまり、<span class="ascii">JavaScript</span>から<span class="ascii">WebAssembly</span>にコンパイルされた<span class="ascii">Haskell</span>の関数を呼んだり、<span class="ascii">Haskell</span>から<span class="ascii">JavaScript</span>の関数を呼ぶことができます！<br />
-何かしらの<span class="ascii">IO</span>処理を行う場合は、基本的にこの<span class="ascii">FFI</span>を使って<span class="ascii">JavaScript</span>の関数を呼ぶことになります。</p>
-<p>加えて、<code>ahc-cabal</code>という名前のコマンドで、<span class="ascii">cabal</span>パッケージを利用することもできます。<br />
-こちらは<code>cabal</code>コマンドの単純なラッパーです。<code>ahc-cabal new-build</code>などと実行すれば、外部のパッケージに依存したアプリケーションも、まとめて<span class="ascii">WebAssembly</span>にコンパイルできます。<br />
-本格的に開発する上では欠かせないツールでしょう。</p>
-<h1 id="asteriusのいいところ"><span class="link-to-here-outer"><a href="#asteriusのいいところ" title="asteriusのいいところ"><span class="link-to-here">Link to<br />
-here</span></a></span>👍<span class="ascii">Asterius</span>のいいところ</h1>
-<p><span class="ascii">Asterius</span>は、“<span class="ascii">A linker which performs aggressive dead-code elimination, producing as small WebAssembly binary as possible.</span>”と謳っているとおり、<span class="ascii">GHC</span>のランタイムを抱えているにしては、比較的小さい<span class="ascii">WASM</span>ファイルを生成するそうです。<br />
-というわけで手元で試してみたところ、下記のような結果になりました。</p>
-<ul>
-<li>空っぽのプログラム（<code>main = return ()</code>しかしないソース）<span class="ascii">:</span>
-<ul>
-<li><span class="ascii">36KB</span>（<code>.wasm</code>ファイルのみ）。なかなかいい感じですね。</li>
-<li><span class="ascii">168KB</span>（実行時に必要な<code>.mjs</code>ファイルを含めた合計）。未圧縮でこれなら確かに十分軽いでしょう。<span class="ascii">Webpack</span>などで結合・<span class="ascii">minify</span>するともっと軽くできますし。</li>
-</ul></li>
-<li>今回私が移植を試みたアプリ（詳細は後ほど）<span class="ascii">:</span>
-<ul>
-<li><span class="ascii">1.9MB</span>（<code>.wasm</code>ファイルのみ）。うーん、ちょっと苦しいような…😥。</li>
-<li><span class="ascii">2.1MB</span>（実行時に必要な<code>.mjs</code>ファイルを含めた合計）。<code>.mjs</code>ファイルの内容は特に変わりませんでした。</li>
-</ul></li>
-</ul>
-<p>ちなみに、移植前の元のソースを含むアプリを、<span class="ascii">Linux 64bit</span>向けの<span class="ascii">ELF</span>ファイルとしてビルドして比較してみたところ、<code>.wasm</code>ファイルよりも少し小さいぐらいでした。<br />
-詳細な内訳が気にはなりますが、今のソースですと大体これぐらいが限界なのかも知れません<small>（でも<span class="ascii">WASM</span>は現状<span class="ascii">32bit</span>バイナリー相当のはずだし、もう少し小さくならないものか…）</small>。</p>
-<p>加えて、<span class="ascii">Asterius</span>を利用して開発すると、ほぼ最新の<span class="ascii">GHC</span>の開発版が使える、というところも、新しもの好きな<span class="ascii">Haskeller</span>をわくわくさせるところですね！<small>（今回はあいにく新しい機能について調べる余裕もなかったので、特に恩恵は受けてませんが…😅）</small><br />
-<span class="ascii">Asterius</span>は、<span class="ascii">GHC</span>をフォークしていくつかの機能を追加して作られているものです。<br />
-しかし幸いオリジナルとの差分が十分に小さく、作者が定期的に<span class="ascii">rebase</span>することができています。<br />
-詳細な違いは<a href="https://tweag.github.io/asterius/custom-ghc/"><span class="ascii">About the custom GHC fork</span></a>にまとまっています。近い将来<span class="ascii">GHC</span>本体に取り込まれそうな修正ばかりではないかと。</p>
-<p>それからこれは、ブラウザーで<span class="ascii">Haskell</span>を動かすことができるという点で<span class="ascii">Asterius</span>の競合に当たる、<span class="ascii">GHCJS</span>と比較した場合の話ですが、<span class="ascii">FFI</span>を利用して、<span class="ascii">JavaScript</span>から<strong>直接</strong><span class="ascii">Haskell</span>を呼ぶことができるようになっているのも、優れた点と言えるでしょう。<br />
-<span class="ascii">GHCJS</span>は<a href="https://github.com/ghcjs/ghcjs/blob/3959a9321a2d3e2ad4b8d4c9cc436fcfece99237/doc/foreign-function-interface.md#calling-haskell-from-javascript">こちらのドキュメント曰く</a>、<span class="ascii">JavaScript</span>から<span class="ascii">Haskell</span>を呼ぶ機能は備えてはいるものの、簡単ではないためドキュメントも書かれておらず、推奨されていません。<br />
-これでは状況によってはかなり使いづらいでしょう。<br />
-今回私が試したように、コアとなる処理だけを<span class="ascii">Haskell</span>の関数として書いて、それを<span class="ascii">JavaScript</span>から呼び出すということができないのです。</p>
-<p>一方<span class="ascii">Asterius</span>では、例えば👇のように書くことで、<span class="ascii">WASM</span>がエクスポートする関数として、<code>func</code>を<span class="ascii">JavaScript</span>から呼べるようにすることができます！</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">foreign export javascript <span class="st">&quot;func&quot;</span><span class="ot"> func ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
-<p>ただし、実際に今回試してみたところ、<span class="ascii">Asterius</span>ではまだバグがあったので、この用途では依然使いにくいという状況ではありますが…（詳細は後で触れます）。</p>
-<h1 id="asteriusのイマイチなところ"><span class="link-to-here-outer"><a href="#asteriusのイマイチなところ" title="asteriusのイマイチなところ"><span class="link-to-here">Link to<br />
-here</span></a></span>👎<span class="ascii">Asterius</span>のイマイチなところ</h1>
-<p><span class="ascii">Asterius</span>は、やっぱりまだまだ開発中で、バグが多いです。<br />
-今回の目的もバグのために果たせませんでした😢。</p>
-<p>先ほども触れたとおり、特に未完成なのが、<span class="ascii">IO</span>と<span class="ascii">Template Haskell</span>です。<br />
-<span class="ascii">GHC</span>なら使えるはずの<code>IO</code>な関数の多くが使えませんし、<span class="ascii">Template Haskell</span>に至っては一切利用できません。</p>
-<p><span class="ascii">IO</span>については、現状、<small>（<code>putStrLn</code>などのよく使われる）</small>一部を除き、<span class="ascii">FFI</span><small>（<code>foreign import javascript</code>）</small>を使って<span class="ascii">JavaScript</span>の関数経由でよばなけれなりません。<br />
-これは、入出力関連の<span class="ascii">API</span>を一切持たないという現状の<span class="ascii">WebAssembly</span>の事情を考えれば、致し方ない仕様だとも言えます。<br />
-<a href="https://github.com/WebAssembly/WASI"><span class="ascii">WASI</span></a>の策定によってこの辺の事情が変わるまでの間に、すべて<code>foreign import javascript</code>で賄うというのも、なかなか面倒なことでしょうし。</p>
-<p><span class="ascii">Template Haskell</span>に関しては、現在<a href="https://github.com/tweag/asterius/pull/81">こちらのブランチ</a>で開発中です。…と、思ったらこの<span class="ascii">Pull request</span>、<span class="ascii">Close</span>されてますね…。<br />
-これに関して詳しい事情はわかりません。いずれにしても、<span class="ascii">Template Haskell</span>を実装するには、コンパイル時にその場で<span class="ascii">Haskell</span>を評価するためのインタープリターが別途必要だったりして、結構ハードルが高いのです。</p>
-<p>加えて、<span class="ascii">RTS</span><small>（この場合、コンパイルした<span class="ascii">Haskell</span>を動かすのに必要な<span class="ascii">WASM</span>や<span class="ascii">JavaScript</span>ファイル）</small>が<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/BigInt"><code>BigInt</code></a>に依存している関係で、<span class="ascii">V8</span>や<span class="ascii">SpiderMonkey</span>でないと動かない点もまだまだ、という感じです。<br />
-ブラウザーで言うと、<span class="ascii">2019</span>年<span class="ascii">5</span>月<span class="ascii">3</span>日時点で<span class="ascii">Chrome</span>か、<span class="ascii">Firefox</span>の<span class="ascii">Beta</span>版以降でないと使用できません<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
-<h1 id="asteriusの仕組み"><span class="link-to-here-outer"><a href="#asteriusの仕組み" title="asteriusの仕組み"><span class="link-to-here">Link to<br />
-here</span></a></span>⚙️<span class="ascii">Asterius</span>の仕組み</h1>
-<p><span class="ascii">Asterius</span>のドキュメント「<a href="https://tweag.github.io/asterius/ir/"><span class="ascii">IR types and transformation passes</span></a>」をざっくり要約してみると、<span class="ascii">Asterius</span>は以下のような流れで動くそうです。<br />
-実際には<code>ahc-link</code>というコマンドがこれらの手順をまとめて実行するので、ユーザーの皆さんはあまり意識する必要はないでしょう。</p>
-<ol type="1">
-<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/extending_ghc.html#frontend-plugins">フロントエンドプラグイン</a>という仕組みでラップした<span class="ascii">GHC</span><small>（のフォーク）</small>を使い、<span class="ascii">GHC</span>が生成した<span class="ascii">Cmm</span>という中間言語で書かれたコードを、<code>AsteriusModule</code>という独自のオブジェクトに変換します。</li>
-<li><code>ahc-ld</code>という専用のリンカーで、<span class="ascii">WASM</span>向けにリンクします。</li>
-<li>最後に、<code>ahc-dist</code>というコマンドで、リンクしたモジュールを実行できる状態にします。
-<ul>
-<li><a href="https://github.com/WebAssembly/binaryen"><span class="ascii">binaryen</span></a>か、<a href="https://github.com/tweag/asterius/tree/master/wasm-toolkit"><span class="ascii">wasm-toolkit</span></a>という<span class="ascii">Haskell</span>で<span class="ascii">WASM</span>を書く言語内<span class="ascii">DSL</span>を利用して、<code>ahc-ld</code>がリンクしたモジュールを検証し、<code>.wasm</code>ファイルに変換して、</li>
-<li>実行時に必要な<span class="ascii">JavaScript</span>ファイルをコピーして、</li>
-<li><span class="ascii">Haskell</span>のソースにおける<code>main</code>関数を実行する、エントリーモジュールを作ります。<br />
-あとはこれを<span class="ascii">HTML</span>ファイルから<code>&lt;script&gt;</code>タグで参照すれば、ブラウザー上で<span class="ascii">Haskell</span>が動きます。</li>
-</ul></li>
-</ol>
-<h1 id="asteriusでhaskell製の関数を実行してみた"><span class="link-to-here-outer"><a href="#asteriusでhaskell製の関数を実行してみた" title="asteriusでhaskell製の関数を実行してみた"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Asterius</span>で<span class="ascii">Haskell</span>製の関数を実行してみた</h1>
-<p>ここからは、私が以前作った<a href="https://github.com/igrep/igrep-cashbook/tree/master/hs2">アプリケーション</a>のコアに当たる関数を<span class="ascii">Asterius</span>でコンパイルすることで、ブラウザー上で動かせるようチャレンジした時の体験談を紹介します。</p>
-<p>今回試みたアプリケーションは、単純なコマンドラインアプリケーションです。<br />
-詳細は省きますが、行単位で書かれたファイルをパースして、項目ごとの合計を計算するだけの、ありふれたものです。<br />
-パーサーは<a href="http://hackage.haskell.org/package/megaparsec"><span class="ascii">megaparsec</span></a>を使って作り、整数の四則演算ができるようなっているのも特徴です。<br />
-そのアプリケーションの処理のほとんどすべてに当たる、ファイル名とその中身を受け取って、計算結果を文字列で返す関数（<code>FilePath -&gt; Text -&gt; Text</code>）を、<span class="ascii">FFI</span>でエクスポート<small>（<code>foreign export javascript</code>）</small>し、<span class="ascii">JavaScript</span>から呼べるようにしてみました。</p>
-<p>アプリケーション自体の書き換えはほとんど必要なかったものの、依存関係を減らしたり、依存するパッケージを書き換えたりするのが大変でした。<br />
-というのも、先ほど触れたとおり、<span class="ascii">Asterius</span>は現状「<span class="ascii">Template Haskell</span>と、<span class="ascii">GHC</span>標準における<span class="ascii">IO</span>を行う関数（の大半）」が一切使用できないので、取り除かなければコンパイルエラーになってしまいます。<br />
-<span class="ascii">template-haskell</span>パッケージに間接的に依存しているだけで依存関係の解決すらできないのはなかなかつらいものでした。<br />
-<a href="https://docs.haskellstack.org/en/stable/dependency_visualization/"><code>stack dot</code></a>コマンドを使って依存関係のツリーを作り、それを見て<span class="ascii">template-haskell</span>パッケージに間接的に依存しているパッケージを割り出し、そのパッケージの必要な関数のみを切り出すことでどうにか回避できました。<br />
-<a href="http://hackage.haskell.org/package/monoidal-containers"><span class="ascii">monoidal-containers</span></a>パッケージと<a href="http://hackage.haskell.org/package/foldl"><span class="ascii">foldl</span></a>パッケージがそれでした。<br />
-幸い、どちらも依存しているのはごく一部だったで、必要な部分だけをコピペして使うことにしました。<br />
-それから、<code>IO</code>への依存もなくすために、<a href="http://hackage.haskell.org/package/text"><span class="ascii">text</span></a>パッケージから<code>*.IO</code>なモジュールを取り除いたりもしました。</p>
-<p>当然、元々のアプリケーションも<span class="ascii">text</span>パッケージの<code>*.IO</code>なモジュールを使ってはいたので、それを使わないよう修正する必要がありました。<br />
-しかしそこは<span class="ascii">Haskell</span>。そうした<code>IO</code>に依存した関数から純粋な関数を切り出すのは、型システムのおかげで大変楽ちんでした！😤<br />
-入出力をするのに<span class="ascii">JavaScript</span>の<span class="ascii">FFI</span>を使わないといけない、という現状の<span class="ascii">WebAssembly</span>の制約が、偶然にもマッチしたわけですね！<br />
-純粋じゃない関数はときめかないので捨て去ってしまいましょう✨</p>
-<h2 id="結果"><span class="link-to-here-outer"><a href="#結果" title="結果"><span class="link-to-here">Link to<br />
-here</span></a></span>結果</h2>
-<p>ここまで頑張った結果、目的の関数を<code>foreign export javascript</code>してコンパイルを通すことはできました🎉<br />
-しかし、実際にブラウザー上で動かしてみたところ、<a href="https://github.com/tweag/asterius/issues/105"><span class="ascii">Asterius</span>の<span class="ascii">FFI</span>のバグ</a>にハマってしまいました…😢 肝心の<code>foreign export javascript</code>した関数が、返すべき値を返してくれないのです！<br />
-恐らく<code>foreign export javascript</code>を使わずに、<span class="ascii">Haskell</span>側から<span class="ascii">JavaScript</span>の関数を呼ぶようにしていれば、今回の問題は回避できたのではないかと思います。<br />
-しかし、それは今回のゴールではありませんし、あまり便利ではないのでひとまず移植は見送ることにしました。残念！</p>
-<h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
-here</span></a></span>✅おわりに</h1>
-<p>今回<span class="ascii">Asterius</span>を試したことで、ブラウザー上で<span class="ascii">Haskell</span>を動かす、もう一つの可能性を知ることができました。<br />
-とは言え、バグが多かったり依存関係から<span class="ascii">IO</span>や<span class="ascii">Template Haskell</span>を抜き出さなければならなかったりで、まだまだ実用的とは言い難いでしょう。<br />
-しかし、今回報告したバグが直れば、ブラウザーによる処理のコアに当たる部分を<span class="ascii">Haskell</span>で書く、という応用が利きそうです。<br />
-例えば<span class="ascii">Pandoc</span>など<span class="ascii">Haskell</span>製アプリケーションをブラウザーから操作する、なんてアプリケーション作りが捗りそうですね！</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p><a href="https://caniuse.com/#feat=bigint"><span class="ascii">Can I use</span></a>曰く安定版でも<code>about:config</code>を書き換えればすでに使えるとのことなんですが、なぜか手元の<span class="ascii">Firefox</span> 安定版ではうまくいきませんでした。確かに<code>about:config</code>にそれらしき設定はあるものの、<code>true</code>にしても何も変わらず…😰。<br />
-ついでに細かいことを言うと、<span class="ascii">Firefox Nightly</span>は<code>about:config</code>を書き換えなくても使え、<span class="ascii">Beta</span>版では<code>about:config</code>を書き換えると使えました。<a href="#fnref1" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/strip-ansi-escape.html" lang="ja">strip-ansi-escapeというパッケージをリリースしました</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/stack-ghc8.8.html" style="margin-left: auto;" lang="ja">GHC 8.8.1 alphaをstackでダウンロードして手持ちのパッケージをビルドする</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>

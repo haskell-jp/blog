@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="日本語をshowしてうまく表示されなかったら">
+    
+      <meta name="author" content="YAMAMOTO Yuji">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="日本語をshowしてうまく表示されなかったら - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/unicode-show.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---# ℹ️この記事は🎄この記事は、[Haskell Advent Calendar 2019](https://qiita.com/advent-calendar/2019/haskell) 22日目の記事です。  例年どおりタイプセーフプリキュア！の話をするつもりでしたが、ネタが実装できなかったので[unicode-show](http://hackage.haskell.org/packa" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>日本語をshowしてうまく表示されなかったら - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://haskell.jp/signin-slack.html">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>日本語をshowしてうまく表示されなかったら</h1>
+                      <h2 class="subheading">unicode-showの紹介（と、pretty-simpleを少し）</h2><span class="meta">Posted by <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a> on December 22, 2019</span><span class="meta">Tags: 日本語</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#ℹ️この記事は" title="ℹ️この記事は">ℹ️この記事は🎄</a></li>
+<li><a href="#日本語などの話者がhaskellを始めるとあるある" title="日本語などの話者がhaskellを始めるとあるある">日本語（などの）話者が<span class="ascii">Haskell</span>を始めるとあるある</a></li>
+<li><a href="#unicode-showを使おう" title="unicode-showを使おう">🌐<span class="ascii">unicode-show</span>を使おう</a></li>
+<li><a href="#unicode-showのものすごく近い将来" title="unicode-showのものすごく近い将来"><span class="ascii">unicode-show</span>の（ものすごく近い）将来</a></li>
+<li><a href="#番外編pretty-simpleも使おう" title="番外編pretty-simpleも使おう">（番外編）<span class="ascii">pretty-simple</span>も使おう</a></li>
+</ul>
+</div>
+</div>
+<h1 id="ℹ️この記事は"><span class="link-to-here-outer"><a href="#ℹ️この記事は" title="ℹ️この記事は"><span class="link-to-here">Link to<br />
+here</span></a></span>ℹ️この記事は🎄</h1>
+<p>この記事は、<a href="https://qiita.com/advent-calendar/2019/haskell"><span class="ascii">Haskell Advent Calendar 2019</span></a> <span class="ascii">22</span>日目の記事です。<br />
+例年どおりタイプセーフプリキュア！の話をするつもりでしたが、ネタが実装できなかったので<a href="http://hackage.haskell.org/package/unicode-show"><span class="ascii">unicode-show</span></a>の話をします<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+まぁ、こちらの方がみなさんにとっては有益でしょうし🙃</p>
+<h1 id="日本語などの話者がhaskellを始めるとあるある"><span class="link-to-here-outer"><a href="#日本語などの話者がhaskellを始めるとあるある" title="日本語などの話者がhaskellを始めるとあるある"><span class="link-to-here">Link to<br />
+here</span></a></span>日本語（などの）話者が<span class="ascii">Haskell</span>を始めるとあるある</h1>
+<p><span class="ascii">GHCi</span>に日本語を入力したり…</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">ghci<span class="op">&gt;</span> <span class="st">&quot;みんなで幸せゲットだよ！&quot;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="st">&quot;\12415\12435\12394\12391\24184\12379\12466\12483\12488\12384\12424\65281&quot;</span></a></code></pre></div>
+<p>日本語を<code>print</code>したり…</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1">ghci<span class="op">&gt;</span> <span class="fu">print</span> <span class="st">&quot;私、堪忍袋の緒が切れました！&quot;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="st">&quot;\31169\12289\22570\24525\34955\12398\32210\12364\20999\12428\12414\12375\12383\65281&quot;</span></a></code></pre></div>
+<p>日本語を<code>show</code>したり…</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1">ghci<span class="op">&gt;</span> iimashita x <span class="ot">=</span> <span class="st">&quot;今、&quot;</span> <span class="op">++</span> <span class="fu">show</span> x <span class="op">++</span> <span class="st">&quot;って言いました！？&quot;</span></a>
+<a class="sourceLine" id="cb3-2" title="2">ghci<span class="op">&gt;</span> <span class="fu">putStrLn</span> (iimashita <span class="st">&quot;ハスケル&quot;</span>)</a>
+<a class="sourceLine" id="cb3-3" title="3">今、<span class="st">&quot;\12495\12473\12465\12523&quot;</span>って言いました！？</a></code></pre></div>
+<p>すると、日本語の大半が変な文字列に変わってしまいました😥。</p>
+<p>へ… 変な文字列じゃないし！エスケープシーケンスに変換しただけだから！</p>
+<p>これは、<span class="ascii">Haskell</span>標準における<code>show</code>関数の残念な仕様です。<br />
+<code>show</code>関数に文字列を渡すと、ダブルクォートで囲った上で、<span class="ascii">ASCII</span>範囲外の文字列や、<span class="ascii">ASCII</span>の非表示文字などをエスケープシーケンスに変換して返します。<br />
+これは、<code>show</code>関数をデバッグで使用した際、指定した文字列にどんな文字が含まれているか、簡単にわかるようにするための仕様です。<br />
+文字の文字コードを表示すれば、<span class="ascii">NULL</span>文字や制御文字、ゼロ幅文字、特殊なスペースなど、視認しにくいおかしな文字が含まれていても、一目でわかるのです。</p>
+<p>しかしこれは日本語話者である我々にとって、少なくとも日本語の文字に関しては「余計なお世話」です。<br />
+<span class="ascii">NULL</span>文字や<span class="ascii">ASCII</span>の制御文字といった本来画面に表示することがない文字列ならともかく、<span class="ascii">ASCII</span>範囲外の文字列すべてをエスケープしてしまうのはやり過ぎでしょう。<br />
+現代は<span class="ascii">Unicode</span>があるおかげで、日本語に限らずとも<span class="ascii">ASCII</span>範囲外の文字を扱うのは当たり前になりましたから。</p>
+<h1 id="unicode-showを使おう"><span class="link-to-here-outer"><a href="#unicode-showを使おう" title="unicode-showを使おう"><span class="link-to-here">Link to<br />
+here</span></a></span>🌐<span class="ascii">unicode-show</span>を使おう</h1>
+<p>そこで便利なのが<a href="http://hackage.haskell.org/package/unicode-show"><span class="ascii">unicode-show</span></a>です。<br />
+<span class="ascii">unicode-show</span>の<code>ushow</code>関数は、<code>show</code>がエスケープシーケンスに変換した日本語などの文字列を、元の文字列に戻してくれます。<br />
+なので、新しい型クラスを定義する必要もなく、そのまま<code>Show</code>型クラスのインスタンスを再利用できるのです。</p>
+<p>早速先ほどの<code>show</code>を使った例に適用してみましょう。</p>
+<p>まずは👇のコマンドでインストールして、<span class="ascii">GHCi</span>を起動します。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="ex">stack</span> build unicode-show</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="ex">stack</span> exec ghci</a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co"># あるいは、最近のcabalを使っている場合は...</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="ex">cabal</span> v2-install --lib unicode-show</a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="ex">cabal</span> v2-repl -b unicode-show</a></code></pre></div>
+<p><code>Text.Show.Unicode</code>モジュールを<code>import</code>して<code>show</code>を使っている箇所を<code>ushow</code>に変えれば、お望みどおりの挙動になります。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Text.Show.Unicode</span></a>
+<a class="sourceLine" id="cb5-2" title="2">ghci<span class="op">&gt;</span> iimashita x <span class="ot">=</span> <span class="st">&quot;今、&quot;</span> <span class="op">++</span> ushow x <span class="op">++</span> <span class="st">&quot;って言いました！？&quot;</span></a>
+<a class="sourceLine" id="cb5-3" title="3">ghci<span class="op">&gt;</span> <span class="fu">putStrLn</span> (iimashita <span class="st">&quot;ハスケル&quot;</span>)</a>
+<a class="sourceLine" id="cb5-4" title="4">今、<span class="st">&quot;ハスケル&quot;</span>って言いました！？</a></code></pre></div>
+<p>わくわくもんですね！</p>
+<p><code>print</code>の例も、<code>uprint</code>に変えれば🆗です。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">ghci<span class="op">&gt;</span> uprint <span class="st">&quot;私、堪忍袋の緒が切れました！&quot;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="st">&quot;私、堪忍袋の緒が切れました！&quot;</span></a></code></pre></div>
+<p>ウルトラハッピーですね！！</p>
+<p>さらに、次のコマンドを<span class="ascii">GHCi</span>に入力すれば、<span class="ascii">GHCi</span>に直接入力した日本語文字列もそのまま表示されるようになります。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1">ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span>interactive<span class="op">-</span><span class="fu">print</span><span class="ot">=</span>uprint</a>
+<a class="sourceLine" id="cb7-2" title="2">ghci<span class="op">&gt;</span> <span class="st">&quot;みんなで幸せゲットだよ！&quot;</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="st">&quot;みんなで幸せゲットだよ！&quot;</span></a></code></pre></div>
+<p>カンペキ✨</p>
+<p>えっ、常に<code>uprint</code>したいからいちいち<code>:set -interactive-print=uprint</code>するのが面倒くさい？<br />
+そんなあなたは👇を<code>~/.ghci</code>に書くことけって～いでしょう。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Text.Show.Unicode</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="op">:</span>set <span class="op">-</span>interactive<span class="op">-</span><span class="fu">print</span><span class="ot">=</span>Text.Show.Unicode.uprint</a></code></pre></div>
+<h1 id="unicode-showのものすごく近い将来"><span class="link-to-here-outer"><a href="#unicode-showのものすごく近い将来" title="unicode-showのものすごく近い将来"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">unicode-show</span>の（ものすごく近い）将来</h1>
+<p>そんな<span class="ascii">unicode-show</span>ですが、残念ながら一昨年、作者である村主崇行さんが亡くなってしまいました<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。<br />
+日本に住む<span class="ascii">Haskeller</span>をサポートする日本<span class="ascii">Haskell</span>ユーザーグループとしては、このパッケージをメンテナンスし続けることに大きな意義があると判断し、私はこのパッケージを<a href="https://github.com/haskell-jp/"><span class="ascii">Haskell-jp</span></a>の<span class="ascii">GitHub</span>リポジトリーでメンテナンスすることにしました。<br />
+以下がそのリポジトリーです。</p>
+<p><a href="https://github.com/haskell-jp/unicode-show" class="uri"><span class="ascii">https://github.com/haskell-jp/unicode-show</span></a></p>
+<p>といっても、メンテナーの名前や<code>LICENSE</code>ファイルを書き換えて最新版をアップロードして以降特に何もしていなかったのですが<small>（<a href="https://github.com/nushio3/unicode-show/issues/2">バグはあるけど直すのも難しそう</a>だし、概ね使えるし）</small>、なんと先日、<span class="ascii">Pull request</span>が来ました！</p>
+<p><a href="https://github.com/haskell-jp/unicode-show/pull/4"><span class="ascii">Do not show values eagerly by Kaiepi · Pull Request #4 · haskell-jp/unicode-show</span></a></p>
+<p>この修正を適用する前の<span class="ascii">unicode-show</span>は、文字列全体を評価してからエスケープシーケンスを元に戻す、という挙動だったため、長い文字列を与えた場合や無限の長さの文字列を与えた場合に、なかなか<small>（あるいは永遠に）</small>結果が返ってこないという問題がありました。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1">ghci<span class="op">&gt;</span> uprint (<span class="fu">repeat</span> <span class="st">&quot;ああああ！&quot;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">-- 何も表示されず、Ctrl + C を押すまで処理が返らない</span></a></code></pre></div>
+<p>修正後はちゃんと遅延評価を利用することで、無限の長さの文字列でも少しずつ変換することができます。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1">ghci<span class="op">&gt;</span> uprint (<span class="fu">repeat</span> <span class="st">&quot;ああああ！&quot;</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2">[<span class="st">&quot;ああああ！&quot;</span>,<span class="st">&quot;ああああ！&quot;</span>, <span class="op">...</span> <span class="st">&quot;ああああ！&quot;</span>,<span class="st">&quot;ああInterrupted.</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="st">-- Ctrl + Cを押すまで出力し続ける</span></a></code></pre></div>
+<p>今日記事にした一番の理由はこの話をするためです。<br />
+<a href="https://github.com/Kaiepi"><span class="ascii">Kaiepi</span></a>さんありがとうございます！<br />
+先ほどリリースしました！🎉</p>
+<p><a href="http://hackage.haskell.org/package/unicode-show-0.1.0.4" class="uri"><span class="ascii">http://hackage.haskell.org/package/unicode-show-0.1.0.4</span></a></p>
+<h1 id="番外編pretty-simpleも使おう"><span class="link-to-here-outer"><a href="#番外編pretty-simpleも使おう" title="番外編pretty-simpleも使おう"><span class="link-to-here">Link to<br />
+here</span></a></span>（番外編）<span class="ascii">pretty-simple</span>も使おう</h1>
+<p>時間がないので詳しくは省略しますが、実は<a href="http://hackage.haskell.org/package/pretty-simple"><span class="ascii">pretty-simple</span></a>というパッケージを使えば、日本語をそのまま出力するのに加えて、プリティープリントできます。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Text.Pretty.Simple</span></a>
+<a class="sourceLine" id="cb11-2" title="2">ghci<span class="op">&gt;</span> pPrint [<span class="st">&quot;きーらーめーくー♪&quot;</span>, <span class="st">&quot;ほーしーの力でー♪&quot;</span>, <span class="st">&quot;あこがーれのー♪&quot;</span>, <span class="st">&quot;わーたーし描くよー♪&quot;</span>]</a>
+<a class="sourceLine" id="cb11-3" title="3">[ <span class="st">&quot;きーらーめーくー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-4" title="4">, <span class="st">&quot;ほーしーの力でー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-5" title="5">, <span class="st">&quot;あこがーれのー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-6" title="6">, <span class="st">&quot;わーたーし描くよー♪&quot;</span></a>
+<a class="sourceLine" id="cb11-7" title="7">]</a></code></pre></div>
+<p>例ではわかりづらいですが、ちゃんと色も着けてくれます！<br />
+それでは<span class="ascii">2020</span>年も、<span class="ascii">Happy Haskell Hacking</span>🎁</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>例年どおりですとプリキュア<span class="ascii">Advent Calendar</span>と同時投稿をしている予定でしたが、例年参加者が減っていたこともあり、今年はプリキュア<span class="ascii">Advent Calendar</span>はなくなってしまいました😞<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>村主崇行さんは「<a href="https://shop.ohmsha.co.jp/shopdetail/000000001926/">すごい<span class="ascii">Haskell</span>たのしく学ぼう！</a>」の翻訳を担当されるなど、<span class="ascii">unicode-show</span>以外にも日本の<span class="ascii">Haskell</span>界に多大な功績をもたらした方でした。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/haskell-in-vrchat.html" style="margin-left: auto;" lang="ja">VRのためにHaskellを使った話</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; YAMAMOTO Yuji 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
