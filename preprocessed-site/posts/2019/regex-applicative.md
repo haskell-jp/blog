@@ -3,14 +3,14 @@ title: "regex-applicative: 内部DSLとしての正規表現（ブログ記事�
 subHeading: RegexFestaで発表した内容を詳しく紹介します
 headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
-author: Yuji Yamamoto
-postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
-date: November 3, 2019
+author: YAMAMOTO Yuji
+postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a>
+date: December 27, 2019
 tags: 正規表現
 ...
 ---
 
-先日私は[Regex Festa](https://opt.connpass.com/event/140566/)というイベントで、「[regex-applicative](http://hackage.haskell.org/package/regex-applicative)」というパッケージの紹介を致しました。  
+先日、といっても2019年10月18日のことなんでもう2ヶ月以上も経ってしまいましたが、私は[Regex Festa](https://opt.connpass.com/event/140566/)というイベントで、「[regex-applicative](http://hackage.haskell.org/package/regex-applicative)」というパッケージの紹介を致しました。  
 今回は[その際使用したスライド](https://the.igreque.info/slides/2019-10-18-regex-applicative.html)を、ブログ記事として詳しく共有させていただきたいと思います！  
 発表時のスライドと比べて、よりHaskellを知っている人向けになってしまいますが、regex-applicativeの魅力を明確に伝えるために必要なのでご了承ください。  
 Applicativeスタイルを前提知識とします。
