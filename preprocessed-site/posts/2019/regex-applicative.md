@@ -5,7 +5,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: YAMAMOTO Yuji
 postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a>
-date: December 27, 2019
+date: December 30, 2019
 tags: 正規表現
 ...
 ---
