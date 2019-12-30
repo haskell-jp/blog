@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="regex-applicative: 内部DSLとしての正規表現（ブログ記事版）">
+    
+      <meta name="author" content="YAMAMOTO Yuji">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="regex-applicative: 内部DSLとしての正規表現（ブログ記事版） - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2019/regex-applicative.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---先日、といっても2019年10月18日のことなんでもう2ヶ月以上も経ってしまいましたが、私は[Regex Festa](https://opt.connpass.com/event/140566/)というイベントで、「[regex-applicative](http://hackage.haskell.org/package/regex-applicative)」というパッケージの紹介を致し" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>regex-applicative: 内部DSLとしての正規表現（ブログ記事版） - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://haskell.jp/signin-slack.html">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                  
+                  <div lang="ja" class="post-heading">
+                  
+                    <div class="jumbotron" style="background: #eee;">
+                      <h1>regex-applicative: 内部DSLとしての正規表現（ブログ記事版）</h1>
+                      <h2 class="subheading">RegexFestaで発表した内容を詳しく紹介します</h2><span class="meta">Posted by <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a> on December 30, 2019</span><span class="meta">Tags: 正規表現</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>先日、といっても<span class="ascii">2019</span>年<span class="ascii">10</span>月<span class="ascii">18</span>日のことなんでもう<span class="ascii">2</span>ヶ月以上も経ってしまいましたが、私は<a href="https://opt.connpass.com/event/140566/"><span class="ascii">Regex Festa</span></a>というイベントで、「<a href="http://hackage.haskell.org/package/regex-applicative"><span class="ascii">regex-applicative</span></a>」というパッケージの紹介を致しました。<br />
+今回は<a href="https://the.igreque.info/slides/2019-10-18-regex-applicative.html">その際使用したスライド</a>を、ブログ記事として詳しく共有させていただきたいと思います！<br />
+発表時のスライドと比べて、より<span class="ascii">Haskell</span>を知っている人向けになってしまいますが、<span class="ascii">regex-applicative</span>の魅力を明確に伝えるために必要なのでご了承ください。<br />
+<span class="ascii">Applicative</span>スタイルを前提知識とします。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#はじめにまとめ" title="はじめにまとめ">はじめにまとめ</a></li>
+<li><a href="#regex-applicativeって" title="regex-applicativeって"><span class="ascii">regex-applicative</span>って？</a></li>
+<li><a href="#regex-applicativeのapi概要" title="regex-applicativeのapi概要"><span class="ascii">regex-applicative</span>の<span class="ascii">API</span>概要</a></li>
+<li><a href="#regex-applicativeの使用例" title="regex-applicativeの使用例"><span class="ascii">regex-applicative</span>の使用例</a>
+<ul>
+<li><a href="#ただの文字-sym-eq-s-s---re-s-s" title="ただの文字-sym-eq-s-s---re-s-s">ただの文字<span class="ascii">:</span> <code>sym :: Eq s =&gt; s -&gt; RE s s</code></a></li>
+<li><a href="#空文字ε-pure-a---re-s-a" title="空文字ε-pure-a---re-s-a">空文字（ε）<span class="ascii">:</span> <code>pure :: a -&gt; RE s a</code></a></li>
+<li><a href="#連接-re-s-a---re-s-b---re-s-bstring-eq-a-a---re-a-a" title="連接-re-s-a---re-s-b---re-s-bstring-eq-a-a---re-a-a">連接<span class="ascii">:</span> <code>(*&gt;) :: RE s a -&gt; RE s b -&gt; RE s b</code>・<code>string :: Eq a =&gt; [a] -&gt; RE a [a]</code></a></li>
+<li><a href="#選択-re-s-a---re-s-a---re-s-a" title="選択-re-s-a---re-s-a---re-s-a">選択<span class="ascii">:</span> <code>(&lt;|&gt;) :: RE s a -&gt; RE s a -&gt; RE s a</code></a></li>
+<li><a href="#繰り返し-many-re-s-a---re-s-asome-re-s-a---re-s-a" title="繰り返し-many-re-s-a---re-s-asome-re-s-a---re-s-a">繰り返し<span class="ascii">:</span> <code>many :: RE s a -&gt; RE s [a]</code>・<code>some :: RE s a -&gt; RE s [a]</code></a></li>
+<li><a href="#オプショナルなマッチ-optional-re-s-a---re-s-maybe-a" title="オプショナルなマッチ-optional-re-s-a---re-s-maybe-a">オプショナルなマッチ<span class="ascii">:</span> <code>optional :: RE s a -&gt; RE s (Maybe a)</code></a></li>
+<li><a href="#マッチした結果をhaskellの値に割り当て" title="マッチした結果をhaskellの値に割り当て">マッチした結果を<span class="ascii">Haskell</span>の値に割り当て</a>
+<ul>
+<li><a href="#組み込みの正規表現を使う" title="組み込みの正規表現を使う">組み込みの正規表現を使う</a></li>
+<li><a href="#a---b---re-s-a---re-s-b-任意の一引数の関数を適用する" title="a---b---re-s-a---re-s-b-任意の一引数の関数を適用する"><code>(&lt;$&gt;) :: (a -&gt; b) -&gt; RE s a -&gt; RE s b</code><span class="ascii">:</span> 任意の（一引数の）関数を適用する</a></li>
+<li><a href="#re-s-a---b---re-s-a---re-s-b-任意の関数を適用する" title="re-s-a---b---re-s-a---re-s-b-任意の関数を適用する"><code>(&lt;*&gt;) :: RE s (a -&gt; b) -&gt; RE s a -&gt; RE s b</code><span class="ascii">:</span> 任意の関数を適用する</a></li>
+</ul></li>
+<li><a href="#もうちょっと複雑な例" title="もうちょっと複雑な例">もうちょっと複雑な例</a></li>
+</ul></li>
+<li><a href="#regex-applicativeのメリット" title="regex-applicativeのメリット">👍<span class="ascii">regex-applicative</span>のメリット</a></li>
+<li><a href="#regex-applicativeのデメリット" title="regex-applicativeのデメリット">👎<span class="ascii">regex-applicative</span>のデメリット</a></li>
+<li><a href="#regex-applicativeの仕組み" title="regex-applicativeの仕組み">⚙️<span class="ascii">regex-applicative</span>の仕組み</a>
+<ul>
+<li><a href="#正規表現エンジンの分類" title="正規表現エンジンの分類">📑正規表現エンジンの分類</a></li>
+<li><a href="#regex-applicativeの実際の実装" title="regex-applicativeの実際の実装"><span class="ascii">regex-applicative</span>の実際の実装</a></li>
+</ul></li>
+<li><a href="#類似のライブラリーとの比較を軽く" title="類似のライブラリーとの比較を軽く">類似のライブラリーとの比較を軽く</a>
+<ul>
+<li><a href="#各種パーサーコンビネーター" title="各種パーサーコンビネーター">各種パーサーコンビネーター</a>
+<ul>
+<li><a href="#番外編-replace-attoparsecreplace-megaparsec" title="番外編-replace-attoparsecreplace-megaparsec">番外編<span class="ascii">: replace-attoparsec</span>・<span class="ascii">replace-megaparsec</span></a></li>
+</ul></li>
+<li><a href="#verbalexpressions" title="verbalexpressions"><span class="ascii">VerbalExpressions</span></a></li>
+</ul></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="はじめにまとめ"><span class="link-to-here-outer"><a href="#はじめにまとめ" title="はじめにまとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>はじめにまとめ</h1>
+<ul>
+<li><span class="ascii">regex-applicative</span>は、<span class="ascii">Haskell</span>の式で正規表現を書ける内部<span class="ascii">DSL</span></li>
+<li>パーサーコンビネーターっぽく使えて、かつ正規表現の良さ — 中間マッチが簡単にできる点など — を持ち合わせている</li>
+<li>内部は「文字を受け取って続きの状態のリストを返す関数」として表現された<span class="ascii">NFA</span>で実装されている</li>
+</ul>
+<h1 id="regex-applicativeって"><span class="link-to-here-outer"><a href="#regex-applicativeって" title="regex-applicativeって"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">regex-applicative</span>って？</h1>
+<p><a href="http://hackage.haskell.org/package/regex-applicative"><span class="ascii">regex-applicative</span></a>は、正規表現を<span class="ascii">Haskell</span>の内部<span class="ascii">DSL</span>として表現したライブラリーです。<br />
+名前のとおり、いわゆる「<code>Applicative</code>スタイル」で正規表現を書くことができます。</p>
+<h1 id="regex-applicativeのapi概要"><span class="link-to-here-outer"><a href="#regex-applicativeのapi概要" title="regex-applicativeのapi概要"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">regex-applicative</span>の<span class="ascii">API</span>概要</h1>
+<p><span class="ascii">regex-applicative</span>には、正規表現オブジェクト<a href="http://hackage.haskell.org/package/regex-applicative-0.3.3.1/docs/Text-Regex-Applicative.html#t:RE"><code>RE</code>型</a>の値とマッチさせる文字列を受け取って、その結果を返す関数がいくつかあります。<br />
+今回はそのうち最も単純な<code>match</code>関数を使用します。👇のような型定義となっています。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">match ::</span> <span class="dt">RE</span> s a <span class="ot">-&gt;</span> [s] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</a></code></pre></div>
+<p>定義のとおり、<code>RE</code>型は型引数としてマッチさせる文字の型<code>s</code>と、マッチした結果にも使われる「正規表現の結果」を表す型<code>a</code>を受け取ります。<br />
+<code>RE</code>型を<code>Applicative</code>のインスタンスにするためには、その結果を表す型が必須なのです。この後出す例でこの「正規表現の結果」を好きな値に変える方法を示しましょう。</p>
+<p>そして第<span class="ascii">2</span>引数がマッチさせる文字列に当たります。<code>[s]</code>と<code>RE</code>型の第<span class="ascii">1</span>型引数<code>s</code>のリストになっているとおり、<code>match</code>関数<small>（と、その他の<span class="ascii">regex-applicative</span>において文字列をマッチさせる<span class="ascii">API</span>）</small>は任意のリストに対して使用することができます。<br />
+<span class="ascii">Haskell</span>の標準の文字列<code>String</code>の実態は<code>[Char]</code>、すなわち<code>Char</code>のリストなので、通常<span class="ascii">regex-applicative</span>を使用する場合<code>s</code>には<code>Char</code>が割り当てられます。<br />
+型変数なので、当然他の型のリストに対しても使用できます。これは他の正規表現ライブラリーではあまりない特性でしょう。</p>
+<p>戻り値はおなじみの<code>Maybe</code>型です。マッチが成功すれば、引数に渡した正規表現<code>RE s a</code>型の「結果」、<code>a</code>型の値を<code>Just</code>にくるんで返します。そして失敗すればもちろん<code>Nothing</code>を返します。</p>
+<p>⚠️<code>match</code>関数について特筆すべきことをもう一つ。他のよくある正規表現ライブラリーと異なり、<code>match</code>関数は完全一致じゃないとマッチしないのでご注意ください。<br />
+<span class="ascii">regex-applicative</span>には完全一致じゃないといけない関数と完全一致じゃなくてもよい関数両方があるので、少し混乱します😰</p>
+<h1 id="regex-applicativeの使用例"><span class="link-to-here-outer"><a href="#regex-applicativeの使用例" title="regex-applicativeの使用例"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">regex-applicative</span>の使用例</h1>
+<p>それではいよいよ<span class="ascii">regex-applicative</span>パッケージを使ってみましょう。<br />
+👇のコマンドでインストールして、<span class="ascii">GHCi</span>で試します。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">stack</span> build regex-applicative</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="ex">stack</span> exec ghci</a></code></pre></div>
+<p><small>（最近の）</small><code>cabal</code>の場合は👇を実行すればできるはずです。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">cabal</span> v2-install --lib regex-applicative</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="ex">cabal</span> v2-repl -b regex-applicative</a></code></pre></div>
+<p><span class="ascii">GHCi</span>が起動したら、こちらの<code>import</code>文を張って、本記事のサンプルを実行する準備をしてください。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">import</span> <span class="dt">Text.Regex.Applicative</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">import</span> <span class="dt">Text.Regex.Applicative.Common</span></a></code></pre></div>
+<h2 id="ただの文字-sym-eq-s-s---re-s-s"><span class="link-to-here-outer"><a href="#ただの文字-sym-eq-s-s---re-s-s" title="ただの文字-sym-eq-s-s---re-s-s"><span class="link-to-here">Link to<br />
+here</span></a></span>ただの文字<span class="ascii">:</span> <code>sym :: Eq s =&gt; s -&gt; RE s s</code></h2>
+<p>ここからは、正規表現の基本的な機能を利用するための<span class="ascii">regex-applicative</span>の<span class="ascii">API</span>を紹介します。<br />
+まずはただの文字一つにマッチする<code>sym</code>から<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="op">&gt;</span> match (sym <span class="ch">'a'</span>) <span class="st">&quot;a&quot;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="dt">Just</span> <span class="ch">'a'</span></a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="op">&gt;</span> match (sym <span class="ch">'a'</span>) <span class="st">&quot;b&quot;</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="dt">Nothing</span></a></code></pre></div>
+<p><code>sym :: Eq s =&gt; s -&gt; RE s s</code>という型定義のとおり、引数として受け取った文字と文字列における文字が等しいかチェックして、等しければマッチした文字をそのまま返す正規表現を作ります。</p>
+<p>また、より一般化したバージョンとして、<code>psym</code>という関数もあります。<br />
+こちらは<code>psym :: (s -&gt; Bool) -&gt; RE s s</code>という型定義のとおり、「文字を受け取ってブール値を返す関数」を受け取って、受け取った関数が文字に対して<code>True</code>を返したらマッチする、という正規表現を作ります。</p>
+<p>なので例えば、</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&gt;</span> match (psym (<span class="op">==</span> <span class="ch">'a'</span>)) <span class="st">&quot;a&quot;</span></a></code></pre></div>
+<p>と書けば<code>sym</code>関数と全く同じことができますし、</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="op">&gt;</span> match (psym (<span class="ot">`elem`</span> <span class="st">&quot;abcdef&quot;</span>)) <span class="st">&quot;a&quot;</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="dt">Just</span> <span class="ch">'a'</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="op">&gt;</span> match (psym (<span class="ot">`elem`</span> <span class="st">&quot;abcdef&quot;</span>)) <span class="st">&quot;b&quot;</span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="dt">Just</span> <span class="ch">'b'</span></a></code></pre></div>
+<p>と書けば、文字クラスっぽいことができます。</p>
+<h2 id="空文字ε-pure-a---re-s-a"><span class="link-to-here-outer"><a href="#空文字ε-pure-a---re-s-a" title="空文字ε-pure-a---re-s-a"><span class="link-to-here">Link to<br />
+here</span></a></span>空文字（ε）<span class="ascii">:</span> <code>pure :: a -&gt; RE s a</code></h2>
+<p>正規表現に欠かせない、空文字（ε）を表す正規表現も作れます。<br />
+<code>Applicative</code>型クラスの<code>pure</code>で表現します。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="op">&gt;</span> match (<span class="fu">pure</span> <span class="ch">'a'</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="dt">Just</span> <span class="ch">'a'</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="op">&gt;</span> match (<span class="fu">pure</span> <span class="ch">'a'</span>) <span class="st">&quot;b&quot;</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="dt">Nothing</span></a></code></pre></div>
+<p>もちろん、<code>pure</code>は任意の値を受け取って「受け取った値をそのまま返すもの」を作ることができるので、結果として文字（列）以外の値を返す正規表現も、簡単に作ることができます。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;</span> match (<span class="fu">pure</span> <span class="dt">True</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="dt">Just</span> <span class="dt">True</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="op">&gt;</span> match (<span class="fu">pure</span> <span class="dv">42</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="dt">Just</span> <span class="dv">42</span></a></code></pre></div>
+<h2 id="連接-re-s-a---re-s-b---re-s-bstring-eq-a-a---re-a-a"><span class="link-to-here-outer"><a href="#連接-re-s-a---re-s-b---re-s-bstring-eq-a-a---re-a-a" title="連接-re-s-a---re-s-b---re-s-bstring-eq-a-a---re-a-a"><span class="link-to-here">Link to<br />
+here</span></a></span>連接<span class="ascii">:</span> <code>(*&gt;) :: RE s a -&gt; RE s b -&gt; RE s b</code>・<code>string :: Eq a =&gt; [a] -&gt; RE a [a]</code></h2>
+<p>続いて連接、つまり「二つ以上の正規表現を続けてマッチさせる正規表現を作る」処理です。<br />
+<span class="ascii">regex-applicative</span>では、<code>Applicative</code>型クラスの<code>*&gt;</code>がそのまま連接として使えるようになっています。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="op">&gt;</span> match (sym <span class="ch">'a'</span> <span class="op">*&gt;</span> sym <span class="ch">'b'</span>) <span class="st">&quot;ab&quot;</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="dt">Just</span> <span class="ch">'b'</span></a></code></pre></div>
+<p>当然、単なる文字の正規表現を並べることはありふれたことなので、<code>string</code>関数という文字列を渡すだけのバージョンも用意されています。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="co">-- マッチする文字列は同じ、より分かりやすいバージョン</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="op">&gt;</span> match (string <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;ab&quot;</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="dt">Just</span> <span class="st">&quot;ab&quot;</span></a></code></pre></div>
+<p>さらに、<span class="ascii">regex-applicative</span>の正規表現オブジェクトは<a href="https://hackage.haskell.org/package/base-4.12.0.0/docs/Data-String.html#t:IsString"><code>IsString</code></a>型クラスのインスタンスでもあるので、<code>OverloadedStrings</code>言語拡張を使えば文字列リテラルだけで正規表現オブジェクトを作ることができます。</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedStrings</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="op">&gt;</span> match <span class="st">&quot;ab&quot;</span> <span class="st">&quot;ab&quot;</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="dt">Just</span> <span class="st">&quot;ab&quot;</span></a></code></pre></div>
+<h2 id="選択-re-s-a---re-s-a---re-s-a"><span class="link-to-here-outer"><a href="#選択-re-s-a---re-s-a---re-s-a" title="選択-re-s-a---re-s-a---re-s-a"><span class="link-to-here">Link to<br />
+here</span></a></span>選択<span class="ascii">:</span> <code>(&lt;|&gt;) :: RE s a -&gt; RE s a -&gt; RE s a</code></h2>
+<p>正規表現の「選択」、すなわち「二つの正規表現のうちどちらか一方にマッチする正規表現を作る」処理は、<a href="https://hackage.haskell.org/package/base-4.12.0.0/docs/Control-Applicative.html#t:Alternative"><code>Alternative</code></a>型クラスでおなじみの<code>&lt;|&gt;</code>を使います<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="op">&gt;</span> match (sym <span class="ch">'a'</span> <span class="op">&lt;|&gt;</span> sym <span class="ch">'b'</span>) <span class="st">&quot;a&quot;</span></a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="dt">Just</span> <span class="ch">'a'</span></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="op">&gt;</span> match (sym <span class="ch">'a'</span> <span class="op">&lt;|&gt;</span> sym <span class="ch">'b'</span>) <span class="st">&quot;b&quot;</span></a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="dt">Just</span> <span class="ch">'b'</span></a></code></pre></div>
+<h2 id="繰り返し-many-re-s-a---re-s-asome-re-s-a---re-s-a"><span class="link-to-here-outer"><a href="#繰り返し-many-re-s-a---re-s-asome-re-s-a---re-s-a" title="繰り返し-many-re-s-a---re-s-asome-re-s-a---re-s-a"><span class="link-to-here">Link to<br />
+here</span></a></span>繰り返し<span class="ascii">:</span> <code>many :: RE s a -&gt; RE s [a]</code>・<code>some :: RE s a -&gt; RE s [a]</code></h2>
+<p>正規表現の「繰り返し」、指定した正規表現を繰り返しマッチさせる正規表現を作る処理は、これまた<code>Alternative</code>の<code>many</code>メソッド・<code>some</code>メソッドによって実装されています。<br />
+<code>Alternative</code>型クラスのデフォルトの定義どおり、<code>many</code>が<span class="ascii">0</span>回以上の繰り返し、<code>some</code>が<span class="ascii">1</span>回以上の繰り返しを表しています。</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="op">&gt;</span> match (many (sym <span class="ch">'a'</span>)) <span class="st">&quot;aaaaaaaaaa&quot;</span></a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="dt">Just</span> <span class="st">&quot;aaaaaaaaaa&quot;</span></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="op">&gt;</span> match (some (sym <span class="ch">'a'</span>)) <span class="st">&quot;aaaaaaaaaa&quot;</span></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="dt">Just</span> <span class="st">&quot;aaaaaaaaaa&quot;</span></a>
+<a class="sourceLine" id="cb14-5" title="5"></a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="op">&gt;</span> match (many (sym <span class="ch">'a'</span>)) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="dt">Just</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="op">&gt;</span> match (some (sym <span class="ch">'a'</span>)) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="dt">Nothing</span></a></code></pre></div>
+<h2 id="オプショナルなマッチ-optional-re-s-a---re-s-maybe-a"><span class="link-to-here-outer"><a href="#オプショナルなマッチ-optional-re-s-a---re-s-maybe-a" title="オプショナルなマッチ-optional-re-s-a---re-s-maybe-a"><span class="link-to-here">Link to<br />
+here</span></a></span>オプショナルなマッチ<span class="ascii">:</span> <code>optional :: RE s a -&gt; RE s (Maybe a)</code></h2>
+<p>それから、いわゆる「正規表現の基本三演算」には含まれてませんが<small>（選択と<code>pure</code>で実装できるので）</small>、この後の例で使用するので「オプショナルなマッチ」を実現する方法を紹介しておきます。<br />
+名前のとおり<code>optional</code>という関数を使います。これも<code>Alternative</code>型クラスに対して使える関数ですね！</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="op">&gt;</span> match (sym <span class="ch">'a'</span> <span class="op">*&gt;</span> optional (sym <span class="ch">'b'</span>)) <span class="st">&quot;ab&quot;</span></a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="dt">Just</span> (<span class="dt">Just</span> <span class="ch">'b'</span>)</a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="op">&gt;</span> match (sym <span class="ch">'a'</span> <span class="op">*&gt;</span> optional (sym <span class="ch">'b'</span>)) <span class="st">&quot;a&quot;</span></a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="dt">Just</span> <span class="dt">Nothing</span></a></code></pre></div>
+<h2 id="マッチした結果をhaskellの値に割り当て"><span class="link-to-here-outer"><a href="#マッチした結果をhaskellの値に割り当て" title="マッチした結果をhaskellの値に割り当て"><span class="link-to-here">Link to<br />
+here</span></a></span>マッチした結果を<span class="ascii">Haskell</span>の値に割り当て</h2>
+<p>ここからは、他の正規表現ライブラリーでは珍しい、「正規表現でマッチした結果を<span class="ascii">Haskell</span>の値に割り当てる方法」をより詳しく紹介します。</p>
+<h3 id="組み込みの正規表現を使う"><span class="link-to-here-outer"><a href="#組み込みの正規表現を使う" title="組み込みの正規表現を使う"><span class="link-to-here">Link to<br />
+here</span></a></span>組み込みの正規表現を使う</h3>
+<p>例えば、<a href="http://hackage.haskell.org/package/regex-applicative-0.3.3.1/docs/Text-Regex-Applicative-Common.html#v:digit"><code>Text.Regex.Applicative.Common</code>モジュールにある<code>digit</code></a>は、一桁の数字<small>（つまり<code>0</code>から<code>9</code>）</small>にマッチした上で、結果としてマッチした値を<strong>文字ではなく、整数として</strong>返す正規表現を提供します。</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="op">&gt;</span> match digit <span class="st">&quot;1&quot;</span></a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="dt">Just</span> <span class="dv">1</span></a></code></pre></div>
+<p>加えて、先ほど紹介した<code>many</code>関数と組み合わせると、マッチした結果を整数のリストとして取得することもできます。</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="op">&gt;</span> match (many digit) <span class="st">&quot;12345&quot;</span></a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="dt">Just</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>]</a></code></pre></div>
+<h3 id="a---b---re-s-a---re-s-b-任意の一引数の関数を適用する"><span class="link-to-here-outer"><a href="#a---b---re-s-a---re-s-b-任意の一引数の関数を適用する" title="a---b---re-s-a---re-s-b-任意の一引数の関数を適用する"><span class="link-to-here">Link to<br />
+here</span></a></span><code>(&lt;$&gt;) :: (a -&gt; b) -&gt; RE s a -&gt; RE s b</code><span class="ascii">:</span> 任意の（一引数の）関数を適用する</h3>
+<p><span class="ascii">regex-applicative</span>は、名前のとおり正規表現を<span class="ascii">Applicative</span>スタイルで利用できるようにするためのライブラリーです。<br />
+当然ながら<code>Applicative</code>スタイルに必須の<code>&lt;$&gt;</code>関数も使用できます。<br />
+正規表現オブジェクト<code>RE s a</code>型の返す「マッチした結果」に、あなたの好きな関数を適用して変換した正規表現を作れるのです。</p>
+<p>先ほどの<code>many digit</code>の例を再利用して、マッチした整数の合計値を求めてみましょう。</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="op">&gt;</span> match (<span class="fu">sum</span> <span class="op">&lt;$&gt;</span> many digit) <span class="st">&quot;12345&quot;</span></a>
+<a class="sourceLine" id="cb18-2" title="2"><span class="dt">Just</span> <span class="dv">15</span></a></code></pre></div>
+<h3 id="re-s-a---b---re-s-a---re-s-b-任意の関数を適用する"><span class="link-to-here-outer"><a href="#re-s-a---b---re-s-a---re-s-b-任意の関数を適用する" title="re-s-a---b---re-s-a---re-s-b-任意の関数を適用する"><span class="link-to-here">Link to<br />
+here</span></a></span><code>(&lt;*&gt;) :: RE s (a -&gt; b) -&gt; RE s a -&gt; RE s b</code><span class="ascii">:</span> 任意の関数を適用する</h3>
+<p><span class="ascii">Applicative</span>スタイルのもう一つの重要な関数といえば、やっぱり<code>&lt;*&gt;</code>でしょう。<br />
+<code>many digit</code>を再利用して、「先頭に書かれた桁数だけ数字を取得する」という例を書いてみます。</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="op">&gt;</span> match (<span class="fu">take</span> <span class="op">&lt;$&gt;</span> digit <span class="op">&lt;*&gt;</span> many digit) <span class="st">&quot;312345&quot;</span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="dt">Just</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]</a></code></pre></div>
+<h2 id="もうちょっと複雑な例"><span class="link-to-here-outer"><a href="#もうちょっと複雑な例" title="もうちょっと複雑な例"><span class="link-to-here">Link to<br />
+here</span></a></span>もうちょっと複雑な例</h2>
+<p>ここまで紹介した例を使用してもうちょっと複雑な例を書いてみましょう。<br />
+小さな正規表現を組み合わせて、<span class="ascii">http</span>か<span class="ascii">https</span>の<span class="ascii">URL</span>における、オリジンにマッチする正規表現を簡単に書いてみます。</p>
+<p>まずは部品作りです。</p>
+<p><span class="ascii">URL</span>のスキームにマッチさせるために、「<code>http</code>の後にオプショナルな<code>s</code>、続けて<code>://</code>」という文字列にマッチする正規表現を作ります。</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1"><span class="op">&gt;</span> schemeRe <span class="ot">=</span></a>
+<a class="sourceLine" id="cb20-2" title="2">    ((<span class="op">++</span>) <span class="op">&lt;$&gt;</span> string <span class="st">&quot;http&quot;</span> <span class="op">&lt;*&gt;</span> (string <span class="st">&quot;s&quot;</span> <span class="op">&lt;|&gt;</span> <span class="fu">pure</span> <span class="st">&quot;&quot;</span>))</a>
+<a class="sourceLine" id="cb20-3" title="3">      <span class="op">&lt;*</span> string <span class="st">&quot;://&quot;</span></a></code></pre></div>
+<p><code>&lt;*</code>を使うことで、<code>://</code>の部分にはマッチしてもマッチした結果は無視している点にご注意ください。<br />
+<span class="ascii">regex-applicative</span>はこのように、「マッチしたら関数に渡す文字列」と「マッチしても関数に渡さない文字列」をユーザーが書き分けられるようになっているので、他の正規表現ライブラリーにあるようなキャプチャー<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>や、先読み言明・後読み言明などの機能が必要ないのです。</p>
+<p>続けて、ホスト名にマッチする正規表現を作ります。<br />
+ここでは単純化して、「アルファベットの小文字かピリオド<span class="ascii">1</span>文字以上」という文字列にしておきます。</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="op">&gt;</span> hostRe <span class="ot">=</span> some (psym (<span class="ot">`elem`</span> [<span class="ch">'a'</span><span class="op">..</span><span class="ch">'z'</span>] <span class="op">++</span> <span class="st">&quot;.&quot;</span>))</a></code></pre></div>
+<p>最後はポート番号です。<br />
+<code>:</code>という文字の後に<a href="http://hackage.haskell.org/package/regex-applicative-0.3.3.1/docs/Text-Regex-Applicative-Common.html#v:decimal"><code>Text.Regex.Applicative.Common</code>に入った<code>decimal</code></a>、すなわち一桁以上の<span class="ascii">10</span>進数にマッチする正規表現を使います。</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="op">&gt;</span> portRe <span class="ot">=</span> sym <span class="ch">':'</span> <span class="op">*&gt;</span> decimal</a></code></pre></div>
+<p>以上で正規表現のパーツができました。<br />
+早速使ってみる… 前に、マッチした結果を割り当てるレコード型を定義します。</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">data</span> <span class="dt">Origin</span> <span class="ot">=</span></a>
+<a class="sourceLine" id="cb23-2" title="2">  <span class="dt">Origin</span> {<span class="ot"> scheme ::</span> <span class="dt">String</span>,<span class="ot"> host ::</span> <span class="dt">String</span>,<span class="ot"> port ::</span> <span class="dt">Int</span> }</a>
+<a class="sourceLine" id="cb23-3" title="3">  <span class="kw">deriving</span> <span class="dt">Show</span></a></code></pre></div>
+<p>あとは<code>&lt;$&gt;</code>や<code>&lt;*&gt;</code>を使って組み合わせて、<code>Origin</code>値コンストラクターに食わせるだけです！<br />
+ポート番号はオリジンにおいてはなくても良いので、省略した場合は仮に<code>80</code>としておきましょう<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>。</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1">originRe <span class="ot">=</span> <span class="dt">Origin</span>   <span class="op">&lt;$&gt;</span></a>
+<a class="sourceLine" id="cb24-2" title="2">           schemeRe <span class="op">&lt;*&gt;</span></a>
+<a class="sourceLine" id="cb24-3" title="3">           hostRe   <span class="op">&lt;*&gt;</span></a>
+<a class="sourceLine" id="cb24-4" title="4">           (portRe <span class="op">&lt;|&gt;</span> <span class="fu">pure</span> <span class="dv">80</span>)</a></code></pre></div>
+<p>今度こそ使ってみます。</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" title="1"><span class="op">&gt;</span> match originRe <span class="st">&quot;https://example.com:8080&quot;</span></a>
+<a class="sourceLine" id="cb25-2" title="2"><span class="dt">Just</span> (<span class="dt">Origin</span> {scheme <span class="ot">=</span> <span class="st">&quot;https&quot;</span>, host <span class="ot">=</span> <span class="st">&quot;example.com&quot;</span>, port <span class="ot">=</span> <span class="dv">8080</span>})</a>
+<a class="sourceLine" id="cb25-3" title="3"><span class="op">&gt;</span> match originRe <span class="st">&quot;http://example.com&quot;</span></a>
+<a class="sourceLine" id="cb25-4" title="4"><span class="dt">Just</span> (<span class="dt">Origin</span> {scheme <span class="ot">=</span> <span class="st">&quot;http&quot;</span>, host <span class="ot">=</span> <span class="st">&quot;example.com&quot;</span>, port <span class="ot">=</span> <span class="dv">80</span>})</a></code></pre></div>
+<p><span class="ascii">regex-applicative</span>を使うことで、<span class="ascii">URL</span>のオリジンにマッチさせるだけでなく、マッチした結果を<code>Origin</code>型の値として割り当てる正規表現が作れました！🎉</p>
+<h1 id="regex-applicativeのメリット"><span class="link-to-here-outer"><a href="#regex-applicativeのメリット" title="regex-applicativeのメリット"><span class="link-to-here">Link to<br />
+here</span></a></span>👍<span class="ascii">regex-applicative</span>のメリット</h1>
+<p><span class="ascii">regex-applicative</span>パッケージには、他の正規表現ライブラリーと比べて、以下のメリットがあります。</p>
+<ul>
+<li>文字列以外の扱いにも強い
+<ul>
+<li>マッチした結果から（文字列以外の）<span class="ascii">Haskell</span>の値に割り当てるのが簡単！
+<ul>
+<li>「生のデータ」からアプリケーションにおける「コアの処理が欲しいデータ」への変換がワンストップ</li>
+</ul></li>
+<li>文字列だけでなく、任意のリストに対してマッチできる</li>
+</ul></li>
+<li>内部<span class="ascii">DSL</span>として書けるので、コンパイラーによる型チェックの恩恵を受けやすい
+<ul>
+<li>前述の「マッチした結果から（文字列以外の）<span class="ascii">Haskell</span>の値に割り当てる」処理も、すべて型チェックされる</li>
+</ul></li>
+</ul>
+<h1 id="regex-applicativeのデメリット"><span class="link-to-here-outer"><a href="#regex-applicativeのデメリット" title="regex-applicativeのデメリット"><span class="link-to-here">Link to<br />
+here</span></a></span>👎<span class="ascii">regex-applicative</span>のデメリット</h1>
+<p>一方<span class="ascii">regex-applicative</span>パッケージには、他の正規表現ライブラリーに対する以下のデメリットがあります。</p>
+<ul>
+<li>コードは長い
+<ul>
+<li>内部<span class="ascii">DSL</span>なのでやむなし</li>
+<li>専用のメタキャラクターより分かりやすい、とも言える</li>
+</ul></li>
+<li>ユーザーからの入力として、正規表現を受け取ることは難しい
+<ul>
+<li>これも内部<span class="ascii">DSL</span>なのでやむなし</li>
+</ul></li>
+<li>おそらく<span class="ascii">C</span>とかで書いたものほど速くはない
+<ul>
+<li>そんなに細かい最適化をしているわけではないし、<span class="ascii">Pure Haskell</span>なので…</li>
+</ul></li>
+<li><code>String</code>以外の文字列にはマッチできない…
+<ul>
+<li>これが<span class="ascii">Haskeller</span>にとって一番痛い</li>
+<li><code>Text</code>や<code>ByteString</code>向けのものも、原理的に実装できないというわけではないはず</li>
+<li>参考<span class="ascii">:</span> <a href="http://bicycle1885.hatenablog.com/entry/2012/12/24/234707"><span class="ascii">Haskell Tips (</span>文字列編<span class="ascii">) -</span> りんごがでている</a></li>
+</ul></li>
+</ul>
+<h1 id="regex-applicativeの仕組み"><span class="link-to-here-outer"><a href="#regex-applicativeの仕組み" title="regex-applicativeの仕組み"><span class="link-to-here">Link to<br />
+here</span></a></span>⚙️<span class="ascii">regex-applicative</span>の仕組み</h1>
+<p>ここからは、<span class="ascii">regex-applicative</span>における正規表現エンジンがどのように作られているか、『<a href="https://gihyo.jp/book/2015/978-4-7741-7270-5">正規表現技術入門</a>』における正規表現エンジンの分類を参考に説明しましょう。</p>
+<h2 id="正規表現エンジンの分類"><span class="link-to-here-outer"><a href="#正規表現エンジンの分類" title="正規表現エンジンの分類"><span class="link-to-here">Link to<br />
+here</span></a></span>📑正規表現エンジンの分類</h2>
+<p>『正規表現技術入門』の<span class="ascii">p.56</span>では、正規表現エンジンを次の二つに分類しています。</p>
+<ul>
+<li><span class="ascii">DFA</span>型
+<ul>
+<li>正規表現を決定性有限オートマトン（<span class="ascii">deterministic finite automaton</span>）と呼ばれるものに変換して正規表現マッチングを行う</li>
+</ul></li>
+<li><span class="ascii">VM</span>型
+<ul>
+<li>正規表現をバイトコード（<span class="ascii">bytecode</span>）と呼ばれるものに変換して正規表現マッチングを行う</li>
+</ul></li>
+</ul>
+<p>さて、<span class="ascii">regex-applicative</span>の場合はどちらなのでしょうか？<br />
+<a href="https://github.com/feuerbach/regex-applicative/">ソースコード</a>を読んでみると、どうやらどちらでもなさそうなことがわかります。<br />
+というのも、正規表現オブジェクト<code>RE s a</code>を<span class="ascii">NFA</span>に<a href="https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L110-L111"><code>compile</code></a>という関数で変換した後、<span class="ascii">DFA</span>に変換しないでそのまま使っているからです。<br />
+一般的に、<span class="ascii">NFA</span>は<span class="ascii">DFA</span>に変換可能で、変換してからマッチさせた方がしばしば高速にマッチできることが知られています。<br />
+ところが<span class="ascii">regex-applicative</span>ではその変換を行わず、<span class="ascii">NFA</span>として使用しているのです。</p>
+<p>なぜそうした仕様になっているかについて、私の推測を述べましょう<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>。<br />
+<span class="ascii">regex-applicative</span>では先ほど紹介した<code>psym</code>関数のように、「任意の文字を受け取る関数」を正規表現オブジェクトに含められなければなりません。<br />
+結果、関数がどんな文字の時にどんな値を返すのか<small>（マッチが成功するのかしないのか）</small>、正規表現オブジェクトをコンパイルする関数にはわからなくなってしまうのです。<br />
+一方、効率の良い<span class="ascii">DFA</span>の実装では、<span class="ascii">DFA</span>の一つ一つの状態ごとに「どの文字を受け取ったら次はどの状態に遷移するか」という情報を、連想配列として持っておかなければなりません<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>。<br />
+そのため、どの文字を受け取ったらマッチが成功するのかわからない箇所が正規表現オブジェクトに混ざっている限り、効率の良い<span class="ascii">DFA</span>の実装にはできないのです。</p>
+<p>その分、<span class="ascii">regex-applicative</span>では任意の文字を受け取る関数が使えるので、普通の正規表現ライブラリーよりも柔軟に書くことができるようになっています。<br />
+その点を考慮したトレードオフなんでしょう。</p>
+<h2 id="regex-applicativeの実際の実装"><span class="link-to-here-outer"><a href="#regex-applicativeの実際の実装" title="regex-applicativeの実際の実装"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">regex-applicative</span>の実際の実装</h2>
+<p>さらに<span class="ascii">regex-applicative</span>の実装を掘ってみましょう。<br />
+先ほど紹介した<code>compile</code>関数は、正規表現オブジェクト<code>RE s a</code>を<a href="https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Object.hs#L38-L43"><code>ReObject s r</code></a>という型の、<a href="https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Types.hs#L9-L16"><code>Thread s r</code></a>型の値のキューに変換します。<br />
+これが<span class="ascii">regex-applicative</span>における<span class="ascii">NFA</span>と呼べそうですね。</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">newtype</span> <span class="dt">ReObject</span> s r <span class="ot">=</span> <span class="dt">ReObject</span> (<span class="dt">SQ.StateQueue</span> (<span class="dt">Thread</span> s r))</a></code></pre></div>
+<p><code>Thread s r</code>型の値は、<span class="ascii">NFA</span>における状態遷移を表します。</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">data</span> <span class="dt">Thread</span> s r</a>
+<a class="sourceLine" id="cb27-2" title="2">    <span class="ot">=</span> <span class="dt">Thread</span></a>
+<a class="sourceLine" id="cb27-3" title="3">        {<span class="ot"> threadId_ ::</span> <span class="dt">ThreadId</span></a>
+<a class="sourceLine" id="cb27-4" title="4">        ,<span class="ot"> _threadCont ::</span> s <span class="ot">-&gt;</span> [<span class="dt">Thread</span> s r]</a>
+<a class="sourceLine" id="cb27-5" title="5">        }</a>
+<a class="sourceLine" id="cb27-6" title="6">    <span class="op">|</span> <span class="dt">Accept</span> r</a></code></pre></div>
+<p>型定義のとおり、<code>Thread</code>と<code>Accept</code>という二通りの値をとります<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>。</p>
+<ul>
+<li>⏩<code>Thread</code>はその用途からして、事実上<code>s -&gt; [Thread s r]</code>という関数と同等の型です。<span class="ascii">regex-applicative</span>は<code>ReObject</code>によって文字列<code>[s]</code>の値をマッチさせる際、この<code>s -&gt; [Thread s r]</code>に文字を渡します。
+<ul>
+<li>➡️そして、関数が結果として返した、<code>Thread s r</code>型の値を<small>（そのリストから）</small>一つずつキューに追加して、また次の文字にマッチさせます。</li>
+<li>↩️一方、関数が空リストを返した場合は — そう、マッチが失敗した、ということなのです。その場合は、キューからさらに<code>Thread s r</code>の値を取り出して<small>（値コンストラクターが<code>Thread</code>であれば）</small>マッチしなかった文字をまた<code>s -&gt; [Thread s r]</code>に渡します。</li>
+<li>なお、<code>threadId_</code>はキューに追加する際同じ<code>threadId_</code>の<code>Thread</code>を追加してしまうのを防ぐためのキーです。詳細は割愛します。</li>
+</ul></li>
+<li>✅<code>Accept r</code>は名前のとおり<span class="ascii">NFA</span>の受理状態を表しています。<code>s -&gt; [Thread s r]</code>を繰り返し適用して最終的に<code>Accept r</code>を返した<code>Thread</code>のみが「マッチした」と解釈されます。</li>
+</ul>
+<p>このように、<span class="ascii">regex-applicative</span>における<span class="ascii">NFA</span>は<code>s -&gt; [Thread s r]</code>を返す関数、すなわち「文字を受け取って次の状態のリストを返す継続」として作られています。</p>
+<p>ただ実際に実行する際の流れを見てみると、<code>ReObject</code>に含まれる<code>Thread</code>を一つずつ実行してみて、結果が条件に合うものを選ぶ、といった方が近いです。<br />
+例えば<a href="https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Interface.hs#L81-L85"><code>match</code>関数</a>では、<code>ReObject</code>に文字を一文字ずつ与えた結果の中から、<code>listToMaybe</code>を使って最初に<code>Accept</code>にたどり着く<code>Thread</code>を取得しています。<br />
+それから、最長マッチする部分文字列を検索する<a href="https://github.com/feuerbach/regex-applicative/blob/5e9a06622d33c7657353ddaccfe101b96946027a/Text/Regex/Applicative/Interface.hs#L141-L149"><code>findLongestPrefix</code>関数</a>は、マッチが失敗するか残りの文字列が空になるまで繰り返し文字を<code>ReObject</code>に与えることで、できるだけ長いマッチが返るように調整しています。<br />
+このように<span class="ascii">regex-applicative</span>は、<code>ReObject</code><span class="ascii">(NFA)</span>に文字を一つずつ与えてマッチ結果を生成する処理と、そのマッチ結果を選び取る処理とを分離することで、様々な方針でマッチできるようになっているのです。</p>
+<h1 id="類似のライブラリーとの比較を軽く"><span class="link-to-here-outer"><a href="#類似のライブラリーとの比較を軽く" title="類似のライブラリーとの比較を軽く"><span class="link-to-here">Link to<br />
+here</span></a></span>類似のライブラリーとの比較を軽く</h1>
+<h2 id="各種パーサーコンビネーター"><span class="link-to-here-outer"><a href="#各種パーサーコンビネーター" title="各種パーサーコンビネーター"><span class="link-to-here">Link to<br />
+here</span></a></span>各種パーサーコンビネーター</h2>
+<p>さて、ここまでこの文章を読んでいただけた方の中には、「これって<span class="ascii">megaparsec</span>とか<span class="ascii">attoparsec</span>とかのパーサーコンビネーターライブラリーと何が違うんだ？」という疑問をお持ちの方も多いでしょう。<br />
+そう、大抵の場合、パーサーコンビネーターライブラリーも下記のような特徴を持ち合わせています。</p>
+<ul>
+<li><span class="ascii">Haskell</span>の内部<span class="ascii">DSL</span>として実装されている
+<ul>
+<li><code>Applicative</code>や<code>Alternative</code>型クラスのメソッドを利用した<span class="ascii">API</span></li>
+</ul></li>
+<li>マッチした結果から（文字列以外の）<span class="ascii">Haskell</span>の値に割り当てるのが簡単</li>
+<li>「文字<span class="ascii">(</span><code>Char</code><span class="ascii">)</span>」の列以外にもマッチできる</li>
+</ul>
+<p>特に「<code>Applicative</code>や<code>Alternative</code>型クラスのメソッドを利用した<span class="ascii">API</span>」である点は興味深く、場合によっては、使うライブラリーだけ換えて式をコピペしてもコンパイルは通る、なんてことが普通にあり得るくらい似ています。<br />
+ただし、当然コンパイルが通るだけでは意図通りに動くとは限りません。<br />
+<span class="ascii">regex-alternative</span>と一般的なパーサーコンビネーターライブラリーには、「<strong>自動的にバックトラックをするかしないか</strong>」という違いがあるためです。</p>
+<p>例えば、次の式は<span class="ascii">regex-applicative</span>でも<span class="ascii">attoparsec</span>でも有効な式ですが、<span class="ascii">regex-applicative</span>の<code>match</code>関数では、「<code>ab</code>が<span class="ascii">1</span>回以上繰り返される文字列」にマッチして最後の<code>ab</code>を返すことができるのに、<span class="ascii">attoparsec</span>の<code>parse</code>関数ではパースに失敗してしまいます。</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" title="1">many (string <span class="st">&quot;ab&quot;</span>) <span class="op">*&gt;</span> string <span class="st">&quot;ab&quot;</span></a></code></pre></div>
+<p><code>stack build regex-applicative attoparsec</code>した上で以下のように書いて試してみましょう。<br />
+まずは<span class="ascii">regex-applicative</span>で試す場合<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" title="1"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Text.Regex.Applicative</span></a>
+<a class="sourceLine" id="cb29-2" title="2"></a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="op">&gt;</span> match (many (string <span class="st">&quot;ab&quot;</span>) <span class="op">*&gt;</span> string <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;abab&quot;</span></a>
+<a class="sourceLine" id="cb29-4" title="4"><span class="dt">Just</span> <span class="st">&quot;ab&quot;</span></a>
+<a class="sourceLine" id="cb29-5" title="5"></a>
+<a class="sourceLine" id="cb29-6" title="6"><span class="op">&gt;</span> match (many (string <span class="st">&quot;ab&quot;</span>) <span class="op">*&gt;</span> string <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;ab&quot;</span></a>
+<a class="sourceLine" id="cb29-7" title="7"><span class="dt">Just</span> <span class="st">&quot;ab&quot;</span></a>
+<a class="sourceLine" id="cb29-8" title="8"></a>
+<a class="sourceLine" id="cb29-9" title="9"><span class="op">&gt;</span> match (many (string <span class="st">&quot;ab&quot;</span>) <span class="op">*&gt;</span> string <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;ababab&quot;</span></a>
+<a class="sourceLine" id="cb29-10" title="10"><span class="dt">Just</span> <span class="st">&quot;ab&quot;</span></a></code></pre></div>
+<p>いずれの文字列でも<code>Just "ab"</code>が返ってきてますね😌。</p>
+<p>続いて<span class="ascii">attoparsec</span>で試す場合<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" title="1"><span class="co">-- attoparsecは`String`をサポートしてないのでOverloadedStringsでTextとして扱う</span></a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedStrings</span></a>
+<a class="sourceLine" id="cb30-3" title="3"></a>
+<a class="sourceLine" id="cb30-4" title="4"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Control.Applicative</span></a>
+<a class="sourceLine" id="cb30-5" title="5"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.Attoparsec.Text</span></a>
+<a class="sourceLine" id="cb30-6" title="6"></a>
+<a class="sourceLine" id="cb30-7" title="7"><span class="co">-- 文字列の終端であることを明確にするために、空文字列をfeedしておく</span></a>
+<a class="sourceLine" id="cb30-8" title="8"><span class="op">&gt;</span> feed (parse (many (string <span class="st">&quot;ab&quot;</span>) <span class="op">*&gt;</span> string <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;abab&quot;</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb30-9" title="9"><span class="dt">Fail</span> <span class="st">&quot;&quot;</span> [] <span class="st">&quot;not enough input&quot;</span></a>
+<a class="sourceLine" id="cb30-10" title="10"></a>
+<a class="sourceLine" id="cb30-11" title="11"><span class="op">&gt;</span> feed (parse (many (string <span class="st">&quot;ab&quot;</span>) <span class="op">*&gt;</span> string <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb30-12" title="12"><span class="dt">Fail</span> <span class="st">&quot;&quot;</span> [] <span class="st">&quot;not enough input&quot;</span></a>
+<a class="sourceLine" id="cb30-13" title="13"></a>
+<a class="sourceLine" id="cb30-14" title="14"><span class="op">&gt;</span> feed (parse (many (string <span class="st">&quot;ab&quot;</span>) <span class="op">*&gt;</span> string <span class="st">&quot;ab&quot;</span>) <span class="st">&quot;ababab&quot;</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb30-15" title="15"><span class="dt">Fail</span> <span class="st">&quot;&quot;</span> [] <span class="st">&quot;not enough input&quot;</span></a></code></pre></div>
+<p>いずれの文字列でも失敗になってしまいました。なぜうまくいかないのでしょう？<br />
+それは文字列<code>"ababab"</code>における<code>ab</code>を、<code>many (string "ab")</code>が消費してしまい、<code>*&gt;</code>の右辺に書いた<code>string "ab"</code>が処理できなくなってしまうためです。<br />
+対する<span class="ascii">regex-applicative</span>における<code>many (string "ab") *&gt; string "ab"</code>では、正規表現全体がマッチするよう、自動でバックトラックしてくれます。<br />
+<span class="ascii">regex-applicative</span>でも最初に<code>many (string "ab")</code>が<code>"ababab"</code>全体を消費した直後では、<code>*&gt;</code>の右辺に書いた<code>string "ab"</code>のマッチは当然失敗してしまいます。<br />
+しかし、<span class="ascii">regex-applicative</span>はそれではあきらめません。<code>*&gt;</code>の右辺に書いた<code>string "ab"</code>が成功するまで、失敗する度に<code>many (string "ab")</code>が消費した文字を<span class="ascii">1</span>文字ずつ返却してくれるのです。これがバックトラックです。<br />
+<span class="ascii">regex-alternative</span>に限らず、大抵の正規表現エンジンがこのように自動的なバックトラックを行います。</p>
+<p>こうした性質の違いにより、<span class="ascii">regex-applicative</span>は<strong>文字列の中間に指定したパターンをマッチさせる</strong>のが、パーサーコンビネーターライブラリーよりも得意です。</p>
+<p>例えば「文字列の中間にある<span class="ascii">1</span>桁以上の<span class="ascii">10</span>進数」にマッチさせる場合、<span class="ascii">regex-alternative</span>では次のように書きます。</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Text.Regex.Applicative.Common</span></a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="op">&gt;</span> match (few anySym <span class="op">*&gt;</span> decimal <span class="op">&lt;*</span> few anySym) <span class="st">&quot;abc12345def&quot;</span></a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="dt">Just</span> <span class="dv">12345</span></a></code></pre></div>
+<p><code>few</code>は「控えめな繰り返し」を実現するための関数です。引数で指定した正規表現を<span class="ascii">0</span>回以上マッチさせる、という点では<code>many</code>と同じですが、前後にある正規表現がなるべく長くマッチするよう、優先してマッチさせてくれます。<br />
+<code>few anySym</code>は普通の正規表現ライブラリーでいうところの<code>.*?</code>に相当します。</p>
+<p>同じことを<span class="ascii">attoparsec</span>で実現するために<code>many anyChar *&gt; decimal &lt;* many anyChar</code>と書いてみても、やはりうまくいきません。</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" title="1"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.Attoparsec.Text</span></a>
+<a class="sourceLine" id="cb32-2" title="2"></a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="op">&gt;</span> feed (parse (many anyChar <span class="op">*&gt;</span> decimal <span class="op">&lt;*</span> many anyChar) <span class="st">&quot;abc12345def&quot;</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb32-4" title="4"><span class="dt">Fail</span> <span class="st">&quot;&quot;</span> [] <span class="st">&quot;not enough input&quot;</span></a></code></pre></div>
+<p>理由は先ほどと同様で、最初に書いた<code>many anyChar</code>がすべての文字列を消費してしまい、それ以降の<code>decimal</code>などがマッチできないためです。<br />
+正しく処理するには、「<code>decimal</code>の先頭以外の文字列」、すなわち「数字以外の文字列」が<code>many</code>であることを明示する方法をとるしかありません<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>。</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" title="1"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.Char</span></a>
+<a class="sourceLine" id="cb33-2" title="2"></a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="op">&gt;</span> nonDigits <span class="ot">=</span> many (satisfy (<span class="fu">not</span> <span class="op">.</span> <span class="fu">isDigit</span>))</a>
+<a class="sourceLine" id="cb33-4" title="4"><span class="op">&gt;</span> feed ((parse (nonDigits <span class="op">*&gt;</span> decimal <span class="op">&lt;*</span> nonDigits)) <span class="st">&quot;abc12345def&quot;</span>) <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb33-5" title="5"><span class="dt">Done</span> <span class="st">&quot;&quot;</span> <span class="dv">12345</span></a></code></pre></div>
+<p>そんなわけで、<span class="ascii">regex-applicative</span>は、<span class="ascii">Haskell</span>によくあるパーサーコンビネーターのように<strong><span class="ascii">Applicative</span>スタイルで書けて、なおかつ他の正規表現ライブラリーのように中間マッチがしやすい</strong>という、両方の良さを持ち合わせていると言えます。</p>
+<h3 id="番外編-replace-attoparsecreplace-megaparsec"><span class="link-to-here-outer"><a href="#番外編-replace-attoparsecreplace-megaparsec" title="番外編-replace-attoparsecreplace-megaparsec"><span class="link-to-here">Link to<br />
+here</span></a></span>番外編<span class="ascii">: replace-attoparsec</span>・<span class="ascii">replace-megaparsec</span></h3>
+<p>…と、<span class="ascii">regex-applicative</span>のよさを語ったところで舌の根も乾かぬうちに恐縮ですが、実は<span class="ascii">attoparsec</span>をはじめパーサーコンビネーターライブラリーの「中間マッチがやりにくい」という弱点を改善するためのパッケージがあります。<br />
+<a href="http://hackage.haskell.org/package/replace-attoparsec"><span class="ascii">replace-attoparsec</span></a>や<a href="http://hackage.haskell.org/package/replace-megaparsec"><span class="ascii">replace-megaparsec</span></a>といいます<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a>。<br />
+名前のとおり<span class="ascii">replace-attoparsec</span>が<span class="ascii">attoparsec</span>を改善するパッケージで、<span class="ascii">replace-megaparsec</span>が<span class="ascii">megaparsec</span>を改善するパッケージです。<br />
+名前も<span class="ascii">API</span>もお互いそっくりなんで<small>（作者も同じですしね）</small>、今回は<span class="ascii">replace-attoparsec</span>の方を紹介しましょう。</p>
+<p><span class="ascii">replace-attoparsec</span>を使えば、次のように書くだけで「文字列の中間にある<span class="ascii">1</span>桁以上の<span class="ascii">10</span>進数」を取り出すことができます。</p>
+<pre class="hakell"><code>import Replace.Attoparsec.Text
+
+&gt; feed (parse (sepCap decimal) &quot;abc12345def&quot;) &quot;&quot;
+Done &quot;&quot; [Left &quot;abc&quot;,Right 12345,Left &quot;def&quot;]</code></pre>
+<p><code>"abc12345def"</code>の中間にある<code>12345</code>だけでなく、パースできなかった<code>abc</code>、<code>def</code>という文字列もおまけで取得できました！<br />
+<code>decimal</code>がパースできた箇所が<code>Right</code>として、パースできなかった箇所が<code>Left</code>として返却されていることに注意してください。</p>
+<p><span class="ascii">replace-attoparsec</span>の<code>sepCap</code><small>（「<span class="ascii">Separate and Capture</span>」の略だそうです）</small>は、引数として受け取ったパーサーを、</p>
+<ol type="1">
+<li>とりあえず先頭からマッチさせてみて、</li>
+<li>失敗したら先頭の一文字をスキップして、次の文字からまたマッチさせてみる</li>
+</ol>
+<p>という処理を繰り返しています。<br />
+結果的にパースできない文字列はすべてスキップして、文字列の中間にある、パースできる文字列のみにパーサーを適用できるのです。</p>
+<h2 id="verbalexpressions"><span class="link-to-here-outer"><a href="#verbalexpressions" title="verbalexpressions"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">VerbalExpressions</span></h2>
+<p>そろそろ力尽きてきたのでここからはスライドのコピペで失礼します…🙏</p>
+<ul>
+<li>詳細わかりませんが作りはよく似てる
+<ul>
+<li><a href="https://github.com/VerbalExpressions/JSVerbalExpressions#examples"><span class="ascii">JavaScript</span>の例がこちら</a></li>
+</ul></li>
+<li>変な記号の演算子ではなく英語でつけられた関数なので、こちらの方が分かりやすいという人は多そう</li>
+<li><a href="https://github.com/VerbalExpressions"><span class="ascii">Haskell</span>を含むいろんな言語で提供されてるらしい</a></li>
+<li>さっと<a href="http://hackage.haskell.org/package/verbalexpressions-1.0.0.0/docs/Text-Regex-VerbalExpressions.html"><span class="ascii">Haskell</span>版のドキュメント</a>読んだ感じ、文字列のマッチに特化してるっぽい？</li>
+</ul>
+<h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h1>
+<p>以上です！👋<br />
+まとめもスライドからのコピペで！</p>
+<ul>
+<li><span class="ascii">regex-applicative</span>は、<span class="ascii">Haskell</span>の式で正規表現を書ける内部<span class="ascii">DSL</span></li>
+<li>パーサーコンビネーターっぽく使えて、かつ正規表現の良さを持ち合わせている</li>
+<li>内部は「文字を受け取って続きの状態のリストを返す関数」として表現された<span class="ascii">NFA</span>で実装されている</li>
+</ul>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><code>Alternative</code>は、<code>Applicative</code>より強力な（できることが多い）型クラスです。そういう意味で、<span class="ascii">regex-applicative</span>は本当は「<span class="ascii">regex-alternative</span>」と呼んだ方が適切なのかも知れません。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>正確には、キャプチャーした文字列を正規表現の中で再利用することができないので、他の正規表現ライブラリーのキャプチャー機能と完全に同等のことができるわけではありません。これは現状の<span class="ascii">regex-applicative</span>の制限です。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>もちろん、実際のところ<span class="ascii">https</span>の場合デフォルトのポート番号は<span class="ascii">443</span>であるべきですが、ちゃんと実装しようとすると結構複雑になるのでご容赦を！<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p>この記事の最後の方を書いていて思い出しました。<span class="ascii">regex-applicative</span>は<span class="ascii">DFA</span>ベースの正規表現エンジンでは不可能な「控えめな繰り返し」をサポートしているから、という理由もあるようです。なぜ<span class="ascii">DFA</span>ベースでは「控えめな繰り返し」ができないかは私もうまく説明できません…。<a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn5"><p>『正規表現技術入門』の<span class="ascii">p. 132</span>における実装例では、これを状態と文字による二次元配列として実装しています。<a href="#fnref5" class="footnote-back">↩</a></p></li>
+<li id="fn6"><p>並行並列プログラミングで出てくるあの「スレッド」とは違うのでご注意ください。<a href="#fnref6" class="footnote-back">↩</a></p></li>
+<li id="fn7"><p>ただし、一般に、正規表現ライブラリーであってもこのような書き方をした方が効率よくマッチさせやすいでしょう。<a href="#fnref7" class="footnote-back">↩</a></p></li>
+<li id="fn8"><p><a href="https://haskell.jp/blog/posts/2018/substring-parser.html">こちらの記事</a>でも触れているとおり、かつて私も同じ目的のパッケージを作成しました。しかし、これらのパッケージの方が明らかにドキュメントが充実していて、機能も豊富なので今回はこれらを紹介します。将来的には<span class="ascii">substring-parser</span>は<span class="ascii">deprecated</span>にするかも知れません。<a href="#fnref8" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2019/unicode-show.html" style="margin-left: auto;" lang="ja">日本語をshowしてうまく表示されなかったら</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; YAMAMOTO Yuji 2019</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
