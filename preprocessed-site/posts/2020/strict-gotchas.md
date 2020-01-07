@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Yuji Yamamoto
 postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
-date: October 8, 2019
+date: January 26, 2020
 tags:
 ...
 ---
