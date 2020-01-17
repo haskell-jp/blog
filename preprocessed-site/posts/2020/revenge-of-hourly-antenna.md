@@ -15,7 +15,7 @@ Haskell-jpのコンテンツの一つとして[Haskell Antenna](https://haskell.
 
 [2019年の今頃、これを自動毎時更新しようと Drone Cloudによる毎時更新を設定しました](https://haskell.jp/blog/posts/2019/hourly-antenna.html)。
 
-しかし。。。なんと3月ぐらいからこれが止まっています（どうやら、Drone Cloudのこの機能を利用してマイニングをした人がいたらしく止めてしまったようです）。
+しかし。。。なんと3月ぐらいからこれが止まっています（どうやら、[Drone Cloudのこの機能を利用してマイニングをした人がいたらしく止めてしまった](https://discourse.drone.io/t/cron-on-cloud-drone-io/3899/2)ようです）。
 現在は**僕がだいたい毎朝1回、手動でCIを回しています**。。。
 
 ずっとなんとかしなきゃなぁと思い続けてはや9ヶ月。
@@ -24,14 +24,14 @@ Haskell-jpのコンテンツの一つとして[Haskell Antenna](https://haskell.
 
 # どうするか？
 
-[GCPにはalways freeプランというのがあり](https://cloud.google.com/free/docs/gcp-free-tier?hl=ja#always-free)、GCEインスタンスはf1-microであれば一台だけ無料です（2020/1現在）。
-これに、毎時実行して更新をプッシュする antenna プログラムを仕込んでおけば良いではないかということに気づきました。
+[GCPにはalways freeプランというのがあり](https://cloud.google.com/free/docs/gcp-free-tier?hl=ja#always-free)、GCEインスタンスの場合はf1-microであれば一台だけ無料です（2020/1現在）。
+これに、毎時実行して更新をプッシュするantennaプログラムを仕込んでおけば良いではないかということに気づきました。
 
-Haskell Antenna自体はGitHub Pagesであり、HTMLなどは [haskell-jp/antenna](https://github.com/haskell-jp/antenna) という Haskell製CLIアプリケーションで生成しています。
-これをcronか何かで毎時実行しても良いですが
+Haskell Antenna自体はGitHub Pagesであり、HTMLなどは[haskell-jp/antenna](https://github.com/haskell-jp/antenna)という Haskell製CLIアプリケーションで生成しています。
+これをcronか何かで毎時実行すればいいんですけど
 
-1. cronとDockerの組み合わせが割とめんどくさい（antenna は Docker Image として提供している）
-2. cronにした場合更新を GitHub にどうやってプッシュしようかなどを考えるのがめんどくさい
+1. cronとDockerの組み合わせが割とめんどくさい（antennaはDocker Imageとして提供している）
+2. cronにした場合更新をGitHubにどうやってプッシュしようかなどを考えるのがめんどくさい
 
 という問題があります。
 
@@ -40,17 +40,17 @@ Haskell Antenna自体はGitHub Pagesであり、HTMLなどは [haskell-jp/antenn
 
 # 実装する
 
-antennaプログラムに「gitコマンドを読んでGitHubリポジトリに更新をプッシュする機能」と「全てを毎時実行する機能」の2つを組み込む必要があります。
+antennaプログラムに「gitコマンドを使ってGitHubリポジトリに更新をプッシュする機能」と「全てを毎時実行する機能」の2つを組み込む必要があります。
 ここで後方互換性を維持するために、これらはオプションでオンする機能にしましょう。
 なのでまずは、antenna CLIアプリケーションのオプションを整理するところから始めます。
 
 ## オプションの整理
 
-改修前の antenna は特別オプションを持っていません。
+改修前のantennaはオプションを持っていません。
 `getArgs` で引数（設定ファイルのパス）を受け取るだけです
 
 ```haskell
-import           System.Environment (getArgs)
+import System.Environment (getArgs)
 
 -- generate 関数が設定から HTML ファイル群を生成する IO アクション
 main :: IO ()
@@ -63,7 +63,6 @@ main = (listToMaybe <$> getArgs) >>= \case
 
 ```haskell
 -- withGetOpt' は usage を独自で扱えるように拡張した Data.Extensible.withGetOpt です
--- runCmd 関数が内部で runCmd を呼び出します
 main :: IO ()
 main = withGetOpt' "[options] [input-file]" opts $ \r args usage ->
   if | r ^. #help    -> hPutBuilder stdout (fromString usage)
@@ -93,18 +92,38 @@ verboseOpt = optFlag ['v'] ["verbose"] "Enable verbose mode: verbosity level \"d
 
 差分全体はこの[PR](https://github.com/haskell-jp/antenna/pull/20)で確認することができます。
 興味のある人はみてみてください。
-ついでに `runCmd` 関数は[mix.hs](https://github.com/matsubara0507/mix.hs)を使って `RIO env ()` のボイラーテンプレートを減らしています（実はおいおい役に立ちます）。
+`generate` 関数は以下の `runCmd` 関数から呼ばれています
+
+```haskell
+import Mix
+import Mix.Plugin.Logger as MixLogger
+
+runCmd :: Options -> Maybe FilePath -> IO ()
+runCmd _ Nothing        = error "please input config file path."
+runCmd opts (Just path) = do
+  config <- readConfig path
+  let plugin = hsequence
+             $ #logger <@=> MixLogger.buildPlugin logOpts
+            <: #config <@=> pure config
+            <: nil
+  Mix.run plugin $ generate path
+  where
+    logOpts = #handle  @= stdout
+           <: #verbose @= (opts ^. #verbose)
+           <: nil
+```
+
+`runCmd` 関数は[mix.hs](https://github.com/matsubara0507/mix.hs)を使って `RIO env ()` のボイラーテンプレートを減らしています（実はおいおい役に立ちます）。
 
 ## git コマンドを呼ぶ
 
-Haskellアプリケーションからgitコマンドを実行するにはShellyを使うことにします。
-そこで、mix.hsのshellプラグインを使うことで簡単に実装することができます。
+Haskellアプリケーションからgitコマンドを実行するには[Shelly](https://hackage.haskell.org/package/shelly)を使うことにします。
+Shellyはmix.hsのshellプラグインを使うことで簡単に実装することができます。
 まずはコミットを作る部分を実装しましょう
 
 ```haskell
 import qualified Git -- 自作Shelly製gitコマンド関数群
-import           Mix
-import qualified Mix.Plugin.Shell       as MixShell
+import qualified Mix.Plugin.Shell as MixShell
 
 runCmd :: Options -> Maybe FilePath -> IO ()
 runCmd opts (Just path) = do
@@ -133,7 +152,7 @@ commitGeneratedFiles = do
 ```
 
 全ての差分はこの[PR](https://github.com/haskell-jp/antenna/pull/21)から確認できます。
-PRを見ればわかりますが、`runCmd` 関数に追記したのは `when (opts ^. #withCommit)` から始まる2行です（`Options` に `#withCommit` を追加しています）。
+`runCmd` 関数に追記したのは `when (opts ^. #withCommit)` から始まる2行です（`Options` に `#withCommit` を追加しています）。
 mix.hsのshellプラグインを使うことでShellyのログをだいたいそれっぽくrioのロガーに流してくれます。
 
 次に、`git push`も実装します
@@ -156,16 +175,16 @@ pushCommit = do
 
 前から使っている `gitConfig` は設定ファイルからgitコマンドに関する設定を取ってきています（例えば、どのファイルをコミットするかやどのブランチにプッシュするかなど）。
 
-差分があった場合は`git commit`を実行し、最後に`git push`するようなオプション、`--with-commit`と`--with-push`を実装できました（他にも実装していますが割愛）。
+これで、差分があった場合は`git commit`を実行し、最後に`git push`するようなオプション、`--with-commit`と`--with-push`を実装できました（他にも実装していますが割愛）。
 
 ## 毎時実行
 
 メインディッシュである毎時実行です。
-Haskell-jp Slackで、スケジューリング実行をHaskellアプリケーション内で行うのにちょうど良いパッケージはありますか？と尋ねたところcronというパッケージを紹介してもらいました（名前がややこしい笑）。
+Haskell-jp Slackで、スケジューリング実行をHaskellアプリケーション内で行うのにちょうど良いパッケージはありますか？と尋ねたところ[cron](https://hackage.haskell.org/package/cron)というパッケージを紹介してもらいました（名前がややこしい笑）。
 調べてみたところ、ちょうど良さそうなのでこれを使うことにします
 
 ```haskell
-import           System.Cron            (addJob, execSchedule)
+import System.Cron (addJob, execSchedule)
 
 main :: IO ()
 main = withGetOpt' "[options] [input-file]" opts $ \r args usage ->
@@ -184,10 +203,11 @@ withCron act t = do
 
 全ての差分はこの[PR](https://github.com/haskell-jp/antenna/pull/22)から確認できます。
 すっごい簡単ですね。
-
 ついでに、毎日実行と毎分実行するオプションも追加しています。
 
-# インスタンスを起動する
+これでアプリケーションの方は出来上がったので、こいつをGCEインスタンスで動作させてみましょう。
+
+# インスタンスで起動する
 
 まずはGCP Consoleからインスタンス作成します。
 構成は次の通りです
@@ -200,7 +220,7 @@ withCron act t = do
 GCP ConsoleからSSHして、docker コマンドをインストールします（やり方は[公式サイト](https://docs.docker.com/install/linux/docker-ce/ubuntu/)のをそのまま）。
 ここまでできたら試しに `sudo docker pull haskelljp/antenna` して最新のイメージを取得してみましょう。
 
-次に、GitHubにプッシュするためにSSH Keyを生成してデプロイキーを haskell-jp/Antenna に設定します。
+次に、GitHubにプッシュするためにSSH Keyを生成してデプロイキーを haskell-jp/antenna リポジトリに設定します。
 できたら適当に `git clone git@github.com:haskell-jp/antenna.git` してブランチを `gh-pages` に切り替えます。
 
 あとは次のコマンドでantennaプログラムを実行するだけです
