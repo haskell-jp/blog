@@ -15,7 +15,7 @@ Haskell-jpのコンテンツの一つとして[Haskell Antenna](https://haskell.
 
 [2019年の今頃、これを自動毎時更新しようと Drone Cloudによる毎時更新を設定しました](https://haskell.jp/blog/posts/2019/hourly-antenna.html)。
 
-しかし。。。なんと3月ぐらいからこれが止まっています（どうやら、[Drone Cloudのこの機能を利用してマイニングをした人がいたらしく止めてしまった](https://discourse.drone.io/t/cron-on-cloud-drone-io/3899/2)ようです）。
+しかし。。。なんと去年の3月ぐらいからこれが止まっています（どうやら、[Drone Cloudのこの機能を利用してマイニングをした人がいたらしく止めてしまった](https://discourse.drone.io/t/cron-on-cloud-drone-io/3899/2)ようです）。
 現在は**僕がだいたい毎朝1回、手動でCIを回しています**。。。
 
 ずっとなんとかしなきゃなぁと思い続けてはや9ヶ月。
@@ -113,7 +113,7 @@ runCmd opts (Just path) = do
            <: nil
 ```
 
-`runCmd` 関数は[mix.hs](https://github.com/matsubara0507/mix.hs)を使って `RIO env ()` のボイラーテンプレートを減らしています（実はおいおい役に立ちます）。
+`runCmd` 関数は[mix.hs](https://github.com/matsubara0507/mix.hs)を使って `RIO env ()` のボイラーテンプレートを減らしています。
 
 ## git コマンドを呼ぶ
 
