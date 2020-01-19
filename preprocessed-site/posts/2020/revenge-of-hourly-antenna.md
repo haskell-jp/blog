@@ -118,7 +118,7 @@ runCmd opts (Just path) = do
 ## git コマンドを呼ぶ
 
 Haskellアプリケーションからgitコマンドを実行するには[Shelly](https://hackage.haskell.org/package/shelly)を使うことにします。
-Shellyはmix.hsのshellプラグインを使うことで簡単に実装することができます。
+Shellyはmix.hsのshellプラグインを使うことで簡単に使用することができます。
 まずはコミットを作る部分を実装しましょう
 
 ```haskell
