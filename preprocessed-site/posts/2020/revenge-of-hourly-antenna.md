@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Nobutada MATSUBARA
 postedBy: <a href="https://matsubara0507.github.io/whoami">Nobutada MATSUBARA(@matsubara0507)</a>
-date: January 18, 2020
+date: January 19, 2020
 tags: Antenna
 ...
 ---
