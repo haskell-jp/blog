@@ -31,7 +31,7 @@ a {
 }
 a:hover,
 a:focus {
-  color: #0085a1;
+  color: #d66c79;
 }
 a img:hover,
 a img:focus {
@@ -231,7 +231,7 @@ hr.small {
 .post-preview > a:hover,
 .post-preview > a:focus {
   text-decoration: none;
-  color: #0085a1;
+  color: #d66c79;
 }
 .post-preview > a > .post-title {
   font-size: 30px;
@@ -255,7 +255,7 @@ hr.small {
 }
 .post-preview > .post-meta > a:hover,
 .post-preview > .post-meta > a:focus {
-  color: #0085a1;
+  color: #d66c79;
   text-decoration: underline;
 }
 @media only screen and (min-width: 768px) {
@@ -395,7 +395,7 @@ form .row:first-child .floating-label-form-group {
 ::selection {
   color: white;
   text-shadow: none;
-  background: #0085a1;
+  background: #d66c79;
 }
 img::selection {
   color: white;
