@@ -14,8 +14,8 @@ tags:
 
 # 📣`shouldBe`などは`property`の中でも使えるので使ってください！
 
-みなさんはHspecでQuickCheckを使ったProperty testを書く際、どのように書いているでしょうか？  
-例えばHspecのマニュアル https://hspec.github.io/quickcheck.html のように、Hspecにproperty testを組み込む例として、次のような例を挙げています。
+みなさんはHspecでQuickCheckを使ったproperty testを書く際、どのように書いているでしょうか？  
+例えば[Hspecのマニュアル](https://hspec.github.io/quickcheck.html)のように、Hspecにproperty testを組み込む例として、次のような例を挙げています。
 
 ```haskell
 describe "read" $ do
@@ -26,7 +26,7 @@ describe "read" $ do
 ※[こちらのコミット](https://github.com/hspec/hspec/blob/9f3f4c38952f526701a67b6e26336a3a5aec0e89/doc/quickcheck.md)の時点での話です。
 
 `property`関数に渡した関数<small>（以下、「`porperty`ブロック」と呼びます）</small>の中ではHspecでおなじみの`shouldBe`などのexpectation用関数を使わず、`==`で結果を判定してますよね。  
-このサンプルに倣って、Hspecで書いたテストにProperty testを書くときは、`==`を使ってる方が多いんじゃないでしょうか？
+このサンプルに倣って、Hspecで書いたテストにproperty testを書くときは、`==`を使ってる方が多いんじゃないでしょうか？
 
 ところが、この記事のタイトルに書いたとおり、実際のところ`property`ブロックの中でも`shouldBe`は利用できます。  
 つまりは、こちら👇のようにも書ける、ということです！
