@@ -14,7 +14,7 @@ tags:
 
 # 📣`shouldBe`などは`property`の中でも使えるので使ってください！
 
-みなさんはHspecでQuickcheckを使ったProperty testを書く際、どのように書いているでしょうか？  
+みなさんはHspecでQuickCheckを使ったProperty testを書く際、どのように書いているでしょうか？  
 例えばHspecのマニュアル https://hspec.github.io/quickcheck.html のように、Hspecにproperty testを組み込む例として、次のような例を挙げています。
 
 ```haskell
@@ -101,7 +101,13 @@ QuickCheckやHspecのドキュメントをつぶさに読んだことがある�
 QuickCheckの[`property`関数は、`Testable`という型クラスのメソッド](http://hackage.haskell.org/package/QuickCheck-2.13.2/docs/Test-QuickCheck.html#t:Testable)であるため、`Testable`のインスタンスでなければ使えないはずです。  
 Hspecの`shouldBe`などが返す値は型シノニムのたらい回しをたどればわかるとおり、結局のところ`IO ()`型の値です。  
 ところが`Testable`のインスタンス一覧を見る限り、`IO a`は`Testable`のインスタンスではありません。  
-先ほどの例のように`property $ \x -> (read . show) x ``shouldBe`` (x + 1 :: Int)`と書いた場合における、関数型`(a -> prop)`のインスタンスは、`(Arbitrary a, Show a, Testable prop) => Testable (a -> prop)`という定義のとおり、関数の戻り値の型が`Testable`のインスタンスでないと、型チェックを通らないはずです。  
+先ほどの例のように
+
+```haskell
+property $ \x -> (read . show) x `shouldBe` (x + 1 :: Int)
+```
+
+と書いた場合における、関数型`(a -> prop)`のインスタンスは、`(Arbitrary a, Show a, Testable prop) => Testable (a -> prop)`という定義のとおり、関数の戻り値の型が`Testable`のインスタンスでないと、型チェックを通らないはずです。  
 `Testable`のインスタンスでない、`IO ()`を返しているにも関わらず型エラーが起きなかったのは、一体なぜでしょうか？
 
 その秘密を探るべく、GHCiを立ち上げましょう。  
