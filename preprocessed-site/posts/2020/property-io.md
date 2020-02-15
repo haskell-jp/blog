@@ -145,7 +145,7 @@ instance [safe] Testable Test.HUnit.Lang.Assertion
 ありました！💡
 最後の方にある`instance [safe] Testable Test.HUnit.Lang.Assertion`という行に注目してください。  
 [`Test.HUnit.Lang.Assertion`](http://hackage.haskell.org/package/HUnit-1.6.0.0/docs/Test-HUnit-Lang.html#t:Assertion)は、`IO ()`の型シノニムであり、Hspecでも間接的に型シノニムとして参照されています[^hspec-expectation]。  
-要するに`instance [safe] Testable Test.HUnit.Lang.Assertion`という行は`instance [safe] Testable (IO ())`と読み替えることができます<small>（`[safe]`という表記が指しているもの付いてはここでは省略します！すみません！）</small>。
+要するに`instance [safe] Testable Test.HUnit.Lang.Assertion`という行は`instance [safe] Testable (IO ())`と読み替えることができます<small>（`[safe]`という表記が指しているものについてはここでは省略します！すみません！）</small>。
 
 [^hspec-expectation]: この節の冒頭で「型シノニムのたらい回し」と呼んだものを追いかけてみましょう。  
 おなじみ[`shouldBe`](http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#v:shouldBe)は[`Expectation`](http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#t:Expectation)という型の値を返します。  
