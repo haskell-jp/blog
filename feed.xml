@@ -8,8 +8,177 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2020-01-19T00:00:00Z</updated>
+    <updated>2020-02-27T00:00:00Z</updated>
     <entry>
+    <title>HspecでQuickCheckするときもshouldBeなどが使えます</title>
+    <link href="https://haskell.jp/blog/posts/2020/property-io.html" />
+    <id>https://haskell.jp/blog/posts/2020/property-io.html</id>
+    <published>2020-02-27T00:00:00Z</published>
+    <updated>2020-02-27T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>タイトルがほとんどすべてなんですが詳細を解説します。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#shouldbeなどはpropertyの中でも使えるので使ってください" title="shouldbeなどはpropertyの中でも使えるので使ってください">📣<code>shouldBe</code>などは<code>property</code>の中でも使えるので使ってください！</a></li>
+<li><a href="#なぜ使える" title="なぜ使える">😕なぜ使える？</a></li>
+</ul>
+</div>
+</div>
+<h1 id="shouldbeなどはpropertyの中でも使えるので使ってください"><span class="link-to-here-outer"><a href="#shouldbeなどはpropertyの中でも使えるので使ってください" title="shouldbeなどはpropertyの中でも使えるので使ってください"><span class="link-to-here">Link to<br />
+here</span></a></span>📣<code>shouldBe</code>などは<code>property</code>の中でも使えるので使ってください！</h1>
+<p>みなさんは<span class="ascii">Hspec</span>で<span class="ascii">QuickCheck</span>を使った<span class="ascii">property test</span>を書く際、どのように書いているでしょうか？<br />
+例えば<a href="https://hspec.github.io/quickcheck.html"><span class="ascii">Hspec</span>のマニュアル</a>のように、<span class="ascii">Hspec</span>に<span class="ascii">property test</span>を組み込む例として、次のような例を挙げています。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>※<a href="https://github.com/hspec/hspec/blob/9f3f4c38952f526701a67b6e26336a3a5aec0e89/doc/quickcheck.md">こちらのコミット</a>の時点での話です。</p>
+<p><code>property</code>関数に渡した関数<small>（以下、「<code>porperty</code>ブロック」と呼びます）</small>の中では<span class="ascii">Hspec</span>でおなじみの<code>shouldBe</code>などの<span class="ascii">expectation</span>用関数を使わず、<code>==</code>で結果を判定してますよね。<br />
+このサンプルに倣って、<span class="ascii">Hspec</span>で書いたテストに<span class="ascii">property test</span>を書くときは、<code>==</code>を使ってる方が多いんじゃないでしょうか？</p>
+<p>ところが、この記事のタイトルに書いたとおり、実際のところ<code>property</code>ブロックの中でも<code>shouldBe</code>は利用できます。<br />
+つまりは、こちら👇のようにも書ける、ということです！</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>このように<code>property</code>ブロックの中でも<code>shouldBe</code>や<code>shouldSatisfy</code>といった、<span class="ascii">Hspec</span>固有の<span class="ascii">expectation</span>関数を使うことの利点は、単に構文を他のテストと一貫させることができる、だけではありません。<br />
+<strong>テストが失敗したときのエラーが分かりやすくなる</strong>、という遥かに重大なメリットがあるのです。</p>
+<p>試しにわざとテストを失敗させてみましょう。<br />
+先ほどの例<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>における<code>(x :: Int)</code>という式を<code>(x + 1 :: Int)</code>に変えれば、必ず失敗するはずです。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
+<a class="sourceLine" id="cb4-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>※お手元で試す場合は<a href="https://github.com/hspec/hspec/blob/9f3f4c38952f526701a67b6e26336a3a5aec0e89/doc/_includes/QuickCheck.hs">こちら</a>から元のコードを持ってきて、<code>stack build hspec</code>なりを実行した上で修正・実行するのが簡単でしょう。</p>
+<p>結果、下記のようなエラーメッセージとなるでしょう。</p>
+<pre><code>...
+  1) read, when used with ints, is inverse to show
+       Falsifiable (after 1 test):
+         0</code></pre>
+<p>このエラーでは「テストが失敗したこと」と「どんな入力を<span class="ascii">QuickCheck</span>が生成したか」までしか教えてくれず、わかりづらいですよね。</p>
+<p>一方、<code>shouldBe</code>を使用して以下のように書き換えると…</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb6-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>エラーメッセージはこう👇なります。</p>
+<pre><code>  1) read, when used with ints, is inverse to show
+       Falsifiable (after 1 test):
+         0
+       expected: 1
+        but got: 0</code></pre>
+<p>「テストが失敗したこと」と「どんな入力を<span class="ascii">QuickCheck</span>が生成したか」に加えて、<code>shouldBe</code>に与えた両辺の式がどのような値を返したか、まで教えてくれました！<br />
+今回の例は極めて単純なのであまり役に立たないかも知れませんが、あなたが書いた関数をテストするときはやっぱり「期待される結果」と「実際の結果」両方がわかる方がデバッグしやすいですよね！</p>
+<p>と、いうわけで今後は<code>property</code>関数<small>（あるいはその省略版の<code>prop</code>関数）</small>に渡した関数の中でも<code>shouldBe</code>などを必ず使ってください！<br />
+<small>（せっかくなんで、今回紹介したドキュメントを<a href="https://github.com/hspec/hspec/pull/429">修正するための<span class="ascii">Pull request</span></a>を送っておきました。これがマージされればこの記事の情報の大半は時代遅れになります）</small></p>
+<h1 id="なぜ使える"><span class="link-to-here-outer"><a href="#なぜ使える" title="なぜ使える"><span class="link-to-here">Link to<br />
+here</span></a></span>😕なぜ使える？</h1>
+<p>しかしここで、一つ疑問が残ります。<br />
+<span class="ascii">QuickCheck</span>や<span class="ascii">Hspec</span>のドキュメントをつぶさに読んだことがある方はお気づきでしょう。<br />
+<span class="ascii">QuickCheck</span>の<a href="http://hackage.haskell.org/package/QuickCheck-2.13.2/docs/Test-QuickCheck.html#t:Testable"><code>property</code>関数は、<code>Testable</code>という型クラスのメソッド</a>であるため、<code>Testable</code>のインスタンスでなければ使えないはずです。<br />
+<span class="ascii">Hspec</span>の<code>shouldBe</code>などが返す値は型シノニムのたらい回しをたどればわかるとおり、結局のところ<code>IO ()</code>型の値です。<br />
+ところが<code>Testable</code>のインスタンス一覧を見る限り、<code>IO a</code>は<code>Testable</code>のインスタンスではありません。<br />
+先ほどの例のように</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1">property <span class="op">$</span> \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>と書いた場合における、関数型<code>(a -&gt; prop)</code>のインスタンスは、<code>(Arbitrary a, Show a, Testable prop) =&gt; Testable (a -&gt; prop)</code>という定義のとおり、関数の戻り値の型が<code>Testable</code>のインスタンスでないと、型チェックを通らないはずです。<br />
+<code>Testable</code>のインスタンスでない、<code>IO ()</code>を返しているにも関わらず型エラーが起きなかったのは、一体なぜでしょうか？</p>
+<p>その秘密を探るべく、<span class="ascii">GHCi</span>を立ち上げましょう。<br />
+先ほどの例のソースコードを<code>ghci</code>コマンドに読ませれば、まとめて<span class="ascii">Hspec</span>のモジュールも<code>import</code>できるので簡単です。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec ghci .\QuickCheck.hs</a></code></pre></div>
+<p><span class="ascii">GHCi</span>が起動したら、<code>:i Testable</code>と入力して、<code>Testable</code>型クラスのインスタンス一覧を出力しましょう。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>i <span class="dt">Testable</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">class</span> <span class="dt">Testable</span> prop <span class="kw">where</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="ot">  property ::</span> prop <span class="ot">-&gt;</span> <span class="dt">Property</span></a>
+<a class="sourceLine" id="cb10-4" title="4">  <span class="ot">{-# MINIMAL property #-}</span></a>
+<a class="sourceLine" id="cb10-5" title="5">        <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Property</span></a>
+<a class="sourceLine" id="cb10-7" title="7">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> prop <span class="ot">=&gt;</span> <span class="dt">Testable</span> (<span class="dt">Gen</span> prop)</a>
+<a class="sourceLine" id="cb10-9" title="9">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Discard</span></a>
+<a class="sourceLine" id="cb10-11" title="11">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
+<a class="sourceLine" id="cb10-12" title="12"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb10-13" title="13">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
+<a class="sourceLine" id="cb10-14" title="14"><span class="kw">instance</span> [safe] (<span class="dt">Arbitrary</span> a, <span class="dt">Show</span> a, <span class="dt">Testable</span> prop) <span class="ot">=&gt;</span></a>
+<a class="sourceLine" id="cb10-15" title="15">                <span class="dt">Testable</span> (a <span class="ot">-&gt;</span> prop)</a>
+<a class="sourceLine" id="cb10-16" title="16">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
+<a class="sourceLine" id="cb10-17" title="17"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> ()</a>
+<a class="sourceLine" id="cb10-18" title="18">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
+<a class="sourceLine" id="cb10-19" title="19"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Test.HUnit.Lang.Assertion</span></a>
+<a class="sourceLine" id="cb10-20" title="20">  <span class="co">-- Defined in ‘Test.QuickCheck.IO’</span></a></code></pre></div>
+<p>ありました！💡 最後の方にある<code>instance [safe] Testable Test.HUnit.Lang.Assertion</code>という行に注目してください。<br />
+<a href="http://hackage.haskell.org/package/HUnit-1.6.0.0/docs/Test-HUnit-Lang.html#t:Assertion"><code>Test.HUnit.Lang.Assertion</code></a>は、<code>IO ()</code>の型シノニムであり、<span class="ascii">Hspec</span>でも間接的に型シノニムとして参照されています<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+要するに<code>instance [safe] Testable Test.HUnit.Lang.Assertion</code>という行は<code>instance [safe] Testable (IO ())</code>と読み替えることができます<small>（<code>[safe]</code>という表記が指しているものについてはここでは省略します！すみません！）</small>。</p>
+<p>紹介したとおり<code>Testable</code>のドキュメントには<code>Testable Assertion</code>なんて記載はありませんし、じゃあ一体どこで定義したのか、というとそう、続く行に<code>-- Defined in ‘Test.QuickCheck.IO’</code>と書かれているとおり、<a href="https://hackage.haskell.org/package/quickcheck-io-0.2.0/docs/Test-QuickCheck-IO.html"><code>Test.QuickCheck.IO</code></a>というモジュールで定義されています！</p>
+<p><code>Test.QuickCheck.IO</code>は、名前のとおり<span class="ascii">QuickCheck</span>の<code>Testable</code>について、<code>IO</code>の<span class="ascii">orphan instance</span>を定義するためのモジュールです。<br />
+これを<a href="https://github.com/hspec/hspec/blob/226510631f24b674827e99d17d10f9f92440c5a9/hspec-core/src/Test/Hspec/Core/QuickCheckUtil.hs#L18"><code>import</code>している</a>が故に、<span class="ascii">Hspec</span>では<code>property</code>ブロックの中で<code>shouldBe</code>などが利用できるんですね！</p>
+<p>結論<span class="ascii">:</span></p>
+<ul>
+<li><span class="ascii">orphan instance</span>わかりづらい😥</li>
+<li><span class="ascii">GHCi</span>の<code>:i</code>は<span class="ascii">orphan instance</span>であろうとインスタンスを定義した箇所を見つけてくれるから便利！</li>
+</ul>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>この節の冒頭で「型シノニムのたらい回し」と呼んだものを追いかけてみましょう。<br />
+おなじみ<a href="http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#v:shouldBe"><code>shouldBe</code></a>は<a href="http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#t:Expectation"><code>Expectation</code></a>という型の値を返します。<br />
+そして<code>Expectation</code>は<code>Assertion</code>の型シノニムであり、クリックすると<a href="http://hackage.haskell.org/package/HUnit-1.6.0.0/docs/Test-HUnit-Lang.html#t:Assertion"><code>Test.HUnit.Lang.Assertion</code></a>であることがわかります。<br />
+そして<code>Assertion</code>はそう、<code>type Assertion = IO ()</code>とあるとおり<code>IO ()</code>なのです。やっと知ってる型にたどり着きました😌。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2020/revenge-of-hourly-antenna.html" style="margin-left: auto;" lang="ja">リベンジ・オブ・毎時更新 Haskell Antenna</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>リベンジ・オブ・毎時更新 Haskell Antenna</title>
     <link href="https://haskell.jp/blog/posts/2020/revenge-of-hourly-antenna.html" />
     <id>https://haskell.jp/blog/posts/2020/revenge-of-hourly-antenna.html</id>
@@ -226,6 +395,9 @@ here</span></a></span>今後やりたいこと</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2020/property-io.html" lang="ja">HspecでQuickCheckするときもshouldBeなどが使えます</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2020,140 +2192,6 @@ here</span></a></span><span class="ascii">Visible dependent quantification</span
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/hiw-ghc8.8.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、GHC 8.8で導入された機能</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>HIW 2019で発表された、GHC 8.8で導入された機能</title>
-    <link href="https://haskell.jp/blog/posts/2019/hiw-ghc8.8.html" />
-    <id>https://haskell.jp/blog/posts/2019/hiw-ghc8.8.html</id>
-    <published>2019-09-11T00:00:00Z</published>
-    <updated>2019-09-11T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p>こんにちは。<br />
-今回からいくつか、「<a href="https://icfp19.sigplan.org/home/hiw-2019#About"><span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop 2019</span></a>」に私が先月参加した際のレポートとして、印象深い発表をテーマごとに分けた短い記事を執筆します。<br />
-最近公開された<a href="https://www.haskell.org/ghc/download_ghc_8_8_1.html"><span class="ascii">GHC 8.8</span></a>の話はもちろん、未来の<span class="ascii">GHC</span>やその他の<span class="ascii">Haskell</span>の処理系を知るのによいイベントでしたので、その一部だけでも伝われば幸いです。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#そもそもhaskell-implementors-workshop-hiwとは" title="そもそもhaskell-implementors-workshop-hiwとは">そもそも<span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop (HIW)</span>とは？</a></li>
-<li><a href="#hie-files-in-ghc-8.8" title="hie-files-in-ghc-8.8"><span class="ascii">HIE files in GHC 8.8</span></a></li>
-<li><a href="#ghc-status-report" title="ghc-status-report"><span class="ascii">GHC status report</span></a></li>
-<li><a href="#とりあえず今回はここまで" title="とりあえず今回はここまで">とりあえず今回はここまで</a></li>
-</ul>
-</div>
-</div>
-<h1 id="そもそもhaskell-implementors-workshop-hiwとは"><span class="link-to-here-outer"><a href="#そもそもhaskell-implementors-workshop-hiwとは" title="そもそもhaskell-implementors-workshop-hiwとは"><span class="link-to-here">Link to<br />
-here</span></a></span>そもそも<span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop (HIW)</span>とは？</h1>
-<p>シリーズ（？）第<span class="ascii">1</span>回目なので、簡単に<span class="ascii">HIW</span>そのものについて紹介しておきましょう。<br />
-<span class="ascii">HIW</span>は、<a href="https://icfp19.sigplan.org/home"><span class="ascii">ICFP (International Conference on Functional Programming)</span></a>という関数型プログラミングについての国際会議に併設された、<span class="ascii">Haskell</span>の実装者のためのワークショップです。<br />
-名前の通り、<span class="ascii">GHC</span>をはじめとする<span class="ascii">Haskell</span>の処理系<small>（あるいは、<span class="ascii">Haskell</span>で実装された言語処理系）</small>の実装に関する発表だけでなく、かなり緩いテーマの<span class="ascii">Lightning Talk</span>の時間があったり、<span class="ascii">GHC</span>の将来の方向性について自由に議論する時間もあったりしました。</p>
-<p>今回はそのうち、掲題のとおり「<span class="ascii">HIW 2019</span>で発表された、<span class="ascii">GHC 8.8</span>で導入された機能」を紹介します。まずは「<span class="ascii">HIE files in GHC 8.8</span>」から。</p>
-<h1 id="hie-files-in-ghc-8.8"><span class="link-to-here-outer"><a href="#hie-files-in-ghc-8.8" title="hie-files-in-ghc-8.8"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">HIE files in GHC 8.8</span></h1>
-<p>発表者<span class="ascii">: Zubin Duggal, Matthew Pickering</span> <em><span class="ascii">University of Bristol</span></em></p>
-<p><span class="ascii">GHC 8.8</span>で新たに追加された、<span class="ascii">HIE</span><small>（「<span class="ascii">Haskell Interface Extended</span>」の略と思われます）</small>ファイルについての発表です。<br />
-コンパイル時に<span class="ascii">GHC</span>が得たモジュールの情報を、<a href="https://github.com/haskell/haskell-ide-engine"><span class="ascii">Haskell IDE Engine</span></a>などの<span class="ascii">IDE</span>のバックエンドが再利用しやすい形で出力する機能です。<br />
-従来<span class="ascii">Haskell IDE Engine</span><small>（その裏で使われている<span class="ascii">ghc-mod</span>）</small>や<a href="https://github.com/ndmitchell/ghcid"><span class="ascii">ghcid</span></a>、<a href="https://github.com/chrisdone/intero"><span class="ascii">intero</span></a>などの、「<span class="ascii">IDE</span>バックエンド」<small>（エディターが入力の補完や入力したソースコードにおけるエラーを表示する際に通信するソフトウェア）</small>は、自前で<span class="ascii">GHC API</span>や<span class="ascii">GHCi</span>を呼ぶことで、型チェックしたり定義ジャンプに必要な位置情報を収集したりしていたのですが、そうした情報の収集をすべて<span class="ascii">GHC</span>自身が<span class="ascii">HIE</span>ファイルを出力することで賄えるようになる、ということです。</p>
-<p>私は従来開発中、<code>stack test --pedantic --file-watch</code>などと<span class="ascii">Neovim</span>のターミナル機能で実行して実行ファイルをビルドしつつ、<span class="ascii">HIE</span>にエラーの表示や入力の補完をさせていたのですが、その際も二重にソースコードが解析されていたんですね！<br />
-私がそのようにわざわざ<code>stack test</code>と<span class="ascii">HIE</span>を並行して実行させているのは、<span class="ascii">HIE</span>がしばしばフリーズしてしまったり<small>（<span class="ascii">Neovim</span>ごと再起動すれば直ることも多いんですが…😰）</small>、<span class="ascii">HIE</span>だけでは実行ファイルの作成やテストの実行ができない、という理由があるためです。<br />
-<code>stack test</code>だけで<span class="ascii">HIE</span>ファイルが生成されるようになれば、エラーに関する情報やソースコードの解析結果といった情報が一元化されるので、より安定的に、より少ないリソースで<span class="ascii">HIE</span>が使えるようになるでしょう。本家<span class="ascii">Haskell IDE Engine</span>がサポートする日が楽しみです。</p>
-<p>この、<span class="ascii">HIE</span>ファイルを利用するアプリケーションの例も紹介されました。<br />
-<a href="https://github.com/wz1000/hie-lsp"><span class="ascii">hie-lsp</span></a>という小さな<span class="ascii">Language Server Protocol</span>の実装に加え、<a href="https://github.com/mpickering/hie-lsif"><span class="ascii">hie-lsif</span></a>という、<span class="ascii">HIE</span>ファイルから「<a href="https://github.com/microsoft/language-server-protocol/blob/master/indexFormat/specification.md"><span class="ascii">Language Server Index Format (LSIF)</span></a>」形式のファイルを作成するコマンドが印象的でした。<br />
-この<span class="ascii">LSIF</span>というファイルは、例えば<span class="ascii">GitHub</span>のリポジトリ上でブラウザからソースコードを閲覧する際にも、定義ジャンプといった便利な機能を使えるようにするためのものです。リポジトリに置いたソースコードを処理系がどのように解釈したかを保存しておくことで、<span class="ascii">Language Server</span>はじめ処理系を実行することなく利用できるようにするものだそうです。<br />
-現状は仕様策定中なためか、実際に<span class="ascii">LSIF</span>を解釈するアプリケーションは見つかりませんでしたが、今後の活用に期待が高まりますね。</p>
-<p>加えて、<span class="ascii">HIE</span>ファイルが将来的にサポートしたい機能などについても発表されました。</p>
-<ul>
-<li>型クラスのインスタンスが、具体的にどの型のインスタンスとして解決されたかの出力
-<ul>
-<li>定義ジャンプしたときに、型クラス自身の宣言ではなく、実装に飛べるようにするため</li>
-</ul></li>
-<li>従来<span class="ascii">GHC</span>が分割コンパイルをサポートするために、モジュールの依存情報を出力していた「インターフェースファイル<small>（<code>.hi</code>という拡張子で出力されているあのファイル）</small>」との統合</li>
-<li>すべての型推論の結果</li>
-</ul>
-<h1 id="ghc-status-report"><span class="link-to-here-outer"><a href="#ghc-status-report" title="ghc-status-report"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">GHC status report</span></h1>
-<p>発表者<span class="ascii">: Simon Peyton Jones</span> <em><span class="ascii">Microsoft, UK</span></em></p>
-<p><span class="ascii">GitLab</span>への移行や<span class="ascii">Hadrian</span>と呼ばれる新しいビルドシステムの導入など、インフラ周りでいろいろ変更があったこともあり、遅れてしまいましたが<span class="ascii">GHC 8.8</span>がもうすぐ出るよ、という内容の発表でした<small>（発表当時。もう<a href="https://www.haskell.org/ghc/blog/20190825-ghc-8.8.1-released.html"><span class="ascii">GHC 8.8</span>はリリースされています</a>）</small>。</p>
-<p>言及された主な追加機能は以下のとおりです。</p>
-<ul>
-<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeApplications"><code>TypeApplications</code></a>という言語拡張が、型変数だけでなくカインド変数に対しても適用できるようになりました。<br />
-正直に言って、個人的に使いどころがまだまだなさそうな機能ではありますが…。</li>
-<li><p><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ScopedTypeVariables"><code>ScopedTypeVariables</code></a>という言語拡張を使った場合に、パターンマッチした変数に型注釈を付けることができるようになる、という機能がありまして、これが拡張されました。<br />
-具体的には、従来下記のように書くことで、関数自体の型注釈にある型変数<code>a</code>と、パターンマッチした変数<code>x</code>に型注釈した<code>b</code>が等しくなるように書くことができたのを、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">f ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Maybe</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb1-2" title="2">f (<span class="dt">Just</span> (<span class="ot">x ::</span> b)) <span class="ot">=</span> <span class="co">{- ... -}</span></a></code></pre></div>
-<p>さらに拡張して、関数自体の型注釈にある型変数<strong>ではない</strong><code>Int</code>と、パターンマッチした変数<code>x</code>に型注釈した<code>b</code>が等しくなるように書くことができるようにした、という拡張です。<br />
-あたかも型変数でパターンマッチしているかのようですね。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">f ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb2-2" title="2">f (<span class="dt">Just</span> (<span class="ot">x ::</span> b)) <span class="ot">=</span> <span class="co">{- ... -}</span></a></code></pre></div>
-<p>一体何の役に立つの？とも思いましたが、<a href="https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0128-scoped-type-variables-types.rst#128motivation">この修正に向けた提案</a>曰く、</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">f ::</span> <span class="dt">ReallyReallyReallyReallyLongTypeName</span> <span class="ot">-&gt;</span> <span class="dt">T</span></a>
-<a class="sourceLine" id="cb3-2" title="2">f (<span class="ot">x ::</span> a) <span class="ot">=</span> … (<span class="fu">read</span> <span class="st">&quot;&quot;</span><span class="ot"> ::</span> a) …</a></code></pre></div>
-<p>と書くことで、長い型名に対して別名を付けることができるようになる、というメリットがあるそうです。なるほど💡</p></li>
-</ul>
-<h1 id="とりあえず今回はここまで"><span class="link-to-here-outer"><a href="#とりあえず今回はここまで" title="とりあえず今回はここまで"><span class="link-to-here">Link to<br />
-here</span></a></span>とりあえず今回はここまで</h1>
-<p>テーマを絞って短い記事にした方が<span class="ascii">SEO</span>的にいいんじゃないかと思いまして、今回は敢えて紹介する発表を絞りました。<br />
-今後は下記のテーマについて紹介する予定です。</p>
-<ul>
-<li><span class="ascii">HIW 2019</span>で発表された、これからの<span class="ascii">GHC</span>に入るであろう機能</li>
-<li><span class="ascii">HIW 2019</span>で発表された、<span class="ascii">GHC</span>以外の言語処理系</li>
-</ul>
-<p>また、<span class="ascii">HIW</span>と同じく<span class="ascii">ICFP 2019</span>に併設して開催された、<a href="https://icfp19.sigplan.org/home/haskellsymp-2019"><span class="ascii">Haskell Symposium 2019</span></a>の発表についても別途共有する予定です。<br />
-乞うご期待。<br />
-<span class="ascii">hask(_ _)eller</span></p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/hiw-ghc-future.html" lang="ja">HIW 2019で発表された、GHC 8.10に導入されるであろう機能</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/fallible.html" style="margin-left: auto;" lang="ja">fallibleというパッケージをリリースしました</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
