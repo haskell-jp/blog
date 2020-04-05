@@ -8,8 +8,492 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2020-02-27T00:00:00Z</updated>
+    <updated>2020-04-05T00:00:00Z</updated>
     <entry>
+    <title>IO モナドと副作用</title>
+    <link href="https://haskell.jp/blog/posts/2020/io-monad-and-sideeffect.html" />
+    <id>https://haskell.jp/blog/posts/2020/io-monad-and-sideeffect.html</id>
+    <published>2020-04-05T00:00:00Z</published>
+    <updated>2020-04-05T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><span class="ascii">Haskell</span> は他のプログラミング言語には見られない特徴を多く持っている。その中の<span class="ascii">1</span>つが純粋性だ。<span class="ascii">Haskell</span> は純粋関数型プログラミング言語であることを、売りの<span class="ascii">1</span>つにしている。しかし、純粋性は多くの場合表現力の縮小を招く。ところが <span class="ascii">Haskell</span> は、<span class="ascii">IO</span>モナドの導入により、通常のプログラミング言語と変わらぬ表現力を持てるようになっている。これは、とても驚くべきことだ。しかし、同時にこれは <span class="ascii">Haskell</span> 入門者にとって、大きな混乱を招いているようだ。</p>
+<p>今回は、そもそも純粋性とはなんなのか、なぜ他の言語は純粋性を担保できないのか、そして <span class="ascii">Haskell</span> はどうやって <span class="ascii">IO</span> モナドにより純粋性を担保しつつ他の言語と変わらない表現力を持てるようにしているのかについて、触れていきたいと思う。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#純粋性とは何か" title="純粋性とは何か">純粋性とは何か</a></li>
+<li><a href="#動作を扱う関数" title="動作を扱う関数">動作を扱う関数</a></li>
+<li><a href="#io-モナド" title="io-モナド"><span class="ascii">IO</span> モナド</a></li>
+<li><a href="#動作を第一級で取り扱う" title="動作を第一級で取り扱う">動作を第一級で取り扱う</a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+<li><a href="#おまけ-ioモナドの実装" title="おまけ-ioモナドの実装">おまけ<span class="ascii">: IO</span>モナドの実装</a></li>
+</ul>
+</div>
+</div>
+<h2 id="純粋性とは何か"><span class="link-to-here-outer"><a href="#純粋性とは何か" title="純粋性とは何か"><span class="link-to-here">Link to<br />
+here</span></a></span>純粋性とは何か</h2>
+<p><span class="ascii">Haskell</span> は純粋関数型プログラミング言語 <span class="ascii">(purely functional programming language)</span> を売りにしている。関数型 <span class="ascii">(functional)</span> の部分は他に任せるとして、ここでは<strong>純粋 <span class="ascii">(purely)</span></strong> の部分に着目しよう。純粋とはなんだろうか？ どういう条件を満たせば、プログラミング言語は純粋と言えるんだろうか？ <a href="https://www.haskell.org/"><span class="ascii">Haskell</span> の公式サイト</a> ではこう述べられている<span class="ascii">:</span></p>
+<blockquote>
+<p><span class="ascii">Every function in Haskell is a function in the mathematical sense (i.e.,</span> “<span class="ascii">pure</span>”<span class="ascii">).</span></p>
+<p><span class="ascii">Haskell</span> の全ての関数は、数学の意味での関数 <span class="ascii">(</span>つまり「純粋」<span class="ascii">)</span> です。</p>
+<p>– <span class="ascii">https://www.haskell.org/</span></p>
+</blockquote>
+<p>ふむ、どうやら全ての関数が、数学的な意味での関数であれば、そのプログラミング言語は純粋と言えるようだ。ところで、数学的な意味での関数とはなんだろうか？ 関数が純粋とはどういうことを指すんだろうか？ これは噛み砕くと、</p>
+<ol type="1">
+<li><p>関数はどんな時も、同じ引数を与えられたら同じ結果を返す</p>
+<p>つまり、関数は毎回まっさらな状態で始まり、前にどんなことがあったのか、今巷でどういうことが起きてるのかを全く考慮に入れず、ただ受け取った引数から得られる情報だけを使って結果を計算する。</p></li>
+<li><p>関数は、副作用を持たない</p>
+<p>つまり、関数は計算の結果を返す以外の役割を持たない。例えば、関数を<span class="ascii">1</span>回呼び出すのと、関数を<span class="ascii">1</span>回呼び出してその結果を捨てまたもう<span class="ascii">1</span>回呼び出すので結果が変わることはない。</p></li>
+</ol>
+<p>という<span class="ascii">2</span>つの性質にまとめられる <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。具体的には、関数 <code>f</code> が、</p>
+<ul>
+<li><span class="ascii">1</span>回目の <code>f 1</code> では <code>2</code> を返し、<span class="ascii">2</span>回目の <code>f 1</code> では <code>3</code> を返す</li>
+</ul>
+<p>という動作をするなら、これは <span class="ascii">1</span> の条件にも <span class="ascii">2</span> の条件にも違反することになる。では、関数 <code>printString</code> が</p>
+<ul>
+<li>受け取った文字列をターミナルに出力し、<code>()</code> を結果として返す</li>
+</ul>
+<p>ことを考えよう。関数 <code>printString</code> は常に <code>()</code> を返すので <span class="ascii">1</span> の条件にはマッチする。しかし、この関数は、与えられた文字列をターミナルに出力するので、<span class="ascii">1</span>回呼び出すか<span class="ascii">2</span>回呼び出すかは重要な違いになる。よって、<span class="ascii">2</span> 番目の条件を満たさないため、純粋ではない。逆に、関数 <code>getNowYear</code> が、</p>
+<ul>
+<li>完全に副作用を持たず、何回呼び出しても他には何の影響もないが、今の年数を返す関数で、年が変わるごとに結果が変わる</li>
+</ul>
+<p>となると <span class="ascii">1</span> の条件に違反するため、やはり純粋ではない。関数が純粋になるためには、何の面白味もないかもしれないが、<span class="ascii">1</span> と <span class="ascii">2</span> の条件を守らないといけない。決して夕日が沈むと突然結果を出さなくなったり、関数を呼ぶ度に近所の犬が吠えたり静かになったりしてはいけない。</p>
+<p>さて、このような定義なら、多くのプログラミング言語の関数が純粋性を持たないのは納得できるだろう。同じ引数でも呼ぶタイミングによって結果が変わる関数、関数を呼ぶと全く予期しなかったスイッチが作動し、別の関数の結果が突然変わるようなプログラムを思いつく人は少なくないはずだ。ただ、その人たちは同時にこうも思うだろう。</p>
+<blockquote>
+<p>そのような関数はプログラミングでは必要不可欠だ。<span class="ascii">Haskell</span> はその必要不可欠な関数を、純粋性のためだけに書けないようにしてるのだろうか？</p>
+</blockquote>
+<p>その疑問は至極妥当で、当然のものだ。そして安心して欲しい。その質問に対する答えは <span class="ascii">NO</span> だ。<span class="ascii">Haskell</span> は純粋性を保ちながら、そのような必要不可欠な関数を表現する方法を持っている。</p>
+<h2 id="動作を扱う関数"><span class="link-to-here-outer"><a href="#動作を扱う関数" title="動作を扱う関数"><span class="link-to-here">Link to<br />
+here</span></a></span>動作を扱う関数</h2>
+<p><span class="ascii">Haskell</span> には、ターミナルに出力する動作を扱う関数や、ターミナルへの入力を受け取る動作を扱う関数が存在する。これは、どうも先ほどまでの純粋性の定義とは相容れないように見える。<span class="ascii">Haskell</span> の純粋関数型プログラミング言語という性質は、そのような関数を除いては純粋という意味なんだろうか？ それなら他のプログラミング言語でも事情は変わらない。ところが、<span class="ascii">Haskell</span> はそのような関数まで純粋なのだ。そのカラクリについて、見ていこう。</p>
+<p><span class="ascii">Haskell</span> でターミナルに文字列を <span class="ascii">(</span>改行付きで<span class="ascii">)</span> 出力する動作を扱う関数として、<code>putStrLn</code> という関数がある。これを題材として扱っていこう。この関数はどういう型を持っているのだろう？ もし、</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">putStrLn</span><span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> ()</a></code></pre></div>
+<p>という型になっていたら、この場合は文字列を受け取り <code>()</code> 型の値を返す関数になる。<code>()</code> 型は次のように定義される <a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a><span class="ascii">:</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">data</span> () <span class="ot">=</span> ()</a></code></pre></div>
+<p>つまり、<code>()</code> というたった一つの値を持つ型になる。なので、<code>putStrLn</code> が <code>putStrLn :: String -&gt; ()</code> という型を持っていた場合は、常に <code>()</code> という値を返す関数となり、純粋性の <span class="ascii">1</span> 番目の条件を満たす。しかし、<code>putStrLn</code> は呼び出し回数に応じて文字列をターミナルに出力していくので、副作用を持ち、<span class="ascii">2</span> 番目の条件には到底当てはまらない。では、<span class="ascii">2</span> 番目の条件に当てはまるようにするにはどうすればいいだろう？ そのような選択肢は到底ないように見える。</p>
+<p>実際には、<span class="ascii">Haskell</span> の <code>putStrLn</code> は</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">putStrLn</span><span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a></code></pre></div>
+<p>という型を持つ。つまり、返る値は <code>IO ()</code> という不思議な型を持つ。こうすると純粋に文字列をターミナルに出力できるんだろうか？ 答えは <span class="ascii">NO</span> だ。<span class="ascii">Haskell</span> の <code>putStrLn</code> 関数は、</p>
+<ul>
+<li>受け取った文字列をターミナルに出力する</li>
+</ul>
+<p>関数ではない。<span class="ascii">Haskell</span> は、到底純粋性を持たないような操作をする関数を、そもそも関数の見方を変えて提供することで純粋性を保っている。この関数 <code>putStrLn</code> は</p>
+<ul>
+<li>受け取った文字列から、「ターミナルにその文字列を出力する動作」を返す</li>
+</ul>
+<p>関数だ。そして、「ターミナルにその文字列を出力する動作」は <code>IO ()</code> という型を持つ。動作 <span class="ascii">(action)</span> とは、文字通り「何をするか」 <a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> を表す。<code>IO a</code> は、</p>
+<ul>
+<li>動作、つまり「何をするか」を表す値を持つ</li>
+<li>その動作をした結果、得られる値の型が <code>a</code> であることを表す</li>
+</ul>
+<p>型だ。抽象的すぎてあまりピンとこないかもしれない。もし、その動作が結果を返す以外に何もしないなら、それは純粋な操作であるから、次のように書ける<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">data</span> <span class="dt">PureAction</span> a <span class="ot">=</span> <span class="dt">PureAction</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  {<span class="ot"> runPureAction ::</span> () <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb4-3" title="3">  }</a></code></pre></div>
+<p>つまり、引数が何もない純粋関数だ。例えば、整数を<span class="ascii">2</span>つ受け取って、その和を計算する動作を返す関数は次のように書けるだろう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">addAction ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">PureAction</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb5-2" title="2">addAction x y <span class="ot">=</span> <span class="dt">PureAction</span> (\_ <span class="ot">-&gt;</span> x <span class="op">+</span> y)</a></code></pre></div>
+<p><code>putStrLn</code> も <code>addAction</code> と同じように、値そのものではなくその値を計算する<strong>動作</strong>それ自体を返す。ただ、<code>putStrLn</code> が返す <code>IO</code> の動作は、<code>PureAction</code> の動作よりもっと一般的なものだ。つまり、純粋な動作ではないかもしれないということだ。もしかしたらそれは、今の時刻で結果を変えるかもしれないし、結果は常に変わらなくても何回呼び出すかでターミナルに表示する文字を変えるかもしれない。つまり、完全に純粋な関数では表せないかもしれない。でも、動作自体は不変的だ。<code>putStrLn "str"</code> は</p>
+<ul>
+<li>ターミナルに <code>"str"</code> を出力する動作</li>
+</ul>
+<p>を表す。これが、<span class="ascii">10</span>時にはこういう動作を返してきたのが、<span class="ascii">12</span>時には</p>
+<ul>
+<li>ターミナルに <code>"str"</code> を出力し、お昼の鐘を鳴らす動作</li>
+</ul>
+<p>を返すようになるということはないし、この動作を返す以外に</p>
+<ul>
+<li>勝手にターミナルに文字列を出力する</li>
+</ul>
+<p>ということもない。例えば、<span class="ascii">GHCi</span> で以下のようなプログラムの出力を見てみよう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">let</span> _ <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;str&quot;</span> <span class="kw">in</span> ()</a>
+<a class="sourceLine" id="cb6-2" title="2">()</a></code></pre></div>
+<p>これは</p>
+<ol type="1">
+<li><code>putStrLn "str"</code> を計算し、</li>
+<li>結果を捨て</li>
+<li><code>()</code> を返す</li>
+</ol>
+<p>というプログラムだ。このプログラムを評価しても、結果の <code>()</code> だけしか目にしないはずで、何回実行しても同じ結果が得られるはずだ。そう説明すると、ちょっと <span class="ascii">Haskell</span> をかじった人は</p>
+<blockquote>
+<p>この説明は間違っている。この式は <code>putStrLn "str"</code> を全く評価していないので、実際に <code>putStrLn "str"</code> が余計なことを何もしていないかは分からない。</p>
+</blockquote>
+<p>と言うだろう。その通りだ。この説明は間違っている。それを確認してみよう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">let</span> _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;something happened!&quot;</span> <span class="kw">in</span> ()</a>
+<a class="sourceLine" id="cb7-2" title="2">()</a></code></pre></div>
+<p>もし、さっきの <code>putStrLn "str"</code> がちゃんと計算されていたなら、今回は <code>something happened!</code> というエラーが見れるはずだ。ところが、全く何の問題もなく式の実行は終わり、<code>()</code> が出力されてしまった。では、ちゃんと修正してみよう。修正は、<code>seq</code> という魔法の関数を使うことで可能だ<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;str&quot;</span> <span class="ot">`seq`</span> ()</a>
+<a class="sourceLine" id="cb8-2" title="2">()</a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="op">&gt;&gt;&gt;</span> <span class="fu">error</span> <span class="st">&quot;something happened!&quot;</span> <span class="ot">`seq`</span> ()</a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> something happened<span class="op">!</span></a></code></pre></div>
+<p>今度は大丈夫だろう。<code>putStrLn "str"</code> の部分をエラーに変えると、ちゃんとエラーが出力されている。そう、<code>putStrLn "str"</code> が実行されて実際に行われるのは、その定義通り</p>
+<ul>
+<li>「ターミナルに <code>"str"</code> を出力する動作」を返す</li>
+</ul>
+<p>ということだけで、他には何もしない。常に同じ動作を返すし、副作用を起こしたりもしない。これは純粋関数の定義に当てはまっている。<code>putStrLn</code> は純粋な関数なのだ。そして、その動作には、動作の結果の型によって型が決まっていて、それが <code>IO</code> 型ということになる。</p>
+<blockquote>
+<p>では、実際に <code>putStrLn</code> はどういう定義になるんだろう？ その定義は純粋な枠組みで定義できるんだろうか？</p>
+</blockquote>
+<p>と疑問を持つ人はいるかもしれない。その疑問はとても良いところをついている。そう、<code>putStrLn</code> は、<span class="ascii">Haskell</span> では定義できない。もしくは、定義するならば「文字列をターミナルに出力する動作」を表す値の作成方法を、何らかの仕組みで提供する必要がある。もし、</p>
+<ul>
+<li>「文字列 <code>s</code> をターミナルに出力する動作」を <code>PutStrLn s :: IO ()</code> と書ける</li>
+</ul>
+<p>なら、その時は、<code>putStrLn</code> を次のように定義できる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="fu">putStrLn</span><span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="fu">putStrLn</span> s <span class="ot">=</span> <span class="dt">PutStrLn</span> s</a></code></pre></div>
+<p>ただ、今度は <code>PutStrLn</code> を <span class="ascii">Haskell</span> で定義するにはどうすればいいのだろう？ という話になり、この話は延々と続くことになるだろう。現実世界の純粋なエミュレータを <span class="ascii">Haskell</span> 内部で実装すれば収束するかもしれない。しかし、私たちは、現実世界をコストなく扱いたいわけであり、純粋かどうかは重要なことではない。そして、別に <code>putStrLn</code> を <span class="ascii">Haskell</span> 内で純粋に定義したいのではなく、「文字列 <code>s</code> をターミナルに出力する動作」を扱いたいだけなのだ。なので、<span class="ascii">Haskell</span> は純粋な部分だけは目に見える範囲で提供し、非純粋な部分は隠蔽し、純粋に扱うことだけをできるようにしている。</p>
+<p>では、実際にこの動作を実行したい時はどうすればいいんだろう？ <code>putStrLn "str"</code> が純粋に、「<code>"str"</code> をターミナルに出力する動作」を返してきて、それを純粋に扱うことしかできないとなると、実際にターミナルに出力することはできないのではないだろうか？ それもその通りだ。では、<span class="ascii">Haskell</span> ではその問題をどう解決するか。実は <span class="ascii">Haskell</span> の <code>main</code> プログラムは、<code>IO</code> 型の値で定義するようになっている。つまり、</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb10-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;str&quot;</span></a></code></pre></div>
+<p>というように、<code>main</code> を何らかの <code>IO</code> 動作で定義する。そして、実際にこのプログラムからコンパイルされた実行ファイルは、定義された動作をそのまま行うようになっている。こうすることで、<span class="ascii">Haskell</span> は純粋性を保ちながら、非純粋な動作を扱えるようになっている。</p>
+<h2 id="io-モナド"><span class="link-to-here-outer"><a href="#io-モナド" title="io-モナド"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">IO</span> モナド</h2>
+<p><span class="ascii">Haskell</span> の <code>putStrLn</code> が純粋な理由は分かってもらえただろうか？ さて中には、</p>
+<blockquote>
+<p>主張は分かったが、純粋に扱うだけに制限するということは、普通のプログラミング言語より非純粋な動作を上手く扱えないんじゃないか</p>
+</blockquote>
+<p>と疑問に思う人もいるだろう。これも当然の疑問だ。普通のプログラミング言語は、表現力豊かで、様々な制御構文を持ち、それぞれの構文が純粋性に拘らないため、とてもユニークな非純粋なプログラムを書くことができる。ただ、安心して欲しい。<span class="ascii">Haskell</span> も、それに負けない表現力で、非純粋な動作を作成することができる。さて、<span class="ascii">Haskell</span> は、普通のプログラミング言語の機構の基盤は</p>
+<ul>
+<li><span class="ascii">2</span>つの動作を上手く結合できること</li>
+</ul>
+<p>ではないかと考えた。そして、このうまく結合する機構を、<code>IO</code> 動作の上で実現する方法を考えた。結果、<span class="ascii">Haskell</span> では<span class="ascii">2</span>つの特殊な操作が組み込まれている<span class="ascii">:</span></p>
+<ul>
+<li>純粋な計算を、<code>IO</code> 動作に変換する<span class="ascii">:</span> <code>pure :: a -&gt; IO a</code></li>
+<li><span class="ascii">2</span>つの <code>IO</code> 動作を繋げる<span class="ascii">:</span> <code>(&gt;&gt;=) :: IO a -&gt; (a -&gt; IO b) -&gt; IO b</code></li>
+</ul>
+<p><code>(&gt;&gt;=)</code> については少し説明が必要だろう。<span class="ascii">2</span>つの <code>IO</code> 動作を繋げるというのは、<code>(&gt;&gt;=) :: IO a -&gt; IO b -&gt; IO b</code> となった方が自然そうである。しかし、普通のプログラミング言語は、</p>
+<ul>
+<li>前の動作の結果により、次に行う動作を変える <span class="ascii">(</span><code>if</code> 文や <code>while</code> 文など<span class="ascii">)</span></li>
+</ul>
+<p>ということが可能だ。そして、前の動作の結果は変数束縛などにより自由に参照できる。<span class="ascii">Haskell</span> は、<code>IO</code> 動作を純粋性により実際に実行することはできない。その代わり、上の動作の制御機構を、繋げる操作に組み入れることで代用しようとしたのだ。つまり、</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> b</a></code></pre></div>
+<p>の操作は、</p>
+<ol type="1">
+<li>最初に受け取った <code>IO</code> 動作を実行し、</li>
+<li>その結果から、次に行う <code>IO</code> 動作を<strong>純粋に</strong>生成し、</li>
+<li>生成された動作を行う</li>
+</ol>
+<p>という動作全体を表す <code>IO</code> 動作を生成する。この結果から次に行う <code>IO</code> 動作を生成する部分をうまく定義すれば、<code>(&gt;&gt;=)</code> によって様々な制御構文を模倣できるのではないかと考えたのだ。この仕組みはとても上手くいった。<span class="ascii">Haskell</span> では、非純粋な動作を<code>if</code> 文や <code>while</code> 文で任意に実行することを、次のような純粋に動作を切り替える関数で代用する<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="ot">ifIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
+<a class="sourceLine" id="cb12-2" title="2">ifIO b act1 act2 <span class="ot">=</span> <span class="kw">case</span> b <span class="kw">of</span></a>
+<a class="sourceLine" id="cb12-3" title="3">  <span class="dt">True</span>  <span class="ot">-&gt;</span> act1</a>
+<a class="sourceLine" id="cb12-4" title="4">  <span class="dt">False</span> <span class="ot">-&gt;</span> act2</a>
+<a class="sourceLine" id="cb12-5" title="5"></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="ot">whileIO ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> a) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb12-7" title="7">whileIO isEnd x0 act <span class="ot">=</span> go x0 <span class="kw">where</span></a>
+<a class="sourceLine" id="cb12-8" title="8">  go x <span class="ot">=</span> ifIO (isEnd x)</a>
+<a class="sourceLine" id="cb12-9" title="9">    (<span class="fu">pure</span> ())</a>
+<a class="sourceLine" id="cb12-10" title="10">    (</a>
+<a class="sourceLine" id="cb12-11" title="11">        act x <span class="op">&gt;&gt;=</span> \nx <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb12-12" title="12">        go nx</a>
+<a class="sourceLine" id="cb12-13" title="13">    )</a></code></pre></div>
+<p>これらの関数を使えば、</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb13-2" title="2">main <span class="ot">=</span></a>
+<a class="sourceLine" id="cb13-3" title="3">  <span class="fu">getLine</span> <span class="op">&gt;&gt;=</span> \loopCmd <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb13-4" title="4">  ifIO (loopCmd <span class="op">/=</span> <span class="st">&quot;loop&quot;</span>)</a>
+<a class="sourceLine" id="cb13-5" title="5">    (<span class="fu">putStrLn</span> <span class="st">&quot;No loop&quot;</span>)</a>
+<a class="sourceLine" id="cb13-6" title="6">    (whileIO (\(b, _) <span class="ot">-&gt;</span> b) (<span class="dt">False</span>, <span class="dv">0</span>) (\(_, i) <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb13-7" title="7">        <span class="fu">putStrLn</span> (<span class="st">&quot;loop &quot;</span> <span class="op">++</span> <span class="fu">show</span> i) <span class="op">&gt;&gt;=</span> \_ <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb13-8" title="8">        <span class="fu">getLine</span> <span class="op">&gt;&gt;=</span> \loopEndCmd <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb13-9" title="9">        ifIO (loopEndCmd <span class="op">==</span> <span class="st">&quot;end&quot;</span>)</a>
+<a class="sourceLine" id="cb13-10" title="10">          (<span class="fu">pure</span> (<span class="dt">True</span>, i))</a>
+<a class="sourceLine" id="cb13-11" title="11">          (<span class="fu">pure</span> (<span class="dt">False</span>, i <span class="op">+</span> <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb13-12" title="12">    ))</a></code></pre></div>
+<p>のようなプログラムが書ける。このプログラムは、</p>
+<ol type="1">
+<li>最初にターミナルへの入力を待ち、<code>loop</code> と打たれれば、ループに入る。それ以外の場合は <code>"No loop"</code> と出力し、プログラムを終了する。</li>
+<li>今のループの回数を出力し、ターミナルへの入力を待つ。</li>
+<li>ターミナルに <code>end</code> と打たれれば、プログラムを終了する。それ以外の場合、ループカウントを<span class="ascii">1</span>増加させて、<span class="ascii">2</span> に戻る。</li>
+</ol>
+<p>ということを行う。このように、純粋な範囲内で繋げる操作を工夫することで、普通のプログラミング言語の機構を <code>IO</code> 動作内に組み込めるようになっている。ただ、このプログラムは大変見にくい。なので、<span class="ascii">Haskell</span> はさらに、この繋げる操作を元に、次のような <span class="ascii">DSL</span> を提供している<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb14-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb14-3" title="3">  loopCmd <span class="ot">&lt;-</span> <span class="fu">getLine</span></a>
+<a class="sourceLine" id="cb14-4" title="4">  ifIO (loopCmd <span class="op">/=</span> <span class="st">&quot;loop&quot;</span>)</a>
+<a class="sourceLine" id="cb14-5" title="5">    (<span class="fu">putStrLn</span> <span class="st">&quot;No loop&quot;</span>)</a>
+<a class="sourceLine" id="cb14-6" title="6">    (whileIO (\(b, _) <span class="ot">-&gt;</span> b) (<span class="dt">False</span>, <span class="dv">0</span>) (\(_, i) <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb14-7" title="7">        <span class="fu">putStrLn</span> (<span class="st">&quot;loop &quot;</span> <span class="op">++</span> <span class="fu">show</span> i)</a>
+<a class="sourceLine" id="cb14-8" title="8">        loopEndCmd <span class="ot">&lt;-</span> <span class="fu">getLine</span></a>
+<a class="sourceLine" id="cb14-9" title="9">        ifIO (loopEndCmd <span class="op">==</span> <span class="st">&quot;end&quot;</span>)</a>
+<a class="sourceLine" id="cb14-10" title="10">          (<span class="fu">pure</span> (<span class="dt">True</span>, i))</a>
+<a class="sourceLine" id="cb14-11" title="11">          (<span class="fu">pure</span> (<span class="dt">False</span>, i <span class="op">+</span> <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb14-12" title="12">    ))</a></code></pre></div>
+<p>少しは見やすくなっただろうか？ この操作は、そこまで特別な操作をしてるわけではない。インデントを解析して、</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb15-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb15-3" title="3">  x1 <span class="ot">&lt;-</span> e1</a>
+<a class="sourceLine" id="cb15-4" title="4">  x2 <span class="ot">&lt;-</span> e2</a>
+<a class="sourceLine" id="cb15-5" title="5">  e3</a></code></pre></div>
+<p>というのを、</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb16-2" title="2">main <span class="ot">=</span></a>
+<a class="sourceLine" id="cb16-3" title="3">  e1 <span class="op">&gt;&gt;=</span> \x1 <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb16-4" title="4">  x2 <span class="ot">&lt;-</span> e2</a>
+<a class="sourceLine" id="cb16-5" title="5">  e3</a></code></pre></div>
+<p>に変形して、さらに</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb17-2" title="2">main <span class="ot">=</span></a>
+<a class="sourceLine" id="cb17-3" title="3">  e1 <span class="op">&gt;&gt;=</span> \x1 <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb17-4" title="4">  e2 <span class="op">&gt;&gt;=</span> \x2 <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb17-5" title="5">  e3</a></code></pre></div>
+<p>と変形して、</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb18-2" title="2">main <span class="ot">=</span></a>
+<a class="sourceLine" id="cb18-3" title="3">  e1 <span class="op">&gt;&gt;=</span> \x1 <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb18-4" title="4">  e2 <span class="op">&gt;&gt;=</span> \x2 <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb18-5" title="5">  e3</a></code></pre></div>
+<p>と変形する、というように最初から<span class="ascii">1</span>行<span class="ascii">1</span>行変形して、<code>do</code> がなくなるまで変形を行うだけだ。つまり一行一行の動作を <code>(&gt;&gt;=)</code> で繋げていくのだ。なお、一番最後以外は <code>x &lt;- e</code> という形になっているのが基本で、もしそのような形になっていない <code>e</code> は、<code>_ &lt;- e</code> と変換される <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> 。なので、</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb19-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb19-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span></a>
+<a class="sourceLine" id="cb19-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
+<p>は、</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb20-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb20-3" title="3">  _ <span class="ot">&lt;-</span> <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span></a>
+<a class="sourceLine" id="cb20-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
+<p>と変換された後、先ほどの変換によって、</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb21-2" title="2">main <span class="ot">=</span></a>
+<a class="sourceLine" id="cb21-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span> <span class="op">&gt;&gt;=</span> \_ <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb21-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
+<p>となる。このようにして、<span class="ascii">Haskell</span> は他のプログラミング言語の非純粋な動作を、純粋な枠組みでも同じように扱えるようになっている <a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> 。<span class="ascii">Haskell</span> は、この仕組みをモナディック<code>IO</code>と名付け、<code>IO</code> 型を <code>IO</code> モナドと呼んでいる。モナドとは何か、どういう便利な側面があるのかについては、他の記事に譲る。</p>
+<h2 id="動作を第一級で取り扱う"><span class="link-to-here-outer"><a href="#動作を第一級で取り扱う" title="動作を第一級で取り扱う"><span class="link-to-here">Link to<br />
+here</span></a></span>動作を第一級で取り扱う</h2>
+<p>どうやら、<span class="ascii">Haskell</span> の <code>IO</code> 動作の仕組みが、純粋な枠組みでも他のプログラミング言語とそう劣るものではないということが分かってもらえただろうか？ ところで、先ほどの <code>ifIO</code> や <code>whileIO</code> は、<code>IO</code> 動作を何事もなく引数にとって返したりしていた。<code>ifIO</code> の定義をもう一度よく見てみよう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="ot">ifIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
+<a class="sourceLine" id="cb22-2" title="2">ifIO b act1 act2 <span class="ot">=</span> <span class="kw">case</span> b <span class="kw">of</span></a>
+<a class="sourceLine" id="cb22-3" title="3">  <span class="dt">True</span>  <span class="ot">-&gt;</span> act1</a>
+<a class="sourceLine" id="cb22-4" title="4">  <span class="dt">False</span> <span class="ot">-&gt;</span> act2</a></code></pre></div>
+<p>このプログラムは、条件を表す引数と、<code>IO</code> 動作を<span class="ascii">2</span>個受け取り、条件によって<span class="ascii">2</span>つの動作のうちのどちらかを返していた。これは考えてみれば、とても不思議で強力なことだと思わないだろうか？ 普通のプログラミング言語の <code>if</code> 文は、条件から書かれたプログラムのどちらかを実行する。一方、<code>ifIO</code> は実行を制御しているわけではない。単に、普通の関数と同じように、<span class="ascii">2</span>つの動作を受け取って、そのうちの片方を関数の返り値として返すだけだ。<code>ifIO</code> を呼び出したプログラマは、返ってきた動作をゴミ箱に捨ててもいいし、<code>(&gt;&gt;=)</code> で繋げて「<span class="ascii">2</span>回続けて同じ動作をする」<span class="ascii">1</span>つの動作にしてもいい。もちろんその動作も <code>main</code> に組み入れるかはプログラマ次第だ。なんなら、<code>main</code> 以外にライブラリの一部としてグローバルに定義してもいい。ライブラリを使うユーザは、やっぱりそれを使うも使わないも自由だ。<code>main</code> に組み入れない限り、その動作は単なるデータであり、実行もされない。</p>
+<p><code>IO</code> 動作がデータであることは、プログラムをより豊かにする。さっきの <code>ifIO</code> は、条件によって片方の動作を返していた。<code>IO</code>動作はもっと多彩に制御できる。例えば、条件によって動作の順番を変えたかったら次のように書けばいい<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="ot">chooseOrderIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
+<a class="sourceLine" id="cb23-2" title="2">chooseOrderIO b act1 act2 <span class="ot">=</span> <span class="kw">case</span> b <span class="kw">of</span></a>
+<a class="sourceLine" id="cb23-3" title="3">  <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb23-4" title="4">    act1</a>
+<a class="sourceLine" id="cb23-5" title="5">    act2</a>
+<a class="sourceLine" id="cb23-6" title="6">  <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb23-7" title="7">    act2</a>
+<a class="sourceLine" id="cb23-8" title="8">    act1</a></code></pre></div>
+<p><code>chooseOrderIO</code> は条件によって、受け取った動作を実行する順番を変え、その順序で結合した動作を返す。順番が同じで結果だけ選ぶといったこともできる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1"><span class="ot">ifResultIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
+<a class="sourceLine" id="cb24-2" title="2">ifResultIO b act1 act2 <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb24-3" title="3">  x1 <span class="ot">&lt;-</span> act1</a>
+<a class="sourceLine" id="cb24-4" title="4">  x2 <span class="ot">&lt;-</span> act2</a>
+<a class="sourceLine" id="cb24-5" title="5">  <span class="kw">case</span> b <span class="kw">of</span></a>
+<a class="sourceLine" id="cb24-6" title="6">    <span class="dt">True</span>  <span class="ot">-&gt;</span> x1</a>
+<a class="sourceLine" id="cb24-7" title="7">    <span class="dt">False</span> <span class="ot">-&gt;</span> x2</a></code></pre></div>
+<p><code>ifIO</code> は条件によって動作そのものを選んでいたが、<code>ifResultIO</code> はどの条件でも <code>act1</code> と <code>act2</code> の順に動作をすること自体は変えない。代わりに、その動作の結果をどっちにするかだけを変える。このように、<span class="ascii">Haskell</span> は <code>IO</code> 動作を、多彩に、しかも純粋にコーディネートすることができる。これは、他の多くのプログラミング言語にはなく、しかも強力な機能だ。そう、<span class="ascii">Haskell</span> の <code>IO</code> 動作は、それが単なるデータであるがゆえに、通常のプログラミングの範囲で自由に加工できるのだ。</p>
+<p>これを、動作が第一級であるという。第一級とは、つまり他のデータと全く同じように扱えるということだ。</p>
+<h2 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h2>
+<p>この記事では、</p>
+<ol type="1">
+<li>純粋とは何か</li>
+<li><span class="ascii">Haskell</span> は、どうして純粋なのか</li>
+<li><span class="ascii">Haskell</span> は、純粋な中で、他の言語の機構をどうやって実現しているのか</li>
+<li><span class="ascii">Haskell</span> が、その中で獲得した強力な機能とは何か</li>
+</ol>
+<p>について紹介した。どうだろう？ <span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドについて、少しでも理解の補助になっただろうか？</p>
+<p><span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドとは、動作そのものを値に持つ型だった。そして、その値は、特別な繋げる操作により他の言語と同じように加工でき、しかも通常のプログラミングの範囲で加工が可能になっている。しかも、加工自体は純粋にでき、動作の生成も純粋にできる。これが、<span class="ascii">Haskell</span> が純粋であると言われる所以だった。</p>
+<p>この <span class="ascii">Haskell</span> の根幹をなす機能が、どういう点で魅力的なのか分かってもらえたら、この記事を書いた甲斐があるというものだ。もし、あなたもこの機能の魅力に取り憑かれたらなら、ぜひ <code>IO</code> 動作をふんだんに加工してプログラミングをしていって欲しい。では、楽しい <span class="ascii">Haskell</span> ライフを。</p>
+<h2 id="おまけ-ioモナドの実装"><span class="link-to-here-outer"><a href="#おまけ-ioモナドの実装" title="おまけ-ioモナドの実装"><span class="link-to-here">Link to<br />
+here</span></a></span>おまけ<span class="ascii">: IO</span>モナドの実装</h2>
+<p>ところで、もしかしたら、読者の中には、</p>
+<blockquote>
+<p><span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドは、現実世界を状態にする <span class="ascii">State</span> モナドだ。</p>
+</blockquote>
+<p>という主張を、見たことがある人がいるかもしれない。最後におまけとしてこの話に触れておこうと思う。気になる人は、この後も呼んでみると、<code>IO</code> モナドの理解の助けになるかもしれない <span class="ascii">(</span>または、むしろ混乱するかもしれない。もし、混乱したなら、とりあえずこの話は忘れることをお勧めする。ここに書いてある話を理解しなくても、<code>IO</code> モナドの利用に関して全く支障はない。そういう話もあるぐらいの事柄だ。なので、安心してまずは <span class="ascii">Haskell</span> プログラミングを楽しんでほしい。いつか楽しみ飽きたら戻ってきてもいいかもしれない<span class="ascii">)</span>。</p>
+<p>まず、この話は、</p>
+<ul>
+<li>非純粋な世界の話だということ</li>
+<li>単なる <span class="ascii">State</span> モナドではないということ</li>
+</ul>
+<p>を押さえておいて欲しい。さて、<span class="ascii">Haskell</span> の代表的な処理系 <span class="ascii">GHC</span> は、標準の範囲では純粋関数型プログラミングを提供するが、全体としては非純粋な計算も許容している。そして、その計算を <code>IO</code> モナドの内部に使っている。<span class="ascii">GHC</span> では <code>IO</code> モナドは、通常の言語内の一部として定義されている<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (<span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span> <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span>, a <span class="op">#</span>))</a></code></pre></div>
+<p>この型は、詳細は省くが、本質的には、</p>
+<ul>
+<li><code>State# RealWorld</code> 型の値を受け取り、<code>State# RealWorld</code> 型の値と <code>a</code> 型の値のタプルを返す関数</li>
+</ul>
+<p>の <code>newtype</code> になっている。<code>State</code> モナドについて知ってる人は、これは <code>State (State# RealWorld) a</code> と同じだと思うだろう。しかし、<code>IO a</code> の値は、他に <span class="ascii">Haskell</span> の型では表現できない契約を持つ。それは、</p>
+<ul>
+<li><code>State# RealWorld</code> の型の値は、必ず<span class="ascii">1</span>回だけ使用される</li>
+</ul>
+<p>という契約だ。なので、</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1"><span class="dt">IO</span> <span class="op">$</span> \s<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> s<span class="op">#</span>, \() <span class="ot">-&gt;</span> s<span class="op">#</span> <span class="op">#</span>)</a></code></pre></div>
+<p>は <a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> <code>s#</code> を<span class="ascii">2</span>箇所で使ってるため <code>IO (() -&gt; State# RealWorld)</code> の値になれないし、</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="dt">IO</span> <span class="op">$</span> \s<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> s<span class="op">#</span>, <span class="dt">IO</span> <span class="op">$</span> \_ <span class="ot">-&gt;</span> (<span class="op">#</span> s<span class="op">#</span>, () <span class="op">#</span>) <span class="op">#</span>)</a></code></pre></div>
+<p>は一番外側の <code>IO</code> は <code>s#</code> を <span class="ascii">2</span> 箇所で使っているため契約違反で、内側の <code>IO</code> は受け取った引数を一度も使っていないのでやはり契約違反ということになる。この定義を使って、例えば <span class="ascii">Haskell</span> で可変参照を扱う <code>IORef</code> のフレームワークは、次のように定義されている <a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> <span class="ascii">:</span></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">data</span> <span class="dt">IORef</span> a <span class="ot">=</span> <span class="dt">IORef</span> (<span class="dt">MutVar</span><span class="op">#</span> <span class="dt">RealWorld</span> a)</a>
+<a class="sourceLine" id="cb28-2" title="2"></a>
+<a class="sourceLine" id="cb28-3" title="3"><span class="ot">newIORef ::</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">IORef</span> a)</a>
+<a class="sourceLine" id="cb28-4" title="4">newIORef <span class="fu">init</span> <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \s1<span class="op">#</span> <span class="ot">-&gt;</span> <span class="kw">case</span> newMutVar<span class="op">#</span> <span class="fu">init</span> s1<span class="op">#</span> <span class="kw">of</span></a>
+<a class="sourceLine" id="cb28-5" title="5">  (<span class="op">#</span> s2<span class="op">#</span>, var <span class="op">#</span>) <span class="ot">-&gt;</span> (s2<span class="op">#</span>, <span class="dt">IORef</span> var)</a>
+<a class="sourceLine" id="cb28-6" title="6"></a>
+<a class="sourceLine" id="cb28-7" title="7"><span class="ot">readIORef ::</span> <span class="dt">IORef</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
+<a class="sourceLine" id="cb28-8" title="8">readIORef (<span class="dt">IORef</span> var) <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \s1<span class="op">#</span> <span class="ot">-&gt;</span> readMutVar<span class="op">#</span> var<span class="op">#</span> s1<span class="op">#</span></a>
+<a class="sourceLine" id="cb28-9" title="9"></a>
+<a class="sourceLine" id="cb28-10" title="10"><span class="ot">writeIORef ::</span> <span class="dt">IORef</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb28-11" title="11">writeIORef (<span class="dt">IORef</span> var<span class="op">#</span>) val <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \s1<span class="op">#</span> <span class="ot">-&gt;</span> <span class="kw">case</span> writeMutVar<span class="op">#</span> var<span class="op">#</span> val s1<span class="op">#</span> <span class="kw">of</span></a>
+<a class="sourceLine" id="cb28-12" title="12">  s2<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> s2<span class="op">#</span>, () <span class="op">#</span>)</a></code></pre></div>
+<p>この定義は、ちゃんと <code>IO</code> 型の制約を守っている。なおここで出てくる、<code>#</code> が付く関数やデータ型は、<span class="ascii">GHC</span> の中で特別扱いされ、プリミティブな関数やデータ型になっている。それぞれ、以下の型の関数として扱える<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" title="1">newMutVar<span class="op">#</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> s, <span class="dt">MutVar</span><span class="op">#</span> s a <span class="op">#</span>)</a>
+<a class="sourceLine" id="cb29-2" title="2"></a>
+<a class="sourceLine" id="cb29-3" title="3">readMutVar<span class="op">#</span><span class="ot"> ::</span> <span class="dt">MutVar</span><span class="op">#</span> s a <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> s, a <span class="op">#</span>)</a>
+<a class="sourceLine" id="cb29-4" title="4"></a>
+<a class="sourceLine" id="cb29-5" title="5">writeMutVar<span class="op">#</span><span class="ot"> ::</span> <span class="dt">MutVar</span><span class="op">#</span> s a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s</a></code></pre></div>
+<p>注意して欲しいのは、これらの関数は純粋ではないということだ。これは、<span class="ascii">GHCi</span> 上で次のように確認できる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XMagicHash</span> <span class="op">-</span><span class="dt">XUnboxedTuples</span></a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span><span class="kw">module</span> <span class="dt">GHC.Prim</span> <span class="dt">GHC.Types</span></a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span>{</a>
+<a class="sourceLine" id="cb30-4" title="4"><span class="dt">IO</span> <span class="op">$</span> \r0<span class="op">#</span> <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb30-5" title="5">  <span class="kw">let</span> (<span class="op">#</span> r1<span class="op">#</span>, var<span class="op">#</span> <span class="op">#</span>) <span class="ot">=</span> newMutVar<span class="op">#</span> <span class="dt">False</span> r0<span class="op">#</span> <span class="kw">in</span></a>
+<a class="sourceLine" id="cb30-6" title="6">  <span class="kw">let</span> (<span class="op">#</span> r2<span class="op">#</span>, b1 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> var<span class="op">#</span> r1<span class="op">#</span></a>
+<a class="sourceLine" id="cb30-7" title="7">      r3<span class="op">#</span> <span class="ot">=</span> writeMutVar<span class="op">#</span> var<span class="op">#</span> <span class="dt">True</span> r2<span class="op">#</span></a>
+<a class="sourceLine" id="cb30-8" title="8">  <span class="kw">in</span></a>
+<a class="sourceLine" id="cb30-9" title="9">  <span class="kw">let</span> (<span class="op">#</span> _, b2 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> var<span class="op">#</span> r1<span class="op">#</span> <span class="kw">in</span></a>
+<a class="sourceLine" id="cb30-10" title="10">  (<span class="op">#</span> r3<span class="op">#</span>, b1 <span class="op">==</span> b2 <span class="op">#</span>)</a>
+<a class="sourceLine" id="cb30-11" title="11"><span class="op">:</span>}</a>
+<a class="sourceLine" id="cb30-12" title="12"><span class="dt">False</span></a></code></pre></div>
+<p><code>b1</code> と <code>b2</code> は両方とも <code>readMutVar# var# r1#</code> から得た値になる。ところが、これらを比較してみると <code>False</code> になる <a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> 。なお、この式は、<code>IO</code> 型で定義しているが、実際には</p>
+<ul>
+<li><span class="ascii">2</span> 回目の <code>readMutVar#</code> の呼び出しで <code>r1#</code> を <span class="ascii">2</span> 回使用しているし、</li>
+<li>返ってきた <code>State# RealWorld</code> の値を捨てている</li>
+</ul>
+<p>ので契約違反であることに注意だ。</p>
+<p>さて、純粋性を守れないなら、<span class="ascii">GHC</span> は一体全体何のためにこのような定義をしているんだろう？ 関数が純粋でなくてもいいなら、単に</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (() <span class="ot">-&gt;</span> a)</a></code></pre></div>
+<p>と定義しても問題ないのではないだろうか？ この方が自然に動作を表しているように思える。ところが、このような定義は、ある問題を招くのだ。<span class="ascii">Haskell</span> は純粋関数型プログラミング言語という売りの他に、遅延評価という他の言語にはあまり見られない評価機構を採用している。もちろん、<span class="ascii">GHC</span> も遅延評価が基本だ。正確には、<span class="ascii">Haskell</span> の評価順序は、</p>
+<blockquote>
+<p><span class="ascii">The order of evaluation of expressions in Haskell is constrained only by data dependencies; an implementation has a great deal of freedom in choosing this order.</span></p>
+<p><span class="ascii">Haskell</span> の式の評価順序は、データ依存によってのみ縛られます。これは、実装がこの順序の選択において、大きな自由度を持つことを意味します。</p>
+<p>– <a href="https://www.haskell.org/onlinereport/haskell2010/haskellch7.html#x14-1420007"><span class="ascii">Haskell Language Report - Chapter 7 Basic Input/Output</span></a></p>
+</blockquote>
+<p>とあるように、データ依存関係によってのみ制御できる。ところが、<code>IO</code>動作は違う。例えば、</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb32-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb32-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span></a>
+<a class="sourceLine" id="cb32-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
+<p>という式において、<code>putStrLn "str1"</code> と <code>putStrLn "str2"</code> の動作の間には、何らのデータ依存関係も存在しない。しかしながら、<code>main</code> は</p>
+<ul>
+<li><code>"str1"</code> をターミナルに出力した後、<code>"str2"</code> をターミナルに出力する</li>
+</ul>
+<p>という動作を表して欲しいはずだ。つまり、<code>IO</code>動作はデータ依存関係によってのみ順序が決まるわけではなく、その繋げ方によって順序が決まって欲しいのだ。ところが、単純に</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (() <span class="ot">-&gt;</span> a)</a></code></pre></div>
+<p>という定義を採用してしまうと、<code>IO</code>の中身は繋げ方の順序を情報として持たないため、動作の実行順序を制御するのに、別途工夫が必要になる。そこで、元の定義の登場だ<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (<span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span> <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span>, a <span class="op">#</span>))</a></code></pre></div>
+<p>この <code>State# RealWorld</code> は、実際には <code>()</code> 型と同じく単一の値を持つほぼ何の意味も持たない型になる。しかし、この型の値を計算度に付与することで、データ依存を作ることができる。具体的には、この <code>IO</code> に対して次のように <code>pure</code> <span class="ascii">/</span> <code>(&gt;&gt;=)</code> を定義するのだ<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" title="1"><span class="fu">pure</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
+<a class="sourceLine" id="cb35-2" title="2"><span class="fu">pure</span> x <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \r<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> r<span class="op">#</span>, x <span class="op">#</span>)</a>
+<a class="sourceLine" id="cb35-3" title="3"></a>
+<a class="sourceLine" id="cb35-4" title="4"><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> b</a>
+<a class="sourceLine" id="cb35-5" title="5"><span class="dt">IO</span> f <span class="op">&gt;&gt;=</span> g <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \r0<span class="op">#</span> <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb35-6" title="6">  <span class="kw">let</span> (<span class="op">#</span> r1<span class="op">#</span>, x <span class="op">#</span>) <span class="ot">=</span> f r0<span class="op">#</span></a>
+<a class="sourceLine" id="cb35-7" title="7">      <span class="dt">IO</span> g&#39; <span class="ot">=</span> g x</a>
+<a class="sourceLine" id="cb35-8" title="8">  <span class="kw">in</span> g&#39; r1<span class="op">#</span></a></code></pre></div>
+<p>特に、<code>(&gt;&gt;=)</code> の定義が重要になる。<code>(&gt;&gt;=)</code> が返してくる <code>IO</code> の中身は、</p>
+<ol type="1">
+<li>受け取った <code>State# RealWorld</code> をまず最初の <code>IO</code> 動作に渡す</li>
+<li>その結果出てきた結果を <code>g</code> に渡して、次の <code>IO</code> 動作を生成する</li>
+<li>生成した <code>IO</code> 動作に、最初の <code>IO</code> 動作が返してきた <code>State# RealWorld</code> を渡す</li>
+</ol>
+<p>ということを行っている。これにより、</p>
+<ol type="1">
+<li>受け取った <code>State# RealWorld</code></li>
+<li><code>f</code> の結果の <code>State# RealWorld</code></li>
+<li><code>g'</code> の結果の <code>State# RealWorld</code></li>
+</ol>
+<p>という順で <code>State# RealWorld</code> のデータ依存関係が出来上がる。つまり、通常の <span class="ascii">Haskell</span> の評価の枠組みで、評価順序を保証できるようになるのだ。実際に、<code>IORef</code> を例に考えてみよう。</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb36-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb36-3" title="3">  x <span class="ot">&lt;-</span> newIORef <span class="dt">False</span></a>
+<a class="sourceLine" id="cb36-4" title="4">  b1 <span class="ot">&lt;-</span> readIORef x</a>
+<a class="sourceLine" id="cb36-5" title="5">  writeIORef <span class="dt">True</span> x</a>
+<a class="sourceLine" id="cb36-6" title="6">  b2 <span class="ot">&lt;-</span> readIORef x</a>
+<a class="sourceLine" id="cb36-7" title="7">  <span class="fu">pure</span> <span class="op">$</span> b1 <span class="op">==</span> b2</a></code></pre></div>
+<p>というプログラムにおいて、最終的な <code>pure $ b1 == b2</code> からのデータ依存関係に、一見 <code>writeIORef True x</code> は関与していないように見える。ところが、内部を見てみると、上のプログラムは、</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb37-2" title="2">main <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \r0<span class="op">#</span> <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb37-3" title="3">  <span class="kw">let</span> (<span class="op">#</span> r1<span class="op">#</span>, x<span class="op">#</span> <span class="op">#</span>) <span class="ot">=</span> newMutVar<span class="op">#</span> <span class="dt">False</span> r0<span class="op">#</span></a>
+<a class="sourceLine" id="cb37-4" title="4">      (<span class="op">#</span> r2<span class="op">#</span>, b1 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> x<span class="op">#</span> r1<span class="op">#</span></a>
+<a class="sourceLine" id="cb37-5" title="5">      r3<span class="op">#</span> <span class="ot">=</span> writeMutVar<span class="op">#</span> <span class="dt">True</span> x<span class="op">#</span> r2<span class="op">#</span></a>
+<a class="sourceLine" id="cb37-6" title="6">      (<span class="op">#</span> r4<span class="op">#</span>, b2 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> x<span class="op">#</span> r3<span class="op">#</span></a>
+<a class="sourceLine" id="cb37-7" title="7">  <span class="kw">in</span> (<span class="op">#</span> r4<span class="op">#</span>, b1 <span class="op">==</span> b2 <span class="op">#</span>)</a></code></pre></div>
+<p>と同じ意味を持ち、全て隠れた <code>State# RealWorld</code> によってデータ依存で紐づいている。もちろん、<code>let</code> 内の定義の順番を変えても何の問題もない。重要なのは <code>r0#</code> から <code>r1#</code> の結果が得られ、<code>r1#</code> から <code>r2#</code> の結果が得られ、というようなデータ依存だけだ。これにより、<span class="ascii">GHC</span> は <span class="ascii">Haskell</span> の評価順序に特別な規則を設けない <a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a> <a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a> で、<code>IO</code> を実装しているのだ。</p>
+<p>なお、こうなると <code>IO</code> の</p>
+<ul>
+<li><code>State# RealWorld</code> の型の値は、必ず<span class="ascii">1</span>回だけ使用される</li>
+</ul>
+<p>という契約も意義が見えてくる。もし、この契約が破られると、途中でデータ依存が分岐したり、または途中で途絶えたりすることになる。そうなると、動作がどういう挙動をするかは、<span class="ascii">Haskell</span> 内では規定されなくなってしまう。実際に、最適化によってどう動作するかが変わってきてしまう例も作れる。<code>IO</code> の契約とは、データ依存が必ず一本の線で繋がり、<span class="ascii">Haskell</span> の評価の枠できちんと順番が規定されるということを保証しているのだ。</p>
+<p>これが、<span class="ascii">GHC</span> がこのような定義を <code>IO</code> で採用している理由になる。もちろん、アナロジーとして現実世界全体を表す架空の状態を <code>State# RealWorld</code> と見立て、<code>IO</code>動作の実行により新たな現実世界全体の状態が手に入るという見方は可能だ。名前の由来もそこから来ている。ただ、基本的には、<span class="ascii">GHC</span> において、特別な仕組みを入れずに <code>IO</code> を実装するためのやり方であるということを押さえておいて欲しい。</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>定義は、 <a href="https://www.schoolofhaskell.com/school/starting-with-haskell/basics-of-haskell/3-pure-functions-laziness-io"><span class="ascii">School of Haskell</span> のチュートリアル</a> から拝借している。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>この定義は、<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch6.html#x13-1220006.1.5"><span class="ascii">Haskell Language Report 6.1.5 The Unit Datatype</span></a> で述べられているが、実際には <span class="ascii">Haskell</span> の構文規則に違反している特別な構文が使われている。なので、実際に <span class="ascii">Haskell</span> でこのように定義できるわけではなく、擬似的に書くとこうなるという意味になる。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>動作は、計算 <span class="ascii">(computation)</span> とも呼ばれる。また、日本の <span class="ascii">Haskell</span> コミュニティでは、英語そのままで「アクション」とも呼ばれている。<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p>厳密には、<code>(&gt;&gt;)</code> という別の関数を使って定義されるんだが、意味的にはそのような変換と思ってもらって構わない。正式な変換方法は、<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch3.html#x8-470003.14"><span class="ascii">Haskell Language Report 3.14 Do Expressions</span></a> を参照するといいだろう。<a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn5"><p>多くの言語では、<code>main</code> プログラム以外の、例えばライブラリが勝手にスレッドを<span class="ascii">1</span>つ立てるなどの挙動をサポートしている。そのような挙動は、<span class="ascii">Haskell</span> では残念ながらできない。なぜなら、<span class="ascii">Haskell</span> では <code>main</code> に動作を組み入れない限りその動作は実行されないからだ。この点では、他の言語より表現力は劣っているということもできる。しかし、そのような機能は、多くの場合明示的に模倣できる。<a href="#fnref5" class="footnote-back">↩</a></p></li>
+<li id="fn6"><p><code>(# x, y #)</code> は <code>(# a, b #)</code> 型の値を表す特別な構文だ。ここでは詳細は述べないので、<code>x</code> と <code>y</code> のタプルの特別な表記方法だと思ってもらって構わない。<a href="#fnref6" class="footnote-back">↩</a></p></li>
+<li id="fn7"><p>実際には <code>ST</code> モナドとの兼ね合いで、直接こう定義はされていないが、分かりやすさのため簡略化している。<a href="#fnref7" class="footnote-back">↩</a></p></li>
+<li id="fn8"><p>実際には、最適化次第で結果が変わることもある。<a href="#fnref8" class="footnote-back">↩</a></p></li>
+<li id="fn9"><p>さらに、<code>State# RealWorld</code> は <span class="ascii">unlifted</span> なデータ型になっており、サンクを持たない。このため、強制的に正格評価になるようになっており、<code>IO</code>動作が遅延され、最後に一気に評価されるということを防いでいる。これも、通常の <span class="ascii">GHC</span> の枠組みの中で提供されているのは、とても興味深い。<a href="#fnref9" class="footnote-back">↩</a></p></li>
+<li id="fn10"><p>厳密には、残念ながら全てを特別扱いせずに済ませられているわけではない。<span class="ascii">GHC</span> では、<code>State# RealWorld</code> に関して一部の最適化で特別な処理を施している。<a href="#fnref10" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2020/property-io.html" style="margin-left: auto;" lang="ja">HspecでQuickCheckするときもshouldBeなどが使えます</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>HspecでQuickCheckするときもshouldBeなどが使えます</title>
     <link href="https://haskell.jp/blog/posts/2020/property-io.html" />
     <id>https://haskell.jp/blog/posts/2020/property-io.html</id>
@@ -161,6 +645,9 @@ here</span></a></span>😕なぜ使える？</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2020/io-monad-and-sideeffect.html" lang="ja">IO モナドと副作用</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2043,155 +2530,6 @@ here</span></a></span><span class="ascii">The Gibbon Compiler: Accelerating a sm
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/hiw-ghc-future.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、GHC 8.10に導入されるであろう機能</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>HIW 2019で発表された、GHC 8.10に導入されるであろう機能</title>
-    <link href="https://haskell.jp/blog/posts/2019/hiw-ghc-future.html" />
-    <id>https://haskell.jp/blog/posts/2019/hiw-ghc-future.html</id>
-    <published>2019-09-17T00:00:00Z</published>
-    <updated>2019-09-17T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p><a href="/posts/2019/hiw-ghc8.8.html">前回</a>から引き続き、<a href="https://icfp19.sigplan.org/home/hiw-2019#About"><span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop 2019</span></a>への参加レポートとして、私の印象に残った発表をいくつか紹介します。<br />
-今回は、「<span class="ascii">GHC 8.10</span>に導入されるであろう機能」です。<br />
-いずれも該当する<span class="ascii">Merge Request</span>は<span class="ascii">master</span>ブランチにマージ済みなので、おそらく<span class="ascii">GHC 8.10</span>で提供されるでしょう。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#holefitplugins-and-the-future-of-interactive-development-in-ghc" title="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="ascii">HoleFitPlugins and the future of interactive development in GHC</span></a></li>
-<li><a href="#visible-dependent-quantification" title="visible-dependent-quantification"><span class="ascii">Visible dependent quantification</span></a></li>
-</ul>
-</div>
-</div>
-<h2 id="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="link-to-here-outer"><a href="#holefitplugins-and-the-future-of-interactive-development-in-ghc" title="holefitplugins-and-the-future-of-interactive-development-in-ghc"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">HoleFitPlugins and the future of interactive development in GHC</span></h2>
-<ul>
-<li>発表者<span class="ascii">: Matthías Páll Gissurarson</span> <em><span class="ascii">Chalmers University of Technology, Sweden</span></em></li>
-<li>該当の<span class="ascii">Merge Request:</span> <a href="https://gitlab.haskell.org/ghc/ghc/merge_requests/153"><span class="ascii">!153</span></a></li>
-<li>該当の<span class="ascii">GHC Proposal:</span> なし</li>
-</ul>
-<p><a href="https://icfp18.sigplan.org/details/haskellsymp-2018-papers/10/Suggesting-Valid-Hole-Fits-for-Typed-Holes-Experience-Report-">昨年の<span class="ascii">Haskell Symposium</span>でも発表</a>されて<span class="ascii">GHC 8.6</span>で導入された、「<span class="ascii">Valid Hole Fits</span>」という機能のさらなる拡張について。</p>
-<p>まず、「<span class="ascii">Valid Hole Fits</span>」という機能について軽く紹介します<small>（詳しくは<a href="https://wataru86.github.io/slides/vhs/">こちらのスライド</a>が参考になるかと思います）</small>。<br />
-「<span class="ascii">Valid Hole Fits</span>」はアンダースコア <code>_</code>で始まる識別子を書いたとき、<span class="ascii">GHC</span>が推論した型にマッチする関数をエラーメッセージに付記することで、ユーザーがどんな式を書けばよいか、ヒントを与えてくれるものです。</p>
-<p>例えば、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">map</span> (<span class="fu">length</span> <span class="op">.</span> _someFunc) [<span class="dt">True</span>, <span class="dt">False</span>, <span class="dt">True</span>]</a></code></pre></div>
-<p>上記のように、アンダースコア <code>_</code>で始まる識別子を書いたとき、</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">1</span><span class="op">:</span><span class="dv">16</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></a>
-<a class="sourceLine" id="cb2-2" title="2">    <span class="op">...</span></a>
-<a class="sourceLine" id="cb2-3" title="3">      <span class="dt">Valid</span> hole fits include</a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="ot">        enumFrom ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Enum</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a]</a>
-<a class="sourceLine" id="cb2-5" title="5">          with <span class="fu">enumFrom</span> <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-6" title="6">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Enum</span>’))</a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="ot">        show ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb2-8" title="8">          with <span class="fu">show</span> <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-9" title="9">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Show</span>’))</a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="ot">        repeat ::</span> <span class="kw">forall</span> a<span class="op">.</span> a <span class="ot">-&gt;</span> [a]</a>
-<a class="sourceLine" id="cb2-11" title="11">          with <span class="fu">repeat</span> <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-12" title="12">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.List</span>’))</a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="ot">        return ::</span> <span class="kw">forall</span> (<span class="ot">m ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> m a</a>
-<a class="sourceLine" id="cb2-14" title="14">          with <span class="fu">return</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-15" title="15">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
-<a class="sourceLine" id="cb2-16" title="16"><span class="ot">        pure ::</span> <span class="kw">forall</span> (<span class="ot">f ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> f a</a>
-<a class="sourceLine" id="cb2-17" title="17">          with <span class="fu">pure</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-18" title="18">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
-<a class="sourceLine" id="cb2-19" title="19"><span class="ot">        mempty ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span> a</a>
-<a class="sourceLine" id="cb2-20" title="20">          with <span class="fu">mempty</span> <span class="op">@</span>(<span class="dt">Bool</span> <span class="ot">-&gt;</span> [a0])</a>
-<a class="sourceLine" id="cb2-21" title="21">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a></code></pre></div>
-<p>といった具合に、アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>、実際にその型に該当する関数を、当該のスコープにおいてアクセスできる関数の中から探して教えてくれる、それが「<span class="ascii">Valid Hole Fits</span>」という機能です。</p>
-<p>今回発表された「<span class="ascii">HoleFitPlugins</span>」という機能は、名前のとおりこの「<span class="ascii">Valid Hole Fits</span>」に対するプラグイン機構です。<br />
-「<span class="ascii">Valid Hole Fits</span>」が表示する「型にマッチした関数」を探す処理を、<span class="ascii">Haskell</span>のコードで書き換えられるようにしてくれます！</p>
-<p>「そこまでする必要あるの？」という気もしてきますが、発表者曰く</p>
-<ul>
-<li><span class="ascii">Hoogle</span>をはじめ、<span class="ascii">TensorFlow</span>など<span class="ascii">GHC</span>の外部にあるものを利用して「型にマッチした関数」を探せるようにするために必要</li>
-<li><span class="ascii">GHCi</span>とこの機構を組み合わせることで、もっとインタラクティブな開発を促進したい</li>
-</ul>
-<p>という意図があるそうです。</p>
-<p>最新安定版の<span class="ascii">GHC</span>では利用できませんが、<a href="https://ghc.gitlab.haskell.org/ghc/doc/users_guide/extending_ghc.html#hole-fit-plugins">ドキュメントがこちら</a>にあるので、<span class="ascii">GHC</span>の<span class="ascii">HEAD</span><small>（<span class="ascii">master</span>ブランチで開発中のバージョン）</small>をコンパイルすれば使用できるようです。</p>
-<p>加えて発表では、<code>_</code>で始まる識別子を書く際の構文を拡張することで、どのように<span class="ascii">candidate</span>を探すか指定できるようにする、なんて機能も紹介されました<small>（ドキュメントを読む限りこの機能はまだ<span class="ascii">HEAD</span>に入ってない？）</small>。<br />
-例えば、<span class="ascii">Hoogle</span>を使って<span class="ascii">Valid Hole Fits</span>を探したいとき、次のように書くことで検索対象を<code>Control.Applicative</code>に限定する、といったことをできるようしてくれます。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">g ::</span> [a] <span class="ot">-&gt;</span> [[a]]</a>
-<a class="sourceLine" id="cb3-2" title="2">g <span class="ot">=</span> _{hoogleLookup <span class="st">&quot;+Control.Applicative&quot;</span>}</a></code></pre></div>
-<p><span class="ascii">Valid Hole Fits</span>の検索方法をその場で微調整したい、というときに使うものですね。</p>
-<h2 id="visible-dependent-quantification"><span class="link-to-here-outer"><a href="#visible-dependent-quantification" title="visible-dependent-quantification"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Visible dependent quantification</span></h2>
-<ul>
-<li>発表者<span class="ascii">: Ryan Scott</span> <em><span class="ascii">Indiana University at Bloomington, USA</span></em></li>
-<li>該当の<span class="ascii">Merge Request:</span> <a href="https://gitlab.haskell.org/ghc/ghc/merge_requests/378"><span class="ascii">!378</span></a></li>
-<li>該当の<span class="ascii">GHC Proposal:</span> <a href="https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0081-forall-arrow.rst"><span class="ascii">0081-forall-arrow</span></a></li>
-</ul>
-<p>タイトルのとおり、「<span class="ascii">Visible dependent quantification</span>」という機能の紹介です。</p>
-<p>最近のバージョンの<span class="ascii">GHCi</span>における<code>:kind</code>コマンドは、次のような、<span class="ascii">GHC</span>がサポートしていない構文の型注釈を出力することがあります。<br />
-例えば</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XKindSignatures</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XPolyKinds</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">SomeType</span> k (<span class="ot">a ::</span> k)</a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="op">&gt;</span> <span class="op">:</span>kind <span class="dt">SomeType</span></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
-<p>における、<code>SomeType :: forall k -&gt; k -&gt; *</code>の<code>forall k -&gt;</code>という部分です。<br />
-現在の<span class="ascii">Haskell</span>で<code>forall k</code>などと書くときは、必ず</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k<span class="op">.</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
-<p>といった具合に、ピリオドで区切った構文になります。<br />
-ところが先ほどの<code>:kind</code>の出力では、<code>forall k -&gt;</code>とあるとおり、<code>forall k</code>に<small>（型ではなく、カインドとしての）</small>関数を表す<code>-&gt;</code>が使われています。<br />
-「<span class="ascii">Visible dependent quantification</span>」はまさにこれを、<code>:kind</code>コマンドによって出力される構文だけではなく、ユーザーが直接書ける構文にしよう、というものです。 <span class="ascii">GHC</span>に「依存型」という機能を加える「<span class="ascii">Dependent Haskell</span>」にも必要な機能だそうです。<br />
-私自身はこの機能を使う機会がちょっと思い浮かばなかったので省略しますが、より詳しい解説は発表者である<a href="https://ryanglscott.github.io/2019/03/15/visible-dependent-quantification-in-haskell/"><span class="ascii">Ryan</span>自身による記事（英語）</a>をご覧ください。何が「<span class="ascii">Visible</span>」でどう「<span class="ascii">Dependent</span>」なのかわかるはずです。</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>復習<span class="ascii">:</span> この、「アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で」エラーメッセージにおいて<code>Found hole: _someFunc :: Bool -&gt; [a0]</code>と教えてくれるのが「<span class="ascii">Type Hole</span>」という機能なのでした。<a href="#fnref1" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/hiw-gibbon.html" lang="ja">HIW 2019で発表された、Gibbonコンパイラーについて</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/hiw-ghc8.8.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、GHC 8.8で導入された機能</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
