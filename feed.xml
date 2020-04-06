@@ -66,7 +66,7 @@ here</span></a></span>純粋性とは何か</h2>
 <blockquote>
 <p><span class="ascii">Every function in Haskell is a function in the mathematical sense (i.e.,</span> “<span class="ascii">pure</span>”<span class="ascii">).</span></p>
 <p><span class="ascii">Haskell</span> の全ての関数は、数学の意味での関数 <span class="ascii">(</span>つまり「純粋」<span class="ascii">)</span> です。</p>
-<p>– <span class="ascii">https://www.haskell.org/</span></p>
+<p>– <a href="https://www.haskell.org/"><span class="ascii">haskell.org</span></a> <span class="ascii">Features: Purely functional</span> より</p>
 </blockquote>
 <p>ふむ、どうやら全ての関数が、数学的な意味での関数であれば、そのプログラミング言語は純粋と言えるようだ。ところで、数学的な意味での関数とはなんだろうか？ 関数が純粋とはどういうことを指すんだろうか？ これは噛み砕くと、</p>
 <ol type="1">
@@ -117,9 +117,7 @@ here</span></a></span>動作を扱う関数</h2>
 <li>その動作をした結果、得られる値の型が <code>a</code> であることを表す</li>
 </ul>
 <p>型だ。抽象的すぎてあまりピンとこないかもしれない。もし、その動作が結果を返す以外に何もしないなら、それは純粋な操作であるから、次のように書ける<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">data</span> <span class="dt">PureAction</span> a <span class="ot">=</span> <span class="dt">PureAction</span></a>
-<a class="sourceLine" id="cb4-2" title="2">  {<span class="ot"> runPureAction ::</span> () <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb4-3" title="3">  }</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">data</span> <span class="dt">PureAction</span> a <span class="ot">=</span> <span class="dt">PureAction</span> (() <span class="ot">-&gt;</span> a)</a></code></pre></div>
 <p>つまり、引数が何もない純粋関数だ。例えば、整数を<span class="ascii">2</span>つ受け取って、その和を計算する動作を返す関数は次のように書けるだろう<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">addAction ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">PureAction</span> <span class="dt">Int</span></a>
 <a class="sourceLine" id="cb5-2" title="2">addAction x y <span class="ot">=</span> <span class="dt">PureAction</span> (\_ <span class="ot">-&gt;</span> x <span class="op">+</span> y)</a></code></pre></div>
@@ -144,19 +142,19 @@ here</span></a></span>動作を扱う関数</h2>
 <li>結果を捨て</li>
 <li><code>()</code> を返す</li>
 </ol>
-<p>というプログラムだ。このプログラムを評価しても、結果の <code>()</code> だけしか目にしないはずで、何回実行しても同じ結果が得られるはずだ。そう説明すると、ちょっと <span class="ascii">Haskell</span> をかじった人は</p>
+<p>というプログラムだ。このプログラムを評価しても、<code>()</code> だけしか目にしないはずで、何回実行しても同じ結果が得られるはずだ。つまり、<code>putStrLn</code> は余計なことを何もしていないと言えるだろう。そう説明すると、ちょっと <span class="ascii">Haskell</span> をかじった人は</p>
 <blockquote>
-<p>この説明は間違っている。この式は <code>putStrLn "str"</code> を全く評価していないので、実際に <code>putStrLn "str"</code> が余計なことを何もしていないかは分からない。</p>
+<p>この説明は間違っている。この式は <code>putStrLn "str"</code> を全く評価していないので、実際に <code>putStrLn "str"</code> が余計なことを何もしていないかは分からない</p>
 </blockquote>
 <p>と言うだろう。その通りだ。この説明は間違っている。それを確認してみよう<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">let</span> _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;something happened!&quot;</span> <span class="kw">in</span> ()</a>
 <a class="sourceLine" id="cb7-2" title="2">()</a></code></pre></div>
-<p>もし、さっきの <code>putStrLn "str"</code> がちゃんと計算されていたなら、今回は <code>something happened!</code> というエラーが見れるはずだ。ところが、全く何の問題もなく式の実行は終わり、<code>()</code> が出力されてしまった。では、ちゃんと修正してみよう。修正は、<code>seq</code> という魔法の関数を使うことで可能だ<span class="ascii">:</span></p>
+<p>もし、さっきの <code>putStrLn "str"</code> がちゃんと計算されていたなら、今回は <code>something happened!</code> というエラーが見れるはずだ。ところが、全く何の問題もなく式の実行は終わり、<code>()</code> が出力されてしまった。<span class="ascii">Haskell</span> は遅延評価により、最終結果に本当に必要な部分しか計算してくれないので、<code>putStrLn "str"</code> の部分は計算されず無視されてしまっていただけのようだ。では、ちゃんと修正してみよう。修正は、<code>seq</code> という魔法の関数を使うことで可能だ。<code>seq :: a -&gt; b -&gt; b</code> は一番最初に渡された引数を <span class="ascii">(</span>必要かどうかに関わらず、強制的に<span class="ascii">)</span> 計算し、その後<span class="ascii">2</span>番目の引数を返す関数だ。この関数を使うと、次のように修正が可能だ<span class="ascii">:</span></p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;str&quot;</span> <span class="ot">`seq`</span> ()</a>
 <a class="sourceLine" id="cb8-2" title="2">()</a>
 <a class="sourceLine" id="cb8-3" title="3"><span class="op">&gt;&gt;&gt;</span> <span class="fu">error</span> <span class="st">&quot;something happened!&quot;</span> <span class="ot">`seq`</span> ()</a>
 <a class="sourceLine" id="cb8-4" title="4"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> something happened<span class="op">!</span></a></code></pre></div>
-<p>今度は大丈夫だろう。<code>putStrLn "str"</code> の部分をエラーに変えると、ちゃんとエラーが出力されている。そう、<code>putStrLn "str"</code> が実行されて実際に行われるのは、その定義通り</p>
+<p>今度は大丈夫だろう。<code>putStrLn "str"</code> の部分をエラーに変えると、ちゃんとエラーが出力されている。<code>putStrLn "str"</code> は計算されているようだ。そう、<code>putStrLn "str"</code> が実行されて実際に行われるのは、その定義通り</p>
 <ul>
 <li>「ターミナルに <code>"str"</code> を出力する動作」を返す</li>
 </ul>
@@ -332,7 +330,7 @@ here</span></a></span>まとめ</h2>
 here</span></a></span>おまけ<span class="ascii">: IO</span>モナドの実装</h2>
 <p>ところで、もしかしたら、読者の中には、</p>
 <blockquote>
-<p><span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドは、現実世界を状態にする <span class="ascii">State</span> モナドだ。</p>
+<p><span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドは、現実世界を状態にする <span class="ascii">State</span> モナドだ</p>
 </blockquote>
 <p>という主張を、見たことがある人がいるかもしれない。最後におまけとしてこの話に触れておこうと思う。気になる人は、この後も呼んでみると、<code>IO</code> モナドの理解の助けになるかもしれない <span class="ascii">(</span>または、むしろ混乱するかもしれない。もし、混乱したなら、とりあえずこの話は忘れることをお勧めする。ここに書いてある話を理解しなくても、<code>IO</code> モナドの利用に関して全く支障はない。そういう話もあるぐらいの事柄だ。なので、安心してまずは <span class="ascii">Haskell</span> プログラミングを楽しんでほしい。いつか楽しみ飽きたら戻ってきてもいいかもしれない<span class="ascii">)</span>。</p>
 <p>まず、この話は、</p>
@@ -386,12 +384,12 @@ here</span></a></span>おまけ<span class="ascii">: IO</span>モナドの実装
 <a class="sourceLine" id="cb30-10" title="10">  (<span class="op">#</span> r3<span class="op">#</span>, b1 <span class="op">==</span> b2 <span class="op">#</span>)</a>
 <a class="sourceLine" id="cb30-11" title="11"><span class="op">:</span>}</a>
 <a class="sourceLine" id="cb30-12" title="12"><span class="dt">False</span></a></code></pre></div>
-<p><code>b1</code> と <code>b2</code> は両方とも <code>readMutVar# var# r1#</code> から得た値になる。ところが、これらを比較してみると <code>False</code> になる <a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> 。なお、この式は、<code>IO</code> 型で定義しているが、実際には</p>
+<p><code>b1</code> と <code>b2</code> は両方とも <code>readMutVar# var# r1#</code> から得た値になる。ところが、これらを比較してみると <code>False</code> になる <a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> 。もし、<code>readMutVar#</code> が純粋なら、<code>b1</code> と <code>b2</code> の結果は同じになるため、上の評価結果は <code>True</code> になるはずだ。しかし、残念ながら <code>readMutVar#</code> は純粋ではないので、<code>b1</code> と <code>b2</code> は異なる値になってしまう。なお、この式は、<code>IO</code> 型で定義しているが、実際には</p>
 <ul>
 <li><span class="ascii">2</span> 回目の <code>readMutVar#</code> の呼び出しで <code>r1#</code> を <span class="ascii">2</span> 回使用しているし、</li>
 <li>返ってきた <code>State# RealWorld</code> の値を捨てている</li>
 </ul>
-<p>ので契約違反であることに注意だ。</p>
+<p>ので契約違反であることに注意だ。<span class="ascii">GHCi</span> 上で、うまく評価結果を確認するために、<code>IO</code> を使っている。</p>
 <p>さて、純粋性を守れないなら、<span class="ascii">GHC</span> は一体全体何のためにこのような定義をしているんだろう？ 関数が純粋でなくてもいいなら、単に</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (() <span class="ot">-&gt;</span> a)</a></code></pre></div>
 <p>と定義しても問題ないのではないだろうか？ この方が自然に動作を表しているように思える。ところが、このような定義は、ある問題を招くのだ。<span class="ascii">Haskell</span> は純粋関数型プログラミング言語という売りの他に、遅延評価という他の言語にはあまり見られない評価機構を採用している。もちろん、<span class="ascii">GHC</span> も遅延評価が基本だ。正確には、<span class="ascii">Haskell</span> の評価順序は、</p>
@@ -425,7 +423,7 @@ here</span></a></span>おまけ<span class="ascii">: IO</span>モナドの実装
 <p>特に、<code>(&gt;&gt;=)</code> の定義が重要になる。<code>(&gt;&gt;=)</code> が返してくる <code>IO</code> の中身は、</p>
 <ol type="1">
 <li>受け取った <code>State# RealWorld</code> をまず最初の <code>IO</code> 動作に渡す</li>
-<li>その結果出てきた結果を <code>g</code> に渡して、次の <code>IO</code> 動作を生成する</li>
+<li>その結果を <code>g</code> に渡して、次の <code>IO</code> 動作を生成する</li>
 <li>生成した <code>IO</code> 動作に、最初の <code>IO</code> 動作が返してきた <code>State# RealWorld</code> を渡す</li>
 </ol>
 <p>ということを行っている。これにより、</p>
