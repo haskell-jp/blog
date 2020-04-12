@@ -2,8 +2,8 @@
 title: Strict拡張を使用する際の注意点
 headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
-author: Yuji Yamamoto
-postedBy: <a href="http://the.igreque.info/">Yuji Yamamoto(@igrep)</a>
+author: YAMAMOTO Yuji
+postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a>
 date: January 26, 2020
 tags:
 ...
@@ -19,7 +19,7 @@ Haskellは他の多くのプログラミング言語と異なった特徴を持�
 これらの拡張を大雑把に言うと、
 
 - `StrictData`: 値コンストラクターにおいて、引数の値が弱頭正規形（Weak Head Normal Form。以降慣習に従い「WHNF」と呼びます）まで評価されるようになる
-- `Strict`: 値コンストラクターを含めたあらゆる関数やローカル変数の定義において、パターンマッチで束縛した変数の値がWHNFまで評価されるようになる
+- `Strict`: 値コンストラクターを含めたあらゆる関数やローカル変数の定義において、パターンマッチで代入した変数の値がWHNFまで評価されるようになる
 
 というものです。
 
@@ -56,9 +56,59 @@ stack exec runghc -- <これから紹介するコードのファイル>.hs
 
 なお、使用したGHCのバージョンは8.6.5で、OSはWindows 10 ver. 1909です。
 
-# Case hoge: `where`句だろうとなんだろうと評価
+# Case 1: `where`句だろうとなんだろうと評価
 
-hoge
+最初のケースは、遅延評価で当たり前に享受していたメリットが、`Strict`を有効にしている状態では得られなくなってしまう、というものです。  
+[pfxfncさんのStrict拡張でハマったお話](https://qiita.com/pxfnc/items/a26bda6d11402daba675)という記事でも紹介されてはいますが、まとめ記事なのでここでも改めて取り上げます。
+
+```haskell
+main :: IO ()
+main = print $ div10 0
+
+div10 :: Int -> Int
+div10 n
+  | n == 0    = 0
+  | otherwise = result
+ where
+  result = 10 `div` n
+```
+
+ご覧のとおり、本当にほとんどpfxfncさんの記事のサンプルそのままで恐縮ですが、このプログラム、👇のように`Strict`拡張を有効にして実行するとエラーが起こります。
+
+```bash
+> stack exec -- runghc --ghc-arg=-XStrict where.hs
+where.hs: divide by zero
+```
+
+一方、`Strict`拡張を有効にしなかった場合、エラーは起こりません。
+
+```bash
+> stack exec -- runghc where.hs
+0
+```
+
+なぜこんなことが起こるのでしょう？
+
+これは、`Strict`拡張がパターンマッチで代入したあらゆる変数の値をWHNFまで評価するようになった結果、`where`句で代入した変数まで必ずWHNFまで評価してしまうために発生したエラーです。  
+すなわち、`where`における、
+
+```haskell
+  result = 10 `div` n
+```
+
+までもが、
+
+```haskell
+  !result = 10 `div` n
+```
+
+とBangパターンを付けた代入であるかのように解釈されたのです[^bangpatterns]。
+
+[^bangpatterns]: `BangPatterns`言語拡張を有効にした上で上記のように書き換えてみると、`Strict`拡張の有無に関わらずエラーが発生します。試してみましょう。
+
+こうなると、`result`を使用しないケース、すなわち`n == 0    = 0`の場合であっても`result`に <small>（WHNFまで評価した）</small>値を代入するのに必要な計算は実行され、結果<code>10 `div` 0</code>が計算されようとして`divide by zero`が発生するのです。
+
+`where`句は関数定義の後ろの方に書くという性格上、見落としがちかも知れません。注意しましょう。
 
 # Case hoge: ポイントフリースタイルかどうかで変わる！
 

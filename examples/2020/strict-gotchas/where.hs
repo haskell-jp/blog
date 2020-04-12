@@ -6,6 +6,7 @@
 -- And
 --    runghc --ghc-arg=-XStrict where.hs
 
+
 main :: IO ()
 main = print $ div10 0
 
