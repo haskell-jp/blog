@@ -15,11 +15,11 @@ Haskellは他の多くのプログラミング言語と異なった特徴を持�
 遅延評価は、適切に扱えば不要な計算を行わず、計算資源を節約してくれるステキな仕組みですが、一歩使い方を間違うと「サンク」という「これから実行する<small>（かも知れない）</small>計算」を表すオブジェクトが大量の作られてしまい、却ってメモリー消費量が増えてしまう、などといった問題を抱えています。  
 この現象は「スペースリーク」と呼ばれ、かつて[専門のAdvent Calendar](https://qiita.com/advent-calendar/2015/haskell-space-leaks)が作られたことがあるほど、Haskeller達の関心を集めてきました。
 
-そんなHaskeller達の悩みの種を軽減しようと、GHC 8.0以降、[`Strict`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)と[`StrictData`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)という拡張が作られました。  
+そんなHaskeller達の悩みの種を軽減しようと、GHC 8.0以降、[`Strict`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)と[`StrictData`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)という拡張が搭載されました。  
 これらの拡張を大雑把に言うと、
 
 - `StrictData`: 値コンストラクターにおいて、引数の値が弱頭正規形（Weak Head Normal Form。以降慣習に従い「WHNF」と呼びます）まで評価されるようになる
-- `Strict`: 値コンストラクターを含めたあらゆる関数やローカル変数の定義において、パターンマッチで代入した変数の値がWHNFまで評価されるようになる
+- `Strict`: `StrictData`の効果に加え、あらゆる関数やローカル変数の定義において、パターンマッチで代入した変数の値がWHNFまで評価されるようになる
 
 というものです。
 
@@ -54,7 +54,7 @@ stack exec runghc -- <これから紹介するコードのファイル>.hs
 
 実際に試すときは`-XStrict`というオプションを`runghc`に付けた場合と付けなかった場合両方で実行して、違いを確かめてみてください。
 
-なお、使用したGHCのバージョンは8.6.5で、OSはWindows 10 ver. 1909です。
+なお、使用したGHCのバージョンは8.8.3で、OSはWindows 10 ver. 1909です。
 
 # Case 1: `where`句だろうとなんだろうと評価
 
@@ -110,15 +110,112 @@ where.hs: divide by zero
 
 `where`句は関数定義の後ろの方に書くという性格上、見落としがちかも知れません。注意しましょう。
 
-# Case hoge: ポイントフリースタイルかどうかで変わる！
+# Case 2: ポイントフリースタイルかどうかで変わる！
 
-hoge
+続いて、Haskellに慣れた方なら誰もが一度は試したくなる、ポイントフリースタイルに関する落とし穴です。  
+まずは次の二つの関数をご覧ください。
+
+```haskell
+dontReferArgs :: a -> b -> a
+dontReferArgs = const
+
+referArgs :: a -> b -> a
+referArgs x _ = x
+```
+
+この関数、どちらもやっていることは`const`と変わりません。  
+`dontReferArgs`は`const`をそのまま使うことでポイントフリースタイルにしていますが、`referArgs`は自前で引数に言及することで`const`と同等の定義となっています。  
+ポイントフリースタイルに変えると言うことは原則として元の関数の挙動を変えないワケですから、`dontReferArgs`と`referArgs`の意味は変わらないはず、ですよね[^opt]？  
+
+[^opt]: 実際のところ今回紹介するケース以外にも、ポイントフリースタイルにするかしないかで実行効率などが変わる場合があります。例えば、[Evaluation of function calls in Haskell](https://treszkai.github.io/2019/07/13/haskell-eval)をご覧ください。
+
+ところがこれらの関数を`Strict`拡張を有効にした上で定義すると、なんと挙動が異なってしまいます！
+
+使用例:
+
+```haskell
+main :: IO ()
+main = do
+  print $ dontReferArgs "dontReferArgs" (undefined :: Int)
+  print $ referArgs "referArgs" (undefined :: Int)
+```
+
+実行結果（Strict拡張を有効にしなかった場合）:
+
+```bash
+> stack exec runghc const.hs
+"dontReferArgs"
+"referArgs"
+```
+
+実行結果（Strict拡張を有効にした場合）:
+
+```bash
+> stack exec -- runghc --ghc-arg=-XStrict const.hs
+"dontReferArgs"
+const.hs: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries\base\GHC\Err.hs:80:14 in base:GHC.Err
+  undefined, called at const.hs:10:34 in main:Main
+```
+
+はい、`where`句のケースと同様、`Strict`拡張を有効にした場合、例外が発生してしまいました❗️  
+`Strict`拡張を有効にした結果、意図せず例外を発生させる値<small>（今回の場合`undefined`）</small>が評価されてしまったのです。
+
+例外を発生させた関数はそう、ポイントフリースタイルでない、`referArgs`関数の方です！  
+なぜ`referArgs`でのみ例外が発生してしまったのかというと、`referArgs`が`Strict`拡張を有効にしたモジュールで、引数に言及しているからです。  
+`Strict`拡張を有効にした結果「あらゆる関数やローカル変数の定義において、パターンマッチで代入した変数の値」が評価されるようになるとおり、`referArgs`の引数`x`・`_`も必ず評価されるようになり、このような例外が発生したのです。  
+たとえ使用しない変数`_`でも関係ありません！
+
+そのため、原因の本質は引数に言及<small>（してパターンマッチ）</small>しているか否かであり、`Prelude`の`const`を使用しているか否かではありません。  
+こちら👇のように引数に言及した上で`const`を使っても、結果は同じなのです。
+
+```haskell
+referArgsByConst :: a -> b -> a
+referArgsByConst x y = const x y
+```
+
+```haskell
+print $ referArgsByConst "referArgsByConst" (undefined :: Int)
+```
+
+一方、`dontReferArgs`については、引数に言及せず、`Prelude`にある`const`をそのまま使っています。  
+`Strict`拡張ではあくまでも「パターンマッチした変数」のみをWHNFまで評価するようになるものであり、あらゆる関数が正格に呼び出されるわけではありません。  
+なので通常の`Prelude`における`const`と同様、`dontReferArgs`も第2引数は評価しないため、`undefined`を渡しても例外は起こらなかったのです。
+
+このことは、「`Strict`拡張を有効にしているモジュールの中でも、`Strict`を有効にしていないモジュールから`import`した関数は、引数を正格に評価しない」という忘れてはならないポイントも示しています。  
+例えば`const`よりももっと頻繁に使われるであろう、言及する引数を一つ削除する演算子の代表である、関数合成`.`を使ったケースを考えてみてください。
+
+ポイントフリースタイルに慣れた方なら、関数適用`$`を次👇のように使って定義した`f`を見ると、
+
+```haskell
+f xs = map (+ 3) $ filter (> 2) xs
+
+-- あるいは、`$`を使わないでこのように書いた場合も:
+f xs = map (+ 3) (filter (> 2) xs)
+```
+
+こちら👇のように書き換えたくなってうずうずするでしょう。
+
+```haskell
+f = map (+ 3) . filter (> 2)
+```
+
+しかし、`Strict`を有効にしたモジュールでこのような書き換えを行うと、`f`の挙動が変わってしまいます。  
+引数`.`を使って書き換える前は、引数`xs`に言及していたところ`.`を使って引数`xs`に言及しなくなったからです。  
+こうした書き換えによって、**`Strict`拡張を有効にしていても意図せず遅延評価してしまう**というリスクがあるので、リファクタリングの際はくれぐれも気をつけてください[^list]。  
+ざっくりまとめると、`Strict`拡張を有効にしているモジュールでは、「引数や変数を宣言することすなわちWHNFまで評価すること」、あるいは「引数や変数を宣言しなければ、評価されない」と意識しましょう。
+
+[^list]: もっとも、この場合引数はリストでしょうから、WHNFまでのみ正格評価するメリットは少なそうですが。
+
+ちなみに、`referArgs`における`_`のように「`Strict`拡張を有効にした場合さえ、使用していない引数が評価されてしまうのは困る！」という場合は、引数名の前にチルダ`~`を付けてください。
+
+```haskell
+referArgs :: a -> b -> a
+referArgs x ~_ = x
+```
 
 # Case hoge: 内側のパターンはやっぱりダメ
-
-hoge
-
-## [strict-types](https://github.com/pepeiborra/strict-types)が使えるかも
 
 hoge
 
