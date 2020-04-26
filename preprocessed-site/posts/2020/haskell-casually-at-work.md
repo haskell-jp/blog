@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: takenobu.hs
 postedBy: takenobu.hs
-date: April 25, 2020
+date: April 26, 2020
 tags:
 ...
 ---
@@ -67,7 +67,7 @@ Haskellは、関数合成や部分適用や高階関数や多相関数などの�
 しかし、データの構造が複雑であったり再帰的な構造である場合には、正規表現をデバッグするよりも、Haskellで思い切ってパーサーを書いてしまう方が手早く済ませられることがあります。
 
 Haskellでは、関数の組み立てが容易であることやdo記法といった言語的な特徴を活かし、簡潔にパーサーを記述することができます。
-言語的な特徴を活かした便利なパーサーコンビネータ関連のライブラリ（[`Parsec`](https://hackage.haskell.org/package/parsec)や[`Megaparsec`](https://hackage.haskell.org/package/megaparsec)など）が豊富に存在します。
+言語的な特徴を活かした便利なパーサーコンビネータ関連のライブラリ（[`Parsec`](https://hackage.haskell.org/package/parsec)や[`Megaparsec`](https://hackage.haskell.org/package/megaparsec)や[`replace-attoparsec`](https://hackage.haskell.org/package/replace-attoparsec)など）が豊富に存在します。
 
 一度パーサーの骨格を用意してしまえば、流用は容易であるため、強力な日常ツールとしてHaskellを便利に使用できます。
 
@@ -89,6 +89,8 @@ Haskellは、代数的データ型を用いて再帰的なデータ構造を簡�
 その都度、電卓で計算したり、Excelなどの計算フォームを用意することで、手軽に業務を済ませられる場合もあります。
 
 しかし、繰り返し必要となる計算式や、ある程度複雑な計算であれば、これらの計算式などを、Haskellの関数群として定義しておき、対話環境GHCiから用いることで、使い勝手良く素早く値を得ることができます。
+
+数値や対話操作などを補助する便利なライブラリ([`Numeric`](https://hackage.haskell.org/package/base/docs/Numeric.html)や[`Data.Bits`](https://hackage.haskell.org/package/base/docs/Data-Bits.html)や[`Data.GHex`](http://hackage.haskell.org/package/ghci-hexcalc/docs/Data-GHex.html))や言語拡張([`BinaryLiterals`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#binary-integer-literals)や[`NumericUnderscores`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#numeric-underscores))などが豊富に存在します。
 
 Haskellにおける関数の組み立てが容易な特徴は、対話環境における対話的な操作との相性が良いため、試行錯誤的な計算作業にも有用です。
 
