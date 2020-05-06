@@ -65,7 +65,6 @@ stack exec runghc -- <これから紹介するコードのファイル>.hs
 [pfxfncさんのStrict拡張でハマったお話](https://qiita.com/pxfnc/items/a26bda6d11402daba675)という記事でも紹介されてはいますが、まとめ記事なのでここでも改めて取り上げます。
 
 ```haskell
-main :: IO ()
 main = print $ div10 0
 
 div10 :: Int -> Int
@@ -276,13 +275,85 @@ hoge
 
 # Case 5: `undefined`を受け取るメソッド
 
-最後は、ちょっとレアケースではありますが、
+サンプル: [storable.hs](https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/storable.hs)
+
+最後はちょっとレアケースではありますが、こちら👇のIssueで発覚した問題を解説しましょう。
 
 [#16810: Use explicit lazy binding around undefined in inlinable functions · Issues · Glasgow Haskell Compiler / GHC · GitLab](https://gitlab.haskell.org/ghc/ghc/issues/16810)
 
-サンプル: [storable.hs](https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/storable.hs)
+問題を簡単に再現するために、次のサンプルコードを用意しました。
 
-hoge
+```haskell
+-- importなどは当然省略！
+data Test = Test Int Int deriving Show
+
+instance Storable Test where
+  sizeOf _ = sizeOf (1 :: Int) * 2
+  alignment _ = 8
+  peek = error "This should not be called in this program"
+  poke = error "This should not be called in this program"
+
+main = alloca $ \(_ :: Ptr Test) -> putStrLn "This won't be printed when Strict is enabled"
+```
+
+はい、適当な型を定義して[`Storable`](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#t:Storable)のインスタンスにして、それに対して[`alloca`](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Marshal-Alloc.html#v:alloca)を呼ぶだけのコードです。  
+インスタンス定義がかなり手抜きな感じになっちゃってますが、まぁ今回の問題を再現するのにはこれで十分なので、ご了承ください🙏。
+
+このコード、残念ながら`Strict`拡張を有効にした状態で実行すると、`undefined`による例外が発生してしまいます。
+
+```bash
+> stack exec -- runghc --ghc-arg=-XStrict storable.hs
+storable.hs: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
+  undefined, called at libraries\base\Foreign\Marshal\Alloc.hs:117:31 in base:Foreign.Marshal.Alloc
+```
+
+こちらは`Strict`を有効にしなかった場合。やはり例外は起きてませんね😌。
+
+```bash
+> stack exec -- runghc storable.hs
+This won't be printed when Strict is enabled
+```
+
+さてこの、`Strict`拡張を有効にした場合に発生した、`undefined`による例外はどこからやってきたのでしょう？  
+上記のコードにはいくつか`error`関数を使用している箇所がありますが、発生した例外はあくまでも`undefined`です。見た限り上記のコードそのものから発生した例外ではなさそうですね...🤔。
+
+その答えはなんと、`main`関数で呼んでいる[`alloca`の定義](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/src/Foreign-Marshal-Alloc.html#alloca)にありました！
+
+```haskell
+alloca :: forall a b . Storable a => (Ptr a -> IO b) -> IO b
+alloca  =
+  allocaBytesAligned (sizeOf (undefined :: a)) (alignment (undefined :: a))
+```
+
+確かに、`sizeOf`メソッドや`alignment`メソッドに`undefined`を渡しています。  
+これらはいずれも`Storable`型クラスのメソッドなので、上記の`Test`型でももちろん実装しています。  
+そう、実はこの`sizeOf`メソッドと`alignment`メソッドの実装で、下👇のように引数`_`を定義しているのが問題なのです！
+
+```haskell
+instance Storable Test where
+  sizeOf _ = sizeOf (1 :: Int) * 2
+  alignment _ = 8
+  -- ...
+```
+
+[「Case 2: ポイントフリースタイルかどうかで変わる！」の節](#TODO)で、「`Strict`拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわちWHNFまで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』」と述べたことを再び思い出してください。  
+こちらの`sizeOf`・`alignment`の定義でも同様に、引数`_`に言及しているため、引数を必ずWHNFまで評価することになっています。  
+結果、`alloca`関数がそれぞれを呼ぶ際`undefined`を渡しているため、`undefined`を評価してしまい、`undefined`による例外が発生してしまうのです💥。
+
+なぜこのように、`alloca`関数では`sizeOf`や`alignment`に`undefined`をわざわざ渡しているのでしょう？  
+それは、これらのメソッドがそもそも`undefined`を渡して使うことを前提に設計されているからです。  
+`sizeOf`・`alignment`はともに`Storable a => a -> Int`という型の関数なので、第一引数に`Storable`のインスタンスである型`a`の値を受け取るのですが、このとき**渡される`a`型の値は、使わない**こととなっています。  
+[それぞれのメソッドの説明](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#v:sizeOf)にも「The value of the argument is not used.」と書かれていますね。  
+これは、`sizeOf`も`alignment`も、型毎に一意な値として定まる<small>（引数の値によって`sizeOf`や`alignment`の結果が変わることがない）</small>ので、第一引数の`a`は、単に「この型の`sizeOf`を呼んでくださいね」という**型の**情報を渡すためのものでしかないからなのです。  
+だから値には関心がないので`undefined`を渡しているわけです。そもそも、`alloca`関数のように引数として`Storable a => a`型の値をとらない関数では、`a`型の値を用意することができませんし。
+
+現代では通常、このように「値に関心がなく、何の型であるかという情報だけを受け取りたい」という場合は、[`Proxy`](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Data-Proxy.html#t:Proxy)型を使うのが一般的です。  
+`Storable`は恐らく`Proxy`が発明される前に生まれたため、`undefined`を渡すことになってしまっているのでしょう。なので、`Storable`型クラスのインスタンスを自前で定義したりしない限り、こうしたケースに出遭うことはまれだと思います。  
+ただ、それでも`Proxy`を`import`するのを面倒くさがって`undefined`を代わりに渡す、なんてケースもありえるので、`Proxy`を使って定義した型クラスでも同じ問題にハマることはあるかも知れません...。
+
+⚠️結論として、`Storable`型クラスや、`Proxy`を受け取るメソッドを持つ型クラスのインスタンスを、`Strict`拡張を有効にした状態で定義する場合は、`Proxy`にあたる引数を評価しないよう、`~_`などを使って定義しましょう。
 
 # おわりに: やっぱり`Strict`は使う？使わない？
 
