@@ -55,7 +55,7 @@ stack exec runghc -- <これから紹介するコードのファイル>.hs
 
 実際に試すときは`-XStrict`というオプションを`runghc`に付けた場合と付けなかった場合両方で実行して、違いを確かめてみてください。
 
-なお、使用したGHCのバージョンは8.8.3で、OSはWindows 10 ver. 1909です。
+なお、使用したGHCのバージョンは8.10.1で、OSはWindows 10 ver. 1909です。
 
 # Case 1: `where`句だろうとなんだろうと評価
 
@@ -160,7 +160,7 @@ main = do
 "dontReferArgs"
 const.hs: Prelude.undefined
 CallStack (from HasCallStack):
-  error, called at libraries\base\GHC\Err.hs:80:14 in base:GHC.Err
+  error, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err
   undefined, called at const.hs:10:34 in main:Main
 ```
 
