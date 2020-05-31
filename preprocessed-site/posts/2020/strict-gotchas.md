@@ -259,19 +259,92 @@ MyTuple a b = MyTuple (error "a") (error "b")
 "Other value in MyTuple1"
 ```
 
-# Case 4: `foldl`と`foldr`
+# Case 4: `foldr`に渡す関数
 
-ここの話はちょっと難しいので、先に守るべくルールを述べておきます。  
-「遅延評価する関数を受け取る前提の高階関数に、
+サンプル: [stackoverflow-foldr.hs](https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/stackoverflow-foldr.hs)
 
-より具体的には、`foldr`に<small>（`Strict`拡張などで）</small>引数を正格に評価するよう定義された関数を渡すのは止めましょう、という話です。  
+ここの話はちょっと難しいので、先に守るべきルールを述べておきます。
+
+「遅延評価する関数を受け取る前提の高階関数に、（`Strict`拡張などで）正格に評価するよう定義された関数を渡すのは止めましょう。」
+
+なんだかこう書くと半ばトートロジーのようにも聞こえますが、より具体的には、例えば`foldr`に引数を正格に評価するよう定義された関数を渡すのは止めましょう、という話です。  
 `Strict`拡張を有効にした状態ではラムダ式にも注意しないといけないもポイントです。
 
-サンプル1: [stackoverflow-foldl.hs](https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/stackoverflow-foldl.hs)
+※あらかじめおことわり: この節のお話は、あくまでもリストに対する`foldr`の場合のお話です。  
+他の`Foldable`な型では必ずしも当てはまらないのでご注意ください。
 
-サンプル2: [stackoverflow-foldr.hs](https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/stackoverflow-foldr.hs)
+論より証拠で、サンプルコードの中身（抜粋）とその実行結果を見てみましょう。
 
-hoge
+```main
+-- ...
+evaluate . length $ foldr (:) [] [1 .. size]
+putStrLn "DONE: foldr 1"
+
+evaluate . length $ foldr (\x z -> x : z) [] [1 .. size]
+putStrLn "DONE: foldr 2"
+```
+
+今回のサンプルコードを実行する際は、GHCのランタイムオプションを設定して、スタックのサイズを減らしてください。  
+そうでなければ、処理するリストがあまり大きくないので`Strict`拡張を有効にしても問題の現象は再現されないでしょう[^bigger-list]。  
+[こちらのStackoverflowの質問](https://stackoverflow.com/questions/29339643/how-can-i-pass-rts-options-to-runghc)曰く、`runghc`で実行する際にランタイムオプションを設定する場合は、`GHCRTS`環境変数を使用するしかないそうです。
+
+[^bigger-list]: 大きなリストにすると、今度はエラーが発生するまでに時間がかかってしまうので...。
+
+実行結果（Strict拡張を有効にしなかった場合）:
+
+```bash
+> GHCRTS=-K100k stack exec runghc -- ./stackoverflow-foldr.hs
+DONE: foldr 1
+DONE: foldr 2
+```
+
+実行結果（Strict拡張を有効にした場合）:
+
+```bash
+> GHCRTS=-K100k stack exec runghc -- --ghc-arg=-XStrict ./stackoverflow-foldr.hs
+DONE: foldr 1
+stackoverflow-foldr.hs: stack overflow
+```
+
+はい、サンプルコードは整数のリストに対して特に何も変換せず`foldr`する<small>（そして、`length`関数でリスト全体を評価してから捨てる）</small>だけのことを2回繰り返したコードです。  
+最初の`foldr`は`Strict`拡張があろうとなかろうと無事実行できたにもかかわらず、2つめの`foldr`は`stack overflow`というエラーを起こしてしまいました💥！
+
+なぜこんなエラーが発生したのかを知るために、`foldr`の定義を見直しましょう。  
+こちら👇は[GHC 8.10.1における、リストに対する`foldr`の定義](http://hackage.haskell.org/package/base-4.14.0.0/docs/src/GHC.Base.html#foldr)です<small>（コメントは省略しています）</small>。
+
+```haskell
+foldr            :: (a -> b -> b) -> b -> [a] -> b
+foldr k z = go
+          where
+            go []     = z
+            go (y:ys) = y `k` go ys
+```
+
+`go`という補助関数を再帰的に呼び出すことで、第一引数として渡した関数`k`でリストの要素(`y`)を一つずつ変換しています。  
+呼び出す度にリストの残りの要素をチェックして、最終的に空のリストを受け取ったときは`foldr`の第二引数`z`を返していますね。
+
+このとき`k`が第二引数を遅延評価する関数であった場合、 --- サンプルコード言えば`(:)`の場合 --- 受け取った`go ys`という式は直ちには評価されません。  
+サンプルコードの`(:)`に置き換えると、`(:)`の第二引数、つまりリストの残りの要素を取り出そうとする度に`go ys`を一度計算して一個ずつ要素を作り出すイメージです。
+
+一方、`k`が第二引数を正格評価する関数であった場合、 --- サンプルコードで言うところの、`Strict`拡張を有効にした`(\x z -> x : z)`の場合 --- 受け取った`go ys`を`k`はすぐに評価しようとします。  
+このとき、GHCは`k`や`go`に渡されている引数をスタックに積みます[^rts]。  
+そうして`go`と、`go`に呼ばれた`k`が次々と引数をスタックに積んだ結果、スタックサイズの上限に達し、スタックオーバーフローが発生してしまうのです。
+
+[^rts]: GHCがどのように評価し、スタックを消費するかは[GHC illustrated](https://takenobu-hs.github.io/downloads/haskell_ghc_illustrated.pdf)や、その参考文献をご覧ください。
+
+これは他の多くのプログラミング言語で<small>（末尾再帰じゃない、普通の）</small>再帰呼び出しを行った場合とよく似た振る舞いです。  
+間違って無限再帰呼び出しをしてしまってスタックがあふれる、なんて経験は多くのプログラマーがお持ちでしょう。  
+つまり単純に、`Strict`拡張を有効にした場合の`foldr (\x z -> x : z) []`は、再帰呼び出しをしすぎてしまう関数なのです。
+
+なお、今回は`length`関数を使ってリスト全体を使用するコードにしましたが、遅延リストらしく`foldr`の結果を一部しか使わない、という場合、`foldr`に渡した関数がリストを都度正格評価してしまうので、無駄な評価が占める割合はもっと増えることになります。  
+`foldr`は遅延評価を前提とした高階関数と言えそうです。
+
+以上のとおり、Haskellには`foldr`のような、遅延評価を前提とした関数が`Strict`拡張より遥か昔から存在しています。  
+それらを`Strict`拡張を有効にした状態で使うと、思わぬ衝突が起きてしまうので、くれぐれも気をつけましょう。
+
+こういう「使ってはいけない関数」を引いてしまわないための方法についても補足しましょう。  
+HLintを細かく設定したり、カスタム`Prelude`を設定したりしてみるのは一つの作戦です。プロジェクト全体で、`foldr`を完全に禁止することができます<small>（一部のモジュールでは例外的に許可することもできます）</small>。  
+詳しくは[「素晴らしき HLint を使いこなす」](https://haskell.e-bigmoon.com/posts/2018/01-29-awesome-hlint.html)や[「Prelude を カスタムPrelude で置き換える」](https://haskell.e-bigmoon.com/posts/2018/05-23-extended-prelude.html)をご覧ください。
 
 # Case 5: `undefined`を受け取るメソッド
 
