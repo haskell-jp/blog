@@ -288,7 +288,8 @@ putStrLn "DONE: foldr 2"
 そうでなければ、処理するリストがあまり大きくないので`Strict`拡張を有効にしても問題の現象は再現されないでしょう[^bigger-list]。  
 [こちらのStackoverflowの質問](https://stackoverflow.com/questions/29339643/how-can-i-pass-rts-options-to-runghc)曰く、`runghc`で実行する際にランタイムオプションを設定する場合は、`GHCRTS`環境変数を使用するしかないそうです。
 
-[^bigger-list]: 大きなリストにすると、今度はエラーが発生するまでに時間がかかってしまうので...。
+[^bigger-list]: 大きなリストにすると、今度はエラーが発生するまでに時間がかかってしまうので...。  
+ちなみに、このようにスタック領域を小さくすることでスペースリークを検出する手法は、[ndmitchell/spaceleak: Notes on space leaks](https://github.com/ndmitchell/spaceleak)でも紹介されています。
 
 実行結果（Strict拡張を有効にしなかった場合）:
 
