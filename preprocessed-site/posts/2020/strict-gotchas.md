@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: YAMAMOTO Yuji
 postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a>
-date: June 10, 2020
+date: June 11, 2020
 tags:
 ...
 ---
@@ -12,10 +12,10 @@ tags:
 
 Haskellは他の多くのプログラミング言語と異なった特徴を備えており、しばしばそれらが議論を呼ぶことがあります。その中でも特によく俎上に上がるのが、遅延評価です。遅延評価は、適切に扱えば不要な計算を行わず、計算資源を節約してくれるステキな仕組みですが、一歩使い方を間違うと「サンク」という「これから実行する<small>（かも知れない）</small>計算」を表すオブジェクトが無駄に作られてしまい、却ってメモリー消費量が増えてしまう、などといった問題を抱えています。この現象は「スペースリーク」と呼ばれ、かつて[専門のAdvent Calendar](https://qiita.com/advent-calendar/2015/haskell-space-leaks)が作られたことがあるほど、Haskeller達の関心を集めてきました。
 
-そんなHaskeller達の悩みの種を軽減しようと、GHC 8.0以降、[`Strict`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)と[`StrictData`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)という言語拡張が搭載されました。これらの拡張は、大雑把に言うと、
+そんなHaskeller達の悩みの種を軽減しようと、GHC 8.0以降、[`Strict`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)と[`StrictData`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-data)という言語拡張が搭載されました。これらの拡張は、大雑把に言うと、
 
 - `StrictData`: 値コンストラクターにおいて、引数の値が弱頭正規形（Weak Head Normal Form。以降慣習に従い「WHNF」と呼びます）まで評価されるようになる
-- `Strict`: `StrictData`の効果に加え、あらゆる関数やローカル変数の定義において、パターンマッチで代入した変数の値がWHNFまで評価されるようになる
+- `Strict`: `StrictData`の効果に加え、あらゆる関数の引数やローカル変数の定義において、パターンマッチで代入した変数の値がWHNFまで評価されるようになる
 
 というものです。
 
@@ -277,7 +277,7 @@ DONE: foldr 1
 stackoverflow-foldr.hs: stack overflow
 ```
 
-はい、サンプルコードは整数のリストに対して特に何も変換せず`foldr`する<small>（そして、`length`関数でリスト全体を評価してから捨てる）</small>だけのことを2回繰り返したコードです。最初の`foldr`は`Strict`拡張があろうとなかろうと無事実行できたにもかかわらず、`Strict`拡張を有効にした二つめの`foldr`は、`stack overflow`というエラーを起こしてしまいました💥！
+サンプルコードは整数のリストに対して特に何も変換せず`foldr`する<small>（そして、`length`関数でリスト全体を評価してから捨てる）</small>だけのことを2回繰り返したコードです。最初の`foldr`は`Strict`拡張があろうとなかろうと無事実行できたにもかかわらず、`Strict`拡張を有効にした二つめの`foldr`は、`stack overflow`というエラーを起こしてしまいました💥！
 
 なぜこんなエラーが発生したのかを知るために、`foldr`の定義を見直しましょう。こちら👇は[GHC 8.10.1における、リストに対する`foldr`の定義](http://hackage.haskell.org/package/base-4.14.0.0/docs/src/GHC.Base.html#foldr)です<small>（コメントは省略しています）</small>。
 
@@ -366,9 +366,9 @@ instance Storable Test where
   -- ...
 ```
 
-[「Case 2: ポイントフリースタイルかどうかで変わる！」の節](#TODO)で、「`Strict`拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわちWHNFまで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』」と述べたことを再び思い出してください。こちらの`sizeOf`・`alignment`の定義でも同様に、引数`_`を宣言しているため、引数を必ずWHNFまで評価することになっています。結果、`alloca`関数がそれぞれを呼ぶ際`undefined`を渡しているため、`undefined`を評価してしまい、`undefined`による例外が発生してしまうのです💥。
+[「Case 2: ポイントフリースタイルかどうかで変わる！」の節](#case-2-ポイントフリースタイルかどうかで変わる)で、「`Strict`拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわちWHNFまで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』」と述べたことを再び思い出してください。こちらの`sizeOf`・`alignment`の定義でも同様に、引数`_`を宣言しているため、引数を必ずWHNFまで評価することになっています。結果、`alloca`関数がそれぞれを呼ぶ際`undefined`を渡しているため、`undefined`を評価してしまい、`undefined`による例外が発生してしまうのです💥。
 
-なぜこのように、`alloca`関数では`sizeOf`や`alignment`に`undefined`をわざわざ渡しているのでしょう？それは、これらのメソッドがそもそも`undefined`を渡して使うことを前提に設計されているからです。`sizeOf`・`alignment`はともに`Storable a => a -> Int`という型の関数なので、第一引数に`Storable`のインスタンスである型`a`の値を受け取るのですが、このとき**渡される`a`型の値は、使わない**こととなっています。[それぞれのメソッドの説明](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#v:sizeOf)にも「The value of the argument is not used.」と書かれていますね。これは、`sizeOf`も`alignment`も、型毎に一意な値として定まる<small>（引数の値によって`sizeOf`や`alignment`の結果が変わることがない）</small>ので、第一引数の`a`は、単に「この型の`sizeOf`を呼んでくださいね」という**型の**情報を渡すためのものでしかないからです。だから値には関心がないので`undefined`を渡しているわけです。そもそも、`alloca`関数のように引数として`Storable a => a`型の値をとらない関数では、`a`型の値を用意することはできませんし。
+なぜこのように、`alloca`関数では`sizeOf`や`alignment`に`undefined`をわざわざ渡しているのでしょう？それは、これらのメソッドがそもそも`undefined`を渡して使うことを前提に設計されているからです。`sizeOf`・`alignment`はともに`Storable a => a -> Int`という型の関数なので、第一引数に`Storable`のインスタンスである型`a`の値を受け取るのですが、このとき**渡される`a`型の値は、使わない**こととなっています。[それぞれのメソッドの説明](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#v:sizeOf)にも「The value of the argument is not used.」と書かれていますね。これは、`sizeOf`も`alignment`も、型毎に一意な値として定まる<small>（引数の値によって`sizeOf`や`alignment`の結果が変わることがない）</small>ので、第一引数の`a`は、単に「この型の`sizeOf`を呼んでくださいね」という**型の**情報を渡すためのものでしかないからです。だから値には関心がないので`undefined`を渡しているわけです。そもそも、`alloca`関数のように引数として`Storable a => a`型の値をとらない関数では、`a`型の値を用意することができませんし。
 
 現代では通常、このように「値に関心がなく、何の型であるかという情報だけを受け取りたい」という場合は、[`Proxy`](https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Data-Proxy.html#t:Proxy)型を使うのが一般的です。`Storable`は恐らく`Proxy`が発明される前に生まれたため、`undefined`を渡すことになってしまっているのでしょう。なので、`Storable`型クラスのインスタンスを自前で定義したりしない限り、こうしたケースに出遭うことはまれだと思います。ただ、それでも`Proxy`を`import`するのを面倒くさがって`undefined`を代わりに渡す、なんてケースはありえるので、`Proxy`を使って定義した型クラスでも同じ問題にハマることはあるかも知れません...。
 
@@ -376,6 +376,6 @@ instance Storable Test where
 
 # おわりに: やっぱり`Strict`は使う？使わない？
 
-さて、ここまで`Strict`拡張を有効にすることによって犯しうる、数々のミスを紹介してきました。ここまで書いた個人的な印象としては、「敢えて有効にする必要はないんじゃないか」といったところです。`foldr`の例でも触れたとおり、Haskellには遅延評価を前提とした、遅延評価を存分に活かした機能が溢れています。当然それらは`Strict`拡張ができるよりはるか昔からあり、`Strict`拡張のことなど一切考えないで作られたものです。動的型付け言語に後から静的型検査を導入するのが大変なように、相対する機能を後付けすると衝突が起こるのは仕方のないことですが、こと`Strict`拡張については想像以上に大きな衝突のようです😞。
+さて、ここまで`Strict`拡張を有効にすることによって犯しうる、数々のミスを紹介してきました。ここまで書いた個人的な印象としては、「敢えて有効にする必要はないんじゃないか」といったところです<small>（まぁ、悪いところばかり調べた結果のため、とてもフェアな視点での判断とは言えないのですが...）</small>。`foldr`の例でも触れたとおり、Haskellには遅延評価を前提とした、遅延評価を存分に活かした機能が溢れています。当然それらは`Strict`拡張ができるよりはるか昔からあり、`Strict`拡張のことなど一切考えないで作られたものです。動的型付け言語に後から静的型検査を導入するのが大変なように、相対する機能を後付けすると衝突が起こるのは仕方のないことですが、こと`Strict`拡張については想像以上に大きな衝突のようです😞。
 
 それでも使いたいという方に、今回の記事が助けになれば幸いです💪それでは`Strict`な方も`NoStrict`な方もHappy Haskell Hacking!!
