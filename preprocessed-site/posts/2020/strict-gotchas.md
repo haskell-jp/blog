@@ -21,7 +21,7 @@ Haskellは他の多くのプログラミング言語と異なった特徴を備�
 
 このうち、`StrictData`は比較的リスクが少なく大変有用<small>（もはや標準であって欲しいぐらい）</small>という声をよく聞きますが[^strictdata-sample]、`Strict`については様々な問題点があることが知られています。今回はその各種問題点をまとめて共有することで、思い切って`Strict`を有効にするときに参考になる情報を提供したいと思います！
 
-[^strictdata-sample]: 例えばfumievalさんによる[この記事](http://fumieval.hatenablog.com/entry/2015/12/10/200630)より:> もっとも、日常ではここまで気にしなければいけない場面は少ないので、ほとんどの場合は気にせず感嘆符をつけて大丈夫だろう。GHC 8.0からは、全フィールドをデフォルトで正格にする`StrictData`という拡張が入るため、こちらを使おう。
+[^strictdata-sample]: 例えばfumievalさんによる[この記事](http://fumieval.hatenablog.com/entry/2015/12/10/200630)より: 「もっとも、日常ではここまで気にしなければいけない場面は少ないので、ほとんどの場合は気にせず感嘆符をつけて大丈夫だろう。GHC 8.0からは、全フィールドをデフォルトで正格にする`StrictData`という拡張が入るため、こちらを使おう」
 
 # 前提知識とその参考資料
 
@@ -47,7 +47,7 @@ cd blog/examples/2020/strict-gotchas
 stack exec runghc -- <これから紹介するコードのファイル>.hs
 ```
 
-実際に試すときは`-XStrict`というオプションを`runghc`に付けた場合と付けなかった場合両方で実行して、違いを確かめてみてください。
+実際に試すときは`--ghc-arg=-XStrict`というオプションを`runghc`に付けた場合と付けなかった場合両方で実行して、違いを確かめてみてください。
 
 なお、使用したGHCのバージョンは8.10.1で、OSはWindows 10 ver. 1909です。
 
@@ -188,7 +188,7 @@ f = map (+ 3) . filter (> 2)
 
 しかし、`Strict`を有効にしたモジュールでこのような書き換えを行うと、`f`の挙動が変わってしまいます。引数`.`を使って書き換える前は、引数`xs`に言及していたところ`.`を使って引数`xs`に言及しなくなったからです。`filter`も`map`も`Strict`拡張を有効にしたモジュールで定義されているわけではないので、引数を正格に評価しないんですね。結果、こうした書き換えによって、**`Strict`拡張を有効にしていても意図せず遅延評価してしまう**、というリスクがあるので、リファクタリングの際はくれぐれも気をつけてください[^list]。ざっくりまとめると、`Strict`拡張を有効にしているモジュールでは、「引数や変数を宣言することすなわちWHNFまで評価すること」、あるいは「引数や変数を宣言しなければ、評価されない」と意識しましょう。
 
-[^list]: もっとも、この場合引数はリストでしょうから、WHNFまでのみ正格評価するメリットは少なそうですが。
+[^list]: もっとも、この例では引数はリストでしょうから、WHNFまでのみ正格評価するメリットは少なそうですが。
 
 ちなみに、`referArgs`における`_`のように「`Strict`拡張を有効にした場合さえ、使用していない引数が評価されてしまうのは困る！」という場合は、引数名の前にチルダ`~`を付けてください。
 
@@ -199,40 +199,41 @@ referArgs x ~_ = x
 
 # Case 3: 内側のパターンはやっぱりダメ
 
-サンプル: [tuple.hs](https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/tuple.hs)
+サンプル: 今回はGHCiですべて紹介するのでサンプルはありません。
 
 続いては、`Strict`拡張のドキュメントでも触れられている、入れ子になったパターンマッチにおける問題を紹介します。一言で言うと、`let (a, b) = ...`のような、データ構造<small>（この場合タプルですね）</small>の「内側」に対するパターンマッチは、`Strict`拡張を有効にしていても正格に評価しないよ、という話です。
 
-例えば、下記のコードを`Strict`拡張付きで実行しても、パターンマッチしている`a`・`b`ともに代入した時点では正格評価されず、`error "a"`・`error "b"`による例外はいずれも発生しません。
+例えば、下記のコードを`Strict`拡張付きで実行しても、パターンマッチしている`a`・`b`ともに代入した時点では正格評価されず、`error "a"`・`error "b"`による例外はいずれも発生しません。次のコードをGHCiで試してみてください。
 
 ```haskell
-(a, b) = (error "a", error "b")
+> :set -XStrict
+> (a, b) = (error "a", error "b")
+-- 何も起きない
 ```
 
-これは、タプルの値コンストラクター`(,)`が<small>（`StrictData`やStrictness flagを用いないで定義されているので）</small>各要素を遅延評価することとは**関係なく**、各要素を正格評価する値コンストラクターであっても同様です。
+先ほどの節における「`Strict`拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわちWHNFまで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』と意識しましょう」という主張を真に受けてしまうと、意図せず遅延評価させてしまい、ハマりそうです😰。⚠️繰り返しますが「**内側のパターンにおける変数は正格評価されない**」ということも意識してください。
+
+一方、`StrictData`やStrictness flagを用いるなどして、各要素を正格評価するよう定義した値コンストラクターでは、ちゃんと評価して例外を発生させます。
 
 ```haskell
-data MyTuple a b = MyTuple !a !b deriving Show
-
-MyTuple a b = MyTuple (error "a") (error "b")
+> :set -XStrict
+> data MyTuple a b = MyTuple a b deriving Show
+> let MyTuple a b = MyTuple (error "a") (error "b")
+*** Exception: b
+CallStack (from HasCallStack):
+  error, called at <interactive>:10:40 in interactive:Ghci7
 ```
 
-先ほどの節における「`Strict`拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわちWHNFまで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』と意識しましょう」という主張を真に受けてしまうと意図せず遅延評価させてしまい、ハマりそうです😰。⚠️繰り返しますが「**内側のパターンにおける変数は正格評価されない**」ということも意識してください。
+`Strict`拡張を有効にすると`StrictData`も自動的に有効になるので、👆における`MyTuple`値コンストラクターは各要素を正格評価するようになったわけです。なので`Strict`拡張を有効にしたモジュールにおいて、なおかつそこで定義した型で完結している限りは平和でしょう。
 
-以上のことを試していただくために、サンプルコードでは`Strict`を有効にしてもしなくても、結果が変わらないサンプルを用意しました<small>（コードは👆の例に`main`がくっついたのとあまり変わらないので解説は省きます）</small>。以下、実行例を。
+ただし、GHCiで試す場合に特に注意していただきたいのですが、GHCiで**`let`をつけないでパターンマッチした場合は正格評価されない**、という点に注意してください。`let`をつけないとトップレベルでの定義と見なされるからです。[Strict拡張のドキュメント](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings)にも、「Top level bindings are unaffected by `Strict`」とありますとおり、トップレベルでの定義は例外扱いされているのです。
 
-```bash
-> stack exec runhaskell ./tuple.hs
-"Default tuple"
-"Default tuple in MyTuple1"
-"Other value in MyTuple1"
-
-> stack exec -- runghc --ghc-arg=-XStrict ./tuple.hs
-"Default tuple"
-"Default tuple in MyTuple1"
-"Other value in MyTuple1"
+```haskell
+> :set -XStrict
+> data MyTuple a b = MyTuple a b deriving Show
+> MyTuple a b = MyTuple (error "a") (error "b")
+-- 何も起きない
 ```
-
 # Case 4: `foldr`に渡す関数
 
 サンプル: [stackoverflow-foldr.hs](https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/stackoverflow-foldr.hs)
