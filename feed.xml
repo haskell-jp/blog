@@ -8,8 +8,300 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2020-04-26T00:00:00Z</updated>
+    <updated>2020-06-11T00:00:00Z</updated>
     <entry>
+    <title>Strict拡張を使用する際の注意点</title>
+    <link href="https://haskell.jp/blog/posts/2020/strict-gotchas.html" />
+    <id>https://haskell.jp/blog/posts/2020/strict-gotchas.html</id>
+    <published>2020-06-11T00:00:00Z</published>
+    <updated>2020-06-11T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><span class="ascii">Haskell</span>は他の多くのプログラミング言語と異なった特徴を備えており、しばしばそれらが議論を呼ぶことがあります。その中でも特によく俎上に上がるのが、遅延評価です。遅延評価は、適切に扱えば不要な計算を行わず、計算資源を節約してくれるステキな仕組みですが、一歩使い方を間違うと「サンク」という「これから実行する<small>（かも知れない）</small>計算」を表すオブジェクトが無駄に作られてしまい、却ってメモリー消費量が増えてしまう、などといった問題を抱えています。この現象は「スペースリーク」と呼ばれ、かつて<a href="https://qiita.com/advent-calendar/2015/haskell-space-leaks">専門の<span class="ascii">Advent Calendar</span></a>が作られたことがあるほど、<span class="ascii">Haskeller</span>達の関心を集めてきました。</p>
+<p>そんな<span class="ascii">Haskeller</span>達の悩みの種を軽減しようと、<span class="ascii">GHC 8.0</span>以降、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings"><code>Strict</code></a>と<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-data"><code>StrictData</code></a>という言語拡張が搭載されました。これらの拡張は、大雑把に言うと、</p>
+<ul>
+<li><code>StrictData</code><span class="ascii">:</span> 値コンストラクターにおいて、引数の値が弱頭正規形（<span class="ascii">Weak Head Normal Form</span>。以降慣習に従い「<span class="ascii">WHNF</span>」と呼びます）まで評価されるようになる</li>
+<li><code>Strict</code><span class="ascii">:</span> <code>StrictData</code>の効果に加え、あらゆる関数の引数やローカル変数の定義において、パターンマッチで代入した変数の値が<span class="ascii">WHNF</span>まで評価されるようになる</li>
+</ul>
+<p>というものです。</p>
+<p>このうち、<code>StrictData</code>は比較的リスクが少なく大変有用<small>（もはや標準であって欲しいぐらい）</small>という声をよく聞きますが<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>、<code>Strict</code>については様々な問題点があることが知られています。今回はその各種問題点をまとめて共有することで、思い切って<code>Strict</code>を有効にするときに参考になる情報を提供したいと思います！</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#前提知識とその参考資料" title="前提知識とその参考資料">前提知識とその参考資料</a></li>
+<li><a href="#サンプルコードの試し方" title="サンプルコードの試し方">サンプルコードの試し方</a></li>
+<li><a href="#case-1-where句だろうとなんだろうと評価" title="case-1-where句だろうとなんだろうと評価"><span class="ascii">Case 1:</span> <code>where</code>句だろうとなんだろうと評価</a></li>
+<li><a href="#case-2-ポイントフリースタイルかどうかで変わる" title="case-2-ポイントフリースタイルかどうかで変わる"><span class="ascii">Case 2:</span> ポイントフリースタイルかどうかで変わる！</a></li>
+<li><a href="#case-3-内側のパターンはやっぱりダメ" title="case-3-内側のパターンはやっぱりダメ"><span class="ascii">Case 3:</span> 内側のパターンはやっぱりダメ</a></li>
+<li><a href="#case-4-foldrに渡す関数" title="case-4-foldrに渡す関数"><span class="ascii">Case 4:</span> <code>foldr</code>に渡す関数</a></li>
+<li><a href="#case-5-undefinedを受け取るメソッド" title="case-5-undefinedを受け取るメソッド"><span class="ascii">Case 5:</span> <code>undefined</code>を受け取るメソッド</a></li>
+<li><a href="#おわりに-やっぱりstrictは使う使わない" title="おわりに-やっぱりstrictは使う使わない">おわりに<span class="ascii">:</span> やっぱり<code>Strict</code>は使う？使わない？</a></li>
+</ul>
+</div>
+</div>
+<h1 id="前提知識とその参考資料"><span class="link-to-here-outer"><a href="#前提知識とその参考資料" title="前提知識とその参考資料"><span class="link-to-here">Link to<br />
+here</span></a></span>前提知識とその参考資料</h1>
+<p>以下の知識について、ざっくり理解しているものとして進めます。参考になりそうな日本語のページも付記したので、ご覧ください。</p>
+<ul>
+<li><span class="ascii">Haskell</span>の遅延評価について
+<ul>
+<li><a href="https://itchyny.hatenablog.com/entry/20130209/1360417348">実装して理解する遅延評価の仕組み 〜 <span class="ascii">thunk</span>を絵に描いて理解しよう・<span class="ascii">JavaScript</span>で<span class="ascii">Haskell</span>を実装！？ <span class="ascii">-</span> プログラムモグモグ</a>が詳しくて分かりやすいでしょう</li>
+</ul></li>
+<li><span class="ascii">Haskell</span>の正格評価、および<code>BangPatterns</code>について
+<ul>
+<li><a href="https://haskell.e-bigmoon.com/posts/2018/06-25-all-about-strictness">正格性のすべて <span class="ascii">(</span>翻訳<span class="ascii">)</span></a></li>
+</ul></li>
+<li><code>Strict</code>と<code>StrictData</code>について
+<ul>
+<li><a href="https://kazu-yamamoto.hatenablog.jp/entry/20151117/1447726679"><span class="ascii">Strict Haskell -</span> あどけない話</a></li>
+</ul></li>
+<li>その他、<a href="https://qiita.com/advent-calendar/2015/haskell-space-leaks"><span class="ascii">Haskell</span>スペースリーク <span class="ascii">Advent Calendar 2015 - Qiita</span></a>の記事にも有用なものがたくさんあります。</li>
+</ul>
+<h1 id="サンプルコードの試し方"><span class="link-to-here-outer"><a href="#サンプルコードの試し方" title="サンプルコードの試し方"><span class="link-to-here">Link to<br />
+here</span></a></span>サンプルコードの試し方</h1>
+<p>これから紹介するコードは、すべて<a href="https://github.com/haskell-jp/blog/tree/master/examples/2020/strict-gotchas">このブログのリポジトリーの、<code>examples</code>ディレクトリー</a>に置いておきました。下記のコマンドを実行すれば実際に試すことができます<small>（一部実行する際のコマンドが異なりますので、適宜例示します）</small>。</p>
+<pre><code>git clone https://github.com/haskell-jp/blog.git
+cd blog/examples/2020/strict-gotchas
+stack exec runghc -- &lt;これから紹介するコードのファイル&gt;.hs</code></pre>
+<p>実際に試すときは<code>--ghc-arg=-XStrict</code>というオプションを<code>runghc</code>に付けた場合と付けなかった場合両方で実行して、違いを確かめてみてください。</p>
+<p>なお、使用した<span class="ascii">GHC</span>のバージョンは<span class="ascii">8.10.1</span>で、<span class="ascii">OS</span>は<span class="ascii">Windows 10 ver. 1909</span>です。</p>
+<h1 id="case-1-where句だろうとなんだろうと評価"><span class="link-to-here-outer"><a href="#case-1-where句だろうとなんだろうと評価" title="case-1-where句だろうとなんだろうと評価"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Case 1:</span> <code>where</code>句だろうとなんだろうと評価</h1>
+<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/where.hs"><span class="ascii">where.hs</span></a></p>
+<p>最初のケースは、遅延評価で当たり前に享受できていたメリットが、<code>Strict</code>を有効にしている状態では得られなくなってしまう、というものです。<a href="https://qiita.com/pxfnc/items/a26bda6d11402daba675"><span class="ascii">pxfnc</span>さんの<span class="ascii">Strict</span>拡張でハマったお話</a>という記事でも紹介されてはいますが、まとめ記事なのでここでも改めて取り上げます。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1">main <span class="ot">=</span> <span class="fu">print</span> <span class="op">$</span> div10 <span class="dv">0</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="ot">div10 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb2-4" title="4">div10 n</a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="op">|</span> n <span class="op">==</span> <span class="dv">0</span>    <span class="ot">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> result</a>
+<a class="sourceLine" id="cb2-7" title="7"> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  result <span class="ot">=</span> <span class="dv">10</span> <span class="ot">`div`</span> n</a></code></pre></div>
+<p>ご覧のとおり、本当にほとんど<span class="ascii">pxfnc</span>さんの記事のサンプルそのままで恐縮ですが、このプログラム、👇のように<code>Strict</code>拡張を有効にして実行するとエラーが起こります。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec -- runghc --ghc-arg=-XStrict where.hs</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="ex">where.hs</span>: divide by zero</a></code></pre></div>
+<p>一方、<code>Strict</code>拡張を有効にしなかった場合、エラーは起こりません。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec -- runghc where.hs</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="ex">0</span></a></code></pre></div>
+<p>なぜこんなことが起こるのでしょう？</p>
+<p>これは、<code>Strict</code>拡張がパターンマッチで代入したあらゆる変数の値を<span class="ascii">WHNF</span>まで評価するようになった結果、<code>where</code>句で代入した変数まで必ず<span class="ascii">WHNF</span>まで評価してしまうために発生したエラーです。すなわち、<code>where</code>における、</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1">  result <span class="ot">=</span> <span class="dv">10</span> <span class="ot">`div`</span> n</a></code></pre></div>
+<p>までもが、</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">  <span class="op">!</span>result <span class="ot">=</span> <span class="dv">10</span> <span class="ot">`div`</span> n</a></code></pre></div>
+<p>と<span class="ascii">Bang</span>パターンを付けた代入であるかのように解釈されたのです<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
+<p>こうなると、<code>result</code>を使用しないケース、すなわち<code>n == 0</code>の場合であっても<code>result</code>に <small>（<span class="ascii">WHNF</span>まで評価した）</small>値を代入するのに必要な計算は実行され、結果<code>10 `div` 0</code>が計算されようとして<code>divide by zero</code>が発生するのです。</p>
+<p>⚠️<code>where</code>句は関数定義の後ろの方に書くという性格上、見落としがちかも知れません。注意しましょう。</p>
+<h1 id="case-2-ポイントフリースタイルかどうかで変わる"><span class="link-to-here-outer"><a href="#case-2-ポイントフリースタイルかどうかで変わる" title="case-2-ポイントフリースタイルかどうかで変わる"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Case 2:</span> ポイントフリースタイルかどうかで変わる！</h1>
+<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/const.hs"><span class="ascii">const.hs</span></a></p>
+<p>続いて、<span class="ascii">Haskell</span>に慣れた方なら誰もが一度は試したくなる、ポイントフリースタイルに関する落とし穴です。まずは次の二つの関数をご覧ください。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">dontReferArgs ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb7-2" title="2">dontReferArgs <span class="ot">=</span> <span class="fu">const</span></a>
+<a class="sourceLine" id="cb7-3" title="3"></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="ot">referArgs ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb7-5" title="5">referArgs x _ <span class="ot">=</span> x</a></code></pre></div>
+<p>この関数、どちらもやっていることは<code>const</code>と変わりません。<code>dontReferArgs</code>は<code>const</code>をそのまま使うことでポイントフリースタイルにしていますが、<code>referArgs</code>は自前で引数に言及することで<code>const</code>と同等の定義となっています。ポイントフリースタイルに変えると言うことは原則として元の関数の挙動を変えないワケですから、<code>dontReferArgs</code>と<code>referArgs</code>の意味は変わらないはず、ですよね<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>？</p>
+<p>ところがこれらの関数を<code>Strict</code>拡張を有効にした上で定義すると、なんと挙動が異なってしまいます！</p>
+<p>使用例<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
+<a class="sourceLine" id="cb8-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb8-3" title="3">  <span class="fu">print</span> <span class="op">$</span> dontReferArgs <span class="st">&quot;dontReferArgs&quot;</span> (<span class="fu">undefined</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a>
+<a class="sourceLine" id="cb8-4" title="4">  <span class="fu">print</span> <span class="op">$</span> referArgs <span class="st">&quot;referArgs&quot;</span> (<span class="fu">undefined</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>実行結果（<span class="ascii">Strict</span>拡張を有効にしなかった場合）<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec runghc const.hs</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="st">&quot;dontReferArgs&quot;</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="st">&quot;referArgs&quot;</span></a></code></pre></div>
+<p>実行結果（<span class="ascii">Strict</span>拡張を有効にした場合）<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec -- runghc --ghc-arg=-XStrict const.hs</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="st">&quot;dontReferArgs&quot;</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="ex">const.hs</span>: Prelude.undefined</a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="ex">CallStack</span> (from HasCallStack)<span class="bu">:</span></a>
+<a class="sourceLine" id="cb10-5" title="5">  <span class="ex">error</span>, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err</a>
+<a class="sourceLine" id="cb10-6" title="6">  <span class="ex">undefined</span>, called at const.hs:10:34 in main:Main</a></code></pre></div>
+<p>はい、<code>where</code>句のケースと同様、<code>Strict</code>拡張を有効にした場合、例外が発生してしまいました❗️<code>Strict</code>拡張を有効にした結果、意図せず例外を発生させる値<small>（今回の場合<code>undefined</code>）</small>が評価されてしまったのです。</p>
+<p>例外を発生させた関数はそう、ポイントフリースタイルでない、<code>referArgs</code>関数の方です！なぜ<code>referArgs</code>でのみ例外が発生してしまったのかというと、<code>referArgs</code>が<code>Strict</code>拡張を有効にしたモジュールで、引数に言及<small>（パターンマッチ）</small>しているからです。<code>Strict</code>拡張を有効にした結果「あらゆる関数やローカル変数の定義において、パターンマッチで代入した変数の値」が評価されるとおり、<code>referArgs</code>の引数<code>x</code>・<code>_</code>も必ず評価されるようになり、このような例外が発生したのです。たとえ使用しない変数<code>_</code>でも関係ありません！</p>
+<p>そのため、原因の本質は引数に言及<small>（パターンマッチ）</small>しているか否かであり、<code>Prelude</code>の<code>const</code>を使用しているか否かではありません。こちら👇のように引数に言及した上で<code>const</code>を使っても、結果は同じなのです。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="ot">referArgsByConst ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb11-2" title="2">referArgsByConst x y <span class="ot">=</span> <span class="fu">const</span> x y</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="fu">print</span> <span class="op">$</span> referArgsByConst <span class="st">&quot;referArgsByConst&quot;</span> (<span class="fu">undefined</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<p>一方、<code>dontReferArgs</code>については、引数に言及せず、<code>Prelude</code>にある<code>const</code>をそのまま使っています。<code>Strict</code>拡張はあくまでも「パターンマッチした変数」のみを<span class="ascii">WHNF</span>まで評価するものであり、あらゆる関数が正格に呼び出されるわけではありません。なので通常の<code>Prelude</code>における<code>const</code>と同様、<code>dontReferArgs</code>も第<span class="ascii">2</span>引数は評価しないため、<code>undefined</code>を渡しても例外は起こらなかったのです。</p>
+<p>このことは、「<strong><code>Strict</code>拡張を有効にしているモジュールの中でも、<code>Strict</code>を有効にしていないモジュール<small>（この場合は<code>Prelude</code>）</small>から<code>import</code>した関数は、引数を正格に評価しない</strong>」という忘れてはならないポイントも示しています。例えば<code>const</code>よりももっと頻繁に使われるであろう、言及する引数を一つ削除する演算子の代表、関数合成<code>.</code>を使ったケースを考えてみてください。</p>
+<p>ポイントフリースタイルに慣れた方なら、関数適用<code>$</code>を次👇のように使って定義した<code>f</code>を見ると、</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1">f xs <span class="ot">=</span> <span class="fu">map</span> (<span class="op">+</span> <span class="dv">3</span>) <span class="op">$</span> <span class="fu">filter</span> (<span class="op">&gt;</span> <span class="dv">2</span>) xs</a>
+<a class="sourceLine" id="cb13-2" title="2"></a>
+<a class="sourceLine" id="cb13-3" title="3"><span class="co">-- あるいは、`$`を使わないでこのように書いた場合も:</span></a>
+<a class="sourceLine" id="cb13-4" title="4">f xs <span class="ot">=</span> <span class="fu">map</span> (<span class="op">+</span> <span class="dv">3</span>) (<span class="fu">filter</span> (<span class="op">&gt;</span> <span class="dv">2</span>) xs)</a></code></pre></div>
+<p>こちら👇のように書き換えたくなってうずうずするでしょう。</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1">f <span class="ot">=</span> <span class="fu">map</span> (<span class="op">+</span> <span class="dv">3</span>) <span class="op">.</span> <span class="fu">filter</span> (<span class="op">&gt;</span> <span class="dv">2</span>)</a></code></pre></div>
+<p>しかし、<code>Strict</code>を有効にしたモジュールでこのような書き換えを行うと、<code>f</code>の挙動が変わってしまいます。引数<code>.</code>を使って書き換える前は、引数<code>xs</code>に言及していたところ<code>.</code>を使って引数<code>xs</code>に言及しなくなったからです。<code>filter</code>も<code>map</code>も<code>Strict</code>拡張を有効にしたモジュールで定義されているわけではないので、引数を正格に評価しないんですね。結果、こうした書き換えによって、<strong><code>Strict</code>拡張を有効にしていても意図せず遅延評価してしまう</strong>、というリスクがあるので、リファクタリングの際はくれぐれも気をつけてください<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>。ざっくりまとめると、<code>Strict</code>拡張を有効にしているモジュールでは、「引数や変数を宣言することすなわち<span class="ascii">WHNF</span>まで評価すること」、あるいは「引数や変数を宣言しなければ、評価されない」と意識しましょう。</p>
+<p>ちなみに、<code>referArgs</code>における<code>_</code>のように「<code>Strict</code>拡張を有効にした場合さえ、使用していない引数が評価されてしまうのは困る！」という場合は、引数名の前にチルダ<code>~</code>を付けてください。</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="ot">referArgs ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb15-2" title="2">referArgs x <span class="op">~</span>_ <span class="ot">=</span> x</a></code></pre></div>
+<h1 id="case-3-内側のパターンはやっぱりダメ"><span class="link-to-here-outer"><a href="#case-3-内側のパターンはやっぱりダメ" title="case-3-内側のパターンはやっぱりダメ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Case 3:</span> 内側のパターンはやっぱりダメ</h1>
+<p>サンプル<span class="ascii">:</span> 今回は<span class="ascii">GHCi</span>ですべて紹介するのでサンプルはありません。</p>
+<p>続いては、<code>Strict</code>拡張のドキュメントでも触れられている、入れ子になったパターンマッチにおける問題を紹介します。一言で言うと、<code>let (a, b) = ...</code>のような、データ構造<small>（この場合タプルですね）</small>の「内側」に対するパターンマッチは、<code>Strict</code>拡張を有効にしていても正格に評価しないよ、という話です。</p>
+<p>例えば、下記のコードを<code>Strict</code>拡張付きで実行しても、パターンマッチしている<code>a</code>・<code>b</code>ともに代入した時点では正格評価されず、<code>error "a"</code>・<code>error "b"</code>による例外はいずれも発生しません。次のコードを<span class="ascii">GHCi</span>で試してみてください。</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XStrict</span></a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="op">&gt;</span> (a, b) <span class="ot">=</span> (<span class="fu">error</span> <span class="st">&quot;a&quot;</span>, <span class="fu">error</span> <span class="st">&quot;b&quot;</span>)</a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="co">-- 何も起きない</span></a></code></pre></div>
+<p>先ほどの節における「<code>Strict</code>拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわち<span class="ascii">WHNF</span>まで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』と意識しましょう」という主張を真に受けてしまうと、意図せず遅延評価させてしまい、ハマりそうです😰。⚠️繰り返しますが「<strong>内側のパターンにおける変数は正格評価されない</strong>」ということも意識してください。</p>
+<p>一方、<code>StrictData</code>や正格性フラグを用いるなどして、各要素を正格評価するよう定義した値コンストラクターでは、ちゃんと評価して例外を発生させます。</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XStrict</span></a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> a b <span class="kw">deriving</span> <span class="dt">Show</span></a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="op">&gt;</span> <span class="kw">let</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> (<span class="fu">error</span> <span class="st">&quot;a&quot;</span>) (<span class="fu">error</span> <span class="st">&quot;b&quot;</span>)</a>
+<a class="sourceLine" id="cb17-4" title="4"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> b</a>
+<a class="sourceLine" id="cb17-5" title="5"><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="op">:</span></a>
+<a class="sourceLine" id="cb17-6" title="6">  <span class="fu">error</span>, called at <span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">10</span><span class="op">:</span><span class="dv">40</span> <span class="kw">in</span> interactive<span class="op">:</span><span class="dt">Ghci7</span></a></code></pre></div>
+<p><code>Strict</code>拡張を有効にすると<code>StrictData</code>も自動的に有効になるので、👆における<code>MyTuple</code>値コンストラクターは各要素を正格評価するようになったわけです。なので<code>Strict</code>拡張を有効にしたモジュールにおいて、なおかつそこで定義した型で完結している限りは平和でしょう。</p>
+<p>ただし、<span class="ascii">GHCi</span>で試す場合に特に注意していただきたいのですが、<span class="ascii">GHCi</span>で<strong><code>let</code>をつけないでパターンマッチした場合は正格評価されない</strong>、という点に注意してください。<code>let</code>をつけないとトップレベルでの定義と見なされるからです。<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings"><span class="ascii">Strict</span>拡張のドキュメント</a>にも、「<span class="ascii">Top level bindings are unaffected by</span> <code>Strict</code>」とありますとおり、トップレベルでの定義は例外扱いされているのです。</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XStrict</span></a>
+<a class="sourceLine" id="cb18-2" title="2"><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> a b <span class="kw">deriving</span> <span class="dt">Show</span></a>
+<a class="sourceLine" id="cb18-3" title="3"><span class="op">&gt;</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> (<span class="fu">error</span> <span class="st">&quot;a&quot;</span>) (<span class="fu">error</span> <span class="st">&quot;b&quot;</span>)</a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="co">-- 何も起きない</span></a></code></pre></div>
+<h1 id="case-4-foldrに渡す関数"><span class="link-to-here-outer"><a href="#case-4-foldrに渡す関数" title="case-4-foldrに渡す関数"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Case 4:</span> <code>foldr</code>に渡す関数</h1>
+<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/stackoverflow-foldr.hs"><span class="ascii">stackoverflow-foldr.hs</span></a></p>
+<p>ここの話はちょっと難しいので、先に守るべきルールを述べておきます。</p>
+<p>「遅延評価する関数を受け取る前提の高階関数に、（<code>Strict</code>拡張などで）引数を正格に評価するよう定義された関数を渡すのは止めましょう。」</p>
+<p>なんだかこう書くと半ばトートロジーのようにも聞こえますが、より具体的には、例えば<code>foldr</code>に引数を正格に評価するよう定義された関数を渡すのは止めましょう、という話です。<code>Strict</code>拡張を有効にした状態では、ラムダ式にも注意しないといけないもポイントです。</p>
+<p>※あらかじめおことわり<span class="ascii">:</span> この節のお話は、あくまでもリストに対する<code>foldr</code>の場合のお話です。他の<code>Foldable</code>な型では必ずしも当てはまらないのでご注意ください。</p>
+<p>論より証拠で、サンプルコードの中身（抜粋）とその実行結果を見てみましょう。</p>
+<pre class="main"><code>-- ...
+evaluate . length $ foldr (:) [] [1 .. size]
+putStrLn &quot;DONE: foldr 1&quot;
+
+evaluate . length $ foldr (\x z -&gt; x : z) [] [1 .. size]
+putStrLn &quot;DONE: foldr 2&quot;</code></pre>
+<p>今回のサンプルコードを実行する際は、<span class="ascii">GHC</span>のランタイムオプションを設定して、スタック領域のサイズを減らしてください。そうでなければ、処理するリストがあまり大きくないので<code>Strict</code>拡張を有効にしても問題の現象は再現されないでしょう<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>。<a href="https://stackoverflow.com/questions/29339643/how-can-i-pass-rts-options-to-runghc">こちらの<span class="ascii">Stackoverflow</span>の質問</a>曰く、<code>runghc</code>で実行する際にランタイムオプションを設定する場合は、<code>GHCRTS</code>環境変数を使用するしかないそうです。</p>
+<p>実行結果（<span class="ascii">Strict</span>拡張を有効にしなかった場合）<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb20-1" title="1"><span class="op">&gt;</span> <span class="va">GHCRTS=</span>-K100k <span class="ex">stack</span> exec runghc -- ./stackoverflow-foldr.hs</a>
+<a class="sourceLine" id="cb20-2" title="2"><span class="ex">DONE</span>: foldr 1</a>
+<a class="sourceLine" id="cb20-3" title="3"><span class="ex">DONE</span>: foldr 2</a></code></pre></div>
+<p>実行結果（<span class="ascii">Strict</span>拡張を有効にした場合）<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb21-1" title="1"><span class="op">&gt;</span> <span class="va">GHCRTS=</span>-K100k <span class="ex">stack</span> exec runghc -- --ghc-arg=-XStrict ./stackoverflow-foldr.hs</a>
+<a class="sourceLine" id="cb21-2" title="2"><span class="ex">DONE</span>: foldr 1</a>
+<a class="sourceLine" id="cb21-3" title="3"><span class="ex">stackoverflow-foldr.hs</span>: stack overflow</a></code></pre></div>
+<p>サンプルコードは整数のリストに対して特に何も変換せず<code>foldr</code>する<small>（そして、<code>length</code>関数でリスト全体を評価してから捨てる）</small>だけのことを<span class="ascii">2</span>回繰り返したコードです。最初の<code>foldr</code>は<code>Strict</code>拡張があろうとなかろうと無事実行できたにもかかわらず、<code>Strict</code>拡張を有効にした二つめの<code>foldr</code>は、<code>stack overflow</code>というエラーを起こしてしまいました💥！</p>
+<p>なぜこんなエラーが発生したのかを知るために、<code>foldr</code>の定義を見直しましょう。こちら👇は<a href="http://hackage.haskell.org/package/base-4.14.0.0/docs/src/GHC.Base.html#foldr"><span class="ascii">GHC 8.10.1</span>における、リストに対する<code>foldr</code>の定義</a>です<small>（コメントは省略しています）</small>。</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="fu">foldr</span><span class="ot">            ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> b</a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="fu">foldr</span> k z <span class="ot">=</span> go</a>
+<a class="sourceLine" id="cb22-3" title="3">          <span class="kw">where</span></a>
+<a class="sourceLine" id="cb22-4" title="4">            go []     <span class="ot">=</span> z</a>
+<a class="sourceLine" id="cb22-5" title="5">            go (y<span class="op">:</span>ys) <span class="ot">=</span> y <span class="ot">`k`</span> go ys</a></code></pre></div>
+<p><code>go</code>という補助関数を再帰的に呼び出すことで、第一引数として渡した関数<code>k</code>を用いてリストの要素<span class="ascii">(</span><code>y</code><span class="ascii">)</span>を一つずつ変換しています。呼び出す度にリストの残りの要素をチェックして、最終的に空のリストを受け取ったときは<code>foldr</code>の第二引数<code>z</code>を返していますね。</p>
+<p>このとき<code>k</code>が第二引数を遅延評価する関数であった場合、 — サンプルコードで言えば<code>(:)</code>の場合 — 受け取った<code>go ys</code>という式は直ちには評価されません。サンプルコードの<code>(:)</code>に置き換えると、<code>(:)</code>の第二引数、つまりリストの残りの要素を取り出す度に<code>go ys</code>を一回計算して、一個ずつ要素を作り出すイメージです。</p>
+<p>一方、<code>k</code>が第二引数を正格評価する関数であった場合、 — サンプルコードで言うところの、<code>Strict</code>拡張を有効にした<code>(\x z -&gt; x : z)</code>の場合 — <code>k</code>は受け取った<code>go ys</code>をすぐに評価しようとします。このとき、<span class="ascii">GHC</span>は<code>k</code>や<code>go</code>に渡されている引数をスタック領域に積みます<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>。そうして<code>go</code>と、<code>go</code>に呼ばれた<code>k</code>が次々と引数をスタック領域に積んだ結果、スタックサイズの上限に達し、スタックオーバーフローが発生してしまうのです。</p>
+<p>これは他の多くのプログラミング言語で<small>（末尾再帰じゃない、普通の）</small>再帰呼び出しを行った場合とよく似た振る舞いです。間違って無限再帰呼び出しをしてしまってスタック領域があふれる、なんて経験は多くのプログラマーがお持ちでしょう。つまり単純に、<code>Strict</code>拡張を有効にした場合の<code>foldr (\x z -&gt; x : z) []</code>は、再帰呼び出しをしすぎてしまう関数となるのです。</p>
+<p>なお、今回は<code>length</code>関数を使ってリスト全体を使用するコードにしましたが、遅延リストらしく<code>foldr</code>の結果を一部しか使わない、という場合、<code>foldr</code>に渡した関数がリストを都度正格評価してしまうので、無駄な評価が占める割合はもっと増えることになります。やはり<code>foldr</code>は遅延評価を前提とした高階関数と言えるでしょう。</p>
+<p>以上のとおり、<span class="ascii">Haskell</span>には<code>foldr</code>のような、遅延評価を前提とした関数が<code>Strict</code>拡張より遥か昔から存在しています。それらを<code>Strict</code>拡張を有効にした状態で使うと、思わぬ衝突が起きてしまうので、くれぐれも気をつけましょう。</p>
+<p>こういう「使ってはいけない関数」を引いてしまわないための方法についても一点補足します。<span class="ascii">HLint</span>を細かく設定したり、カスタム<code>Prelude</code>を設定したりしてみるのは、一つの作戦です。なんとプロジェクト全体で、<code>foldr</code>を禁止することができます<small>（一部のモジュールでは例外的に許可する、なんてこともできます）</small>。詳しくは<a href="https://haskell.e-bigmoon.com/posts/2018/01-29-awesome-hlint.html">「素晴らしき <span class="ascii">HLint</span> を使いこなす」</a>や<a href="https://haskell.e-bigmoon.com/posts/2018/05-23-extended-prelude.html">「<span class="ascii">Prelude</span> を カスタム<span class="ascii">Prelude</span> で置き換える」</a>をご覧ください。</p>
+<h1 id="case-5-undefinedを受け取るメソッド"><span class="link-to-here-outer"><a href="#case-5-undefinedを受け取るメソッド" title="case-5-undefinedを受け取るメソッド"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Case 5:</span> <code>undefined</code>を受け取るメソッド</h1>
+<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/storable.hs"><span class="ascii">storable.hs</span></a></p>
+<p>最後はちょっとレアケースではありますが、こちら👇の<span class="ascii">Issue</span>で発覚した問題を解説しましょう。</p>
+<p><a href="https://gitlab.haskell.org/ghc/ghc/issues/16810"><span class="ascii">#16810: Use explicit lazy binding around undefined in inlinable functions · Issues · Glasgow Haskell Compiler / GHC · GitLab</span></a></p>
+<p>問題を簡単に再現するために、次のサンプルコードを用意しました。</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="co">-- importなどは当然省略！</span></a>
+<a class="sourceLine" id="cb23-2" title="2"><span class="kw">data</span> <span class="dt">Test</span> <span class="ot">=</span> <span class="dt">Test</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="kw">deriving</span> <span class="dt">Show</span></a>
+<a class="sourceLine" id="cb23-3" title="3"></a>
+<a class="sourceLine" id="cb23-4" title="4"><span class="kw">instance</span> <span class="dt">Storable</span> <span class="dt">Test</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb23-5" title="5">  sizeOf _ <span class="ot">=</span> sizeOf (<span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>) <span class="op">*</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb23-6" title="6">  alignment _ <span class="ot">=</span> <span class="dv">8</span></a>
+<a class="sourceLine" id="cb23-7" title="7">  peek <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;This should not be called in this program&quot;</span></a>
+<a class="sourceLine" id="cb23-8" title="8">  poke <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;This should not be called in this program&quot;</span></a>
+<a class="sourceLine" id="cb23-9" title="9"></a>
+<a class="sourceLine" id="cb23-10" title="10">main <span class="ot">=</span> alloca <span class="op">$</span> \(<span class="ot">_ ::</span> <span class="dt">Ptr</span> <span class="dt">Test</span>) <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;This won&#39;t be printed when Strict is enabled&quot;</span></a></code></pre></div>
+<p>はい、適当な型を定義して<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#t:Storable"><code>Storable</code></a>のインスタンスにして、それに対して<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Marshal-Alloc.html#v:alloca"><code>alloca</code></a>を呼ぶだけのコードです。インスタンス定義をはじめかなり手抜きな感じになっちゃってますが、まぁ今回の問題を再現するのにはこれで十分なので、ご了承ください🙏。</p>
+<p>このコード、残念ながら<code>Strict</code>拡張を有効にした状態で実行すると、<code>undefined</code>による例外が発生してしまいます💥。</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb24-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec -- runghc --ghc-arg=-XStrict storable.hs</a>
+<a class="sourceLine" id="cb24-2" title="2"><span class="ex">storable.hs</span>: Prelude.undefined</a>
+<a class="sourceLine" id="cb24-3" title="3"><span class="ex">CallStack</span> (from HasCallStack)<span class="bu">:</span></a>
+<a class="sourceLine" id="cb24-4" title="4">  <span class="ex">error</span>, called at libraries\base\GHC\Err.hs:79:14 in base:GHC.Err</a>
+<a class="sourceLine" id="cb24-5" title="5">  <span class="ex">undefined</span>, called at libraries\base\Foreign\Marshal\Alloc.hs:117:31 in base:Foreign.Marshal.Alloc</a></code></pre></div>
+<p>こちらは<code>Strict</code>を有効にしなかった場合。やはり例外は起きてませんね😌。</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb25-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec -- runghc storable.hs</a>
+<a class="sourceLine" id="cb25-2" title="2"><span class="ex">This</span> won<span class="st">&#39;t be printed when Strict is enabled</span></a></code></pre></div>
+<p>さてこの、<code>Strict</code>拡張を有効にした場合に発生した、<code>undefined</code>による例外はどこからやってきたのでしょう？上記のコードにはいくつか<code>error</code>関数を使用している箇所がありますが、発生した例外はあくまでも<code>undefined</code>です。見た限り上記のコードそのものから発生した例外ではなさそうですね…🤔。</p>
+<p>その答えはなんと、<code>main</code>関数で呼んでいる<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/src/Foreign-Marshal-Alloc.html#alloca"><code>alloca</code>の定義</a>にありました！</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1"><span class="ot">alloca ::</span> <span class="kw">forall</span> a b <span class="op">.</span> <span class="dt">Storable</span> a <span class="ot">=&gt;</span> (<span class="dt">Ptr</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> b</a>
+<a class="sourceLine" id="cb26-2" title="2">alloca  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb26-3" title="3">  allocaBytesAligned (sizeOf (<span class="fu">undefined</span><span class="ot"> ::</span> a)) (alignment (<span class="fu">undefined</span><span class="ot"> ::</span> a))</a></code></pre></div>
+<p>確かに、<code>sizeOf</code>メソッドや<code>alignment</code>メソッドに<code>undefined</code>を渡しています。これらはいずれも<code>Storable</code>型クラスのメソッドなので、上記の<code>Test</code>型でももちろん実装しています。そう、実はこの<code>sizeOf</code>メソッドと<code>alignment</code>メソッドの実装で、下👇のように引数<code>_</code>を宣言しているのが問題なのです！</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">instance</span> <span class="dt">Storable</span> <span class="dt">Test</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb27-2" title="2">  sizeOf _ <span class="ot">=</span> sizeOf (<span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>) <span class="op">*</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb27-3" title="3">  alignment _ <span class="ot">=</span> <span class="dv">8</span></a>
+<a class="sourceLine" id="cb27-4" title="4">  <span class="co">-- ...</span></a></code></pre></div>
+<p><a href="#case-2-ポイントフリースタイルかどうかで変わる">「<span class="ascii">Case 2:</span> ポイントフリースタイルかどうかで変わる！」の節</a>で、「<code>Strict</code>拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわち<span class="ascii">WHNF</span>まで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』」と述べたことを再び思い出してください。こちらの<code>sizeOf</code>・<code>alignment</code>の定義でも同様に、引数<code>_</code>を宣言しているため、引数を必ず<span class="ascii">WHNF</span>まで評価することになっています。結果、<code>alloca</code>関数がそれぞれを呼ぶ際<code>undefined</code>を渡しているため、<code>undefined</code>を評価してしまい、<code>undefined</code>による例外が発生してしまうのです💥。</p>
+<p>なぜこのように、<code>alloca</code>関数では<code>sizeOf</code>や<code>alignment</code>に<code>undefined</code>をわざわざ渡しているのでしょう？それは、これらのメソッドがそもそも<code>undefined</code>を渡して使うことを前提に設計されているからです。<code>sizeOf</code>・<code>alignment</code>はともに<code>Storable a =&gt; a -&gt; Int</code>という型の関数なので、第一引数に<code>Storable</code>のインスタンスである型<code>a</code>の値を受け取るのですが、このとき<strong>渡される<code>a</code>型の値は、使わない</strong>こととなっています。<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#v:sizeOf">それぞれのメソッドの説明</a>にも「<span class="ascii">The value of the argument is not used.</span>」と書かれていますね。これは、<code>sizeOf</code>も<code>alignment</code>も、型毎に一意な値として定まる<small>（引数の値によって<code>sizeOf</code>や<code>alignment</code>の結果が変わることがない）</small>ので、第一引数の<code>a</code>は、単に「この型の<code>sizeOf</code>を呼んでくださいね」という<strong>型の</strong>情報を渡すためのものでしかないからです。だから値には関心がないので<code>undefined</code>を渡しているわけです。そもそも、<code>alloca</code>関数のように引数として<code>Storable a =&gt; a</code>型の値をとらない関数では、<code>a</code>型の値を用意することができませんし。</p>
+<p>現代では通常、このように「値に関心がなく、何の型であるかという情報だけを受け取りたい」という場合は、<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Data-Proxy.html#t:Proxy"><code>Proxy</code></a>型を使うのが一般的です。<code>Storable</code>は恐らく<code>Proxy</code>が発明される前に生まれたため、<code>undefined</code>を渡すことになってしまっているのでしょう。なので、<code>Storable</code>型クラスのインスタンスを自前で定義したりしない限り、こうしたケースに出遭うことはまれだと思います。ただ、それでも<code>Proxy</code>を<code>import</code>するのを面倒くさがって<code>undefined</code>を代わりに渡す、なんてケースはありえるので、<code>Proxy</code>を使って定義した型クラスでも同じ問題にハマることはあるかも知れません…。</p>
+<p>⚠️結論として、<code>Storable</code>型クラスや、<code>Proxy</code>を受け取るメソッドを持つ型クラスのインスタンスを、<code>Strict</code>拡張を有効にした状態で定義する場合は、<code>Proxy</code>にあたる引数を評価しないよう、<code>~_</code>などを使って定義しましょう。</p>
+<h1 id="おわりに-やっぱりstrictは使う使わない"><span class="link-to-here-outer"><a href="#おわりに-やっぱりstrictは使う使わない" title="おわりに-やっぱりstrictは使う使わない"><span class="link-to-here">Link to<br />
+here</span></a></span>おわりに<span class="ascii">:</span> やっぱり<code>Strict</code>は使う？使わない？</h1>
+<p>さて、ここまで<code>Strict</code>拡張を有効にすることによって犯しうる、数々のミスを紹介してきました。ここまで書いた個人的な印象としては、「敢えて有効にする必要はないんじゃないか」といったところです<small>（まぁ、悪いところばかり調べた結果のため、とてもフェアな視点での判断とは言えないのですが…）</small>。<code>foldr</code>の例でも触れたとおり、<span class="ascii">Haskell</span>には遅延評価を前提とした、遅延評価を存分に活かした機能が溢れています。当然それらは<code>Strict</code>拡張ができるよりはるか昔からあり、<code>Strict</code>拡張のことなど一切考えないで作られたものです。動的型付け言語に後から静的型検査を導入するのが大変なように、相対する機能を後付けすると衝突が起こるのは仕方のないことですが、こと<code>Strict</code>拡張については想像以上に大きな衝突のようです😞。</p>
+<p>それでも使いたいという方に、今回の記事が助けになれば幸いです💪それでは<code>Strict</code>な方も<code>NoStrict</code>な方も<span class="ascii">Happy Haskell Hacking!!</span></p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>例えば<span class="ascii">fumieval</span>さんによる<a href="http://fumieval.hatenablog.com/entry/2015/12/10/200630">この記事</a>より<span class="ascii">:</span> 「もっとも、日常ではここまで気にしなければいけない場面は少ないので、ほとんどの場合は気にせず感嘆符をつけて大丈夫だろう。<span class="ascii">GHC 8.0</span>からは、全フィールドをデフォルトで正格にする<code>StrictData</code>という拡張が入るため、こちらを使おう」<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p><code>BangPatterns</code>言語拡張を有効にした上で上記のように書き換えてみると、<code>Strict</code>拡張の有無に関わらずエラーが発生します。試してみましょう。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>実際のところ今回紹介するケース以外にも、ポイントフリースタイルにするかしないかで実行効率などが変わる場合があります。例えば、<a href="https://treszkai.github.io/2019/07/13/haskell-eval"><span class="ascii">Evaluation of function calls in Haskell</span></a>をご覧ください。<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p>もっとも、この例では引数はリストでしょうから、<span class="ascii">WHNF</span>までのみ正格評価するメリットは少なそうですが。<a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn5"><p>大きなリストにすると、今度はエラーが発生するまでに時間がかかってしまうので…。ちなみに、このようにスタック領域を小さくすることでスペースリークを検出する手法は、<a href="https://github.com/ndmitchell/spaceleak"><span class="ascii">ndmitchell/spaceleak: Notes on space leaks</span></a>でも紹介されています。<a href="#fnref5" class="footnote-back">↩</a></p></li>
+<li id="fn6"><p><span class="ascii">GHC</span>がどのように評価し、スタック領域を消費するかは<a href="https://takenobu-hs.github.io/downloads/haskell_ghc_illustrated.pdf"><span class="ascii">GHC illustrated</span></a>や、その参考文献をご覧ください。<a href="#fnref6" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2020/haskell-casually-at-work.html" style="margin-left: auto;" lang="ja">Haskellを業務で使う、カジュアルに</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>Haskellを業務で使う、カジュアルに</title>
     <link href="https://haskell.jp/blog/posts/2020/haskell-casually-at-work.html" />
     <id>https://haskell.jp/blog/posts/2020/haskell-casually-at-work.html</id>
@@ -179,6 +471,9 @@ here</span></a></span>おわりに</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2020/strict-gotchas.html" lang="ja">Strict拡張を使用する際の注意点</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2305,285 +2600,6 @@ here</span></a></span><span class="ascii">Copilot</span>を試してみる</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/haskell-symposium.html" style="margin-left: auto;" lang="ja">Haskell Symposium 2019 レポート</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>Haskell Symposium 2019 レポート</title>
-    <link href="https://haskell.jp/blog/posts/2019/haskell-symposium.html" />
-    <id>https://haskell.jp/blog/posts/2019/haskell-symposium.html</id>
-    <published>2019-10-01T00:00:00Z</published>
-    <updated>2019-10-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <p><a href="https://icfp19.sigplan.org/home/haskellsymp-2019"><span class="ascii">Haskell Symposium 2019</span></a>に<span class="ascii">IIJ</span>として参加してきました。</p>
-<p>聴講した発表についての概要をまとめましたので、どの論文を読んでみるか決めるなどの際にご活用ください。内容については私の聞きまちがい・読みまちがいなどあると思いますのでご了承ください。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#haskell-symposiumとは" title="haskell-symposiumとは"><span class="ascii">Haskell Symposium</span>とは</a></li>
-<li><a href="#bidirectional-type-class-instances" title="bidirectional-type-class-instances"><span class="ascii">Bidirectional Type Class Instances</span></a></li>
-<li><a href="#generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances" title="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="ascii">Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances</span></a></li>
-<li><a href="#modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study" title="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="ascii">Modular effects in Haskell through effect polymorphism and explicit dictionary applications - A new approach and the</span> μ<span class="ascii">VeriFast verifier as a case study</span></a></li>
-<li><a href="#verifying-effectful-haskell-programs-in-coq" title="verifying-effectful-haskell-programs-in-coq"><span class="ascii">Verifying Effectful Haskell Programs in Coq</span></a></li>
-<li><a href="#solving-haskell-equality-constraints-using-coq" title="solving-haskell-equality-constraints-using-coq"><span class="ascii">Solving Haskell equality constraints using Coq</span></a></li>
-<li><a href="#formal-verification-of-spacecraft-control-programs-an-experience-report" title="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="ascii">Formal Verification of Spacecraft Control Programs: An Experience Report</span></a></li>
-<li><a href="#g2q-haskell-constraint-solving" title="g2q-haskell-constraint-solving"><span class="ascii">G2Q: Haskell Constraint Solving</span></a></li>
-<li><a href="#making-a-faster-curry-with-extensional-types" title="making-a-faster-curry-with-extensional-types"><span class="ascii">Making a Faster Curry with Extensional Types</span></a></li>
-<li><a href="#multi-stage-programs-in-context" title="multi-stage-programs-in-context"><span class="ascii">Multi-Stage Programs in Context</span></a></li>
-<li><a href="#working-with-source-plugins" title="working-with-source-plugins"><span class="ascii">Working with Source Plugins</span></a></li>
-<li><a href="#stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism" title="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="ascii">STCLang: State Thread Composition as a Foundation for Monadic Dataflow Parallelism</span></a></li>
-<li><a href="#synthesizing-functional-reactive-programs" title="synthesizing-functional-reactive-programs"><span class="ascii">Synthesizing Functional Reactive Programs</span></a></li>
-<li><a href="#the-essence-of-live-coding-change-the-program-keep-the-state" title="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="ascii">The essence of live coding: Change the program, keep the state!</span></a></li>
-<li><a href="#monad-transformers-and-modular-algebraic-effects-what-binds-them-together" title="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="ascii">Monad Transformers and Modular Algebraic Effects: What Binds Them Together</span></a></li>
-<li><a href="#scoping-monadic-relational-database-queries" title="scoping-monadic-relational-database-queries"><span class="ascii">Scoping Monadic Relational Database Queries</span></a></li>
-</ul>
-</div>
-</div>
-<h1 id="haskell-symposiumとは"><span class="link-to-here-outer"><a href="#haskell-symposiumとは" title="haskell-symposiumとは"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell Symposium</span>とは</h1>
-<p><a href="https://icfp19.sigplan.org/"><span class="ascii">International Conference on Functional Programming</span></a>（<span class="ascii">ICFP</span>）に合わせて開催される<span class="ascii">Haskell</span>に関する国際会議です。<span class="ascii">Haskell</span>に関する研究を発表したり、実践的な経験や将来の言語の開発について議論したり、その他の宣言的プログラミングを促進したりします。</p>
-<h1 id="bidirectional-type-class-instances"><span class="link-to-here-outer"><a href="#bidirectional-type-class-instances" title="bidirectional-type-class-instances"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Bidirectional Type Class Instances</span></h1>
-<ul>
-<li>著者：<span class="ascii">Koen Pauwels (KU Leuven), Georgios Karachalias (KU Leuven), Michiel Derhaeg (Guardsquare), Tom Schrijvers (KU Leuven)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/8/Bidirectional-Type-Class-Instances</span></a></li>
-<li>論文：<a href="https://arxiv.org/abs/1906.12242" class="uri"><span class="ascii">https://arxiv.org/abs/1906.12242</span></a></li>
-</ul>
-<p><span class="ascii">GADT</span>と型クラスはそれぞれ便利だが混ぜると問題が起きる場合がある。</p>
-<p>次のような<code>Term</code>があるとき、その<code>Show</code>インスタンスを考える。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">data</span> <span class="dt">Term</span><span class="ot"> ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">Con</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">Term</span> a</a>
-<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">Tup</span><span class="ot"> ::</span> <span class="dt">Term</span> b <span class="ot">-&gt;</span> <span class="dt">Term</span> c <span class="ot">-&gt;</span> <span class="dt">Term</span> (b, c)</a></code></pre></div>
-<p>次のように<code>Show</code>インスタンスを定義すると型エラーになる。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">instance</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Term</span> a) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb2-2" title="2">  <span class="fu">show</span> (<span class="dt">Con</span> a) <span class="ot">=</span> <span class="fu">show</span> a</a>
-<a class="sourceLine" id="cb2-3" title="3">  <span class="fu">show</span> (<span class="dt">Tup</span> x y) <span class="ot">=</span> <span class="fu">unwords</span> [<span class="st">&quot;(&quot;</span>, <span class="fu">show</span> x, <span class="st">&quot;,&quot;</span>, <span class="fu">show</span> y, <span class="st">&quot;)&quot;</span>]</a></code></pre></div>
-<pre><code>Could not deduce (Show b) arising from a use of `show&#39;
-from the context (Show a) or from (a ~ (b, c))</code></pre>
-<p>これは<code>Show (b, c)</code>ならば<code>Show b</code>という関係がないために起こる。</p>
-<p>一方タプルについての<code>Show</code>は、<code>Show a</code>かつ<code>Show b</code>ならば<code>Show (a, b)</code>という関係である。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Show</span> b) <span class="ot">=&gt;</span> <span class="dt">Show</span> (a, b) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb4-2" title="2">  …</a></code></pre></div>
-<p>この「ならば」を両方向にすれば問題は解決できるのではないかというのが、この論文の主張である。</p>
-<h1 id="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here-outer"><a href="#generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances" title="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances</span></h1>
-<ul>
-<li>著者：<span class="ascii">Ryan Scott (Indiana University), Ryan R. Newton (Indiana University)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/3/Generic-and-Flexible-Defaults-for-Verified-Law-Abiding-Type-Class-Instances</span></a></li>
-<li>論文：<a href="https://ryanglscott.github.io/papers/verified-classes.pdf" class="uri"><span class="ascii">https://ryanglscott.github.io/papers/verified-classes.pdf</span></a></li>
-</ul>
-<p>型クラスの法則は依存型を使えば証明できるが、インスタンスごとに書くのはめんどうなので<code>Generics</code>で出来るようにしようという話である。</p>
-<h1 id="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="link-to-here-outer"><a href="#modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study" title="modular-effects-in-haskell-through-effect-polymorphism-and-explicit-dictionary-applications---a-new-approach-and-the-μverifast-verifier-as-a-case-study"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Modular effects in Haskell through effect polymorphism and explicit dictionary applications - A new approach and the</span> μ<span class="ascii">VeriFast verifier as a case study</span></h1>
-<ul>
-<li>著者：<span class="ascii">Dominique Devriese (Vrije Universiteit Brussel)</span></li>
-<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/1/Modular-effects-in-Haskell-through-effect-polymorphism-and-explicit-dictionary-applic</span></a></li>
-</ul>
-<p>様々な種類の効果が複雑に絡み合うアプリケーションを整理するために、「効果を伴う処理を持った辞書」を明示的に渡す方式の提案である。</p>
-<p>提案した方式によって<span class="ascii">VeriFast</span>を再実装してみることで、実際に発生した問題と解決方法を解説している。</p>
-<h1 id="verifying-effectful-haskell-programs-in-coq"><span class="link-to-here-outer"><a href="#verifying-effectful-haskell-programs-in-coq" title="verifying-effectful-haskell-programs-in-coq"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Verifying Effectful Haskell Programs in Coq</span></h1>
-<ul>
-<li>著者：<span class="ascii">Jan Christiansen (Flensburg University of Applied Sciences), Sandra Dylus (University of Kiel), Niels Bunkenburg (University of Kiel)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/4/Verifying-Effectful-Haskell-Programs-in-Coq</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342592" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342592</span></a></li>
-</ul>
-<p><span class="ascii">Coq</span>による、効果を伴うプログラムの証明に関する話。</p>
-<p>効果について直接証明することはせず、<span class="ascii">Free</span>モナドを用いての証明を試みても、そのまま<span class="ascii">Coq</span>に翻訳すると停止性チェックによってエラーになってしまう。</p>
-<p>そのために行った工夫に加え、具体例として、<code>trace</code>や（部分関数による）エラーなど、<span class="ascii">Haskell</span>において暗黙に発生する効果を考慮したモデル化について検討した。</p>
-<h1 id="solving-haskell-equality-constraints-using-coq"><span class="link-to-here-outer"><a href="#solving-haskell-equality-constraints-using-coq" title="solving-haskell-equality-constraints-using-coq"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Solving Haskell equality constraints using Coq</span></h1>
-<ul>
-<li>著者：<span class="ascii">Zubin Duggal</span></li>
-<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/15/Solving-Haskell-equality-constraints-using-Coq</span></a></li>
-</ul>
-<p><span class="ascii">data kinds</span>や<span class="ascii">type families</span>といった<span class="ascii">GHC</span>拡張によって厳格なデータ型を定義できるが、それに対する操作を定義すると<span class="ascii">GHC</span>には解けない型レベルの等式が生成されることがある。</p>
-<p>制約カインドの型に対する型クラスとして<code>Proven</code>を提供し、この制約がある箇所を<span class="ascii">GHC</span>型検査プラグインが検出して対応する<span class="ascii">Coq</span>コードのテンプレートを生成する。</p>
-<p>その<span class="ascii">Coq</span>コードに証明がなければ警告を表示する。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">type</span> <span class="dt">ProofName</span> <span class="ot">=</span> <span class="dt">Symbol</span></a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">class</span> c <span class="ot">=&gt;</span> <span class="dt">Proven</span> (<span class="ot">prf ::</span> <span class="dt">ProofName</span>) (<span class="ot">c ::</span> <span class="dt">Constraint</span>)</a>
-<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">where</span> {}</a>
-<a class="sourceLine" id="cb5-5" title="5"></a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="ot">applyProof ::</span> <span class="kw">forall</span> prf c a<span class="op">.</span> <span class="dt">Proven</span> prf c <span class="ot">=&gt;</span> (c <span class="ot">=&gt;</span> a) <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb5-7" title="7">applyProof x <span class="ot">=</span> x</a>
-<a class="sourceLine" id="cb5-8" title="8"></a>
-<a class="sourceLine" id="cb5-9" title="9">lemma3 <span class="ot">=</span> applyProof <span class="op">@</span><span class="st">&quot;nonzero_pop&quot;</span> <span class="op">@</span>(<span class="dt">NNonZero</span> (<span class="dt">Popcount</span> b) <span class="op">~</span> <span class="dt">True</span>) <span class="dt">Refl</span></a></code></pre></div>
-<p>いくつか制約があるが<span class="ascii">Haskell</span>の型を<span class="ascii">Coq</span>に自動的に変換している。</p>
-<h1 id="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here-outer"><a href="#formal-verification-of-spacecraft-control-programs-an-experience-report" title="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Formal Verification of Spacecraft Control Programs: An Experience Report</span></h1>
-<ul>
-<li>著者：<span class="ascii">Andrey Mokhov (Newcastle University), Georgy Lukyanov (Newcastle University), Jakob Lechner (RUAG Space Austria GmbH)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/5/Formal-Verification-of-Spacecraft-Control-Programs-An-Experience-Report</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342593" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342593</span></a></li>
-</ul>
-<p><span class="ascii">REDFIN</span>という固定小数演算と整数演算のための処理系があるのだが、そのアセンブリーコードに対して形式検証をしたという報告である。</p>
-<h1 id="g2q-haskell-constraint-solving"><span class="link-to-here-outer"><a href="#g2q-haskell-constraint-solving" title="g2q-haskell-constraint-solving"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">G2Q: Haskell Constraint Solving</span></h1>
-<ul>
-<li>著者：<span class="ascii">William T. Hallahan (Yale University), Anton Xue (Yale University), Ruzica Piskac (Yale University)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/2/G2Q-Haskell-Constraint-Solving</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342590" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342590</span></a></li>
-</ul>
-<p><span class="ascii">G2Q</span>は<span class="ascii">Haskell</span>のソースに<span class="ascii">quasi quote</span>で埋め込む<span class="ascii">DSL</span>である。</p>
-<p><span class="ascii">Haskell</span>で書いた条件式を<span class="ascii">symbolic execution</span>して、<span class="ascii">SMT solver</span>に渡す式に変換して、<span class="ascii">SMT solver</span>に条件を満たす関数を導出させる。</p>
-<h1 id="making-a-faster-curry-with-extensional-types"><span class="link-to-here-outer"><a href="#making-a-faster-curry-with-extensional-types" title="making-a-faster-curry-with-extensional-types"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Making a Faster Curry with Extensional Types</span></h1>
-<ul>
-<li>著者：<span class="ascii">Paul Downen (University of Oregon), Zachary Sullivan, Zena M. Ariola (University of Oregon), Simon Peyton Jones (Microsoft)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/6/Making-a-Faster-Curry-with-Extensional-Types</span></a></li>
-<li>論文：<a href="https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf" class="uri"><span class="ascii">https://ix.cs.uoregon.edu/~pdownen/publications/eta.pdf</span></a></li>
-</ul>
-<p>パフォーマンスのためにη変換してほしいところを明示したいことがある。</p>
-<p>例えば、次のような意味論上は等価な関数<code>f1</code>と<code>f2</code>があるとする。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">f1 <span class="ot">=</span> \x <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> \y <span class="ot">-&gt;</span> e y z</a>
-<a class="sourceLine" id="cb6-2" title="2">f2 <span class="ot">=</span> \x <span class="ot">-&gt;</span> \y <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> e y z</a></code></pre></div>
-<p>実際は<code>f1</code>は引数<code>x</code>を取った後クロージャー生成のためにヒープ確保するのに対して、<code>f2</code>はアリティが<span class="ascii">2</span>の関数と解釈されて中間のクロージャーが必要なくなる。</p>
-<p><code>~&gt;</code>というアリティの情報を持った関数型を新たに導入して<code>-&gt;</code>の代わりに使えるようにする。</p>
-<p><code>TYPE (a :: RuntimeRep (FunRep 2))</code>というような新たなポリモーフィズムを導入する。ここでの<code>2</code>がアリティ。</p>
-<p><code>Int</code>に対して<code>Int#</code>があるように基本的にはパフォーマンスが必要なライブラリーなど内部的に使用する想定。</p>
-<h1 id="multi-stage-programs-in-context"><span class="link-to-here-outer"><a href="#multi-stage-programs-in-context" title="multi-stage-programs-in-context"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Multi-Stage Programs in Context</span></h1>
-<ul>
-<li>著者：<span class="ascii">Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Csongor Kiss (Imperial College London)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/9/Multi-Stage-Programs-in-Context</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342597" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342597</span></a></li>
-</ul>
-<p>次のような準引用があったときに、組み合わせると元々あったはずの情報が欠落する場合がある。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">qshow ::</span> <span class="dt">Code</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
-<a class="sourceLine" id="cb7-2" title="2">qshow <span class="ot">=</span> [q| show |]</a>
-<a class="sourceLine" id="cb7-3" title="3"></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="ot">qread ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>)</a>
-<a class="sourceLine" id="cb7-5" title="5">qread <span class="ot">=</span> [q| read |]</a>
-<a class="sourceLine" id="cb7-6" title="6"></a>
-<a class="sourceLine" id="cb7-7" title="7"><span class="ot">trim ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
-<a class="sourceLine" id="cb7-8" title="8">trim <span class="ot">=</span> [q| $(qshow) . $(qread) |]</a></code></pre></div>
-<p><code>qshow</code>と<code>qread</code>にあった<code>Int</code>という情報が、組み合わせて<code>trim</code>とすると欠落してコンパイルエラーになってしまう。</p>
-<p><span class="ascii">splice</span>するときに<span class="ascii">Haskell</span>ソースコードの構文木ではなく<span class="ascii">Core</span>に対するものを出力すればそれは型が明示されているし問題がない。</p>
-<p>しかも、<span class="ascii">splice</span>後の型検査を省略できるのでコンパイルの高速化にも寄与する。</p>
-<h1 id="working-with-source-plugins"><span class="link-to-here-outer"><a href="#working-with-source-plugins" title="working-with-source-plugins"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Working with Source Plugins</span></h1>
-<ul>
-<li>著者：<span class="ascii">Matthew Pickering (University of Bristol), Nicolas Wu (Imperial College London), Boldizsár Németh (Eötvös Loránd University)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/11/Working-with-Source-Plugins</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342599" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342599</span></a></li>
-</ul>
-<p><span class="ascii">souce plugins</span>のしくみや、書き方、実装時のテクニックの紹介である。</p>
-<h1 id="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="link-to-here-outer"><a href="#stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism" title="stclang-state-thread-composition-as-a-foundation-for-monadic-dataflow-parallelism"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">STCLang: State Thread Composition as a Foundation for Monadic Dataflow Parallelism</span></h1>
-<ul>
-<li>著者：<span class="ascii">Sebastian Ertel, Justus Adam (Technische Universität Dresden), Norman A. Rink (TU Dresden), Andrés Goens, Jeronimo Castrillon (TU Dresden)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/12/STCLang-State-Thread-Composition-as-a-Foundation-for-Monadic-Dataflow-Parallelism</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342600" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342600</span></a></li>
-</ul>
-<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
-<h1 id="synthesizing-functional-reactive-programs"><span class="link-to-here-outer"><a href="#synthesizing-functional-reactive-programs" title="synthesizing-functional-reactive-programs"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Synthesizing Functional Reactive Programs</span></h1>
-<ul>
-<li>著者：<span class="ascii">Bernd Finkbeiner, Felix Klein (Saarland University), Ruzica Piskac (Yale University, Mark Santolucito (Yale University)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/13/Synthesizing-Functional-Reactive-Programs</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342601" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342601</span></a></li>
-</ul>
-<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
-<h1 id="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="link-to-here-outer"><a href="#the-essence-of-live-coding-change-the-program-keep-the-state" title="the-essence-of-live-coding-change-the-program-keep-the-state"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">The essence of live coding: Change the program, keep the state!</span></h1>
-<ul>
-<li>著者：<span class="ascii">Manuel Bärenz (sonnen eServices GmbH)</span></li>
-<li>概要・論文：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state-" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/14/The-essence-of-live-coding-Change-the-program-keep-the-state-</span></a></li>
-</ul>
-<p>同じ時刻の<span class="ascii">HIW</span>の発表を聴講していたためこちらは聴講していません。</p>
-<h1 id="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="link-to-here-outer"><a href="#monad-transformers-and-modular-algebraic-effects-what-binds-them-together" title="monad-transformers-and-modular-algebraic-effects-what-binds-them-together"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Monad Transformers and Modular Algebraic Effects: What Binds Them Together</span></h1>
-<ul>
-<li>著者：<span class="ascii">Tom Schrijvers (KU Leuven), Maciej Piróg (University of Wroc</span>ł<span class="ascii">aw), Nicolas Wu (Imperial College London), Mauro Jaskelioff (CONICET)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/7/Monad-Transformers-and-Modular-Algebraic-Effects-What-Binds-Them-Together</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342595" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342595</span></a></li>
-</ul>
-<p>モナドトランスフォーマーと代数的効果との対比である。</p>
-<p>モナドトランスフォーマーから代数的効果への変換またその逆のときにどういう手法があって、それぞれを構成する要素がどう対応しているかを説明している。</p>
-<p>モナドトランスフォーマーと代数的効果だとモナドトランスフォーマーの方が表現できるものが大きいのでモナドトランスフォーマーから代数的効果へはどんなものでも変換できるわけではない。</p>
-<p>例えば<code>catch</code>や<code>local</code>は代数的効果にできない。</p>
-<h1 id="scoping-monadic-relational-database-queries"><span class="link-to-here-outer"><a href="#scoping-monadic-relational-database-queries" title="scoping-monadic-relational-database-queries"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Scoping Monadic Relational Database Queries</span></h1>
-<ul>
-<li>著者：<span class="ascii">Anton Ekblad (Chalmers University of Technology)</span></li>
-<li>概要：<a href="https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries" class="uri"><span class="ascii">https://icfp19.sigplan.org/details/haskellsymp-2019-papers/10/Scoping-Monadic-Relational-Database-Queries</span></a></li>
-<li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342598" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342598</span></a></li>
-</ul>
-<p>モナドは<span class="ascii">Haskell</span>界隈で非常に普及しているので<span class="ascii">SQL</span>に対する<span class="ascii">EDSL</span>としてモナドの構造を採用したい。</p>
-<p>このとき<span class="ascii">SQL</span>の結合を表現すると、<span class="ascii">SQL</span>としてはスコープ外にもかかわらず<span class="ascii">EDSL</span>としてはスコープ内となって使える変数ができてしまう。</p>
-<p>これを<span class="ascii">EDSL</span>としてもエラーとしたい。</p>
-<p>例えば、次のような例で実行時エラーとなってしまう。ここで<code>a0</code>は<code>tableA</code>の列とする。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">SELECT</span> a0, b0</a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="kw">FROM</span></a>
-<a class="sourceLine" id="cb8-3" title="3">  tableA</a>
-<a class="sourceLine" id="cb8-4" title="4">    <span class="kw">LEFT</span> <span class="kw">JOIN</span></a>
-<a class="sourceLine" id="cb8-5" title="5">      (<span class="kw">SELECT</span> b0 <span class="kw">FROM</span> tableB <span class="kw">WHERE</span> a0 <span class="op">==</span> b1)</a>
-<a class="sourceLine" id="cb8-6" title="6">  <span class="kw">ON</span> tableA.a2 <span class="op">==</span> tableb.b2</a></code></pre></div>
-<p><code>SELECT b0 FROM tableB WHERE a0 == b1</code>の部分でスコープ外の<code>a0</code>を参照しているためエラーとなる。</p>
-<p>単純なモナド<span class="ascii">EDSL</span>だと次のようになりコンパイルが通る。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">do</span></a>
-<a class="sourceLine" id="cb9-2" title="2">  a0 <span class="op">:*:</span> a1 <span class="op">:*:</span> a2 <span class="ot">&lt;-</span> from table0</a>
-<a class="sourceLine" id="cb9-3" title="3">  leftJoin <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb9-4" title="4">    b0 <span class="op">:*:</span> b1 <span class="op">:*:</span> b2 <span class="ot">&lt;-</span> from table1</a>
-<a class="sourceLine" id="cb9-5" title="5">    ristrict <span class="op">$</span> a0 <span class="op">.==</span> b1</a>
-<a class="sourceLine" id="cb9-6" title="6">  on <span class="op">$</span> a2 <span class="op">.==</span> b2</a></code></pre></div>
-<p><code>ristrict $ a0 .== b1</code>の部分において<code>a0</code>は<span class="ascii">Haskell</span>としてはスコープ内にある。</p>
-<p>この問題を次のような型レベル関数を駆使することで<span class="ascii">EDSL</span>においてもコンパイル時エラーとすることができた。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Cols</span> a</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Outer</span> a</a>
-<a class="sourceLine" id="cb10-3" title="3"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">UnAggr</span> a</a>
-<a class="sourceLine" id="cb10-4" title="4"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">FromRow</span> a</a></code></pre></div>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/hiw-copilot.html" lang="ja">HIW 2019で発表された、Copilotという内部DSLについて</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/hiw-gibbon.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、Gibbonコンパイラーについて</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
