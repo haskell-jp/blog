@@ -98,7 +98,7 @@ where.hs: divide by zero
 
 [^bangpatterns]: `BangPatterns`言語拡張を有効にした上で上記のように書き換えてみると、`Strict`拡張の有無に関わらずエラーが発生します。試してみましょう。
 
-こうなると、`result`を使用しないケース、すなわち`n == 0    = 0`の場合であっても`result`に <small>（WHNFまで評価した）</small>値を代入するのに必要な計算は実行され、結果<code>10 `div` 0</code>が計算されようとして`divide by zero`が発生するのです。
+こうなると、`result`を使用しないケース、すなわち`n == 0`の場合であっても`result`に <small>（WHNFまで評価した）</small>値を代入するのに必要な計算は実行され、結果``10 `div` 0``が計算されようとして`divide by zero`が発生するのです。
 
 ⚠️`where`句は関数定義の後ろの方に書くという性格上、見落としがちかも知れません。注意しましょう。
 
