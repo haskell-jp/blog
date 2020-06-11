@@ -29,12 +29,10 @@ Haskellは他の多くのプログラミング言語と異なった特徴を備�
 
 - Haskellの遅延評価について
     - [実装して理解する遅延評価の仕組み 〜 thunkを絵に描いて理解しよう・JavaScriptでHaskellを実装！？ - プログラムモグモグ](https://itchyny.hatenablog.com/entry/20130209/1360417348)が詳しくて分かりやすいでしょう
-- Haskellの正格評価について
+- Haskellの正格評価、および`BangPatterns`について
     - [正格性のすべて (翻訳)](https://haskell.e-bigmoon.com/posts/2018/06-25-all-about-strictness)
 - `Strict`と`StrictData`について
     - [Strict Haskell - あどけない話](https://kazu-yamamoto.hatenablog.jp/entry/20151117/1447726679)
-- `BangPatterns`・Bangパターンについて
-    - [Bang Patternsについての訂正 @ 第一回 hs.hs 勉強会 - Qiita](https://qiita.com/func-hs/items/51b314a2323b83653bb9)
 - その他、[Haskellスペースリーク Advent Calendar 2015 - Qiita](https://qiita.com/advent-calendar/2015/haskell-space-leaks)の記事にも有用なものがたくさんあります。
 
 # サンプルコードの試し方
