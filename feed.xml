@@ -8,8 +8,333 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2020-06-11T00:00:00Z</updated>
+    <updated>2020-06-14T00:00:00Z</updated>
     <entry>
+    <title>data / newtype / type の使い方</title>
+    <link href="https://haskell.jp/blog/posts/2020/how-to-use-type-newtype-data.html" />
+    <id>https://haskell.jp/blog/posts/2020/how-to-use-type-newtype-data.html</id>
+    <published>2020-06-14T00:00:00Z</published>
+    <updated>2020-06-14T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><span class="ascii">Haskell</span> プログラミングにおいて，データ型は非常に重要な役割を持つ．データ型は，扱うデータをプログラミング上で安全かつ容易に加工するために用いられ，またデータに対してどのような操作ができるのかを規定する．</p>
+<p><span class="ascii">Haskell</span> には，データ型を新たに定義する方法が<span class="ascii">3</span>つある．</p>
+<ul>
+<li><span class="ascii">1</span>つ目は <code>type</code> キーワードによって定義する方法で，これにより定義されたデータ型は型シノニムと呼ばれる．</li>
+<li><span class="ascii">2</span>つ目は <code>data</code> キーワードによって定義する方法で，これにより定義されたデータ型は代数的データ型と呼ばれる．</li>
+<li><span class="ascii">3</span>つ目は <code>newtype</code> キーワードによってある型を元に新たな型を作る方法だ．</li>
+</ul>
+<p>今回は，それぞれどういう使い方をするのか，どういう違いがあるのかについて見ていきたいと思う．</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#型シノニム" title="型シノニム">型シノニム</a></li>
+<li><a href="#代数的データ型" title="代数的データ型">代数的データ型</a></li>
+<li><a href="#ある型を元に新たな型を作る-datatype-renaming" title="ある型を元に新たな型を作る-datatype-renaming">ある型を元に新たな型を作る <span class="ascii">(Datatype Renaming)</span></a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h2 id="型シノニム"><span class="link-to-here-outer"><a href="#型シノニム" title="型シノニム"><span class="link-to-here">Link to<br />
+here</span></a></span>型シノニム</h2>
+<p>例えば，あなたは <span class="ascii">Web</span> サイトを運営していて，一部年齢制限が必要なため，人の年齢が <span class="ascii">20</span> 歳以上かを判定する関数を書かなければいけないとする．年齢は整数だが，入力は必須でないため入力してない人もいる．その場合は，<span class="ascii">20</span> 歳以上でないと判定する．この関数は，</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">isAdult ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb1-2" title="2">isAdult m <span class="ot">=</span> <span class="kw">case</span> m <span class="kw">of</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="dt">Just</span> x  <span class="ot">-&gt;</span> x <span class="op">&gt;=</span> <span class="dv">20</span></a></code></pre></div>
+<p>と書ける．ただ，この定義はどこか味気ない．<code>isAdult</code> が受け取るデータは，年齢を表していて，整数か未詳かの状態を持つので，<code>Maybe Int</code> はデータを正確に捉えられている．しかし，<code>Maybe Int</code> に適合するデータは他に無数にあるため，<code>isAdult</code> が受け取るデータが年齢を表すのか知能指数を表すのか，はたまた今までお酒を飲んだことのある回数なのかは推測しないと分からない．年齢を表すデータ型を新たに定義して，それを受け取るようにすればもっとプログラムがクールになるだろう．</p>
+<p><span class="ascii">Haskell</span> で新しくデータ型を定義する最も簡単な方法は，<code>type</code> キーワードを使って型シノニム <span class="ascii">(type synonym)</span> を定義する方法だ．シノニムとは，別名という意味で，型シノニムは文字通り，ある型の別名を表す．今回は次のように使える<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">type</span> <span class="dt">Age</span> <span class="ot">=</span> <span class="dt">Maybe</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="ot">isAdult ::</span> <span class="dt">Age</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb2-4" title="4">isAdult age <span class="ot">=</span> <span class="kw">case</span> age <span class="kw">of</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="dt">Just</span> x  <span class="ot">-&gt;</span> x <span class="op">&gt;=</span> <span class="dv">20</span></a></code></pre></div>
+<p>これで関数 <code>isAdult</code> は，先ほどと比べてとても明確になった．<code>Age</code> は <code>Maybe Int</code> を元に作られた型シノニムで，つまり <code>Age</code> は <code>Maybe Int</code> の別名になっている．単なる別名なので，<code>isAdult</code> は <code>Maybe Int -&gt; Bool</code> 型の関数だと思って使うこともできる．<span class="ascii">GHCi</span> で試してみよう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&gt;&gt;&gt;</span> (<span class="ot">isAdult ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>) (<span class="dt">Just</span> <span class="dv">22</span><span class="ot"> ::</span> <span class="dt">Age</span>)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="dt">True</span></a></code></pre></div>
+<p><code>Maybe Int</code> を <code>Age</code> だと思うこともできるしその逆もできる．型シノニムと元となった型は自在に取り替え可能だ．型シノニムはとても手軽なので，<span class="ascii">Haskell</span> の標準ライブラリでも使われている．例えば，次のようなデータ型が型シノニムで定義されている<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">type</span> <span class="dt">String</span> <span class="ot">=</span> [<span class="dt">Char</span>]</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">type</span> <span class="dt">FilePath</span> <span class="ot">=</span> <span class="dt">String</span></a></code></pre></div>
+<p>文字列は文字のリストと見做せる．そこから文字列によるデータ型 <code>String</code> は，単に文字のリスト型の型シノニムで定義されている．文字列に対してリストの関数を自由に適用できるのは，このためだ．ファイルのパスによるデータ型 <code>FilePath</code> は <code>String</code> の型シノニムで定義されている．なので，文字列の関数を自由に適用できる．</p>
+<p><span class="ascii">Haskell</span> の型シノニムは，これだけに止まらずもっと強力な機能も持っている．例えば，型シノニムは型コンストラクタ，すなわち型を受け取って新たな型を作るコンストラクタに対しても作れる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">type</span> <span class="dt">Option</span> <span class="ot">=</span> <span class="dt">Maybe</span></a></code></pre></div>
+<p>この型シノニムを使うと，<code>Maybe Int</code> と書く代わりに <code>Option Int</code> と書くことも可能だ．部分適用された型コンストラクタに対する型シノニムも書ける<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">type</span> <span class="dt">Failable</span> <span class="ot">=</span> <span class="dt">Either</span> <span class="dt">String</span></a></code></pre></div>
+<p>この型シノニムを使うと，<code>Either String ()</code> と書く代わりに <code>Failable ()</code> と書くことができる．</p>
+<p>さらに型シノニムは，パラメータを持つことができる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">type</span> <span class="dt">List</span> a <span class="ot">=</span> [a]</a></code></pre></div>
+<p>この型シノニムを使うと，<code>[Int]</code> は <code>List Int</code> と書ける．ただし，型シノニムはあくまで別名なので，全てのパラメータを適用した状態でしか書けないことに注意する必要がある．例えば，次のプログラムはコンパイルエラーになる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">type</span> <span class="dt">Apply</span> f a <span class="ot">=</span> f a</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">type</span> <span class="dt">ApplyMaybe</span> <span class="ot">=</span> <span class="dt">Apply</span> <span class="dt">Maybe</span></a></code></pre></div>
+<p><code>Apply</code> は<span class="ascii">2</span>つのパラメータをとるが，<code>ApplyMaybe</code> は <code>Apply</code> に<span class="ascii">1</span>つのパラメータしか渡していない．この場合，<code>Apply Maybe</code> という型がどういう型の別名になるか <span class="ascii">Haskell</span> は分からないため，この型を拒否する．このプログラムを修正するには，</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">type</span> <span class="dt">Apply</span> f a <span class="ot">=</span> f a</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="kw">type</span> <span class="dt">ApplyMaybe</span> a <span class="ot">=</span> <span class="dt">Apply</span> <span class="dt">Maybe</span> a</a></code></pre></div>
+<p>というように，<code>Apply</code> に全ての引数を渡してやる必要がある．こうすることで，<span class="ascii">Haskell</span> は <code>Apply</code> の定義から <code>Apply Maybe a</code> が <code>Maybe a</code> の別名であると認識できるようになる <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>．</p>
+<p>型シノニムは，他にも幾つか用途上で制限がある．<span class="ascii">1</span>つ目は再帰的な型シノニムが作れないという制限だ．例えば，</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">type</span> <span class="dt">InfiniteList</span> a <span class="ot">=</span> (a, <span class="dt">InfiniteList</span> a)</a></code></pre></div>
+<p>という定義は <span class="ascii">Haskell</span> では却下される．相互再帰的な定義も許容されていない<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">type</span> <span class="dt">Rec1</span> <span class="ot">=</span> [<span class="dt">Rec2</span>]</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">type</span> <span class="dt">Rec2</span> <span class="ot">=</span> [<span class="dt">Rec1</span>]</a></code></pre></div>
+<p><code>Rec1</code> の型を具体的に求めようとすると，<code>[Rec2]</code> の型になる．<code>Rec2</code> はやっぱり型シノニムで，<code>[Rec1]</code> の別名なので，この型はさらに <code>[[Rec1]]</code> という型になる．このようにして具体的な型を求めようとしても永遠に型シノニムがどこかしらに入り込むことになってしまい，型シノニムが現れない型を求めることはできない．<span class="ascii">Haskell</span> ではそのようなことがないように，そのような定義を排除している <a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>．</p>
+<p>もう<span class="ascii">1</span>つの制約は，型シノニムを型クラスのインスタンスとして使えないというものだ．例えば，次のようなことはできない<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">type</span> <span class="dt">I</span> <span class="ot">=</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb12-2" title="2"></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="kw">class</span> <span class="dt">C</span> a</a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="kw">instance</span> <span class="dt">C</span> <span class="dt">I</span></a></code></pre></div>
+<p>代わりに，</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">class</span> <span class="dt">C</span> a</a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="kw">instance</span> <span class="dt">C</span> <span class="dt">Int</span></a></code></pre></div>
+<p>というように型シノニムを使わず書く必要がある．これは型シノニムを使って書けない唯一の例外だ．ただ，この制限は本質的なものではなく，<span class="ascii">Haskell</span> 標準で型シノニムに対する混乱を避けるための制限になっている．もし，型シノニムに対してインスタンスを書けるようにしても，型シノニムは単なる別名なので，それは元となった型に対してインスタンスを定義してることと同じになる．このため，</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="ot">f ::</span> <span class="dt">C</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb14-2" title="2">f x <span class="ot">=</span> x</a></code></pre></div>
+<p>という関数は，<code>type Age = Int</code> による型シノニム <code>Age</code> に対して <code>C</code> のインスタンスが定義されていた場合，<code>a</code> が <code>Age</code> の場合も <code>Int</code> の場合も許容される．これは，プログラマが意図していない動作かもしれない．つまり，年齢のデータだけにインスタンスを定義したつもりが，整数データ全般に対していつのまにかインスタンスを定義してしまったことになるからだ <a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>．</p>
+<p>これらの制限はあるものの，型シノニムはデータ型を定義する上でとても強力で，しかも簡単に使用できる機能だ．</p>
+<h2 id="代数的データ型"><span class="link-to-here-outer"><a href="#代数的データ型" title="代数的データ型"><span class="link-to-here">Link to<br />
+here</span></a></span>代数的データ型</h2>
+<p>さて，型シノニムでデータ型を定義する場合には幾つかの制限があった．では，この制限を超えたデータ型を定義する方法はないのだろうか？ そのような場合には代数的データ型 <span class="ascii">(algebraic datatype)</span> を使うことができる．</p>
+<p>代数的データ型は，複数の型の値を統合して<span class="ascii">1</span>つの型の値として扱うデータ型の積と，複数の型の表現範囲を合わせて<span class="ascii">1</span>つの型として扱うデータ型の和を組み合わせることで構成されている．そして，このデータ型の定義は，型シノニムと異なり完全に新しい型を作り出す．実際の例を見てみよう．</p>
+<p>あなたは積木パズルのパーツそれぞれの面積を計算する関数を，書かなければいけない．積木パズルのパーツはそれぞれ，長方形，真円，三角形から構成されている．まずはこのパーツを <span class="ascii">Haskell</span> のデータ型に落とし込む必要がある．それぞれのパーツにおいて，</p>
+<ul>
+<li>四角形の面積は縦横の長さ</li>
+<li>真円は半径</li>
+<li>三角形は三辺の長さ</li>
+</ul>
+<p>によって特徴付けられている．では，これを代数的データ型に落とし込んでみよう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">data</span> <span class="dt">PuzzleElement</span></a>
+<a class="sourceLine" id="cb15-2" title="2">  <span class="ot">=</span> <span class="dt">Rect</span></a>
+<a class="sourceLine" id="cb15-3" title="3">      <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb15-4" title="4">      <span class="co">-- ^ 縦の長さ</span></a>
+<a class="sourceLine" id="cb15-5" title="5">      <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb15-6" title="6">      <span class="co">-- ^ 横の長さ</span></a>
+<a class="sourceLine" id="cb15-7" title="7">  <span class="op">|</span> <span class="dt">Circle</span></a>
+<a class="sourceLine" id="cb15-8" title="8">      <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb15-9" title="9">      <span class="co">-- ^ 半径</span></a>
+<a class="sourceLine" id="cb15-10" title="10">  <span class="op">|</span> <span class="dt">Triangle</span></a>
+<a class="sourceLine" id="cb15-11" title="11">    <span class="co">-- ^ 三つの辺の長さを与える</span></a>
+<a class="sourceLine" id="cb15-12" title="12">      <span class="dt">Double</span> <span class="dt">Double</span> <span class="dt">Double</span> </a></code></pre></div>
+<p>この定義は，<code>PuzzleElement</code> という新しい型を作り，<span class="ascii">3</span>つの値コンストラクタを作る．それぞれ</p>
+<ul>
+<li><code>Rect :: Double -&gt; Double -&gt; PuzzleElement</code></li>
+<li><code>Circle :: Double -&gt; PuzzleElement</code></li>
+<li><code>Triangle :: Double -&gt; Double -&gt; Double -&gt; PuzzleElement</code></li>
+</ul>
+<p>という型を持つ．<code>Rect</code> は <code>Double</code> 型の値を<span class="ascii">2</span>つ受け取り，その<span class="ascii">2</span>つの値を <code>PuzzleElement</code> 型の<span class="ascii">1</span>つの値として統合する．つまり，<code>Double</code> 型<span class="ascii">2</span>つの積を作る．<code>Circle</code> や <code>Triangle</code> も同様だ．そして，<code>PuzzleElement</code> 型は<span class="ascii">3</span>種類の積の値のいずれかを表し，すなわちこれら<span class="ascii">3</span>種類の積の和を表す．このように，積和によって新しいデータ型を定義できるのが <code>data</code> 宣言であり，それによって定義されるのが代数的データ型になる．</p>
+<p>代数的データ型の値から統合した値を取り出したい時は，<code>case</code> 文を使ったパターンマッチを行う<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">areaMeasure ::</span> <span class="dt">PuzzleElement</span> <span class="ot">-&gt;</span> <span class="dt">Double</span></a>
+<a class="sourceLine" id="cb16-2" title="2">areaMeasure x <span class="ot">=</span> <span class="kw">case</span> x <span class="kw">of</span></a>
+<a class="sourceLine" id="cb16-3" title="3">  <span class="dt">Rect</span> w h <span class="ot">-&gt;</span> w <span class="op">*</span> h</a>
+<a class="sourceLine" id="cb16-4" title="4">  <span class="dt">Circle</span> r <span class="ot">-&gt;</span> r <span class="op">*</span> r <span class="op">*</span> <span class="fu">pi</span></a>
+<a class="sourceLine" id="cb16-5" title="5">  <span class="dt">Triangle</span> s1 s2 s3 <span class="ot">-&gt;</span></a>
+<a class="sourceLine" id="cb16-6" title="6">    <span class="kw">let</span> s <span class="ot">=</span> (s1 <span class="op">+</span> s2 <span class="op">+</span> s3) <span class="op">/</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb16-7" title="7">    <span class="kw">in</span> <span class="fu">sqrt</span> <span class="op">$</span> s <span class="op">*</span> (s <span class="op">-</span> s1) <span class="op">*</span> (s <span class="op">-</span> s2) <span class="op">*</span> (s <span class="op">-</span> s3)</a></code></pre></div>
+<p><code>areaMeasure</code> によってパズルのピースの面積を求めることができるようになった．</p>
+<p>前に紹介した型シノニムは，ある型に対してその別名を与えるだけだった．それに比べ，代数的データ型では新しいデータ型を作り，その型の値を作る値コンストラクタを定義する．そして，型シノニムと大きく異なる点は，型システム上からは新たに定義された型しか分からず，実際にそのデータ型がどういう型から構成されるか分からない点にある．<code>PuzzleElement</code> 型の値は，もしかしたら <code>Double</code> 型の<span class="ascii">2</span>つの値から <code>Rect</code> コンストラクタを介して作られているかもしれないし，<code>Double</code> 型<span class="ascii">1</span>つの値から <code>Circle</code> コンストラクタを通して作られているかもしれない．これは実行時にその関数でパターンマッチをしてみて初めて分かることだ．型シノニムでは，型システムからそれがどういう型を元にしていたか分かるが，代数的データ型で観測できるのは新たに作られたデータ型があることだけだ．この違いは，代数的データ型と型シノニムの制約の違いに表れてくる．代数的データ型では，型シノニムの時に挙げたような制約はない．</p>
+<p>例えば，代数的データ型は型シノニムと同様，パラメータをとることができ，さらに部分適用も可能だ <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a><span class="ascii">:</span></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">data</span> <span class="dt">Apply</span> f a <span class="ot">=</span> <span class="dt">Apply</span> (f a)</a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="kw">type</span> <span class="dt">ApplyMaybe</span> <span class="ot">=</span> <span class="dt">Apply</span> <span class="dt">Maybe</span></a></code></pre></div>
+<p>これは <span class="ascii">Haskell</span> の正しいプログラムになる．<code>Apply</code> は，<span class="ascii">2</span>つのパラメータをとる型コンストラクタになっていて，データ型 <code>Apply f a</code> の値を作る方法として，<code>f a</code> 型の値から値コンストラクタ <code>Apply :: f a -&gt; Apply f a</code> を通す方法がある．<code>ApplyMaybe</code> は <code>Apply Maybe</code> の型シノニムになっていて，これを使えば <code>Apply Maybe Int</code> と書く代わりに <code>ApplyMaybe Int</code> と書けるようになる．<code>ApplyMaybe</code> の定義は，<code>Apply</code> に対して<span class="ascii">1</span>つのパラメータしか渡していない．にも関わらず正しいというのが，型シノニムと異なる点になる．</p>
+<p>再帰的なデータ型を代数的データ型で定義することも可能だ<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">data</span> <span class="dt">List</span> a</a>
+<a class="sourceLine" id="cb18-2" title="2">  <span class="ot">=</span> <span class="dt">Cons</span> a (<span class="dt">List</span> a)</a>
+<a class="sourceLine" id="cb18-3" title="3">  <span class="op">|</span> <span class="dt">Nil</span></a></code></pre></div>
+<p>データ型 <code>List a</code> は <code>a</code> 型の要素を持つ単連結リストを表す．値コンストラクタが <code>List a</code> 型の値を受け取ることがポイントだ．型シノニムでは，その型の定義に自身を含めることはできなかった．これは実際の具体的な型を求めようとした時，その計算が永遠に終わらなくなってしまうからだった．代数的データ型 <code>List a</code> ではその型は単に新しい型として作られ，実際にその型の値がどういう型の値によって構成されているか知る必要はない．<code>List a</code> はそれ自体が具体的な型であり <a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> ，それ以上計算する必要はないからだ．代数的データ型において，定義された型とその型の値を作る方法は分離されている．そのため，データ型の計算においてその型の値を作る方法は考慮されない．よって，自身が定義中で用いられても，型シノニムのようにデータ型の計算が永遠に終わることがないということはないため，その操作が許容されている．</p>
+<p>もちろん，新しい型が定義されるため，型クラスのインスタンスを混乱なく定義できる．代数的データ型を作成した時，基本的なインスタンスを定義することは <span class="ascii">Haskell</span> プログラミングにおいてよくあることだ．<span class="ascii">Haskell</span> では，言語機能としてそれを支援する機能がある．それは，<code>deriving</code> 構文というもので，<code>Eq</code> <span class="ascii">/</span> <code>Ord</code> などの標準的な型クラスを，データ型の定義から自動で導出してくれる．例えば，<code>List a</code> に対して使ってみると，以下のようになる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">data</span> <span class="dt">List</span> a</a>
+<a class="sourceLine" id="cb19-2" title="2">  <span class="ot">=</span> <span class="dt">Cons</span> a (<span class="dt">List</span> a)</a>
+<a class="sourceLine" id="cb19-3" title="3">  <span class="op">|</span> <span class="dt">Nil</span></a>
+<a class="sourceLine" id="cb19-4" title="4">  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</a></code></pre></div>
+<p>このように代数的データ型は，型シノニムでは定義できなかったデータ型を定義することができる．そして，代数的データ型は全く新しい型を作ることもできる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">data</span> <span class="dt">Nat</span></a>
+<a class="sourceLine" id="cb20-2" title="2">  <span class="ot">=</span> <span class="dt">Succ</span> <span class="dt">Nat</span></a>
+<a class="sourceLine" id="cb20-3" title="3">  <span class="op">|</span> <span class="dt">Zero</span></a></code></pre></div>
+<p>このデータ型 <code>Nat</code> は，他の型には依存しない全く新しい型だ．このように，代数的データ型は型シノニムと異なり全く新しい構造を作り出すことができる．</p>
+<p>ただ，その代わり既存の関数を流用できなくなってしまう場合がある．例えば，</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">data</span> <span class="dt">Tuple</span> a b <span class="ot">=</span> <span class="dt">Tuple</span> a b</a></code></pre></div>
+<p>は，<code>(a, b)</code> と構造が同じであり，<code>(a, b)</code> に対する関数 <code>fst :: (a, b) -&gt; a</code> を適用できてもいいはずだ．ところが，データ型 <code>Tuple a b</code> とその値コンストラクタは型システム上は切り離されているため，自身の値が <code>(a, b)</code> の値と同じ方法でしか構成できないことを知らない．<code>Tuple a b</code> と <code>(a, b)</code> において型上で言及できることは，それらが異なる型であるということだけだ．なので，<code>fst</code> に <code>Tuple a b</code> 型の値を渡すことはできない．これは，もし型シノニムを使って，</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">type</span> <span class="dt">Tuple</span> a b <span class="ot">=</span> (a, b)</a></code></pre></div>
+<p>と定義した場合は解決する問題だ <a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>．</p>
+<p>このように両者にはトレードオフがあり，利用目的に合った使い分けをするのがいいだろう．</p>
+<p>さて，<code>data</code> 宣言の構文は他に<span class="ascii">2</span>つ，便利な機能がある．</p>
+<p><span class="ascii">1</span>つは正格性フラグと呼ばれる機能で，値コンストラクタにおいて引数を正格に評価することを強制できる．例えば，</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">data</span> <span class="dt">StrictTuple</span> a b <span class="ot">=</span> <span class="dt">StrictTuple</span> <span class="op">!</span>a <span class="op">!</span>b</a></code></pre></div>
+<p>というように，正格性フラグ <code>!</code> を使った定義を行うと，値コンストラクタ <code>StrictTuple :: a -&gt; b -&gt; StrictTuple</code> はその引数を正格に評価してから格納するようになる．通常，</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">data</span> <span class="dt">Tuple</span> a b <span class="ot">=</span> <span class="dt">Tuple</span> a b</a></code></pre></div>
+<p>のように正格性フラグを使わない定義では，</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span> <span class="dt">Tuple</span> <span class="fu">undefined</span> <span class="fu">undefined</span> <span class="kw">of</span> <span class="dt">Tuple</span> _ _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb25-2" title="2">()</a></code></pre></div>
+<p>のように値コンストラクタは受け取った引数の評価を行わず，素直にそのままの形で遅延させて格納するため，エラーを出す式を渡してもその式の評価を行わない限りエラーにはならない．これは通常の関数の動作と同じになる．ところが，正格性フラグを使用した <code>StrictTuple</code> の場合，</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span> <span class="dt">StrictTuple</span> <span class="fu">undefined</span> <span class="fu">undefined</span> <span class="kw">of</span> <span class="dt">StrictTuple</span> _ _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> Prelude.undefined</a></code></pre></div>
+<p>のように引数の評価を行うため，エラーを出す式を受け取った場合値コンストラクタの適用においてその式を評価しエラーを出す．データ型を作成する際，その元となる式の評価を強制させることはパフォーマンスに大きく寄与する．そのため，そのようなことを支援するために正格性フラグは設けられている．</p>
+<p>また，代数的データ型の値コンストラクタはフィールド名を持つことができる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">data</span> <span class="dt">Tuple</span> a b <span class="ot">=</span> <span class="dt">Tuple</span></a>
+<a class="sourceLine" id="cb27-2" title="2">  {<span class="ot"> firstVal  ::</span> a</a>
+<a class="sourceLine" id="cb27-3" title="3">  ,<span class="ot"> secondVal ::</span> b</a>
+<a class="sourceLine" id="cb27-4" title="4">  }</a></code></pre></div>
+<p>この場合，型コンストラクタ <code>Tuple</code>，値コンストラクタ <code>Tuple :: a -&gt; b -&gt; Tuple a b</code> の他に，関数 <code>firstVal :: Tuple a b -&gt; a</code>， <code>secondVal :: Tuple a b -&gt; b</code> が作られる．また，値コンストラクタの呼び出しにおいて特別なレコード構文 <code>Tuple { firstVal = 0, secondVal = 1 }</code> を使用でき，またレコード更新構文 <code>(Tuple 2 1) { firstVal = 0 }</code> を使用できる．これらは両者 <code>Tuple 0 1</code> と同様の値が作成される．</p>
+<h2 id="ある型を元に新たな型を作る-datatype-renaming"><span class="link-to-here-outer"><a href="#ある型を元に新たな型を作る-datatype-renaming" title="ある型を元に新たな型を作る-datatype-renaming"><span class="link-to-here">Link to<br />
+here</span></a></span>ある型を元に新たな型を作る <span class="ascii">(Datatype Renaming)</span></h2>
+<p>さて，これまで見てきたように，型シノニムは型の別名を定義し，代数的データ型は型の積和により新たなデータ型を定義するものだった．<span class="ascii">Haskell</span> にはもう<span class="ascii">1</span>つデータ型を定義する方法がある．それが <code>newtype</code> 宣言だ．この宣言によって作られるデータ型は，型システム上は代数的データ型と同じように扱われ，実行時は型シノニムと同様の動作をする．</p>
+<p><code>newtype</code> 宣言の構文は，<code>data</code> 宣言と同じような形をしている<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">newtype</span> <span class="dt">Identity</span> a <span class="ot">=</span> <span class="dt">Identity</span> a</a></code></pre></div>
+<p>フィールド名をつけることもできる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" title="1"><span class="kw">newtype</span> <span class="dt">Identity</span> a <span class="ot">=</span> <span class="dt">Identity</span></a>
+<a class="sourceLine" id="cb29-2" title="2">  {<span class="ot"> unIdentity ::</span> a</a>
+<a class="sourceLine" id="cb29-3" title="3">  }</a></code></pre></div>
+<p>この場合 <code>data</code> 宣言と同様に，型コンストラクタ <code>Identity</code>，値コンストラクタ <code>Identity</code> が作られることになる．ただし，<code>data</code> 宣言と異なり <code>newtype</code> は積和の機能を使用することはできない．単にある<span class="ascii">1</span>つの型を受け取る値コンストラクタしか定義できない．なので，</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">newtype</span> <span class="dt">Unit</span> <span class="ot">=</span> <span class="dt">Unit</span></a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="kw">newtype</span> <span class="dt">Tuple</span> a b <span class="ot">=</span> <span class="dt">Tuple</span> a b</a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="kw">newtype</span> <span class="dt">Enum</span> <span class="ot">=</span> <span class="dt">A</span> <span class="op">|</span> <span class="dt">B</span> <span class="op">|</span> <span class="dt">C</span></a></code></pre></div>
+<p>はいずれも受け入れられない．この <code>newtype</code> の制約はいまいちよく分からない．では，このような制約によりどのような違いが出るのだろうか？ <code>newtype</code> と <code>data</code> は型システム上は違いはない．しかし，パターンマッチの動作など，実行時の動作に少し差異が設けられている．例えば，通常</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">data</span> <span class="dt">DataIdentity</span> a <span class="ot">=</span> <span class="dt">DataIdentity</span> a</a></code></pre></div>
+<p>において，</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span><span class="ot"> undefined ::</span> <span class="dt">DataIdentity</span> () <span class="kw">of</span> <span class="dt">DataIdentity</span> _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb32-2" title="2"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> Prelude.undefined</a></code></pre></div>
+<p>のようにエラーを出す式をパターンマッチで分解しようとするとエラーが出力される．ところが，<code>newtype</code> によって作られた値コンストラクタの場合，</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span><span class="ot"> undefined ::</span> <span class="dt">Identity</span> () <span class="kw">of</span> <span class="dt">Identity</span> _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb33-2" title="2">()</a></code></pre></div>
+<p>のようにパターンマッチ時にエラーが出されることはない．<span class="ascii">Haskell</span> では <code>newtype</code> で作られた値コンストラクタが実行動作に影響することはないと規定されている．よって，上のパターンマッチは，以下と同様の動きをすることになっている<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span><span class="ot"> undefined ::</span> <span class="dt">Identity</span> () <span class="kw">of</span> _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb34-2" title="2">()</a></code></pre></div>
+<p>このように値コンストラクタを指定しないパターンマッチの場合，<code>data</code> 宣言で作られたものもエラーを出さない<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span><span class="ot"> undefined ::</span> <span class="dt">DataIdentity</span> () <span class="kw">of</span> _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb35-2" title="2">()</a></code></pre></div>
+<p>よって，<code>data</code> と <code>newtype</code> で作られた値コンストラクタの動作が異なるのは，パターンマッチにおいて値コンストラクタを指定した場合だけということになる．</p>
+<p>では，<code>newtype</code> はなぜ値コンストラクタを無視するよう規定されているのだろう？ これは，<code>newtype</code> によるデータ型が実行時の動作として型シノニムと同様の動作をすることを目的としてしているからだ．値コンストラクタが無視されるのは，</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">newtype</span> <span class="dt">Identity</span> a <span class="ot">=</span> <span class="dt">Identity</span> a</a></code></pre></div>
+<p>という宣言は，</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" title="1"><span class="kw">type</span> <span class="dt">IdentitySynonym</span> a <span class="ot">=</span> a</a></code></pre></div>
+<p>という宣言と同様の意味を持って欲しいことを <span class="ascii">Haskell</span> の設計者が意図しているからだ．よって，</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span><span class="ot"> undefined ::</span> <span class="dt">Identity</span> () <span class="kw">of</span> <span class="dt">Identity</span> _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb38-2" title="2">()</a></code></pre></div>
+<p>の動作は，</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb39-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">case</span><span class="ot"> undefined ::</span> <span class="dt">IdentitySynonym</span> () <span class="kw">of</span> _ <span class="ot">-&gt;</span> ()</a>
+<a class="sourceLine" id="cb39-2" title="2">()</a></code></pre></div>
+<p>のように，代数的データ型ではなく型シノニムに合わせてあるため，<code>data</code> 宣言主体に見ると一見不思議な動作をしていたというわけだ．</p>
+<p>さて，ではなぜわざわざ型シノニムとは別に <code>newtype</code> 宣言を導入したのだろうか？ 型シノニムには幾つか制約があったのを思い出して欲しい．そして，それらの制約は代数的データ型では解決されたのだった．それは <code>type</code> 宣言が単に型の別名を導入するのに対し，<code>data</code> 宣言が完全に新たな型を作るからだった．<code>newtype</code> はその点に着目し，実行時には単なる別名として動作するが型システム上は完全に別の新たな型を導入することで，<code>type</code> 宣言同様ある型の別名を作りたいものの型シノニムの制約は回避したい需要を満たすようにしたものだ．</p>
+<p>例えば，大文字小文字を区別しない文字列データを考えてみよう．この場合，<code>"aBc" == "Abc"</code> であって欲しいが，これは型シノニムで</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">type</span> <span class="dt">CaseInsensString</span> <span class="ot">=</span> <span class="dt">String</span></a></code></pre></div>
+<p>と定義するだけでは，</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb41-1" title="1"><span class="op">&gt;&gt;&gt;</span> (<span class="st">&quot;aBc&quot;</span><span class="ot"> ::</span> <span class="dt">CaseInsensString</span>) <span class="op">==</span> (<span class="st">&quot;Abc&quot;</span><span class="ot"> ::</span> <span class="dt">CaseInsensString</span>)</a>
+<a class="sourceLine" id="cb41-2" title="2"><span class="dt">False</span></a></code></pre></div>
+<p>のままだ．そこで，<code>newtype</code> を使って，</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.Char</span> <span class="kw">as</span> <span class="dt">Char</span></a>
+<a class="sourceLine" id="cb42-2" title="2"></a>
+<a class="sourceLine" id="cb42-3" title="3"><span class="kw">newtype</span> <span class="dt">CaseInsensString</span> <span class="ot">=</span> <span class="dt">CaseInsens</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb42-4" title="4"></a>
+<a class="sourceLine" id="cb42-5" title="5"><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">CaseInsensString</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb42-6" title="6">  <span class="dt">CaseInsens</span> s1 <span class="op">==</span> <span class="dt">CaseInsens</span> s2 <span class="ot">=</span> go s1 s2</a>
+<a class="sourceLine" id="cb42-7" title="7">    <span class="kw">where</span></a>
+<a class="sourceLine" id="cb42-8" title="8">      go []       []       <span class="ot">=</span> <span class="dt">True</span></a>
+<a class="sourceLine" id="cb42-9" title="9">      go []       (_<span class="op">:</span>_)    <span class="ot">=</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb42-10" title="10">      go (_<span class="op">:</span>_)    []       <span class="ot">=</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb42-11" title="11">      go (c1<span class="op">:</span>cs1) (c2<span class="op">:</span>cs2) <span class="ot">=</span> <span class="dt">Char</span><span class="op">.</span><span class="fu">toLower</span> c1 <span class="op">==</span> <span class="dt">Char</span><span class="op">.</span><span class="fu">toLower</span> c2 <span class="op">&amp;&amp;</span> go cs1 cs2</a></code></pre></div>
+<p>とすれば，</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb43-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="dt">CaseInsens</span> <span class="st">&quot;aBc&quot;</span> <span class="op">==</span> <span class="dt">CaseInsens</span> <span class="st">&quot;Abc&quot;</span></a>
+<a class="sourceLine" id="cb43-2" title="2"><span class="dt">True</span></a></code></pre></div>
+<p>とできる．型シノニムは単なる <code>String</code> の別名なので，<code>String</code> と異なるインスタンスを新しく定義することはできない．それに対して，<code>newtype</code> によるデータ型は代数的データ型と同様に自由に定義することができる．そして，値コンストラクタ <code>CaseInsens</code> は単なる飾りであり，実行時には完全に無視されるため，<code>CaseInsensString</code> は動作としては <code>String</code> の別名としてみることができる．</p>
+<p><code>newtype</code> は型シノニムでの制約であった，</p>
+<ul>
+<li>再帰的なデータ型が定義できない</li>
+<li>型コンストラクタに対する部分適用ができない</li>
+</ul>
+<p>といった問題も解決する．このように <code>newtype</code> は型シノニムの問題を改善したデータ型を定義するが，<code>data</code> 宣言と同様型シノニムでは起きなかった問題も一緒に顕在化させてしまう．</p>
+<p>上の例で，<code>CaseInsens</code> は飾りだと言ったが，実際にはこの値コンストラクタは必要不可欠であり，重要な役割を持っている．例えば，</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb44-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="dt">CaseInsens</span> <span class="st">&quot;aBc&quot;</span> <span class="op">==</span> <span class="dt">CaseInsens</span> <span class="st">&quot;Abc&quot;</span></a>
+<a class="sourceLine" id="cb44-2" title="2"><span class="dt">True</span></a></code></pre></div>
+<p>の例は，片方だけ</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb45-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;aBc&quot;</span> <span class="op">==</span> <span class="dt">CaseInsens</span> <span class="st">&quot;Abc&quot;</span></a></code></pre></div>
+<p>としてしまうと，コンパイルエラーになってしまう．なぜなら，<code>(==)</code> は<span class="ascii">2</span>つの引数が同じ型の値である必要があり，<code>"aBc"</code> の型である <code>String</code> と <code>CaseInsens "Abc</code> の型である <code>CaseInsensString</code> は全く異なる型であるからだ．つまり，値コンストラクタ <code>CaseInsens</code> は，実行時には何の影響も与えないが，型システム上は全く異なる型の値であることを示すマーカーとなる．そして，型シノニムではデータ型は単なる別名であったが，<code>newtype</code> は <code>data</code> と同様全く新たな型として導入する道を選んだため，元の型として受け入れてもらうことが出来なくなってしまったのだ．</p>
+<p>といっても，これは一長一短である．<code>data</code> と同様 <code>newtype</code> で作られた型は，型シノニムのように既存の関数を使い回すことができない．その反面，データの意味に沿わないプログラムを型によって弾くことができるという点は長所になる場合もある．例えば，<code>"aBc" == CaseInsens "Abc"</code> の例は，一体どのような結果を返すべきか一見して分からない．両者は単なる文字列と，大文字小文字を区別しない文字列という異なるデータを表しており，その比較は定義されないとするのが自然だろう．このような場合に，型シノニムでは定義されないことを表す方法はなかったが，<code>newtype</code> は元の型と異なる型を持つので，そのような仕組みを作ることができる．</p>
+<p>さて，<code>newtype</code> において値コンストラクタは実行時に何の影響も及ぼさないことと，何故そうなっているかについて分かってもらえただろうか？ この影響は，パターンマッチ以外にも表れる．例えば，<code>newtype</code> の値コンストラクタに正格性フラグの機能はない．</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb46-1" title="1"><span class="kw">newtype</span> <span class="dt">StrictNewtype</span> <span class="ot">=</span> <span class="dt">StrictNewtype</span> <span class="op">!</span><span class="dt">Int</span></a></code></pre></div>
+<p>というプログラムは，<span class="ascii">Haskell</span> では受け入れられない．なぜなら，これを受け入れた場合，値コンストラクタがあるかどうかによって実行時の動作が変わってしまうからだ．ただ，その他の <code>data</code> 宣言の機能は使用できる．<code>deriving</code> も使用できる．<code>newtype</code> で作られたデータ型は，元のデータ型のインスタンスを継承することはできない．全く新たな型を作ったため，更地の状態から始まる．ただし，<code>deriving</code> を使うことでインスタンスを用意に導出することは可能だ．ただ，標準クラスのインスタンスしか自動で導出できないため，自身で定義した型クラスなどのインスタンスは一から書く必要がある．そのことには，注意する必要があるだろう <a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>．</p>
+<p>最後に少し応用的な <code>newtype</code> の使い方を紹介しよう．<code>newtype</code> は上のように目的に合わせて型を既存の型から作る他，型シノニムの制約によって定義できない型上の計算を実現するのにも使用できる．例えば，</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">newtype</span> <span class="dt">Fix</span> f <span class="ot">=</span> <span class="dt">Fix</span> (f (<span class="dt">Fix</span> f))</a></code></pre></div>
+<p>という変わったデータ型を使うと，型上の不動点演算をエミュレートできる．また，<code>newtype</code> を使うことで幽霊型による曖昧な型を避けることもできる．例えば，</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">type</span> <span class="dt">WithAnn</span> ann a <span class="ot">=</span> a</a>
+<a class="sourceLine" id="cb48-2" title="2"></a>
+<a class="sourceLine" id="cb48-3" title="3"><span class="ot">readShow ::</span> (<span class="dt">Read</span> a, <span class="dt">Show</span> a) <span class="ot">=&gt;</span> <span class="dt">WithAnn</span> a <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb48-4" title="4">readShow s <span class="ot">=</span> <span class="fu">show</span> <span class="op">$</span> <span class="fu">read</span> s</a></code></pre></div>
+<p>を考える．この関数 <code>readShow</code> は，<code>WithAnn</code> で引数に <code>a</code> を使っているにもかかわらず <code>a</code> が曖昧な型になるため弾かれる．なぜなら，型シノニム <code>WithAnn a String</code> は <code>String</code> と書いてるのと同じであり，<code>readShow</code> は</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb49-1" title="1"><span class="ot">readShow ::</span> (<span class="dt">Read</span> a, <span class="dt">Show</span> a) <span class="ot">=&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a></code></pre></div>
+<p>という型を持つのと同様になってしまうからだ．このため，制約だけに <code>a</code> が現れることになってしまい，曖昧な型になってしまう．この例のような，型シノニムが具体化されてしまうことで曖昧な型が生じる問題は，<code>newtype</code> を使用することで回避できる<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb50-1" title="1"><span class="kw">newtype</span> <span class="dt">WithAnn</span> ann a <span class="ot">=</span> <span class="dt">WithAnn</span> a</a>
+<a class="sourceLine" id="cb50-2" title="2"></a>
+<a class="sourceLine" id="cb50-3" title="3"><span class="ot">readShow ::</span> (<span class="dt">Read</span> a, <span class="dt">Show</span> a) <span class="ot">=&gt;</span> <span class="dt">WithAnn</span> a <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb50-4" title="4">readShow (<span class="dt">WithAnn</span> s) <span class="ot">=</span> <span class="fu">show</span> <span class="op">$</span> <span class="fu">read</span> s</a></code></pre></div>
+<p><span class="ascii">Haskell</span> は型システム上は <code>WithAnn a String</code> が実行時に単なる <code>String</code> の別名として扱われることを知らず，これを<span class="ascii">1</span>つの具体化された型として認識する．このため，実際には <code>a</code> が引数の値に何ら関与しない場合も，型 <code>a</code> を伴う型として残る．よって，この場合は <code>a</code> は曖昧な型にならず，<code>WithAnn a String</code> の <code>a</code> の部分にあてがわれる型から特定することができる．このように，型シノニムで早期に元となった型に具体化されることで生じる問題は，<code>newtype</code> を使うことで実際に値を作る箇所とパターンマッチの箇所での型計算に遅延させることができ，回避できる場合がある．</p>
+<h2 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h2>
+<p><span class="ascii">Haskell</span> の<span class="ascii">3</span>つのデータ型定義方法について紹介した．</p>
+<p>型シノニムは，ある型に対してその別名を与えることで，データ型を定義するものだった．簡易で元の型に対する関数をそのまま流用でき，使いやすい反面，部分適用ができない，再帰的データ型が定義できない，型クラスのインスタンスにできないと言う制約があった．</p>
+<p>代数的データ型は複数の型の積和によって全く新しいデータ型を定義するものだった．型シノニムであった制約を回避でき，新たな構造を導入できるが，関数の流用が困難な場合があり型シノニムとの使い分けが必要だった．</p>
+<p><code>newtype</code> によるデータ型は，型システム上は代数的データ型と，実行時の動作は型シノニムと同様といった，それぞれの中間をとったようなものだった．型シノニムのような関数の流用ができない場合はあるものの，その代わり型シノニムの制約を回避でき，型システム上は全く異なる振る舞いを行うことも可能だった．</p>
+<p>これらは，それぞれが一長一短を持ち，目的にあった使い分けをする必要がある．この記事が，そのような場合の助けになればいいと思う．では，今回はこれで．</p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>型シノニムに対して部分適用を許容する一般的な方法は，型上にもラムダ抽象にあたる表現を導入することである．ただ，この場合型上の演算が停止しない場合があり，型システムが決定不能になる．このため，<span class="ascii">Haskell</span> では型シノニムに対しての部分適用は許容していない．<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>等価再帰データ型 <span class="ascii">(equirecursive types)</span> と呼ばれる特別な型を型システムに導入することで，このような型を許容する理論は存在するが，この理論はとても複雑で型検査のアルゴリズムも難しくなりがちである．<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>ただ，このような混乱が起こるかもしれないことを許容し，利便性のため型シノニムをインスタンス定義で使いたい場合，<code>TypeSynonymInstances</code> という <span class="ascii">GHC</span> 拡張を有効にすることで許容されるようになる．<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p>型上の計算によって，実際の型が特定される型シノニムとは異なり，代数的データ型の型コンストラクタはそれ自体がもう計算できないものになる．それは部分適用されても同様であり，部分適用を許容することで型シノニムと同様の問題は起こらない．これが，代数的データ型で部分適用が許容されている理由になる．<a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn5"><p>実際にはパラメータ <code>a</code> の部分に具体的な型を当てはめないといけないが，当てはめればそれは完全に具体的な型になる．<a href="#fnref5" class="footnote-back">↩</a></p></li>
+<li id="fn6"><p>なお，代数的データ型でも型シノニムと同様の利点を手に入れるための研究は，<span class="ascii">Haskell</span> では盛んに行われている．例えば，<code>Generic</code> <span class="ascii">/</span> <code>Data</code> 型クラス，<code>lens</code> パッケージなどを使うことで，構造が同じだが異なるデータ型で関数が流用できない問題を回避できる場合がある．<a href="#fnref6" class="footnote-back">↩</a></p></li>
+<li id="fn7"><p><span class="ascii">GHC</span> 拡張では，<code>deriving</code> 構文の拡張として強力な機能がいくつか搭載されている．特に <code>newtype</code> によるデータ型の場合は，<code>GeneralizedNewtypeDeriving</code> や <code>DerivingVia</code> 拡張を使えば，インスタンスの自動導出の範囲を大幅に拡大できる．<a href="#fnref7" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2020/strict-gotchas.html" style="margin-left: auto;" lang="ja">Strict拡張を使用する際の注意点</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>Strict拡張を使用する際の注意点</title>
     <link href="https://haskell.jp/blog/posts/2020/strict-gotchas.html" />
     <id>https://haskell.jp/blog/posts/2020/strict-gotchas.html</id>
@@ -284,6 +609,9 @@ here</span></a></span>おわりに<span class="ascii">:</span> やっぱり<code
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2020/how-to-use-type-newtype-data.html" lang="ja">data / newtype / type の使い方</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2435,171 +2763,6 @@ here</span></a></span>あわせて読みたい</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/hiw-copilot.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、Copilotという内部DSLについて</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>HIW 2019で発表された、Copilotという内部DSLについて</title>
-    <link href="https://haskell.jp/blog/posts/2019/hiw-copilot.html" />
-    <id>https://haskell.jp/blog/posts/2019/hiw-copilot.html</id>
-    <published>2019-10-01T00:00:00Z</published>
-    <updated>2019-10-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p><a href="/posts/2019/hiw-gibbon.html">前回</a>から引き続き、<a href="https://icfp19.sigplan.org/home/hiw-2019#About"><span class="ascii">Haskell Implementors</span>’ <span class="ascii">Workshop 2019</span></a>への参加レポートとして、私の印象に残った発表を紹介します。<br />
-今回は、<a href="https://copilot-language.github.io/"><span class="ascii">Copilot</span></a>という、<span class="ascii">C</span>言語のコードを生成する<span class="ascii">Haskell</span>製内部<span class="ascii">DSL</span>についての発表です。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#copilot-3.0-a-haskell-runtime-verification-framework-for-uavs" title="copilot-3.0-a-haskell-runtime-verification-framework-for-uavs"><span class="ascii">Copilot 3.0: a Haskell runtime verification framework for UAVs</span></a></li>
-<li><a href="#copilotを試してみる" title="copilotを試してみる"><span class="ascii">Copilot</span>を試してみる</a></li>
-</ul>
-</div>
-</div>
-<h1 id="copilot-3.0-a-haskell-runtime-verification-framework-for-uavs"><span class="link-to-here-outer"><a href="#copilot-3.0-a-haskell-runtime-verification-framework-for-uavs" title="copilot-3.0-a-haskell-runtime-verification-framework-for-uavs"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Copilot 3.0: a Haskell runtime verification framework for UAVs</span></h1>
-<p>発表者<span class="ascii">: Frank Dedden</span> <em><span class="ascii">Royal Netherlands Aerospace Center</span></em><span class="ascii">, Alwyn Goodloe</span> <em><span class="ascii">NASA Langley Research Center</span></em><span class="ascii">, Ivan Perez</span> <em><span class="ascii">NIA / NASA Formal Methods</span></em></p>
-<p><span class="ascii">Haskell</span>製の内部<span class="ascii">DSL</span>から<span class="ascii">C</span>言語のソースコードを生成する、<a href="https://copilot-language.github.io/"><span class="ascii">Copilot</span></a>の紹介です。<br />
-似た謳い文句の内部<span class="ascii">DSL</span>として<a href="http://hackage.haskell.org/package/ivory"><span class="ascii">ivory</span></a>がありますが、<span class="ascii">Copilot</span>は、ハードウェアの実行時検証を行う<span class="ascii">C</span>言語のコードを生成することに、より特化しています。<br />
-「センサーから信号を受け取って、一定の条件を満たした場合に何らかの処理を実行する」という処理を<span class="ascii">Haskell</span>で宣言的に記述すると、メモリの消費量・実行時間において常に一定な<span class="ascii">C</span>言語のコードを生成することが出来ます。</p>
-<p>メモリが限られていて、リアルタイムな処理が必要なハードウェアにとって「邪魔にならない監視」を実現するための必須条件なのでしょう。<br />
-現状<span class="ascii">Haskell</span>は<span class="ascii">GC</span>が必要であるといった制約もあり、リアルタイムな処理や厳格なメモリー管理が必要な機器での採用は難しいですが、<span class="ascii">Ivory</span>や今回発表された<span class="ascii">Copilot</span>はあくまでも「<span class="ascii">C</span>言語のコードを生成するだけ」なので、生成する<span class="ascii">Haskell</span>ではメモリー管理をする必要がありません。<br />
-にっくきスペースリークに悩まされる心配もないのです。<br />
-こういった<span class="ascii">Haskell</span>製内部<span class="ascii">DSL</span>は、<span class="ascii">Haskell</span>の持つ強い型付けによるメリットを享受しながら、変換した言語の実行時におけるパフォーマンスを出しやすい、といういいとこ取りなメリットがあるので、もっと広まってほしいユースケースですね。</p>
-<h1 id="copilotを試してみる"><span class="link-to-here-outer"><a href="#copilotを試してみる" title="copilotを試してみる"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Copilot</span>を試してみる</h1>
-<ul>
-<li>ℹ️ 実際に使用したコードは<a href="https://github.com/haskell-jp/blog/tree/master/examples/2019/hiw-copilot"><span class="ascii">Haskell-jp Blog</span>の<span class="ascii">GitHub</span>のリポジトリー</a>にあります。</li>
-<li>ℹ️ 使用した<span class="ascii">copilot</span>パッケージのバージョンは、<span class="ascii">3.0.1</span>です。</li>
-<li>ℹ️ サンプルコードの解説については、<span class="ascii">notogawa</span>さんのアドバイスも参考になりました<small>（<a href="https://haskell.jp/slack-log/html/C4M4TT8JJ/46.html#message-1554858057.072700"><span class="ascii">Haskell-jp</span>の<span class="ascii">slack-log</span>ではこのあたり</a>。執筆時点で<span class="ascii">CSS</span>が当たってないため読みづらいですが一応）</small>。ありがとうございます！</li>
-</ul>
-<p>せっかくなんで<span class="ascii">Copilot</span>を試してみましょう。<br />
-公式サイトにあったサンプルコードそのまんまですが、生成される<span class="ascii">C</span>のコードを眺めてみます。</p>
-<p>👇のコマンドでサンプルコードが入ったリポジトリーを<span class="ascii">git clone</span>した後、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">git</span> clone https://github.com/haskell-jp/blog</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="bu">cd</span> blog/examples/2019/hiw-copilot</a></code></pre></div>
-<p>👇のコマンドでビルド・<span class="ascii">C</span>言語によるコードの生成できるはずです。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">stack</span> build copilot</a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="ex">stack</span> exec runghc heater.hs</a></code></pre></div>
-<p>こちらが生成元の<span class="ascii">Haskell</span>のコードです。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell:heater.hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">import</span> <span class="dt">Language.Copilot</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw">import</span> <span class="dt">Copilot.Compile.C99</span></a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="kw">import</span> <span class="dt">Prelude</span> <span class="kw">hiding</span> ((&gt;), (&lt;), div)</a>
-<a class="sourceLine" id="cb3-5" title="5"></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="ot">temp ::</span> <span class="dt">Stream</span> <span class="dt">Word8</span></a>
-<a class="sourceLine" id="cb3-7" title="7">temp <span class="ot">=</span> extern <span class="st">&quot;temperature&quot;</span> <span class="dt">Nothing</span></a>
-<a class="sourceLine" id="cb3-8" title="8"></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="ot">ctemp ::</span> <span class="dt">Stream</span> <span class="dt">Float</span></a>
-<a class="sourceLine" id="cb3-10" title="10">ctemp <span class="ot">=</span> (unsafeCast temp) <span class="op">*</span> (<span class="fl">150.0</span> <span class="op">/</span> <span class="fl">255.0</span>) <span class="op">-</span> <span class="fl">50.0</span></a>
-<a class="sourceLine" id="cb3-11" title="11"></a>
-<a class="sourceLine" id="cb3-12" title="12">spec <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb3-13" title="13">  trigger <span class="st">&quot;heaton&quot;</span>  (ctemp <span class="op">&lt;</span> <span class="fl">18.0</span>) [arg ctemp]</a>
-<a class="sourceLine" id="cb3-14" title="14">  trigger <span class="st">&quot;heatoff&quot;</span> (ctemp <span class="op">&gt;</span> <span class="fl">21.0</span>) [arg ctemp]</a>
-<a class="sourceLine" id="cb3-15" title="15"></a>
-<a class="sourceLine" id="cb3-16" title="16">main <span class="ot">=</span> reify spec <span class="op">&gt;&gt;=</span> compile <span class="st">&quot;heater&quot;</span></a></code></pre></div>
-<p>まず、<code>temp</code>と<code>ctemp</code>という識別子に定義した式が、センサーが発信する、連続的に変化する値を表しています。<br />
-<span class="ascii">Copilot</span>の言葉はこれを<code>Stream</code>と呼んでいます。</p>
-<p><code>spec</code>という識別子で定義している式が、「どのセンサーから信号を受け取って、どんな条件を満たした場合にどの処理を実行するか」規定しているようです。<br />
-👆の場合、<code>ctemp</code>という<code>Stream</code>が<code>18.0</code>を下回ったら<code>heaton</code>というイベントを発火し、<code>21.0</code>を超えたら<code>heatoff</code>というイベントを発火する、と定めているわけですね。<br />
-そして<code>main</code>関数で実行している<code>reify spec &gt;&gt;= compile "heater"</code>という箇所で、<code>.h</code>ファイルと<code>.c</code>ファイルを書き込んでいます。</p>
-<p>そして、生成されたヘッダーファイル<code>heater.h</code>がこう👇</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c:heater.h"><code class="sourceCode c"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">extern</span> <span class="dt">uint8_t</span> temperature;</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="dt">void</span> heatoff(<span class="dt">float</span> heatoff_arg0);</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="dt">void</span> heaton(<span class="dt">float</span> heaton_arg0);</a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="dt">void</span> step(<span class="dt">void</span>);</a></code></pre></div>
-<p>で、肝心の<span class="ascii">C</span>のコード本体<code>heater.c</code>がこちらです。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c:heater.c"><code class="sourceCode c"><a class="sourceLine" id="cb5-1" title="1"><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="pp">#include </span><span class="im">&lt;stdbool.h&gt;</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></a>
-<a class="sourceLine" id="cb5-4" title="4"></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="pp">#include </span><span class="im">&quot;heater.h&quot;</span></a>
-<a class="sourceLine" id="cb5-6" title="6"></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="dt">static</span> <span class="dt">uint8_t</span> temperature_cpy;</a>
-<a class="sourceLine" id="cb5-8" title="8"></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="dt">bool</span> heatoff_guard(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-10" title="10">  <span class="cf">return</span> ((((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>)) &gt; (<span class="fl">21.0</span>);</a>
-<a class="sourceLine" id="cb5-11" title="11">}</a>
-<a class="sourceLine" id="cb5-12" title="12"></a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="dt">float</span> heatoff_arg0(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-14" title="14">  <span class="cf">return</span> (((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>);</a>
-<a class="sourceLine" id="cb5-15" title="15">}</a>
-<a class="sourceLine" id="cb5-16" title="16"></a>
-<a class="sourceLine" id="cb5-17" title="17"><span class="dt">bool</span> heaton_guard(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-18" title="18">  <span class="cf">return</span> ((((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>)) &lt; (<span class="fl">18.0</span>);</a>
-<a class="sourceLine" id="cb5-19" title="19">}</a>
-<a class="sourceLine" id="cb5-20" title="20"></a>
-<a class="sourceLine" id="cb5-21" title="21"><span class="dt">float</span> heaton_arg0(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-22" title="22">  <span class="cf">return</span> (((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>);</a>
-<a class="sourceLine" id="cb5-23" title="23">}</a>
-<a class="sourceLine" id="cb5-24" title="24"></a>
-<a class="sourceLine" id="cb5-25" title="25"><span class="dt">void</span> step(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-26" title="26">  (temperature_cpy) = (temperature);</a>
-<a class="sourceLine" id="cb5-27" title="27">  <span class="cf">if</span> ((heatoff_guard)()) {</a>
-<a class="sourceLine" id="cb5-28" title="28">    (heatoff)(((heatoff_arg0)()));</a>
-<a class="sourceLine" id="cb5-29" title="29">  };</a>
-<a class="sourceLine" id="cb5-30" title="30">  <span class="cf">if</span> ((heaton_guard)()) {</a>
-<a class="sourceLine" id="cb5-31" title="31">    (heaton)(((heaton_arg0)()));</a>
-<a class="sourceLine" id="cb5-32" title="32">  };</a>
-<a class="sourceLine" id="cb5-33" title="33">}</a></code></pre></div>
-<p>先ほど<code>Stream</code>として定義した値のうち、<code>temp</code>は、<code>temperature</code>というグローバル変数と、それを一時的に保存する<code>temperature_cpy</code>という二つの変数に翻訳されました。<br />
-<code>spec</code>において<code>trigger</code>という関数で列挙した「どのセンサーから信号を受け取って、どんな条件を満たした場合にどの処理を実行するか」というルールは、<code>step</code>という関数に現れたようです。<br />
-この関数を利用する側では、<code>heaton</code>関数と<code>heatoff</code>関数を別途定義した上で、<code>temperature</code>にセンサーから受け取った値を代入して<code>step</code>を呼ぶことによって、<code>temperature</code>の値が条件に一致したとき、<code>heaton</code>関数と<code>heatoff</code>関数を実行してハードウェアの制御ができるのでしょう。<br />
-<span class="ascii">Haskell</span>側で定義したもう一つの<code>Stream</code>、<code>ctemp</code>は、<code>heaton_guard</code>、<code>heaton_arg0</code>、<code>heatoff_guard</code>、<code>heatoff_arg0</code>、それぞれの関数に書かれた、<code>temperature_cpy</code>の値を変換する式に現れているようです。</p>
-<p>正直なところこの程度であれば、直接<span class="ascii">C</span>で書いた方が余計なカッコもないし読みやすそうではあります。<br />
-<code>temp</code>を<code>ctemp</code>に変換する式<code>(150.0 / 255.0) - 50.0</code>が変換後のソースコードでは冗長に適用されていることから、もっと最適化できそうですし。<br />
-とはいえ、わざわざ<span class="ascii">DSL</span>を作ったからには、より複雑で、<span class="ascii">Haskell</span>でなければ書いてられないようなケースが、<span class="ascii">Copilot</span>の開発者の現場ではあるのでしょう<small>（なんせ<span class="ascii">NASA</span>の方も関わっているぐらいですから！）</small>。<br />
-詳しいユースケースや、ビルド時のフローといった運用方法を聞きたいところですね。</p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/haskell-day-2019.html" lang="ja">Haskell Day 2019を開催しました！</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/haskell-symposium.html" style="margin-left: auto;" lang="ja">Haskell Symposium 2019 レポート</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
