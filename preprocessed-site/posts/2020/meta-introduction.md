@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Kazuki Okamoto
 postedBy: <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a>
-date: June X, 2020
+date: June 1, 2020
 tags: []
 ---
 
