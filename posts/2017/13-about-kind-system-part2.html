@@ -234,7 +234,7 @@ here</span></a></span>型制約の種</h3>
 <a class="sourceLine" id="cb10-6" title="6"><span class="dt">SimpleClass</span><span class="ot"> ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="dt">Constraint</span></a></code></pre></div>
 <p>データ宣言と型クラス宣言を並べてみました。この二つはよく似ています。</p>
 <ul>
-<li>データ宣言は、<code>*</code>という種の型になるような型コンストラクタ<code>SimpleData :: * -&gt; *</code>を作り、<code>SimpleData :: a -&gt; SimpleData</code>という値コンストラクタを作ります。</li>
+<li>データ宣言は、<code>*</code>という種の型になるような型コンストラクタ<code>SimpleData :: * -&gt; *</code>を作り、<code>SimpleData :: a -&gt; SimpleData a</code>という値コンストラクタを作ります。</li>
 <li>型クラス宣言は、<code>Constraint</code>という種の型制約になるような<code>SimpleClass :: * -&gt; Constraint</code>を作り、<code>simpleMethod :: SimpleClass a =&gt; a -&gt; a</code>というような関数を作ります。</li>
 </ul>
 <p>作られるものがそれぞれ違いますが、両方型の世界に一つの型関数、値の世界に関数を作るわけです。型クラスの方をデータ宣言に合わせるとしたら、型クラスは型制約コンストラクタとメソッドを作るものと言えるかもしれません。型の世界だけでの話なら、データ宣言は型コンストラクタを、型クラスは型制約コンストラクタを単に作るだけの構文ということになります。ではここで、データ型と型制約の対比を表にしてみましょう。</p>
