@@ -26,7 +26,7 @@ date: May 18, 2017
 <li id="matsubara0507.github.io" class="hash-target"><a href="https://matsubara0507.github.io/">ひげメモ</a> by matsubara0507</li>
 <li id="roki.dev/roki.log/" class="hash-target"><a href="https://roki.dev/roki.log/">roki.log</a>by Roki</li>
 <li id="syocy.hatenablog.com" class="hash-target"><a href="http://syocy.hatenablog.com/">syocy’s diary</a></li>
-<li id="the.igreque.info" class="hash-target"><a href="http://the.igreque.info">igreque : Info</a> by Yuji Yamamoto</li>
+<li id="the.igreque.info" class="hash-target"><a href="http://the.igreque.info">igreque -> Info</a> by YAMAMOTO Yuji</li>
 <li id="www.sampou.org" class="hash-target"><a href="http://www.sampou.org">{算法|算譜}.ORG</a> by Nobuo Yamashita (@nobsun)</li>
 </ul>
 
