@@ -24,6 +24,7 @@ date: May 18, 2017
 <li id="kurokawh.blogspot.jp" class="hash-target"><a href="http://kurokawh.blogspot.jp/">Kuro's Blog</a> by Hiroyuki Kurokawa (hrkr)</li>
 <li id="lotz84.github.io" class="hash-target"><a href="https://lotz84.github.io">flip map</a> by lotz</li>
 <li id="matsubara0507.github.io" class="hash-target"><a href="https://matsubara0507.github.io/">ひげメモ</a> by matsubara0507</li>
+<li id="roki.dev/roki.log/" class="hash-target"><a href="https://roki.dev/roki.log/">roki.log</a>by Roki</li>
 <li id="syocy.hatenablog.com" class="hash-target"><a href="http://syocy.hatenablog.com/">syocy’s diary</a></li>
 <li id="the.igreque.info" class="hash-target"><a href="http://the.igreque.info">igreque : Info</a> by Yuji Yamamoto</li>
 <li id="www.sampou.org" class="hash-target"><a href="http://www.sampou.org">{算法|算譜}.ORG</a> by Nobuo Yamashita (@nobsun)</li>
