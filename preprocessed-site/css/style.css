@@ -168,3 +168,7 @@ pre.sourceCode {
   border: unset;
   border-radius: unset;
 }
+
+.jumbotron {
+  color: #333;
+}
