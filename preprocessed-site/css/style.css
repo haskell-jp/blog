@@ -172,3 +172,7 @@ pre.sourceCode {
 .jumbotron {
   color: #333;
 }
+
+.btn {
+  border-radius: 4px;
+}
