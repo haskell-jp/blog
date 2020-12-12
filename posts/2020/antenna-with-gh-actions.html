@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Haskell AntennaのCI/CDをGitHub Actionsに移行する">
+    
+      <meta name="author" content="Nobutada MATSUBARA">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="Haskell AntennaのCI/CDをGitHub Actionsに移行する - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2020/antenna-with-gh-actions.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="---Haskell-jpのコンテンツの一つとして[Haskell Antenna](https://haskell.jp/antenna/)というWebページの開発・運用をしております。&lt;img src=&quot;../../img/2020/antenna-with-gh-actions/antenna-page.jpg&quot; style=&quot;width: 100%;&q" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>Haskell AntennaのCI/CDをGitHub Actionsに移行する - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://haskell.jp/signin-slack.html">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+                    <div lang="ja" class="post-heading">
+                    
+                        <div class="jumbotron page-header-jumbotron">
+                            <h1>Haskell AntennaのCI/CDをGitHub Actionsに移行する</h1>
+                            <h2 class="subheading"></h2><span class="meta">Posted by <a href="https://matsubara0507.github.io/whoami">Nobutada MATSUBARA(@matsubara0507)</a> on December 12, 2020</span><span class="meta">Tags: Antenna, GitHub Actions</span>
+                            <div class="text-right" style="margin-top: 2em;">
+                                <a class="btn btn-primary" href="https://github.com/haskell-jp/blog#%E8%A8%98%E4%BA%8B%E3%82%92%E6%8A%95%E7%A8%BF%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88" role="button">
+                                    投稿したい方はこちら
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><span class="ascii">Haskell-jp</span>のコンテンツの一つとして<a href="https://haskell.jp/antenna/"><span class="ascii">Haskell Antenna</span></a>という<span class="ascii">Web</span>ページの開発・運用をしております。</p>
+<p><img src="../../img/2020/antenna-with-gh-actions/antenna-page.jpg" style="width: 100%;"></p>
+<p>バイナリのビルドや<span class="ascii">Docker</span>イメージのビルドに<span class="ascii">TravisCI</span>を、バイナリを実行してページの更新をするのに<span class="ascii">DroneCI</span>を使っていました。 しかし、長らく放置していてちゃんと動作しているか怪しかったので、メンテナンスをするついでに昨今はやり（要出典）の<a href="https://github.com/haskell-jp/antenna/pull/26"><span class="ascii">GitHub Actions</span>にこれらを移行することにしました</a>。</p>
+<p><img src="../../img/2020/antenna-with-gh-actions/pr.jpg" style="width: 100%;"></p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#stackプロジェクトのビルド" title="stackプロジェクトのビルド"><span class="ascii">Stack</span>プロジェクトのビルド</a></li>
+<li><a href="#dockerイメージのビルドとプッシュ" title="dockerイメージのビルドとプッシュ"><span class="ascii">Docker</span>イメージのビルドとプッシュ</a></li>
+<li><a href="#antennaプログラムの実行" title="antennaプログラムの実行"><span class="ascii">antenna</span>プログラムの実行</a></li>
+</ul>
+</div>
+</div>
+<h3 id="stackプロジェクトのビルド"><span class="link-to-here-outer"><a href="#stackプロジェクトのビルド" title="stackプロジェクトのビルド"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Stack</span>プロジェクトのビルド</h3>
+<p>まずはバイナリのビルドを行うように設定します。 <span class="ascii">Haskell Antenna</span>のプログラムは<span class="ascii">Haskell Stack</span>を利用しているので、<code>stack build</code>が実行できれば良いです。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">name:</span><span class="at"> Build Application</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="fu">on:</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="fu">pull_request:</span><span class="at"> </span><span class="ch">null</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="fu">push:</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="fu">branches:</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="kw">-</span> master</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="fu">jobs:</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="fu">build:</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="fu">name:</span><span class="at"> ${{ matrix.os }}</span></a>
+<a class="sourceLine" id="cb1-10" title="10">    <span class="fu">runs-on:</span><span class="at"> ubuntu-18.04</span></a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="fu">strategy:</span></a>
+<a class="sourceLine" id="cb1-12" title="12">      <span class="fu">fail-fast:</span><span class="at"> </span><span class="ch">false</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      <span class="fu">matrix:</span></a>
+<a class="sourceLine" id="cb1-14" title="14">        <span class="fu">ghc:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8.8.4&quot;</span><span class="kw">]</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="fu">steps:</span></a>
+<a class="sourceLine" id="cb1-16" title="16">    <span class="kw">-</span> <span class="fu">uses:</span><span class="at"> actions/checkout@v2</span></a>
+<a class="sourceLine" id="cb1-17" title="17">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Cache .stack</span></a>
+<a class="sourceLine" id="cb1-18" title="18">      <span class="fu">id:</span><span class="at"> cache-stack</span></a>
+<a class="sourceLine" id="cb1-19" title="19">      <span class="fu">uses:</span><span class="at"> actions/cache@v2</span></a>
+<a class="sourceLine" id="cb1-20" title="20">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb1-21" title="21">        <span class="fu">path:</span><span class="at"> ~/.stack</span></a>
+<a class="sourceLine" id="cb1-22" title="22">        <span class="fu">key:</span><span class="at"> </span><span class="st">&quot;\</span></a>
+<a class="sourceLine" id="cb1-23" title="23"><span class="st">          ${{ runner.os }}-stack\</span></a>
+<a class="sourceLine" id="cb1-24" title="24"><span class="st">          -${{ hashFiles('**/stack.yaml.lock') }}\</span></a>
+<a class="sourceLine" id="cb1-25" title="25"><span class="st">          -${{ hashFiles('**/package.yaml') }}\</span></a>
+<a class="sourceLine" id="cb1-26" title="26"><span class="st">        &quot;</span></a>
+<a class="sourceLine" id="cb1-27" title="27"><span class="fu">        restore-keys:</span> <span class="st">|</span></a>
+<a class="sourceLine" id="cb1-28" title="28">          ${{ runner.os }}-stack-</a>
+<a class="sourceLine" id="cb1-29" title="29">    <span class="kw">-</span> <span class="fu">uses:</span><span class="at"> haskell/actions/setup@main</span></a>
+<a class="sourceLine" id="cb1-30" title="30">      <span class="fu">name:</span><span class="at"> Setup Haskell</span></a>
+<a class="sourceLine" id="cb1-31" title="31">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb1-32" title="32">        <span class="fu">ghc-version:</span><span class="at"> ${{ matrix.ghc }}</span></a>
+<a class="sourceLine" id="cb1-33" title="33">        <span class="fu">enable-stack:</span><span class="at"> </span><span class="ch">true</span></a>
+<a class="sourceLine" id="cb1-34" title="34">        <span class="fu">stack-version:</span><span class="at"> </span><span class="st">'latest'</span></a>
+<a class="sourceLine" id="cb1-35" title="35">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Install dependencies</span></a>
+<a class="sourceLine" id="cb1-36" title="36">      <span class="fu">run:</span><span class="at"> stack --system-ghc test --only-dependencies</span></a>
+<a class="sourceLine" id="cb1-37" title="37">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build and Test</span></a>
+<a class="sourceLine" id="cb1-38" title="38">      <span class="fu">run:</span><span class="at"> stack --system-ghc test --copy-bins --local-bin-path=./bin</span></a></code></pre></div>
+<p>これは、<span class="ascii">PR</span>が作られたときや<span class="ascii">master</span>がプッシュされたときに実行されることを想定しています。</p>
+<p><span class="ascii">GitHub Actions</span>で<span class="ascii">Haskell</span>や<span class="ascii">Haskell Stack</span>を使うには、<del>公式が提供している<a href="https://github.com/actions/setup-haskell"><span class="ascii">actions/setup-haskell</span></a></del> <a href="https://github.com/haskell/actions/tree/main/setup"><span class="ascii">haskell/actions/setup</span></a> を利用します。 元々は<span class="ascii">actions/haskell-setup</span>がありましたが、どうやら<a href="https://github.com/actions/setup-haskell/pull/56">メンテナンスする人がいなくなったっぽく</a>アーカイブされてしまいました。 この記事を書いている時点では移行したばかりでちゃんとタグが切られていないため、<span class="ascii">main</span>ブランチを指定しています。 ちなみに、<span class="ascii">Stack</span>プロジェクトの<span class="ascii">GHC</span>バージョンを<span class="ascii">haskell/actions/setup</span>でインストールして、<code>stack --system-ghc</code>をすることでキャッシュサイズを減らすことができます。</p>
+<p>これまた余談ですが、<span class="ascii">actions/setup-haskell</span>の方を使っていて次のようなエラーが出る場合は<span class="ascii">actions/setup-haskell</span>のバージョンが古いです（<a href="https://github.com/actions/setup-haskell/issues/44">最新では修正済みです</a>）。<span class="ascii">haskell/actions/setup</span>の方を使いましょう。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">Installing</span> ghc version 8.8.4</a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="ex">Error</span>: Unable to process command <span class="st">'::add-path::/opt/ghc/8.8.4/bin'</span> successfully.</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="ex">Error</span>: The <span class="kw">`</span><span class="ex">add-path</span><span class="kw">`</span> command is disabled. Please upgrade to using Environment Files or opt into unsecure command execution by setting the <span class="kw">`</span><span class="ex">ACTIONS_ALLOW_UNSECURE_COMMANDS</span><span class="kw">`</span> environment variable to <span class="kw">`</span><span class="fu">true</span><span class="kw">`</span>. For more information see: https://github.blog/changelog/2020-10-01-github-actions-deprecating-set-env-and-add-path-commands/</a></code></pre></div>
+<h3 id="dockerイメージのビルドとプッシュ"><span class="link-to-here-outer"><a href="#dockerイメージのビルドとプッシュ" title="dockerイメージのビルドとプッシュ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Docker</span>イメージのビルドとプッシュ</h3>
+<p><a href="https://hub.docker.com/r/haskelljp/antenna/"><span class="ascii">antenna</span>プログラムは<span class="ascii">Docker</span>イメージにして<span class="ascii">Docker Hub</span>に置いてあります</a>（これも<span class="ascii">GitHub Container Registry</span>に移行したいですね）。 なので、<span class="ascii">master</span>の更新に合わせて<span class="ascii">Docker</span>イメージをビルドしてプッシュするジョブを設定します。 <span class="ascii">Docker</span>イメージのビルドとプッシュには<a href="https://github.com/docker/build-push-action"><span class="ascii">docker/build-push-action</span></a>を使います。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># さっきと同じ設定ファイルです</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="fu">name:</span><span class="at"> Build Application</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="fu">on:</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="fu">pull_request:</span><span class="at"> </span><span class="ch">null</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="fu">push:</span></a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="fu">branches:</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="kw">-</span> master</a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="fu">jobs:</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="fu">build:</span></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="fu">name:</span><span class="at"> ${{ matrix.os }}</span></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="fu">runs-on:</span><span class="at"> ubuntu-18.04</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="fu">strategy:</span></a>
+<a class="sourceLine" id="cb3-13" title="13">      <span class="fu">fail-fast:</span><span class="at"> </span><span class="ch">false</span></a>
+<a class="sourceLine" id="cb3-14" title="14">      <span class="fu">matrix:</span></a>
+<a class="sourceLine" id="cb3-15" title="15">        <span class="fu">ghc:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8.8.4&quot;</span><span class="kw">]</span></a>
+<a class="sourceLine" id="cb3-16" title="16">    <span class="fu">steps:</span></a>
+<a class="sourceLine" id="cb3-17" title="17">    ... <span class="co"># 割愛</span></a>
+<a class="sourceLine" id="cb3-18" title="18">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build and Test</span></a>
+<a class="sourceLine" id="cb3-19" title="19">      <span class="fu">run:</span><span class="at"> stack --system-ghc test --copy-bins --local-bin-path=./bin</span></a>
+<a class="sourceLine" id="cb3-20" title="20">    <span class="co"># Build and Push Docker Image</span></a>
+<a class="sourceLine" id="cb3-21" title="21">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Setup QEMU</span></a>
+<a class="sourceLine" id="cb3-22" title="22">      <span class="fu">uses:</span><span class="at"> docker/setup-qemu-action@master</span></a>
+<a class="sourceLine" id="cb3-23" title="23">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-24" title="24">        <span class="fu">platforms:</span><span class="at"> all</span></a>
+<a class="sourceLine" id="cb3-25" title="25">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Setup Docker Buildx</span></a>
+<a class="sourceLine" id="cb3-26" title="26">      <span class="fu">id:</span><span class="at"> buildx</span></a>
+<a class="sourceLine" id="cb3-27" title="27">      <span class="fu">uses:</span><span class="at"> docker/setup-buildx-action@master</span></a>
+<a class="sourceLine" id="cb3-28" title="28">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-29" title="29">        <span class="fu">version:</span><span class="at"> latest</span></a>
+<a class="sourceLine" id="cb3-30" title="30">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Login to DockerHub</span></a>
+<a class="sourceLine" id="cb3-31" title="31">      <span class="fu">uses:</span><span class="at"> docker/login-action@v1</span></a>
+<a class="sourceLine" id="cb3-32" title="32">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-33" title="33">        <span class="fu">username:</span><span class="at"> ${{ secrets.DOCKER_USERNAME }}</span></a>
+<a class="sourceLine" id="cb3-34" title="34">        <span class="fu">password:</span><span class="at"> ${{ secrets.DOCKERHUB_TOKEN }}</span></a>
+<a class="sourceLine" id="cb3-35" title="35">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build and push</span></a>
+<a class="sourceLine" id="cb3-36" title="36">      <span class="fu">uses:</span><span class="at"> docker/build-push-action@v2</span></a>
+<a class="sourceLine" id="cb3-37" title="37">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-38" title="38">        <span class="fu">context:</span><span class="at"> .</span></a>
+<a class="sourceLine" id="cb3-39" title="39">        <span class="fu">builder:</span><span class="at"> ${{ steps.buildx.outputs.name }}</span></a>
+<a class="sourceLine" id="cb3-40" title="40">        <span class="fu">tags:</span><span class="at"> haskelljp/antenna:latest</span></a>
+<a class="sourceLine" id="cb3-41" title="41">        <span class="fu">push:</span><span class="at"> ${{ github.event_name != 'pull_request' }}</span></a>
+<a class="sourceLine" id="cb3-42" title="42">        <span class="fu">build-args:</span><span class="at"> local_bin_path=./bin</span></a></code></pre></div>
+<p><span class="ascii">master</span>ブランチへのプッシュのときにだけ<span class="ascii">Docker</span>イメージのプッシュをして欲しいので、<code>push:</code> に <code>github.event_name != 'pull_request'</code> を設定しています。 また、<span class="ascii">Haskell Stack</span>でビルドされたバイナリファイルは<code>--local-bin-path=./bin</code>オプションで<code>./bin</code>に置いてあります。 これを<span class="ascii">Dockerfile</span>でコピーするようにしている（下記参照）ので、<code>docker build</code>の引数に<code>local_bin_path=./bin</code>というのを与える必要がありました。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">FROM</span> matsubara0507/ubuntu-for-haskell:git</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">ARG</span> local_bin_path</a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="kw">RUN</span> mkdir -p /root/.local/bin &amp;&amp; mkdir -p /work</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">ENV</span> PATH /root/.local/bin:$PATH</a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">WORKDIR</span> /work</a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="kw">COPY</span> ${local_bin_path} /root/.local/bin</a></code></pre></div>
+<p>このように前の<span class="ascii">step</span>までの結果を利用するには <code>context: .</code> を指定する必要があります（デフォルトでは<a href="https://github.com/docker/build-push-action/tree/v2#git-context"><span class="ascii">git-context</span></a>というのを使うからです）。</p>
+<h3 id="antennaプログラムの実行"><span class="link-to-here-outer"><a href="#antennaプログラムの実行" title="antennaプログラムの実行"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">antenna</span>プログラムの実行</h3>
+<p>最後に、<span class="ascii">master</span>の更新があったときに<span class="ascii">antenna</span>プログラムを実行して<span class="ascii">Haskell Antenna</span>ページを更新するような設定をします。 日毎のスケジュール実行も設定したいので、新しいワークフローを切りました。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb5-1" title="1"><span class="fu">name:</span><span class="at"> Update Antenna page</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="fu">on:</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="fu">schedule:</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">-</span> <span class="fu">cron:</span><span class="at"> </span><span class="st">'0 8 * * *'</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="fu">push:</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="fu">branches:</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="kw">-</span> master</a>
+<a class="sourceLine" id="cb5-8" title="8">    <span class="fu">paths-ignore:</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="kw">-</span> <span class="st">'README.md'</span></a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="kw">-</span> <span class="st">'CHANGELOG.md'</span></a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="kw">-</span> <span class="st">'LICENSE'</span></a>
+<a class="sourceLine" id="cb5-12" title="12">    <span class="kw">-</span> <span class="st">'.gitignore'</span></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="fu">jobs:</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  <span class="fu">update:</span></a>
+<a class="sourceLine" id="cb5-15" title="15">    <span class="fu">name:</span><span class="at"> ${{ matrix.os }}</span></a>
+<a class="sourceLine" id="cb5-16" title="16">    <span class="fu">runs-on:</span><span class="at"> ubuntu-18.04</span></a>
+<a class="sourceLine" id="cb5-17" title="17">    <span class="fu">strategy:</span></a>
+<a class="sourceLine" id="cb5-18" title="18">      <span class="fu">fail-fast:</span><span class="at"> </span><span class="ch">false</span></a>
+<a class="sourceLine" id="cb5-19" title="19">      <span class="fu">matrix:</span></a>
+<a class="sourceLine" id="cb5-20" title="20">        <span class="fu">ghc:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8.8.4&quot;</span><span class="kw">]</span></a>
+<a class="sourceLine" id="cb5-21" title="21">    <span class="fu">steps:</span></a>
+<a class="sourceLine" id="cb5-22" title="22">    ... <span class="co"># Install dependenciesまでは一緒なので割愛</span></a>
+<a class="sourceLine" id="cb5-23" title="23">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build</span></a>
+<a class="sourceLine" id="cb5-24" title="24">      <span class="fu">run:</span><span class="at"> stack --system-ghc build</span></a>
+<a class="sourceLine" id="cb5-25" title="25"></a>
+<a class="sourceLine" id="cb5-26" title="26">    <span class="kw">-</span> <span class="fu">uses:</span><span class="at"> actions/checkout@v2</span></a>
+<a class="sourceLine" id="cb5-27" title="27">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb5-28" title="28">        <span class="fu">ref:</span><span class="at"> </span><span class="st">'gh-pages'</span></a>
+<a class="sourceLine" id="cb5-29" title="29">        <span class="fu">path:</span><span class="at"> </span><span class="st">'temp'</span></a>
+<a class="sourceLine" id="cb5-30" title="30">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Exec Application</span></a>
+<a class="sourceLine" id="cb5-31" title="31"><span class="fu">      run:</span> <span class="st">|</span></a>
+<a class="sourceLine" id="cb5-32" title="32">        cp sites.yaml temp/sites.yaml</a>
+<a class="sourceLine" id="cb5-33" title="33">        cp -r image/* temp/image</a>
+<a class="sourceLine" id="cb5-34" title="34">        cd temp &amp;&amp; stack exec -- antenna sites.yaml</a>
+<a class="sourceLine" id="cb5-35" title="35">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Push changes</span></a>
+<a class="sourceLine" id="cb5-36" title="36">      <span class="fu">env:</span></a>
+<a class="sourceLine" id="cb5-37" title="37">        <span class="fu">COMMIT_MESSAGE:</span><span class="at"> Update haskell antenna. See https://haskell.jp/antenna/ for new entries!</span></a>
+<a class="sourceLine" id="cb5-38" title="38"><span class="fu">      run:</span> <span class="st">|</span></a>
+<a class="sourceLine" id="cb5-39" title="39">        git config --local user.email &quot;bot@example.com&quot;</a>
+<a class="sourceLine" id="cb5-40" title="40">        git config --local user.name &quot;Bot&quot;</a>
+<a class="sourceLine" id="cb5-41" title="41">        git status</a>
+<a class="sourceLine" id="cb5-42" title="42">        git add -A</a>
+<a class="sourceLine" id="cb5-43" title="43">        git diff --staged --quiet || git commit -m &quot;$COMMIT_MESSAGE&quot;</a>
+<a class="sourceLine" id="cb5-44" title="44">        git push origin gh-pages</a>
+<a class="sourceLine" id="cb5-45" title="45">      <span class="fu">working-directory:</span><span class="at"> ./temp</span></a></code></pre></div>
+<p>バイナリをビルドするところまでは一緒です。 <span class="ascii">Haskell Antenna</span>は同じリポジトリの<span class="ascii">gh-pages</span>ブランチに置いて、<span class="ascii">GitHub Pages</span>を使って公開しています。 なので、同じリポジトリの<span class="ascii">gh-pages</span>ブランチを<span class="ascii">git clone</span>しなおしてサブディレクトリに置き、そこで<span class="ascii">antenna</span>プログラムを実行して、更新があった場合にのみプッシュしています。 同じリポジトリであれば、特に設定することなくプッシュできるのが<span class="ascii">GitHub Actions</span>のメリットですね。</p>
+<h2 id="おまけzennを追加しました"><span class="link-to-here-outer"><a href="#おまけzennを追加しました" title="おまけzennを追加しました"><span class="link-to-here">Link to<br />
+here</span></a></span>おまけ：<span class="ascii">Zenn</span>を追加しました！</h2>
+<p>ついでに最近のアップデートによって、<a href="https://github.com/haskell-jp/antenna/pull/25"><span class="ascii">Zenn</span>を<span class="ascii">Haskell Antenna</span>に載せるサイトへ追加しました</a>（<span class="ascii">igrep</span>氏がしてくれました、ありがとうございます）。 アイコンの利用規約などがわからなかったのですが、<span class="ascii">GitHub</span>の<span class="ascii">PR</span>上で直接聞いてみたところ、問題ないという回答をいただきました。 突然だったのにありがとうございます。</p>
+<p><img src="../../img/2020/antenna-with-gh-actions/antenna-page-with-zenn.jpg" style="width: 100%;"></p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2020/how-to-use-type-newtype-data.html" style="margin-left: auto;" lang="ja">data / newtype / type の使い方</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Nobutada MATSUBARA 2020</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                    <p class="text-muted notice">
+                      当ウェブサイトでは<a href="https://support.google.com/analytics/answer/6004245?hl=ja">Google Analytics</a>でアクセス情報を収集しています。集めた情報は統計的に処理した上で、当ウェブサイトの改善のための参考情報としてのみ使用します。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+    <!-- Google Analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94110610-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</body>
+
+</html>

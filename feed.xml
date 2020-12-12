@@ -8,8 +8,232 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2020-06-14T00:00:00Z</updated>
+    <updated>2020-12-12T00:00:00Z</updated>
     <entry>
+    <title>Haskell AntennaのCI/CDをGitHub Actionsに移行する</title>
+    <link href="https://haskell.jp/blog/posts/2020/antenna-with-gh-actions.html" />
+    <id>https://haskell.jp/blog/posts/2020/antenna-with-gh-actions.html</id>
+    <published>2020-12-12T00:00:00Z</published>
+    <updated>2020-12-12T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p><span class="ascii">Haskell-jp</span>のコンテンツの一つとして<a href="https://haskell.jp/antenna/"><span class="ascii">Haskell Antenna</span></a>という<span class="ascii">Web</span>ページの開発・運用をしております。</p>
+<p><img src="../../img/2020/antenna-with-gh-actions/antenna-page.jpg" style="width: 100%;"></p>
+<p>バイナリのビルドや<span class="ascii">Docker</span>イメージのビルドに<span class="ascii">TravisCI</span>を、バイナリを実行してページの更新をするのに<span class="ascii">DroneCI</span>を使っていました。 しかし、長らく放置していてちゃんと動作しているか怪しかったので、メンテナンスをするついでに昨今はやり（要出典）の<a href="https://github.com/haskell-jp/antenna/pull/26"><span class="ascii">GitHub Actions</span>にこれらを移行することにしました</a>。</p>
+<p><img src="../../img/2020/antenna-with-gh-actions/pr.jpg" style="width: 100%;"></p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#stackプロジェクトのビルド" title="stackプロジェクトのビルド"><span class="ascii">Stack</span>プロジェクトのビルド</a></li>
+<li><a href="#dockerイメージのビルドとプッシュ" title="dockerイメージのビルドとプッシュ"><span class="ascii">Docker</span>イメージのビルドとプッシュ</a></li>
+<li><a href="#antennaプログラムの実行" title="antennaプログラムの実行"><span class="ascii">antenna</span>プログラムの実行</a></li>
+</ul>
+</div>
+</div>
+<h3 id="stackプロジェクトのビルド"><span class="link-to-here-outer"><a href="#stackプロジェクトのビルド" title="stackプロジェクトのビルド"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Stack</span>プロジェクトのビルド</h3>
+<p>まずはバイナリのビルドを行うように設定します。 <span class="ascii">Haskell Antenna</span>のプログラムは<span class="ascii">Haskell Stack</span>を利用しているので、<code>stack build</code>が実行できれば良いです。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">name:</span><span class="at"> Build Application</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="fu">on:</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="fu">pull_request:</span><span class="at"> </span><span class="ch">null</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="fu">push:</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="fu">branches:</span></a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="kw">-</span> master</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="fu">jobs:</span></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="fu">build:</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="fu">name:</span><span class="at"> ${{ matrix.os }}</span></a>
+<a class="sourceLine" id="cb1-10" title="10">    <span class="fu">runs-on:</span><span class="at"> ubuntu-18.04</span></a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="fu">strategy:</span></a>
+<a class="sourceLine" id="cb1-12" title="12">      <span class="fu">fail-fast:</span><span class="at"> </span><span class="ch">false</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      <span class="fu">matrix:</span></a>
+<a class="sourceLine" id="cb1-14" title="14">        <span class="fu">ghc:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8.8.4&quot;</span><span class="kw">]</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="fu">steps:</span></a>
+<a class="sourceLine" id="cb1-16" title="16">    <span class="kw">-</span> <span class="fu">uses:</span><span class="at"> actions/checkout@v2</span></a>
+<a class="sourceLine" id="cb1-17" title="17">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Cache .stack</span></a>
+<a class="sourceLine" id="cb1-18" title="18">      <span class="fu">id:</span><span class="at"> cache-stack</span></a>
+<a class="sourceLine" id="cb1-19" title="19">      <span class="fu">uses:</span><span class="at"> actions/cache@v2</span></a>
+<a class="sourceLine" id="cb1-20" title="20">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb1-21" title="21">        <span class="fu">path:</span><span class="at"> ~/.stack</span></a>
+<a class="sourceLine" id="cb1-22" title="22">        <span class="fu">key:</span><span class="at"> </span><span class="st">&quot;\</span></a>
+<a class="sourceLine" id="cb1-23" title="23"><span class="st">          ${{ runner.os }}-stack\</span></a>
+<a class="sourceLine" id="cb1-24" title="24"><span class="st">          -${{ hashFiles(&#39;**/stack.yaml.lock&#39;) }}\</span></a>
+<a class="sourceLine" id="cb1-25" title="25"><span class="st">          -${{ hashFiles(&#39;**/package.yaml&#39;) }}\</span></a>
+<a class="sourceLine" id="cb1-26" title="26"><span class="st">        &quot;</span></a>
+<a class="sourceLine" id="cb1-27" title="27"><span class="fu">        restore-keys:</span> <span class="st">|</span></a>
+<a class="sourceLine" id="cb1-28" title="28">          ${{ runner.os }}-stack-</a>
+<a class="sourceLine" id="cb1-29" title="29">    <span class="kw">-</span> <span class="fu">uses:</span><span class="at"> haskell/actions/setup@main</span></a>
+<a class="sourceLine" id="cb1-30" title="30">      <span class="fu">name:</span><span class="at"> Setup Haskell</span></a>
+<a class="sourceLine" id="cb1-31" title="31">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb1-32" title="32">        <span class="fu">ghc-version:</span><span class="at"> ${{ matrix.ghc }}</span></a>
+<a class="sourceLine" id="cb1-33" title="33">        <span class="fu">enable-stack:</span><span class="at"> </span><span class="ch">true</span></a>
+<a class="sourceLine" id="cb1-34" title="34">        <span class="fu">stack-version:</span><span class="at"> </span><span class="st">&#39;latest&#39;</span></a>
+<a class="sourceLine" id="cb1-35" title="35">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Install dependencies</span></a>
+<a class="sourceLine" id="cb1-36" title="36">      <span class="fu">run:</span><span class="at"> stack --system-ghc test --only-dependencies</span></a>
+<a class="sourceLine" id="cb1-37" title="37">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build and Test</span></a>
+<a class="sourceLine" id="cb1-38" title="38">      <span class="fu">run:</span><span class="at"> stack --system-ghc test --copy-bins --local-bin-path=./bin</span></a></code></pre></div>
+<p>これは、<span class="ascii">PR</span>が作られたときや<span class="ascii">master</span>がプッシュされたときに実行されることを想定しています。</p>
+<p><span class="ascii">GitHub Actions</span>で<span class="ascii">Haskell</span>や<span class="ascii">Haskell Stack</span>を使うには、<del>公式が提供している<a href="https://github.com/actions/setup-haskell"><span class="ascii">actions/setup-haskell</span></a></del> <a href="https://github.com/haskell/actions/tree/main/setup"><span class="ascii">haskell/actions/setup</span></a> を利用します。 元々は<span class="ascii">actions/haskell-setup</span>がありましたが、どうやら<a href="https://github.com/actions/setup-haskell/pull/56">メンテナンスする人がいなくなったっぽく</a>アーカイブされてしまいました。 この記事を書いている時点では移行したばかりでちゃんとタグが切られていないため、<span class="ascii">main</span>ブランチを指定しています。 ちなみに、<span class="ascii">Stack</span>プロジェクトの<span class="ascii">GHC</span>バージョンを<span class="ascii">haskell/actions/setup</span>でインストールして、<code>stack --system-ghc</code>をすることでキャッシュサイズを減らすことができます。</p>
+<p>これまた余談ですが、<span class="ascii">actions/setup-haskell</span>の方を使っていて次のようなエラーが出る場合は<span class="ascii">actions/setup-haskell</span>のバージョンが古いです（<a href="https://github.com/actions/setup-haskell/issues/44">最新では修正済みです</a>）。<span class="ascii">haskell/actions/setup</span>の方を使いましょう。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">Installing</span> ghc version 8.8.4</a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="ex">Error</span>: Unable to process command <span class="st">&#39;::add-path::/opt/ghc/8.8.4/bin&#39;</span> successfully.</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="ex">Error</span>: The <span class="kw">`</span><span class="ex">add-path</span><span class="kw">`</span> command is disabled. Please upgrade to using Environment Files or opt into unsecure command execution by setting the <span class="kw">`</span><span class="ex">ACTIONS_ALLOW_UNSECURE_COMMANDS</span><span class="kw">`</span> environment variable to <span class="kw">`</span><span class="fu">true</span><span class="kw">`</span>. For more information see: https://github.blog/changelog/2020-10-01-github-actions-deprecating-set-env-and-add-path-commands/</a></code></pre></div>
+<h3 id="dockerイメージのビルドとプッシュ"><span class="link-to-here-outer"><a href="#dockerイメージのビルドとプッシュ" title="dockerイメージのビルドとプッシュ"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Docker</span>イメージのビルドとプッシュ</h3>
+<p><a href="https://hub.docker.com/r/haskelljp/antenna/"><span class="ascii">antenna</span>プログラムは<span class="ascii">Docker</span>イメージにして<span class="ascii">Docker Hub</span>に置いてあります</a>（これも<span class="ascii">GitHub Container Registry</span>に移行したいですね）。 なので、<span class="ascii">master</span>の更新に合わせて<span class="ascii">Docker</span>イメージをビルドしてプッシュするジョブを設定します。 <span class="ascii">Docker</span>イメージのビルドとプッシュには<a href="https://github.com/docker/build-push-action"><span class="ascii">docker/build-push-action</span></a>を使います。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># さっきと同じ設定ファイルです</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="fu">name:</span><span class="at"> Build Application</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="fu">on:</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="fu">pull_request:</span><span class="at"> </span><span class="ch">null</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  <span class="fu">push:</span></a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="fu">branches:</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="kw">-</span> master</a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="fu">jobs:</span></a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="fu">build:</span></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="fu">name:</span><span class="at"> ${{ matrix.os }}</span></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="fu">runs-on:</span><span class="at"> ubuntu-18.04</span></a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="fu">strategy:</span></a>
+<a class="sourceLine" id="cb3-13" title="13">      <span class="fu">fail-fast:</span><span class="at"> </span><span class="ch">false</span></a>
+<a class="sourceLine" id="cb3-14" title="14">      <span class="fu">matrix:</span></a>
+<a class="sourceLine" id="cb3-15" title="15">        <span class="fu">ghc:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8.8.4&quot;</span><span class="kw">]</span></a>
+<a class="sourceLine" id="cb3-16" title="16">    <span class="fu">steps:</span></a>
+<a class="sourceLine" id="cb3-17" title="17">    ... <span class="co"># 割愛</span></a>
+<a class="sourceLine" id="cb3-18" title="18">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build and Test</span></a>
+<a class="sourceLine" id="cb3-19" title="19">      <span class="fu">run:</span><span class="at"> stack --system-ghc test --copy-bins --local-bin-path=./bin</span></a>
+<a class="sourceLine" id="cb3-20" title="20">    <span class="co"># Build and Push Docker Image</span></a>
+<a class="sourceLine" id="cb3-21" title="21">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Setup QEMU</span></a>
+<a class="sourceLine" id="cb3-22" title="22">      <span class="fu">uses:</span><span class="at"> docker/setup-qemu-action@master</span></a>
+<a class="sourceLine" id="cb3-23" title="23">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-24" title="24">        <span class="fu">platforms:</span><span class="at"> all</span></a>
+<a class="sourceLine" id="cb3-25" title="25">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Setup Docker Buildx</span></a>
+<a class="sourceLine" id="cb3-26" title="26">      <span class="fu">id:</span><span class="at"> buildx</span></a>
+<a class="sourceLine" id="cb3-27" title="27">      <span class="fu">uses:</span><span class="at"> docker/setup-buildx-action@master</span></a>
+<a class="sourceLine" id="cb3-28" title="28">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-29" title="29">        <span class="fu">version:</span><span class="at"> latest</span></a>
+<a class="sourceLine" id="cb3-30" title="30">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Login to DockerHub</span></a>
+<a class="sourceLine" id="cb3-31" title="31">      <span class="fu">uses:</span><span class="at"> docker/login-action@v1</span></a>
+<a class="sourceLine" id="cb3-32" title="32">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-33" title="33">        <span class="fu">username:</span><span class="at"> ${{ secrets.DOCKER_USERNAME }}</span></a>
+<a class="sourceLine" id="cb3-34" title="34">        <span class="fu">password:</span><span class="at"> ${{ secrets.DOCKERHUB_TOKEN }}</span></a>
+<a class="sourceLine" id="cb3-35" title="35">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build and push</span></a>
+<a class="sourceLine" id="cb3-36" title="36">      <span class="fu">uses:</span><span class="at"> docker/build-push-action@v2</span></a>
+<a class="sourceLine" id="cb3-37" title="37">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb3-38" title="38">        <span class="fu">context:</span><span class="at"> .</span></a>
+<a class="sourceLine" id="cb3-39" title="39">        <span class="fu">builder:</span><span class="at"> ${{ steps.buildx.outputs.name }}</span></a>
+<a class="sourceLine" id="cb3-40" title="40">        <span class="fu">tags:</span><span class="at"> haskelljp/antenna:latest</span></a>
+<a class="sourceLine" id="cb3-41" title="41">        <span class="fu">push:</span><span class="at"> ${{ github.event_name != &#39;pull_request&#39; }}</span></a>
+<a class="sourceLine" id="cb3-42" title="42">        <span class="fu">build-args:</span><span class="at"> local_bin_path=./bin</span></a></code></pre></div>
+<p><span class="ascii">master</span>ブランチへのプッシュのときにだけ<span class="ascii">Docker</span>イメージのプッシュをして欲しいので、<code>push:</code> に <code>github.event_name != 'pull_request'</code> を設定しています。 また、<span class="ascii">Haskell Stack</span>でビルドされたバイナリファイルは<code>--local-bin-path=./bin</code>オプションで<code>./bin</code>に置いてあります。 これを<span class="ascii">Dockerfile</span>でコピーするようにしている（下記参照）ので、<code>docker build</code>の引数に<code>local_bin_path=./bin</code>というのを与える必要がありました。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">FROM</span> matsubara0507/ubuntu-for-haskell:git</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">ARG</span> local_bin_path</a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="kw">RUN</span> mkdir -p /root/.local/bin &amp;&amp; mkdir -p /work</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">ENV</span> PATH /root/.local/bin:$PATH</a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">WORKDIR</span> /work</a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="kw">COPY</span> ${local_bin_path} /root/.local/bin</a></code></pre></div>
+<p>このように前の<span class="ascii">step</span>までの結果を利用するには <code>context: .</code> を指定する必要があります（デフォルトでは<a href="https://github.com/docker/build-push-action/tree/v2#git-context"><span class="ascii">git-context</span></a>というのを使うからです）。</p>
+<h3 id="antennaプログラムの実行"><span class="link-to-here-outer"><a href="#antennaプログラムの実行" title="antennaプログラムの実行"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">antenna</span>プログラムの実行</h3>
+<p>最後に、<span class="ascii">master</span>の更新があったときに<span class="ascii">antenna</span>プログラムを実行して<span class="ascii">Haskell Antenna</span>ページを更新するような設定をします。 日毎のスケジュール実行も設定したいので、新しいワークフローを切りました。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb5-1" title="1"><span class="fu">name:</span><span class="at"> Update Antenna page</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="fu">on:</span></a>
+<a class="sourceLine" id="cb5-3" title="3">  <span class="fu">schedule:</span></a>
+<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">-</span> <span class="fu">cron:</span><span class="at"> </span><span class="st">&#39;0 8 * * *&#39;</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="fu">push:</span></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="fu">branches:</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="kw">-</span> master</a>
+<a class="sourceLine" id="cb5-8" title="8">    <span class="fu">paths-ignore:</span></a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="kw">-</span> <span class="st">&#39;README.md&#39;</span></a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="kw">-</span> <span class="st">&#39;CHANGELOG.md&#39;</span></a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="kw">-</span> <span class="st">&#39;LICENSE&#39;</span></a>
+<a class="sourceLine" id="cb5-12" title="12">    <span class="kw">-</span> <span class="st">&#39;.gitignore&#39;</span></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="fu">jobs:</span></a>
+<a class="sourceLine" id="cb5-14" title="14">  <span class="fu">update:</span></a>
+<a class="sourceLine" id="cb5-15" title="15">    <span class="fu">name:</span><span class="at"> ${{ matrix.os }}</span></a>
+<a class="sourceLine" id="cb5-16" title="16">    <span class="fu">runs-on:</span><span class="at"> ubuntu-18.04</span></a>
+<a class="sourceLine" id="cb5-17" title="17">    <span class="fu">strategy:</span></a>
+<a class="sourceLine" id="cb5-18" title="18">      <span class="fu">fail-fast:</span><span class="at"> </span><span class="ch">false</span></a>
+<a class="sourceLine" id="cb5-19" title="19">      <span class="fu">matrix:</span></a>
+<a class="sourceLine" id="cb5-20" title="20">        <span class="fu">ghc:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;8.8.4&quot;</span><span class="kw">]</span></a>
+<a class="sourceLine" id="cb5-21" title="21">    <span class="fu">steps:</span></a>
+<a class="sourceLine" id="cb5-22" title="22">    ... <span class="co"># Install dependenciesまでは一緒なので割愛</span></a>
+<a class="sourceLine" id="cb5-23" title="23">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Build</span></a>
+<a class="sourceLine" id="cb5-24" title="24">      <span class="fu">run:</span><span class="at"> stack --system-ghc build</span></a>
+<a class="sourceLine" id="cb5-25" title="25"></a>
+<a class="sourceLine" id="cb5-26" title="26">    <span class="kw">-</span> <span class="fu">uses:</span><span class="at"> actions/checkout@v2</span></a>
+<a class="sourceLine" id="cb5-27" title="27">      <span class="fu">with:</span></a>
+<a class="sourceLine" id="cb5-28" title="28">        <span class="fu">ref:</span><span class="at"> </span><span class="st">&#39;gh-pages&#39;</span></a>
+<a class="sourceLine" id="cb5-29" title="29">        <span class="fu">path:</span><span class="at"> </span><span class="st">&#39;temp&#39;</span></a>
+<a class="sourceLine" id="cb5-30" title="30">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Exec Application</span></a>
+<a class="sourceLine" id="cb5-31" title="31"><span class="fu">      run:</span> <span class="st">|</span></a>
+<a class="sourceLine" id="cb5-32" title="32">        cp sites.yaml temp/sites.yaml</a>
+<a class="sourceLine" id="cb5-33" title="33">        cp -r image/* temp/image</a>
+<a class="sourceLine" id="cb5-34" title="34">        cd temp &amp;&amp; stack exec -- antenna sites.yaml</a>
+<a class="sourceLine" id="cb5-35" title="35">    <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Push changes</span></a>
+<a class="sourceLine" id="cb5-36" title="36">      <span class="fu">env:</span></a>
+<a class="sourceLine" id="cb5-37" title="37">        <span class="fu">COMMIT_MESSAGE:</span><span class="at"> Update haskell antenna. See https://haskell.jp/antenna/ for new entries!</span></a>
+<a class="sourceLine" id="cb5-38" title="38"><span class="fu">      run:</span> <span class="st">|</span></a>
+<a class="sourceLine" id="cb5-39" title="39">        git config --local user.email &quot;bot@example.com&quot;</a>
+<a class="sourceLine" id="cb5-40" title="40">        git config --local user.name &quot;Bot&quot;</a>
+<a class="sourceLine" id="cb5-41" title="41">        git status</a>
+<a class="sourceLine" id="cb5-42" title="42">        git add -A</a>
+<a class="sourceLine" id="cb5-43" title="43">        git diff --staged --quiet || git commit -m &quot;$COMMIT_MESSAGE&quot;</a>
+<a class="sourceLine" id="cb5-44" title="44">        git push origin gh-pages</a>
+<a class="sourceLine" id="cb5-45" title="45">      <span class="fu">working-directory:</span><span class="at"> ./temp</span></a></code></pre></div>
+<p>バイナリをビルドするところまでは一緒です。 <span class="ascii">Haskell Antenna</span>は同じリポジトリの<span class="ascii">gh-pages</span>ブランチに置いて、<span class="ascii">GitHub Pages</span>を使って公開しています。 なので、同じリポジトリの<span class="ascii">gh-pages</span>ブランチを<span class="ascii">git clone</span>しなおしてサブディレクトリに置き、そこで<span class="ascii">antenna</span>プログラムを実行して、更新があった場合にのみプッシュしています。 同じリポジトリであれば、特に設定することなくプッシュできるのが<span class="ascii">GitHub Actions</span>のメリットですね。</p>
+<h2 id="おまけzennを追加しました"><span class="link-to-here-outer"><a href="#おまけzennを追加しました" title="おまけzennを追加しました"><span class="link-to-here">Link to<br />
+here</span></a></span>おまけ：<span class="ascii">Zenn</span>を追加しました！</h2>
+<p>ついでに最近のアップデートによって、<a href="https://github.com/haskell-jp/antenna/pull/25"><span class="ascii">Zenn</span>を<span class="ascii">Haskell Antenna</span>に載せるサイトへ追加しました</a>（<span class="ascii">igrep</span>氏がしてくれました、ありがとうございます）。 アイコンの利用規約などがわからなかったのですが、<span class="ascii">GitHub</span>の<span class="ascii">PR</span>上で直接聞いてみたところ、問題ないという回答をいただきました。 突然だったのにありがとうございます。</p>
+<p><img src="../../img/2020/antenna-with-gh-actions/antenna-page-with-zenn.jpg" style="width: 100%;"></p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2020/how-to-use-type-newtype-data.html" style="margin-left: auto;" lang="ja">data / newtype / type の使い方</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>data / newtype / type の使い方</title>
     <link href="https://haskell.jp/blog/posts/2020/how-to-use-type-newtype-data.html" />
     <id>https://haskell.jp/blog/posts/2020/how-to-use-type-newtype-data.html</id>
@@ -317,6 +541,9 @@ here</span></a></span>まとめ</h2>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2020/antenna-with-gh-actions.html" lang="ja">Haskell AntennaのCI/CDをGitHub Actionsに移行する</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2499,270 +2726,6 @@ here</span></a></span>リポジトリ</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/haskell-day-2019.html" style="margin-left: auto;" lang="ja">Haskell Day 2019を開催しました！</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>Haskell Day 2019を開催しました！</title>
-    <link href="https://haskell.jp/blog/posts/2019/haskell-day-2019.html" />
-    <id>https://haskell.jp/blog/posts/2019/haskell-day-2019.html</id>
-    <published>2019-11-29T00:00:00Z</published>
-    <updated>2019-11-29T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <p>先日<span class="ascii">2019</span>年<span class="ascii">11</span>月<span class="ascii">9</span>日、<a href="https://techplay.jp/space"><span class="ascii">TECH PLAY SHIBUYA</span></a>にて<a href="https://techplay.jp/event/727059"><span class="ascii">Haskell Day 2019</span></a>を開催しました。<br />
-今回は、各発表の概要や、アンケートの結果をお伝えしたいと思います。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#発表" title="発表">発表</a>
-<ul>
-<li><a href="#関数型function-typeを見つめるプログラミング" title="関数型function-typeを見つめるプログラミング">関数型<span class="ascii">(function type)</span>を見つめるプログラミング</a></li>
-<li><a href="#hkdhigher-kinded-datatype" title="hkdhigher-kinded-datatype"><span class="ascii">HKD(Higher Kinded Datatype)</span></a></li>
-<li><a href="#しんさんきぼうのderivingストラテジー" title="しんさんきぼうのderivingストラテジー">「しんさんきぼう」の<span class="ascii">Deriving</span>ストラテジー</a></li>
-<li><a href="#haskellメタプログラミングによるegisonのパターンマッチの実装" title="haskellメタプログラミングによるegisonのパターンマッチの実装"><span class="ascii">Haskell</span>メタプログラミングによる<span class="ascii">Egison</span>のパターンマッチの実装</a></li>
-<li><a href="#関数と型で理解する自動微分" title="関数と型で理解する自動微分">関数と型で理解する自動微分</a></li>
-<li><a href="#ghcjs-によるwebフロントエンド開発" title="ghcjs-によるwebフロントエンド開発"><span class="ascii">GHCJS</span> による<span class="ascii">Web</span>フロントエンド開発</a></li>
-<li><a href="#haskellで作る競技型イベントの裏側" title="haskellで作る競技型イベントの裏側"><span class="ascii">Haskell</span>で作る競技型イベントの裏側</a></li>
-<li><a href="#大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation" title="大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation">大規模数値計算を支える <span class="ascii">Haskell</span> ── <span class="ascii">Pragmatic Haskell in Large-Scale Numerical Computation</span>──</a></li>
-<li><a href="#cadenza-building-fast-functional-languages-on-the-jvm" title="cadenza-building-fast-functional-languages-on-the-jvm"><span class="ascii">Cadenza: Building fast functional languages on the JVM</span></a></li>
-<li><a href="#lt" title="lt"><span class="ascii">LT</span></a></li>
-</ul></li>
-<li><a href="#アンケート結果" title="アンケート結果">アンケート結果</a>
-<ul>
-<li><a href="#haskell-以外のプログラミングに関する質問" title="haskell-以外のプログラミングに関する質問"><span class="ascii">Haskell</span> 以外のプログラミングに関する質問</a>
-<ul>
-<li><a href="#エンジニアの経験年数はどれくらいですか" title="エンジニアの経験年数はどれくらいですか">エンジニアの経験年数はどれくらいですか？</a></li>
-<li><a href="#得意なプログラミング言語はなんですか" title="得意なプログラミング言語はなんですか">得意なプログラミング言語はなんですか？</a></li>
-<li><a href="#得意好きな技術領域はどれですか" title="得意好きな技術領域はどれですか">得意・好きな技術領域はどれですか？</a></li>
-<li><a href="#最近注目している技術があれば記述してください" title="最近注目している技術があれば記述してください">最近注目している技術があれば記述してください</a></li>
-</ul></li>
-<li><a href="#haskell-に関する質問" title="haskell-に関する質問"><span class="ascii">Haskell</span> に関する質問</a>
-<ul>
-<li><a href="#haskell-をいつ頃始めましたか" title="haskell-をいつ頃始めましたか"><span class="ascii">Haskell</span> をいつ頃始めましたか？</a></li>
-<li><a href="#haskell-を初めてどれくらい経ちますか" title="haskell-を初めてどれくらい経ちますか"><span class="ascii">Haskell</span> を初めてどれくらい経ちますか？</a></li>
-<li><a href="#読んだことのある日本語の-haskell-本は" title="読んだことのある日本語の-haskell-本は">読んだことのある日本語の <span class="ascii">Haskell</span> 本は？</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#おわりに" title="おわりに">おわりに</a></li>
-<li><a href="#あわせて読みたい" title="あわせて読みたい">あわせて読みたい</a></li>
-</ul>
-</div>
-</div>
-<h1 id="発表"><span class="link-to-here-outer"><a href="#発表" title="発表"><span class="link-to-here">Link to<br />
-here</span></a></span>発表</h1>
-<p>まずは各種発表の紹介から。</p>
-<h2 id="関数型function-typeを見つめるプログラミング"><span class="link-to-here-outer"><a href="#関数型function-typeを見つめるプログラミング" title="関数型function-typeを見つめるプログラミング"><span class="link-to-here">Link to<br />
-here</span></a></span>関数型<span class="ascii">(function type)</span>を見つめるプログラミング</h2>
-<p>「関数型」 — すなわち<span class="ascii">Haskell</span>でいうところの<code>a -&gt; b</code>で表される、<span class="ascii">Haskell</span>の関数について、ちょっと見方を変えた新しい発見を教えてくれました。</p>
-<p><a href="https://github.com/nobsun/hday2019/blob/master/doc/ftype.pdf">資料はこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/nobsun.jpg" /></p>
-<h2 id="hkdhigher-kinded-datatype"><span class="link-to-here-outer"><a href="#hkdhigher-kinded-datatype" title="hkdhigher-kinded-datatype"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">HKD(Higher Kinded Datatype)</span></h2>
-<p><span class="ascii">Higher Kinded Datatype (HKD)</span>という、昨今<span class="ascii">Haskell</span>界で流行りの型定義方法を解説しています。<br />
-レコード型を定義する際<span class="ascii">HKD</span>にすることで、より柔軟に扱うことができるようになります。<br />
-さらに、<a href="http://hackage.haskell.org/package/barbies"><span class="ascii">barbies</span></a>や<a href="http://hackage.haskell.org/package/extensible"><span class="ascii">extensible</span></a>といった、<span class="ascii">HKD</span>の利用を飛躍的に促進するパッケージも紹介されました。</p>
-<p><a href="https://assets.adobe.com/public/b93f214d-58c2-482f-5528-a939d3e83660">資料はこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/fumieval.jpg" /></p>
-<h2 id="しんさんきぼうのderivingストラテジー"><span class="link-to-here-outer"><a href="#しんさんきぼうのderivingストラテジー" title="しんさんきぼうのderivingストラテジー"><span class="link-to-here">Link to<br />
-here</span></a></span>「しんさんきぼう」の<span class="ascii">Deriving</span>ストラテジー</h2>
-<p><span class="ascii">Haskell</span>の<code>deriving</code>機能 — 型を定義したとき、型クラスのインスタンスまで自動で定義してくれるあの機能ですね — の、適用範囲を広げる<span class="ascii">GHC</span>の言語拡張をいろいろ紹介してくれました。</p>
-<p><a href="https://aiya000.github.io/Maid/haskell-day-2019-deriving/#/">資料はこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/aiya000.jpg" /></p>
-<h2 id="haskellメタプログラミングによるegisonのパターンマッチの実装"><span class="link-to-here-outer"><a href="#haskellメタプログラミングによるegisonのパターンマッチの実装" title="haskellメタプログラミングによるegisonのパターンマッチの実装"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span>メタプログラミングによる<span class="ascii">Egison</span>のパターンマッチの実装</h2>
-<p>プログラミング言語<a href="https://www.egison.org/ja/"><span class="ascii">Egison</span></a>の核となる機能である強力なパターンマッチを、<span class="ascii">GHC</span>の各種拡張を駆使することで、<span class="ascii">Haskell</span>のソースコードに自然に埋め込めるような形で実装した、という話です。</p>
-<p><a href="https://www.egison.org/download/20191109HaskellDay.pdf">資料はこちら</a></p>
-<p><a href="https://github.com/egison/egison-haskell">紹介しているライブラリーのソースコードはこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/egison.jpg" /></p>
-<h2 id="関数と型で理解する自動微分"><span class="link-to-here-outer"><a href="#関数と型で理解する自動微分" title="関数と型で理解する自動微分"><span class="link-to-here">Link to<br />
-here</span></a></span>関数と型で理解する自動微分</h2>
-<p>関数の自動微分を行うパッケージ<a href="http://hackage.haskell.org/package/ad"><span class="ascii">ad</span></a>の仕組みを自力で実装してみることで解説してくれました。</p>
-<p><a href="https://speakerdeck.com/lotz84/guan-shu-toxing-deli-jie-suruzi-dong-wei-fen">資料はこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/lotz.jpg" /></p>
-<h2 id="ghcjs-によるwebフロントエンド開発"><span class="link-to-here-outer"><a href="#ghcjs-によるwebフロントエンド開発" title="ghcjs-によるwebフロントエンド開発"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">GHCJS</span> による<span class="ascii">Web</span>フロントエンド開発</h2>
-<p><a href="http://hackage.haskell.org/package/miso"><span class="ascii">miso</span></a>というおいしそうな名前のアプリケーションフレームワークと、<span class="ascii">Firebase</span>と連携する<span class="ascii">miso</span>のサンプルを、ライブコーディングを通して紹介してくれました。<br />
-<span class="ascii">miso</span>を使えば、<span class="ascii">GHCJS</span>を使って<span class="ascii">Elm Architecture</span>風の設計に基づいてアプリケーションを作ったり、さらにそのコードを利用してサーバーサイドレンダリングをしたりできます。</p>
-<p>ℹ️資料はまだ公開されていません！当日はライブコーディングが大半の時間を占めていたため、同等の解説を文章にして公開したいというチェシャ猫さんの意向によるものです。<br />
-現在執筆中のためお待ちください。🙇</p>
-<p><a href="https://github.com/y-taka-23/miso-firebase-tutorial">発表中に使用したソースコードはこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/y_taka_23.jpg" /></p>
-<h2 id="haskellで作る競技型イベントの裏側"><span class="link-to-here-outer"><a href="#haskellで作る競技型イベントの裏側" title="haskellで作る競技型イベントの裏側"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span>で作る競技型イベントの裏側</h2>
-<p>「<span class="ascii">mixi git challenge</span>」というイベントにおいてユーザーが投稿した解答を採点するサーバーを、<span class="ascii">Haskell</span>と<span class="ascii">Elm</span>で一から書き直した、という事例を発表してくれました。<br />
-<a href="http://hackage.haskell.org/package/rio"><span class="ascii">rio</span></a>や<a href="http://hackage.haskell.org/package/servant"><span class="ascii">servant</span></a>といった著名なパッケージを使うだけでなく、足りないところを自力で補って新しいパッケージとして公開したり、さらに作成したアプリケーション自体を<span class="ascii">OSS</span>として公開したりすることで、大きな資産を残していただけました。</p>
-<p><a href="https://www.slideshare.net/noob00/haskell-191796924">資料はこちら</a></p>
-<p><a href="https://github.com/matsubara0507/git-plantation">紹介しているアプリケーションのソースコードはこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/matsubara0507.jpg" /></p>
-<h2 id="大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation"><span class="link-to-here-outer"><a href="#大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation" title="大規模数値計算を支える-haskell-pragmatic-haskell-in-large-scale-numerical-computation"><span class="link-to-here">Link to<br />
-here</span></a></span>大規模数値計算を支える <span class="ascii">Haskell</span> ── <span class="ascii">Pragmatic Haskell in Large-Scale Numerical Computation</span>──</h2>
-<p><a href="https://www.deepflow.co.jp/"><span class="ascii">DeepFlow</span>株式会社</a>における<span class="ascii">Haskell</span>の事例の紹介です。<br />
-超高速で大規模な数値計算システムを、<span class="ascii">GHC</span>の多様な言語拡張を駆使して作っているそうです。<br />
-<span class="ascii">Tagless Final</span>を活用することで知っているべき領域を区分して仕事を分けることに成功しているという点が印象的でした。</p>
-<p><a href="https://speakerdeck.com/konn/da-gui-mo-shu-zhi-ji-suan-wozhi-eru-haskell-nil-nil-pragmatic-haskell-in-large-scale-numerical-computation-nil-nil">資料はこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/mr_konn.jpg" /></p>
-<h2 id="cadenza-building-fast-functional-languages-on-the-jvm"><span class="link-to-here-outer"><a href="#cadenza-building-fast-functional-languages-on-the-jvm" title="cadenza-building-fast-functional-languages-on-the-jvm"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Cadenza: Building fast functional languages on the JVM</span></h2>
-<p><a href="https://ekmett.github.io/cadenza/cadenza/index.html"><span class="ascii">cadenza</span></a>という、<span class="ascii">Truffle</span>（<span class="ascii">GraalVM</span>に含まれている、高速なインタープリター作成フレームワーク）製の関数型言語の紹介です。<br />
-<span class="ascii">Truffle</span>がもたらす強力な<span class="ascii">JIT</span>と「<span class="ascii">Normalization by Evaluation</span>」という技術を応用することで、型検査と実行時両方における高いスピードを得ることが狙いだそうです。 将来的には依存型言語における型チェックや、<span class="ascii">GHC</span>のランタイムの高速化に寄与したいとのことです。</p>
-<p><a href="https://drive.google.com/file/d/1bwYO66xUKeHyR4YCNm_1C82JlDNQLUXv/view">資料はこちら</a></p>
-<p><a href="https://github.com/ekmett/cadenza">紹介しているアプリケーションのソースコードはこちら</a></p>
-<p><img src="/img/2019/haskell-day-2019/ekmett.jpg" /></p>
-<h2 id="lt"><span class="link-to-here-outer"><a href="#lt" title="lt"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">LT</span></h2>
-<p>今回は<span class="ascii">Hakell Day</span>史上初めての試みとして、<span class="ascii">Lightning Talk</span>を当日公募しました。<br />
-残念ながら<span class="ascii">5</span>分間という短い制限時間に収められない発表が大半でしたので、ぜひ👇の資料を読んでみてください！</p>
-<p><strong>順番が間違っていたら済みません！ご指摘を！</strong></p>
-<ul>
-<li><a href="https://docs.google.com/presentation/d/1TiDWz3zLUwEWgpzXfgVZFIib6JtYriB03TVgHsimJC0/edit#slide=id.gc6f73a04f_0_0"><span class="ascii">3D Model in Haskell - Haskell</span>で<span class="ascii">3D</span>モデルに触れる</a></li>
-<li><a href="https://speakerdeck.com/cyclone_t/iot-cases-with-haskell"><span class="ascii">Haskell</span>で<span class="ascii">IoT</span>やってます</a></li>
-<li><a href="https://www.slideshare.net/jabaraster/haskell-day-2019-lt-tomoyuki-kawano"><span class="ascii">Quora</span>で<span class="ascii">Haskell</span>への愛を語る</a></li>
-<li><a href="https://gitpitch.com/coord-e/slide-type-class-impl"><span class="ascii">Haskell</span>で作ってわかる型クラス</a></li>
-<li><a href="https://drive.google.com/file/d/1YGKjl8S-LlfuB8yrHnKSK5G5MGsP9xd3/view"><span class="ascii">Abstract Typeclasses - How To Design a Future-Proof Typeclass</span></a></li>
-<li><a href="http://www.mew.org/~kazu/material/2019-gc.pdf"><span class="ascii">GHC</span>の<span class="ascii">GC</span></a></li>
-</ul>
-<h1 id="アンケート結果"><span class="link-to-here-outer"><a href="#アンケート結果" title="アンケート結果"><span class="link-to-here">Link to<br />
-here</span></a></span>アンケート結果</h1>
-<p><span class="ascii">Haskell Day</span> の各セッションや、参加者のバックグランドなどについてアンケートをとりました。 なので、後者の方の集計結果を載せたいと思います（前者はセッション発表者へのフィードバック）。</p>
-<h2 id="haskell-以外のプログラミングに関する質問"><span class="link-to-here-outer"><a href="#haskell-以外のプログラミングに関する質問" title="haskell-以外のプログラミングに関する質問"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span> 以外のプログラミングに関する質問</h2>
-<p>大きく分けて <span class="ascii">Haskell</span> に関する質問とそうでない質問がありました。 まずは <span class="ascii">Haskell</span> 以外に関する質問の方を集計結果を紹介します。</p>
-<h3 id="エンジニアの経験年数はどれくらいですか"><span class="link-to-here-outer"><a href="#エンジニアの経験年数はどれくらいですか" title="エンジニアの経験年数はどれくらいですか"><span class="link-to-here">Link to<br />
-here</span></a></span>エンジニアの経験年数はどれくらいですか？</h3>
-<p><img src="/img/2019/haskell-day-2019/question1.jpg" /></p>
-<h3 id="得意なプログラミング言語はなんですか"><span class="link-to-here-outer"><a href="#得意なプログラミング言語はなんですか" title="得意なプログラミング言語はなんですか"><span class="link-to-here">Link to<br />
-here</span></a></span>得意なプログラミング言語はなんですか？</h3>
-<p>ちなみに、言語のリストは <a href="https://haskellweekly.news/survey/2019.html"><span class="ascii">Haskell Survey 2019</span></a> を参考にしました。</p>
-<p><img src="/img/2019/haskell-day-2019/question2.jpg" /></p>
-<h3 id="得意好きな技術領域はどれですか"><span class="link-to-here-outer"><a href="#得意好きな技術領域はどれですか" title="得意好きな技術領域はどれですか"><span class="link-to-here">Link to<br />
-here</span></a></span>得意・好きな技術領域はどれですか？</h3>
-<p><img src="/img/2019/haskell-day-2019/question3.jpg" /></p>
-<h3 id="最近注目している技術があれば記述してください"><span class="link-to-here-outer"><a href="#最近注目している技術があれば記述してください" title="最近注目している技術があれば記述してください"><span class="link-to-here">Link to<br />
-here</span></a></span>最近注目している技術があれば記述してください</h3>
-<p>自由記述形式にしたところ、ほとんど重複が無かったので箇条書きにします。</p>
-<ul>
-<li><span class="ascii">FP</span></li>
-<li>匿名暗号通貨<span class="ascii">(Monero,Zcash,Dash,Koto)</span></li>
-<li><span class="ascii">Cardano ADA</span></li>
-<li><span class="ascii">GraphQL</span></li>
-<li><span class="ascii">extensible</span></li>
-<li><span class="ascii">Enigma</span></li>
-<li><span class="ascii">worker</span>ベースの非同期プログラミング</li>
-<li>フロント界隈</li>
-<li><span class="ascii">Next.js</span></li>
-<li>自然言語処理</li>
-<li>型レベルプログラミング</li>
-<li>自動微分</li>
-<li><span class="ascii">AWS</span>によるサーバーレスアーキテクチャでのフルスタック<span class="ascii">Web</span>アプリケーション開発</li>
-<li><span class="ascii">Rust</span></li>
-<li><span class="ascii">Kubernetes</span></li>
-<li><span class="ascii">TLA+</span></li>
-<li><span class="ascii">algebraic effects and handlers</span></li>
-<li>深層学習コンパイラ</li>
-<li><span class="ascii">AR</span></li>
-<li>定理証明支援系</li>
-</ul>
-<h2 id="haskell-に関する質問"><span class="link-to-here-outer"><a href="#haskell-に関する質問" title="haskell-に関する質問"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span> に関する質問</h2>
-<p>ちなみに、<span class="ascii">Haskell</span> に関する質問は <span class="ascii">Haskell Day 2018</span> でもアンケートしました。</p>
-<h3 id="haskell-をいつ頃始めましたか"><span class="link-to-here-outer"><a href="#haskell-をいつ頃始めましたか" title="haskell-をいつ頃始めましたか"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span> をいつ頃始めましたか？</h3>
-<p><img src="/img/2019/haskell-day-2019/question4.jpg" /></p>
-<h3 id="haskell-を初めてどれくらい経ちますか"><span class="link-to-here-outer"><a href="#haskell-を初めてどれくらい経ちますか" title="haskell-を初めてどれくらい経ちますか"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Haskell</span> を初めてどれくらい経ちますか？</h3>
-<p><img src="/img/2019/haskell-day-2019/question5.jpg" /></p>
-<h3 id="読んだことのある日本語の-haskell-本は"><span class="link-to-here-outer"><a href="#読んだことのある日本語の-haskell-本は" title="読んだことのある日本語の-haskell-本は"><span class="link-to-here">Link to<br />
-here</span></a></span>読んだことのある日本語の <span class="ascii">Haskell</span> 本は？</h3>
-<p>参照<span class="ascii">:</span> <a href="https://wiki.haskell.jp/Links#書籍" class="uri"><span class="ascii">https://wiki.haskell.jp/Links#</span>書籍</a></p>
-<p><img src="/img/2019/haskell-day-2019/question6.jpg" /></p>
-<h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
-here</span></a></span>おわりに</h1>
-<p>以上の発表に加えて今回は、下記のスポンサー企業の皆様や<span class="ascii">@fumieval</span>くんのおかげで、大変満足度の高い懇親会ができました。</p>
-<ul>
-<li><a href="https://www.mvrck.co.jp/">マーベリック株式会社</a></li>
-<li><a href="https://herp.co.jp/">株式会社<span class="ascii">HERP</span></a></li>
-<li><a href="https://www.iij.ad.jp/">株式会社インターネットイニシアティブ</a></li>
-<li><a href="https://www.cryptact.com/">株式会社クリプタクト</a></li>
-</ul>
-<figure>
-<img src="/img/2019/haskell-day-2019/after-party.jpg" alt="懇親会で振る舞われた料理" /><figcaption>懇親会で振る舞われた料理</figcaption>
-</figure>
-<p>発表について。<br />
-昨年は「<a href="https://haskell-jp.connpass.com/event/92617/"><span class="ascii">Haskell</span>ちょっと興味あるからちょっとできるまで</a>」というテーマを意識して、発表の難易度別に時間帯が分かれるよう調整しましたが、残念ながらうまくいきませんでした。<br />
-そこで難易度調整の難しさを痛感したため、今回は敢えて難易度調整を行わなかったのです。<br />
-結果、全体として難しい発表に偏ってしまった点は少し反省です。<a href="https://eng-blog.iij.ad.jp/archives/3467">私が会社で開いている<span class="ascii">Haskell</span>勉強会</a>に毎回参加いただいている同僚も、総じて難しくて追いつくのが大変だった、と仰ってました。<br />
-次回は特別に難易度を下げた発表枠をいくつか作り、内容を事前に精査する、なんてプランを考えています。</p>
-<p>会場について。<br />
-<span class="ascii">TECHPLAY SHIBUYA</span>は素晴らしいですね！<br />
-我々のようなお金がないコミュニティーが今回の規模のイベントを行うのにうってつけでした。<br />
-元々イベントを開催する前提で作られており、受付と演壇が近いため受付しながら発表を聞くことができるのも、持ち回りで受付をしている我々にとって好都合でした。<br />
-来年も是非使わせていただきたいです🙏</p>
-<p>最後に。<br />
-発表者のみなさんはもちろん、支えていただいたスタッフ、スポンサー企業、会場まで足を運んでいただいた参加者の皆様、その他この会の実現に関わったすべての方々に、この場を借りて感謝の意を示したいと思います。<br />
-みなさんのご協力おかげで、大きなトラブルもなく、楽しいイベントが開催できました。ありがとうございます。<br />
-今後も日本<span class="ascii">Haskell</span>ユーザーグループ（<span class="ascii">a.k.a. Haskell-jp</span>）をよろしくお願いします！<br />
-<span class="ascii">hask(_ _)eller</span></p>
-<h1 id="あわせて読みたい"><span class="link-to-here-outer"><a href="#あわせて読みたい" title="あわせて読みたい"><span class="link-to-here">Link to<br />
-here</span></a></span>あわせて読みたい</h1>
-<ul>
-<li>参加者による参加レポート<span class="ascii">:</span>
-<ul>
-<li><a href="http://hiratara.hatenadiary.jp/entry/2019/11/09/110030">今日は <span class="ascii">Haskell Day 2019</span> の日です <span class="ascii">-</span> 北海道苫小牧市出身の初老<span class="ascii">PG</span>が書くブログ</a></li>
-<li><a href="https://www.ncaq.net/2019/11/09/20/56/00/"><span class="ascii">Haskell Day 2019</span>に参加しました <span class="ascii">- ncaq</span></a></li>
-<li><a href="https://matsubara0507.github.io/posts/2019-11-10-join-haskell-day-2019"><span class="ascii">Haskell Day 2019</span> に参加してきた</a></li>
-</ul></li>
-<li><a href="https://haskell.jp/blog/posts/2018/haskell-day-2018.html">去年の開催レポート</a></li>
-</ul>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/haskell-in-vrchat.html" lang="ja">VRのためにHaskellを使った話</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/hiw-copilot.html" style="margin-left: auto;" lang="ja">HIW 2019で発表された、Copilotという内部DSLについて</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
