@@ -64,7 +64,7 @@ jobs:
       run: stack --system-ghc test --copy-bins --local-bin-path=./bin
 ```
 
-これは、PRが作られたときややmasterがプッシュされたときに実行されることを想定しています。
+これは、PRが作られたときやmasterがプッシュされたときに実行されることを想定しています。
 
 GitHub ActionsでHaskellやHaskell Stackを使うには、~~公式が提供している[actions/setup-haskell](https://github.com/actions/setup-haskell)~~ [haskell/actions/setup](https://github.com/haskell/actions/tree/main/setup) を利用します。
 元々はactions/haskell-setupがありましたが、どうやら[メンテナンスする人がいなくなったっぽく](https://github.com/actions/setup-haskell/pull/56)アーカイブされてしまいました。
@@ -205,7 +205,7 @@ Haskell Antennaは同じリポジトリのgh-pagesブランチに置いて、Git
 
 ## おまけ：Zennを追加しました！
 
-ついでに最近のアップデートして、[ZennをHaskell Antennaに載せるサイトへ追加しました](https://github.com/haskell-jp/antenna/pull/25)（igrep氏がしてくれました、ありがとうございます）。
+ついでに最近のアップデートによって、[ZennをHaskell Antennaに載せるサイトへ追加しました](https://github.com/haskell-jp/antenna/pull/25)（igrep氏がしてくれました、ありがとうございます）。
 アイコンの利用規約などがわからなかったのですが、GitHubのPR上で直接聞いてみたところ、問題ないという回答をいただきました。
 突然だったのにありがとうございます。
 
