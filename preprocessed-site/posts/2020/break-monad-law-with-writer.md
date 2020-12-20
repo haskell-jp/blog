@@ -317,7 +317,7 @@ let Writer (a, w1) = m
  in Writer (b, w1 <> w2) >>= h
 ```
 
-\(5) 二つ目の`>>=`を`Writer`における`>>=`の定義で置き換える:
+\(5) 等式`=`の左辺における二つ目の`>>=`を`Writer`における`>>=`の定義で置き換える:
 
 ```haskell
 let Writer (a, w1) = m
