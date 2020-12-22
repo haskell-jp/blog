@@ -186,7 +186,7 @@ instance Monoid w => Applicative (Writer w) where
 ```haskell
 -- WriterのMonad型クラスの実装
 -- 実際のところFunctor, Applicativeのインスタンス定義も必要だけどここでは省略
-instance Monoid w1 => Monad (Writer w1) where
+instance Monoid w => Monad (Writer w) where
   return a = Writer (a, mempty)
   Writer (a, w1) >>= f =
     let Writer (b, w2) = f a
