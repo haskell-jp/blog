@@ -189,7 +189,7 @@ instance Monoid w => Applicative (Writer w) where
 instance Monoid w1 => Monad (Writer w1) where
   return a = Writer (a, mempty)
   Writer (a, w1) >>= f =
-    let (b, w2) = runWriter $ f a
+    let Writer (b, w2) = f a
      in Writer (b, w1 <> w2)
 ```
 
@@ -287,7 +287,7 @@ let Writer (a, w1) = m in Writer (a, w1) >>= (\x -> k x) >>= h
 
 ```haskell
 let Writer (a, w1) = m
-    (b, w2) = runWriter $ (\x -> k x >>= h) a
+    Writer (b, w2) = (\x -> k x >>= h) a
  in Writer (b, w1 <> w2)
   =
 let Writer (a, w1) = m in Writer (a, w1) >>= (\x -> k x) >>= h
@@ -297,11 +297,11 @@ let Writer (a, w1) = m in Writer (a, w1) >>= (\x -> k x) >>= h
 
 ```haskell
 let Writer (a, w1) = m
-    (b, w2) = runWriter $ (\x -> k x >>= h) a
+    Writer (b, w2) = (\x -> k x >>= h) a
  in Writer (b, w1 <> w2)
   =
 let Writer (a, w1) = m
-    (b, w2) = runWriter $ (\x -> k x) a
+    Writer (b, w2) = (\x -> k x) a
  in Writer (b, w1 <> w2) >>= h
 ```
 
@@ -309,11 +309,11 @@ let Writer (a, w1) = m
 
 ```haskell
 let Writer (a, w1) = m
-    (b, w2) = runWriter $ k a >>= h
+    Writer (b, w2) = k a >>= h
  in Writer (b, w1 <> w2)
   =
 let Writer (a, w1) = m
-    (b, w2) = runWriter $ k a
+    Writer (b, w2) = k a
  in Writer (b, w1 <> w2) >>= h
 ```
 
@@ -321,14 +321,14 @@ let Writer (a, w1) = m
 
 ```haskell
 let Writer (a, w1) = m
-    (b, w2) = runWriter $
+    Writer (b, w2) =
       let Writer (c, w3) = k a
-          (d, w4) = h c
+          Writer (d, w4) = h c
        in Writer (d, w3 <> w4)
  in Writer (b, w1 <> w2)
   =
 let Writer (a, w1) = m
-    (b, w2) = runWriter $ k a
+    Writer (b, w2) = k a
  in Writer (b, w1 <> w2)) >>= h
 ```
 
@@ -336,20 +336,20 @@ let Writer (a, w1) = m
 
 ```haskell
 let Writer (a, w1) = m
-    (b, w2) = runWriter $
+    Writer (b, w2) =
       let Writer (c, w3) = k a
-          (d, w4) = h c
+          Writer (d, w4) = h c
        in Writer (d, w3 <> w4)
  in Writer (b, w1 <> w2)
   =
 let Writer (a, w1) = m
-    (b, w2) = runWriter $ k a
+    Writer (b, w2) = k a
  in let Writer (c, w3) = Writer (b, w1 <> w2)
-        (d, w4) = runWriter $ h c
+        Writer (d, w4) = h c
      in Writer (d, w3 <> w4)
 ```
 
-\(7) `Writer`と`runWriter`は、`Writer`と`(a, w)`を切り替えるだけで実質何もしていないので削除する:
+\(7) `Writer`は、`Writer`と`(a, w)`を切り替えるだけで実質何もしていないので削除する:
 
 ```haskell
 let (a, w1) = m
