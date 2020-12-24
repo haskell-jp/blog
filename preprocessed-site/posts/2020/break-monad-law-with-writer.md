@@ -506,7 +506,7 @@ tell w = Writer ((), w)
 
 予想どおり一つ目の`Writer`と二つ目の`Writer`とで異なる結果となりました。`1 - (2 - 3)`と`(1 - 2) - 3`を`Writer`を使って遠回しに言い換えているだけなので、当然と言えば当然です。
 
-しかし`tell (Difference 1) >>= (\_ -> tell (Difference 2) >>= \_ -> tell (Difference 3))`などの`Writer`型の式が`Monad`の結合則`m >>= (\x -> k x >>= h) = (m >>= (\x -> k x)) >>= h`にどう対応するのか、ちょっと分かりづらいですかね<small>（式も長いし）</small>？一つずつ注釈を加えます:
+しかし`tell (Difference 1) >>= (\_ -> tell (Difference 2) >>= \_ -> tell (Difference 3))`などの`Writer`型の式が`Monad`の結合則`m >>= (\x -> k x >>= h) = (m >>= (\x -> k x)) >>= h`にどう対応するのか、ちょっと分かりづらいですかね？<small>（式も長いし）</small>一つずつ注釈を加えます:
 
 ```haskell
 -- こちらは m >>= (\x -> k x >>= h) = (m >>= (\x -> k x)) >>= h の前半、
