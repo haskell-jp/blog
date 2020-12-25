@@ -8,8 +8,515 @@
         <name>Haskell-jp</name>
         <email></email>
     </author>
-    <updated>2020-12-12T00:00:00Z</updated>
+    <updated>2020-12-25T00:00:00Z</updated>
     <entry>
+    <title>Writer Monadで気軽にMonad則を破る</title>
+    <link href="https://haskell.jp/blog/posts/2020/break-monad-law-with-writer.html" />
+    <id>https://haskell.jp/blog/posts/2020/break-monad-law-with-writer.html</id>
+    <published>2020-12-25T00:00:00Z</published>
+    <updated>2020-12-25T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>🎅この記事は、<a href="https://qiita.com/advent-calendar/2020/haskell"><span class="ascii">Haskell Advent Calendar 2020</span></a> <span class="ascii">25</span>日目の記事です。<br />
+🎄<span class="ascii">Happy Christmas!!</span>🎄</p>
+<p>今回は先日<small>（といっても元の質問の投稿からもう何ヶ月も経ってしまいましたが…）</small><span class="ascii">StackOverflow</span>に上がったこちら👇の質問に対する回答の、続きっぽい話を書こうと思います。長いし、質問の回答からスコープが大きく外れてしまうので記事にしました。</p>
+<p><a href="https://ja.stackoverflow.com/questions/70079/%E3%83%A2%E3%83%8A%E3%83%89%E5%89%87%E3%82%92%E5%B4%A9%E3%81%97%E3%81%A6%E3%81%97%E3%81%BE%E3%81%86%E4%BE%8B%E3%81%8C%E7%9F%A5%E3%82%8A%E3%81%9F%E3%81%84"><span class="ascii">haskell -</span> モナド則を崩してしまう例が知りたい <span class="ascii">-</span> スタック・オーバーフロー</a></p>
+<p><code>Monad</code>と<code>Monoid</code>にある重要な繋がりを説明した後、それを応用した<code>Writer</code> <code>Monad</code>がどう<code>Monoid</code>を使って<code>Monad</code>則を満たしているのか証明します。そして、<code>Writer</code>のそうした性質を用いて簡単に<code>Monad</code>則を破る例を紹介することで、読者のみなさんが<code>Monad</code>則のみならず<code>do</code>記法や<code>Monad</code>そのものの性質について、よりはっきりとした理解が得られることを目指します。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#サンプルコードについて" title="サンプルコードについて">サンプルコードについて</a></li>
+<li><a href="#monadとmonoidの切っても切り離せない関係" title="monadとmonoidの切っても切り離せない関係"><code>Monad</code>と<code>Monoid</code>の切っても切り離せない関係</a>
+<ul>
+<li><a href="#monoidの例" title="monoidの例"><code>Monoid</code>の例</a></li>
+</ul></li>
+<li><a href="#monoidとwriterの切っても切り離せない関係" title="monoidとwriterの切っても切り離せない関係"><code>Monoid</code>と<code>Writer</code>の切っても切り離せない関係</a>
+<ul>
+<li><a href="#doと" title="doと"><code>do</code>と<code>&lt;&gt;</code></a></li>
+<li><a href="#writer-monadの結合則とmonoidの結合則" title="writer-monadの結合則とmonoidの結合則"><code>Writer</code> <code>Monad</code>の結合則と<code>Monoid</code>の結合則</a></li>
+</ul></li>
+<li><a href="#関係を壊してみる" title="関係を壊してみる">関係を壊してみる</a>
+<ul>
+<li><a href="#とmonoidの結合則" title="とmonoidの結合則"><code>&lt;&gt;</code>と<code>Monoid</code>の結合則</a></li>
+<li><a href="#とmonadの結合則" title="とmonadの結合則"><code>&gt;&gt;=</code>と<code>Monad</code>の結合則</a></li>
+<li><a href="#do記法とmonadの結合則" title="do記法とmonadの結合則"><code>do</code>記法と<code>Monad</code>の結合則</a></li>
+</ul></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="サンプルコードについて"><span class="link-to-here-outer"><a href="#サンプルコードについて" title="サンプルコードについて"><span class="link-to-here">Link to<br />
+here</span></a></span>サンプルコードについて</h1>
+<p>本記事のサンプルコードは、<span class="ascii">Haskell</span>の構文に準拠していないものを除いて、すべて<a href="https://github.com/igrep/readme-test"><span class="ascii">readme-test</span></a>というツールの<a href="https://github.com/igrep/readme-test/tree/f6ce7a6f5ce5f5f8031cd5dfedc8c6e47c13b1f3"><span class="ascii">2020</span>年<span class="ascii">12</span>月<span class="ascii">13</span>日時点の開発版</a>でテストしました。こちらのツールはまだ開発中で、今後も仕様が大きく変わる可能性がありますが、この記事のサンプルコードをテストするのに必要な機能は十分にそろっています。この<span class="ascii">readme-test</span>自体についてはいつか改めて共有します。</p>
+<p>また、テストの際に用いた環境は以下の通りです<span class="ascii">:</span></p>
+<ul>
+<li><span class="ascii">Windows 10 Pro 20H2</span></li>
+<li><span class="ascii">GHC 8.10.1</span></li>
+<li><a href="https://www.stackage.org/nightly-2020-08-15"><span class="ascii">Stackage nightly-2020-08-15</span></a></li>
+</ul>
+<h1 id="monadとmonoidの切っても切り離せない関係"><span class="link-to-here-outer"><a href="#monadとmonoidの切っても切り離せない関係" title="monadとmonoidの切っても切り離せない関係"><span class="link-to-here">Link to<br />
+here</span></a></span><code>Monad</code>と<code>Monoid</code>の切っても切り離せない関係</h1>
+<p>「<a href="http://www.aoky.net/articles/james_iry/brief-incomplete-and-mostly-wrong.htm">モナドは単なる自己関手の圏におけるモノイド対象だよ。何か問題でも？</a>」というフレーズ（原文「<a href="http://james-iry.blogspot.com/2009/05/brief-incomplete-and-mostly-wrong.html"><span class="ascii">A monad is a monoid in the category of endofunctors, what</span>’<span class="ascii">s the problem?</span></a>」が示すとおり、モナドとモノイド、<span class="ascii">Haskell</span>の識別子で言うところの<code>Monad</code>と<code>Monoid</code>には密接な関係があります。ぶっちゃけ、このフレーズの正確な意味を私は理解していないのですが、少なくとも<code>Monad</code>と<code>Monoid</code>には重要な共通点があることは知っています。それは、どちらも<strong>単位元と結合則</strong>がある、ということです！</p>
+<p>具体的に<code>Monad</code>と<code>Monoid</code>の単位元・結合則を見てみましょう<span class="ascii">:</span></p>
+<!-- ReadmeTest: Ignore -->
+<p><code>Monoid</code>の単位元<span class="ascii">:</span> 単位元である<code>mempty</code>は、どんな値<code>x</code>に<code>&lt;&gt;</code>で足しても結果が変わらない！</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">x <span class="op">&lt;&gt;</span> <span class="fu">mempty</span> <span class="ot">=</span> x</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="fu">mempty</span> <span class="op">&lt;&gt;</span> x <span class="ot">=</span> x</a></code></pre></div>
+<p><code>Monad</code>の単位元<span class="ascii">:</span> <code>return</code>は<code>&gt;&gt;=</code>の前に使っても後ろに使っても、<code>m</code>や<code>k a</code>の結果を変えない！</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="fu">return</span> a <span class="op">&gt;&gt;=</span> (\a <span class="ot">-&gt;</span> k a) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb2-2" title="2">m <span class="op">&gt;&gt;=</span> (\a <span class="ot">-&gt;</span> <span class="fu">return</span> a) <span class="ot">=</span> m</a></code></pre></div>
+<p><code>Monoid</code>の結合則<span class="ascii">:</span> <code>x &lt;&gt; y &lt;&gt; z</code>の結果は、<code>y &lt;&gt; z</code>を先に計算しようと<code>x &lt;&gt; y</code>を先に計算しようと変わらない！</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1">x <span class="op">&lt;&gt;</span> (y <span class="op">&lt;&gt;</span> z) <span class="ot">=</span> (x <span class="op">&lt;&gt;</span> y) <span class="op">&lt;&gt;</span> z</a></code></pre></div>
+<p><code>Monad</code>の結合則<span class="ascii">:</span> <code>m &gt;&gt;= \x -&gt; k x &gt;&gt;= h</code> の結果は、<code>\x -&gt; k x &gt;&gt;= h</code>を先に計算しようと、<code>m &gt;&gt;= (\x -&gt; k x)</code>を先に計算しようと変わらない！</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1">m <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> k x <span class="op">&gt;&gt;=</span> h) <span class="ot">=</span> (m <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> k x)) <span class="op">&gt;&gt;=</span> h</a></code></pre></div>
+<p>※<code>Monad</code>の単位元・結合則の式についてはわかりやすさのために<a href="http://hackage.haskell.org/package/base-4.14.0.0/docs/Control-Monad.html#t:Monad">引用元</a>から少し形を変えています。</p>
+<p><span class="ascii">Haskell</span>における<code>Monad</code>・<code>Monoid</code>とは、値がそれぞれの単位元・結合則をを満たす型です<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。それ以上でも、それ以下でもありません。</p>
+<p>それぞれの単位元・結合則を表す式は、一見して異なるものに見えるかも知れませんが、表す性質自体はよく似ています。なので、式を読んでもよく分からないという方は、上記に書いた日本語の説明をざっと眺めて覚えておいてください。特に、結合則における<strong>「～を先に計算しようと、～を先に計算しようと変わらない！」</strong>の部分がこの後とても重要になります。</p>
+<div id="monoid-examples">
+
+</div>
+<h2 id="monoidの例"><span class="link-to-here-outer"><a href="#monoidの例" title="monoidの例"><span class="link-to-here">Link to<br />
+here</span></a></span><code>Monoid</code>の例</h2>
+<p>ここまで読んで、<code>Monad</code>はなんか聞いたことがあるけど<code>Monoid</code>は初めて聞くよ、という方向けに補足すると、<code>Monoid</code>とは例えば次のような型の値（と、それに対する処理）です。</p>
+<p><code>Sum</code>型<span class="ascii">:</span> 数値<small>（<span class="ascii">Num</span>型クラスのインスタンス）</small>に対する、足し算を表す<code>Monoid</code>のインスタンス</p>
+<!-- ReadmeTest: AppendAsIs -->
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="co">-- これから紹介する処理に必要なモジュールのimport</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="kw">import</span> <span class="dt">Data.Monoid</span></a></code></pre></div>
+<!-- ReadmeTest: CompareAfterPrompt ByExpression -->
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="co">-- Sum aに対する &lt;&gt; は + と同等なので、</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="op">&gt;</span> getSum (<span class="dt">Sum</span> <span class="dv">1</span> <span class="op">&lt;&gt;</span> <span class="dt">Sum</span> <span class="dv">2</span> <span class="op">&lt;&gt;</span> <span class="fu">mempty</span>)</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="co">-- は、</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="dv">1</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="co">-- と同じ。</span></a></code></pre></div>
+<p><code>mempty</code>が各<code>Monoid</code>のインスタンスにおける単位元を返す、という点に注意してください。上記のとおり足し算の場合は<code>0</code>です。</p>
+<p><code>Product</code>型<span class="ascii">:</span> 数値<small>（<span class="ascii">Num</span>型クラスのインスタンス）</small>に対する、かけ算を表す<code>Monoid</code>のインスタンス</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="co">-- Product aに対する &lt;&gt; は * と同等なので、</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="op">&gt;</span> getProduct (<span class="dt">Product</span> <span class="dv">1</span> <span class="op">&lt;&gt;</span> <span class="dt">Product</span> <span class="dv">2</span> <span class="op">&lt;&gt;</span> <span class="fu">mempty</span>)</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="co">-- は、</span></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="dv">1</span> <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="co">-- と同じ。</span></a></code></pre></div>
+<p>リスト型<span class="ascii">:</span> リスト型の値に対する、結合 <code>(++)</code>を表す<code>Monoid</code>のインスタンス</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="co">-- [a] に対する &lt;&gt; は ++ と同等なので、</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="op">&gt;</span> [<span class="dv">1</span>, <span class="dv">2</span>] <span class="op">&lt;&gt;</span> [<span class="dv">3</span>] <span class="op">&lt;&gt;</span> <span class="fu">mempty</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="co">-- は、</span></a>
+<a class="sourceLine" id="cb8-4" title="4">[<span class="dv">1</span>, <span class="dv">2</span>] <span class="op">++</span> [<span class="dv">3</span>] <span class="op">++</span> []</a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="co">-- と同じ</span></a></code></pre></div>
+<p><code>All</code>型<span class="ascii">:</span> <code>Bool</code>型の値に対する論理積<code>&amp;&amp;</code>を表す<code>Monoid</code>のインスタンス</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;</span> getAll (<span class="dt">All</span> <span class="dt">True</span> <span class="op">&lt;&gt;</span> <span class="dt">All</span> <span class="dt">False</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">-- は、</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="dt">True</span> <span class="op">&amp;&amp;</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="co">-- と同じ</span></a></code></pre></div>
+<!-- ReadmeTest: ValidateAsExpression -->
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="co">-- これが何を返すかは、想像してみてください！</span></a>
+<a class="sourceLine" id="cb10-2" title="2">getAll <span class="fu">mempty</span></a></code></pre></div>
+<p><code>Any</code>型<span class="ascii">:</span> <code>Bool</code>型の値に対する論理和<code>||</code>を表す<code>Monoid</code>のインスタンス</p>
+<!-- ReadmeTest: CompareAfterPrompt ByExpression -->
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="op">&gt;</span> getAny (<span class="dt">Any</span> <span class="dt">True</span> <span class="op">&lt;&gt;</span> <span class="dt">Any</span> <span class="dt">False</span>)</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="co">-- は、</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="dt">True</span> <span class="op">||</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="co">-- と同じ</span></a></code></pre></div>
+<!-- ReadmeTest: ValidateAsExpression -->
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="co">-- これも何を返すかは、想像してみてください！</span></a>
+<a class="sourceLine" id="cb12-2" title="2">getAny <span class="fu">mempty</span></a></code></pre></div>
+<p>このように、<code>Monoid</code>は他のプログラミング言語でもおなじみの、多くの二項演算を表しています。これらのインスタンスはすべて、先ほど紹介した「単位元」や「結合則」のルールを守っているので、気になった方はぜひチェックしてみてください<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
+<h1 id="monoidとwriterの切っても切り離せない関係"><span class="link-to-here-outer"><a href="#monoidとwriterの切っても切り離せない関係" title="monoidとwriterの切っても切り離せない関係"><span class="link-to-here">Link to<br />
+here</span></a></span><code>Monoid</code>と<code>Writer</code>の切っても切り離せない関係</h1>
+<p>実はそんな<code>Monad</code>と<code>Monoid</code>の固い絆を象徴するような<code>Monad</code>が、この世にはあります。そう、<code>Writer</code>です！<code>Writer</code>は<code>Monoid</code>の単位元・結合則をそのまま活かすことによって<code>Monad</code>の単位元・結合則を満たした<code>Monad</code>であり、<code>Writer</code>がどうやって<code>Monad</code>則を満たしているのか知れば、<code>Monad</code>則がどうやって成立するものなのかが、すっきりクリアになることでしょう。</p>
+<p>手始めに<code>Writer</code>の定義と、<code>Writer</code>が<code>Monad</code>の各メソッドをどのように実装しているか見てみましょう。<a href="https://www.sampou.org/haskell/a-a-monads/html/writermonad.html">「モナドのすべて」における<code>Writer</code>の紹介ページ</a>から、少しリファクタリングしつつ引用します<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>。</p>
+<!-- ReadmeTest: AppendAsIs -->
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="co">-- Writer型の定義</span></a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="kw">newtype</span> <span class="dt">Writer</span> w a <span class="ot">=</span> <span class="dt">Writer</span> {<span class="ot"> runWriter ::</span> (a, w) }</a></code></pre></div>
+<p>タプルに対して<code>newtype</code>していることから分かるとおり、<code>Writer</code>の実態はただのタプルです。ただのタプルがどうやって<code>Monad</code>になるのでしょう？その答えがこちら👇<span class="ascii">:</span></p>
+<!--
+```haskell
+instance Functor (Writer w) where
+  fmap f (Writer (x, w)) = Writer (f x, w)
+
+instance Monoid w => Applicative (Writer w) where
+  pure a = Writer (a, mempty)
+  Writer (f, w1) <*> Writer (x, w2) = Writer (f x, w1 <> w2)
+```
+-->
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="co">-- WriterのMonad型クラスの実装</span></a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="co">-- 実際のところFunctor, Applicativeのインスタンス定義も必要だけどここでは省略</span></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="kw">instance</span> <span class="dt">Monoid</span> w <span class="ot">=&gt;</span> <span class="dt">Monad</span> (<span class="dt">Writer</span> w) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb14-4" title="4">  <span class="fu">return</span> a <span class="ot">=</span> <span class="dt">Writer</span> (a, <span class="fu">mempty</span>)</a>
+<a class="sourceLine" id="cb14-5" title="5">  <span class="dt">Writer</span> (a, w1) <span class="op">&gt;&gt;=</span> f <span class="ot">=</span></a>
+<a class="sourceLine" id="cb14-6" title="6">    <span class="kw">let</span> <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> f a</a>
+<a class="sourceLine" id="cb14-7" title="7">     <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a></code></pre></div>
+<p><code>return</code>の定義は比較的シンプルですね。<code>mempty</code>を受け取った値<code>a</code>と一緒にタプルに入れて返すだけです。<code>Monad</code>の単位元である<code>return</code>では、<code>Monoid</code>の単位元である<code>mempty</code>を使うのです。</p>
+<p>一方、<code>&gt;&gt;=</code>はどう読めばいいでしょう？<code>let ... in ...</code>の結果にあたる<code>Writer (b, w1 &lt;&gt; w2)</code>に注目してください。</p>
+<p>まず、<code>b</code>は<code>&gt;&gt;=</code>の右辺である<code>f</code>が返した結果です。<code>Writer</code>の<code>&gt;&gt;=</code>が返す、<code>Writer</code>がラップしたタプルの一つ目の要素は、ここで<code>f</code>が返した値の型と一致していなければなりません。<code>Writer</code>において<code>&gt;&gt;=</code>の型は<code>Writer w a -&gt; (a -&gt; Writer w b) -&gt; Writer w b</code>であり、右辺にあたる<code>f</code>は<code>(a -&gt; Writer w b)</code>という型なので、<code>&gt;&gt;=</code>全体の戻り値<code>Writer w b</code>と<code>f</code>の戻り値が一致している必要があることがわかりますよね？</p>
+<p>さらに重要なのが<code>w1 &lt;&gt; w2</code>です。ここであの<code>Monoid</code>の演算子<code>&lt;&gt;</code>が出てきました！<code>Writer</code>は<code>&gt;&gt;=</code>の中で<code>&lt;&gt;</code>を使う<code>Monad</code>なんですね！一体何と何を<code>&lt;&gt;</code>しているのでしょう？まず、<code>&lt;&gt;</code>の左辺である<code>w1</code>は、左辺にあたる<code>Writer</code>がタプルに保持していた<code>Monoid</code>型クラスのインスタンスの値です。そして右辺の<code>w2</code>は、<code>&gt;&gt;=</code>の右辺に渡した関数<code>f</code>が<code>b</code>と一緒に返した<code>w2</code>です。</p>
+<p>以上のことをまとめると、<code>Writer</code>の<code>&gt;&gt;=</code>は、</p>
+<ol type="1">
+<li>左辺の<code>(a, w1)</code>における<code>a</code>を<code>f</code>に渡して、</li>
+<li><code>f</code>が返した<code>(b, w2)</code>における<code>b</code>を、</li>
+<li><code>w1</code>と<code>w2</code>と一緒に<code>&lt;&gt;</code>でくっつけつつ返す、</li>
+</ol>
+<p>という処理を行っています。<code>Writer</code>は、「<code>b</code>を返すついでに<code>w1</code>と<code>w2</code>を<code>&lt;&gt;</code>でくっつける」と覚えてください。</p>
+<p><code>Writer</code>は、</p>
+<ul>
+<li><code>Monad</code>の単位元<code>return</code>で<code>Monoid</code>の単位元<code>mempty</code>を使って、</li>
+<li><code>Monad</code>の結合則を満たす<code>&gt;&gt;=</code>で、これまた<code>Monoid</code>の結合則を満たす<code>&lt;&gt;</code>を使っているのです。</li>
+</ul>
+<p>やっぱり<code>Writer</code>は<code>Monoid</code>あっての<code>Monad</code>と言えますね。</p>
+<h2 id="doと"><span class="link-to-here-outer"><a href="#doと" title="doと"><span class="link-to-here">Link to<br />
+here</span></a></span><code>do</code>と<code>&lt;&gt;</code></h2>
+<p>さて、この「<code>b</code>を返すついでに<code>w1</code>と<code>w2</code>を<code>&lt;&gt;</code>でくっつける」という<code>Writer</code>の振る舞いが象徴するように、大抵の<code>Monad</code>のインスタンスにおける<code>&gt;&gt;=</code>は、<strong>何かしら値を返すついでに、何らかの処理を行う</strong>よう実装されています。この「ついでに行われる処理」は<code>Monad</code>のインスタンスを<code>do</code>記法の中で扱うと、ますます静かに身を隠すようになります。</p>
+<p>こちらも<code>Writer</code>を例に説明しましょう。まず、例示用に<code>Writer</code>を作るアクションを適当に定義します。</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="ot">addLogging ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Writer</span> [<span class="dt">String</span>] <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb15-2" title="2">addLogging x y <span class="ot">=</span></a>
+<a class="sourceLine" id="cb15-3" title="3">  <span class="dt">Writer</span> (x <span class="op">+</span> y, [<span class="st">&quot;Adding &quot;</span> <span class="op">++</span> <span class="fu">show</span> x <span class="op">++</span> <span class="st">&quot; to &quot;</span> <span class="op">++</span> <span class="fu">show</span> y <span class="op">++</span> <span class="st">&quot;.&quot;</span>])</a>
+<a class="sourceLine" id="cb15-4" title="4"></a>
+<a class="sourceLine" id="cb15-5" title="5"><span class="ot">multLogging ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Writer</span> [<span class="dt">String</span>] <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb15-6" title="6">multLogging x y <span class="ot">=</span></a>
+<a class="sourceLine" id="cb15-7" title="7">  <span class="dt">Writer</span> (x <span class="op">*</span> y, [<span class="st">&quot;Multiplying &quot;</span> <span class="op">++</span> <span class="fu">show</span> x <span class="op">++</span> <span class="st">&quot; with &quot;</span> <span class="op">++</span> <span class="fu">show</span> y <span class="op">++</span> <span class="st">&quot;.&quot;</span>])</a></code></pre></div>
+<p><code>addLogging</code>と<code>multLogging</code>はそれぞれ、引数として受け取った整数を足し算したりかけ算したりしつつ、「足したよ」「かけたよ」という内容の文字列を一緒に返します。<code>Writer [String] Int</code>における<code>[String]</code>にログとして書き込んでいるようなイメージで捉えてください。</p>
+<p>これらを<code>do</code>の中で使ってみると、より<code>addLogging</code>や<code>multLogging</code>が「足し算やかけ算をするついでに、ログとして書き込んでいる」っぽいイメージが伝わるでしょう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">testDo ::</span> <span class="dt">Writer</span> [<span class="dt">String</span>] <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb16-2" title="2">testDo <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb16-3" title="3">  result1 <span class="ot">&lt;-</span> addLogging <span class="dv">3</span> <span class="dv">4</span></a>
+<a class="sourceLine" id="cb16-4" title="4">  result2 <span class="ot">&lt;-</span> multLogging <span class="dv">5</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb16-5" title="5">  addLogging result1 result2</a></code></pre></div>
+<p><small>⚠️申し訳なくも<code>do</code>記法自体の解説、つまり<code>&gt;&gt;=</code>がどのように<code>do</code>記法に対応するかはここには書きません。お近くの<span class="ascii">Haskell</span>入門書をご覧ください。</small></p>
+<p>👆では、<code>3 + 4</code>した結果<code>result1</code>と、<code>5 * 2</code>した結果<code>result2</code>を足す処理を行っています。それに加えて、「足したよ」「かけたよ」というログを表す文字列のリスト<code>[String]</code>も一緒に返しています。<code>do</code>記法が<code>&gt;&gt;=</code>に変換されるのに従い、<code>Writer</code>の<code>&gt;&gt;=</code>が内部で<code>&lt;&gt;</code>を使い、<code>addLogging 3 4</code>・<code>multLogging 5 2</code>・<code>addLogging result1 result2</code>が返した文字列のリスト<code>[String]</code>を結合することによって、あたかも<code>addLogging</code>や<code>multLogging</code>が「値を返しつつ、ログとして書き込む」かのような処理を実現できるのが<code>Writer</code>における<code>do</code>記法の特徴です。</p>
+<!-- ReadmeTest: CompareAfterPrompt ByExpression -->
+<p>能書きはここまでにして、実際にどのような結果になるか見てみましょう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="op">&gt;</span> runWriter testDo</a>
+<a class="sourceLine" id="cb17-2" title="2">(<span class="dv">17</span>,[<span class="st">&quot;Adding 3 to 4.&quot;</span>,<span class="st">&quot;Multiplying 5 with 2.&quot;</span>,<span class="st">&quot;Adding 7 to 10.&quot;</span>])</a></code></pre></div>
+<p>はい、<code>3 + 4</code>と<code>5 * 2</code>の結果を足し算した結果<code>17</code>と、<code>addLogging 3 4</code>・<code>multLogging 5 2</code>・<code>addLogging result1 result2</code>が一緒に返していた文字列のリスト<code>[String]</code>が、書いた順番どおりに結合されて返ってきました。<code>Writer</code>は<code>do</code>記法の中に書いた<code>Writer</code>の値<code>(a, w)</code>のうち、<code>Monoid</code>のインスタンスである<code>w</code>を<code>&lt;&gt;</code>で都度結合させているということが伝わったでしょうか？</p>
+<h2 id="writer-monadの結合則とmonoidの結合則"><span class="link-to-here-outer"><a href="#writer-monadの結合則とmonoidの結合則" title="writer-monadの結合則とmonoidの結合則"><span class="link-to-here">Link to<br />
+here</span></a></span><code>Writer</code> <code>Monad</code>の結合則と<code>Monoid</code>の結合則</h2>
+<p>ここまでで、<code>Writer</code> <code>Monad</code>がどのように<code>&lt;&gt;</code>を使っているのか、それによって<code>&gt;&gt;=</code>や<code>do</code>記法がどのように振る舞っているのか、具体例を示して説明いたしました。ここからは、<code>Writer</code>が<code>Monoid</code>の<code>&lt;&gt;</code>の結合則をどう利用することで、<code>Monad</code>としての<code>&gt;&gt;=</code>の結合則を満たしているのかを示しましょう。長いので「めんどい！」という方は<a href="#associative-law-qed">こちらをクリックしてスキップ</a>してください。</p>
+<p>そのために、<code>Monad</code>の結合則における<code>&gt;&gt;=</code>を、<code>Writer</code>の<code>&gt;&gt;=</code>として展開してみます。</p>
+<!-- ReadmeTest: Ignore -->
+<p><span class="ascii">(0)</span> <code>Monad</code>の結合則<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1">m <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> k x <span class="op">&gt;&gt;=</span> h) <span class="ot">=</span> (m <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> k x)) <span class="op">&gt;&gt;=</span> h</a></code></pre></div>
+<p><span class="ascii">(1)</span> <code>m</code>は<code>&gt;&gt;=</code>の左辺なので<code>Writer (a, w1)</code>に置き換える<span class="ascii">:</span></p>
+<p><small>※ここからは、比較しやすくするために等式<code>=</code>の左辺と右辺を別々の行に書きます。</small></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m <span class="kw">in</span> <span class="dt">Writer</span> (a, w1) <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> k x <span class="op">&gt;&gt;=</span> h)</a>
+<a class="sourceLine" id="cb19-2" title="2">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m <span class="kw">in</span> <span class="dt">Writer</span> (a, w1) <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> k x) <span class="op">&gt;&gt;=</span> h</a></code></pre></div>
+<p><span class="ascii">(2)</span> 一つ目の<code>&gt;&gt;=</code>を<code>Writer</code>における<code>&gt;&gt;=</code>の定義で置き換える<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb20-2" title="2">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> (\x <span class="ot">-&gt;</span> k x <span class="op">&gt;&gt;=</span> h) a</a>
+<a class="sourceLine" id="cb20-3" title="3"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb20-4" title="4">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb20-5" title="5"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m <span class="kw">in</span> <span class="dt">Writer</span> (a, w1) <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> k x) <span class="op">&gt;&gt;=</span> h</a></code></pre></div>
+<p><span class="ascii">(3)</span> 等式<code>=</code>の右辺における一つ目の<code>&gt;&gt;=</code>も同様に変換する<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb21-2" title="2">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> (\x <span class="ot">-&gt;</span> k x <span class="op">&gt;&gt;=</span> h) a</a>
+<a class="sourceLine" id="cb21-3" title="3"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb21-4" title="4">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb21-5" title="5"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb21-6" title="6">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> (\x <span class="ot">-&gt;</span> k x) a</a>
+<a class="sourceLine" id="cb21-7" title="7"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2) <span class="op">&gt;&gt;=</span> h</a></code></pre></div>
+<p><span class="ascii">(4)</span> 無名関数である<code>(\x -&gt; k x &gt;&gt;= h)</code>と<code>(\x -&gt; k x)</code>に、<code>a</code>を適用する<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb22-2" title="2">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> k a <span class="op">&gt;&gt;=</span> h</a>
+<a class="sourceLine" id="cb22-3" title="3"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb22-4" title="4">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb22-5" title="5"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb22-6" title="6">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb22-7" title="7"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2) <span class="op">&gt;&gt;=</span> h</a></code></pre></div>
+<p><span class="ascii">(5)</span> 等式<code>=</code>の左辺における二つ目の<code>&gt;&gt;=</code>を<code>Writer</code>における<code>&gt;&gt;=</code>の定義で置き換える<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb23-2" title="2">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span></a>
+<a class="sourceLine" id="cb23-3" title="3">      <span class="kw">let</span> <span class="dt">Writer</span> (c, w3) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb23-4" title="4">          <span class="dt">Writer</span> (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb23-5" title="5">       <span class="kw">in</span> <span class="dt">Writer</span> (d, w3 <span class="op">&lt;&gt;</span> w4)</a>
+<a class="sourceLine" id="cb23-6" title="6"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb23-7" title="7">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb23-8" title="8"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb23-9" title="9">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb23-10" title="10"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)) <span class="op">&gt;&gt;=</span> h</a></code></pre></div>
+<p><span class="ascii">(6)</span> 等式<code>=</code>の右辺における二つ目の<code>&gt;&gt;=</code>も同様に変換する<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb24-2" title="2">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span></a>
+<a class="sourceLine" id="cb24-3" title="3">      <span class="kw">let</span> <span class="dt">Writer</span> (c, w3) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb24-4" title="4">          <span class="dt">Writer</span> (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb24-5" title="5">       <span class="kw">in</span> <span class="dt">Writer</span> (d, w3 <span class="op">&lt;&gt;</span> w4)</a>
+<a class="sourceLine" id="cb24-6" title="6"> <span class="kw">in</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb24-7" title="7">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb24-8" title="8"><span class="kw">let</span> <span class="dt">Writer</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb24-9" title="9">    <span class="dt">Writer</span> (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb24-10" title="10"> <span class="kw">in</span> <span class="kw">let</span> <span class="dt">Writer</span> (c, w3) <span class="ot">=</span> <span class="dt">Writer</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb24-11" title="11">        <span class="dt">Writer</span> (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb24-12" title="12">     <span class="kw">in</span> <span class="dt">Writer</span> (d, w3 <span class="op">&lt;&gt;</span> w4)</a></code></pre></div>
+<p><span class="ascii">(7)</span> <code>Writer</code>は、<code>Writer</code>と<code>(a, w)</code>を切り替えるだけで実質何もしていないので削除する<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb25-2" title="2">    (b, w2) <span class="ot">=</span></a>
+<a class="sourceLine" id="cb25-3" title="3">      <span class="kw">let</span> (c, w3) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb25-4" title="4">          (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb25-5" title="5">       <span class="kw">in</span> (d, w3 <span class="op">&lt;&gt;</span> w4)</a>
+<a class="sourceLine" id="cb25-6" title="6"> <span class="kw">in</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb25-7" title="7">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb25-8" title="8"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb25-9" title="9">    (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb25-10" title="10"> <span class="kw">in</span> <span class="kw">let</span> (c, w3) <span class="ot">=</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb25-11" title="11">        (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb25-12" title="12">     <span class="kw">in</span> (d, w3 <span class="op">&lt;&gt;</span> w4)</a></code></pre></div>
+<p><span class="ascii">(7.5) (7)</span>の等式をよく見ると、<code>=</code>の左辺においては<code>(b, w2)</code>と<code>(d, w3 &lt;&gt; w4)</code>が、<code>=</code>の右辺においては<code>(c, w3)</code>と<code>(b, w1 &lt;&gt; w2)</code>が等しい。</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb26-2" title="2">    (b, w2) <span class="ot">=</span> <span class="co">--           ここの(b, w2)は、</span></a>
+<a class="sourceLine" id="cb26-3" title="3">      <span class="kw">let</span> (c, w3) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb26-4" title="4">          (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb26-5" title="5">       <span class="kw">in</span> (d, w3 <span class="op">&lt;&gt;</span> w4) <span class="co">-- ここの(d, w3 &lt;&gt; w4)を代入したもの！</span></a>
+<a class="sourceLine" id="cb26-6" title="6"> <span class="kw">in</span> (b, w1 <span class="op">&lt;&gt;</span> w2)</a>
+<a class="sourceLine" id="cb26-7" title="7">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb26-8" title="8"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb26-9" title="9">    (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb26-10" title="10"> <span class="kw">in</span> <span class="kw">let</span> (c, w3) <span class="ot">=</span> (b, w1 <span class="op">&lt;&gt;</span> w2) <span class="co">-- ここで代入している！</span></a>
+<a class="sourceLine" id="cb26-11" title="11">        (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb26-12" title="12">     <span class="kw">in</span> (d, w3 <span class="op">&lt;&gt;</span> w4)</a></code></pre></div>
+<p><span class="ascii">(8) (7.5)</span>から、<code>=</code>の左辺では<code>b = d</code>で<code>w2 = w3 &lt;&gt; w4</code>、<code>=</code>の右辺では<code>c = d</code>で<code>w3 = w1 &lt;&gt; w2</code>であることがわかる。なのでそれぞれ置き換える<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb27-2" title="2">    (c, w3) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb27-3" title="3">    (d, w4) <span class="ot">=</span> h c</a>
+<a class="sourceLine" id="cb27-4" title="4"> <span class="kw">in</span> (d, w1 <span class="op">&lt;&gt;</span> (w3 <span class="op">&lt;&gt;</span> w4))</a>
+<a class="sourceLine" id="cb27-5" title="5">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb27-6" title="6"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb27-7" title="7">    (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb27-8" title="8">    (d, w4) <span class="ot">=</span> h b</a>
+<a class="sourceLine" id="cb27-9" title="9"> <span class="kw">in</span> (d, (w1 <span class="op">&lt;&gt;</span> w2) <span class="op">&lt;&gt;</span> w4)</a></code></pre></div>
+<div id="associative-law-qed">
+
+</div>
+<p><span class="ascii">(9)</span> <code>a</code>～<code>d</code>・<code>w1</code>～<code>w4</code>の変数名を、登場した順番に振り直す<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb28-2" title="2">    (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb28-3" title="3">    (c, w3) <span class="ot">=</span> h b</a>
+<a class="sourceLine" id="cb28-4" title="4"> <span class="kw">in</span> (c, w1 <span class="op">&lt;&gt;</span> (w2 <span class="op">&lt;&gt;</span> w3))</a>
+<a class="sourceLine" id="cb28-5" title="5">  <span class="ot">=</span></a>
+<a class="sourceLine" id="cb28-6" title="6"><span class="kw">let</span> (a, w1) <span class="ot">=</span> m</a>
+<a class="sourceLine" id="cb28-7" title="7">    (b, w2) <span class="ot">=</span> k a</a>
+<a class="sourceLine" id="cb28-8" title="8">    (c, w3) <span class="ot">=</span> h b</a>
+<a class="sourceLine" id="cb28-9" title="9"> <span class="kw">in</span> (c, (w1 <span class="op">&lt;&gt;</span> w2) <span class="op">&lt;&gt;</span> w3)</a></code></pre></div>
+<p>等式<code>=</code>の左辺と右辺がそっくりな式になりましたね！</p>
+<p>ここで、<code>Monoid</code>の結合則を思い出してみましょう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" title="1">x <span class="op">&lt;&gt;</span> (y <span class="op">&lt;&gt;</span> z) <span class="ot">=</span> (x <span class="op">&lt;&gt;</span> y) <span class="op">&lt;&gt;</span> z</a></code></pre></div>
+<p>そう、<code>x &lt;&gt; y &lt;&gt; z</code>などと書いて<span class="ascii">3</span>つの<code>Monoid</code>型クラスのインスタンスの値を<code>&lt;&gt;</code>でくっつけるときは、カッコで囲って<code>(y &lt;&gt; z)</code>を先に計算しようと、<code>(x &lt;&gt; y)</code>を先に計算しようと、結果が変わらない、というものでした！</p>
+<p>それを踏まえて、<span class="ascii">(9)</span>の等式<code>=</code>の両辺をよく見比べてみてください。異なっているのは<code>w1 &lt;&gt; (w2 &lt;&gt; w3)</code>と<code>(w1 &lt;&gt; w2) &lt;&gt; w3)</code>の箇所だけですね！つまり、<code>Writer</code> <code>Monad</code>における<code>&gt;&gt;=</code>の結合則は、<code>w1 &lt;&gt; (w2 &lt;&gt; w3)</code>と<code>(w1 &lt;&gt; w2) &lt;&gt; w3)</code>が等しいから、すなわち<code>Monoid</code>における<code>&lt;&gt;</code>の結合則が成り立つからこそ成立するのです。これがまさしく「<code>Monoid</code>と<code>Writer</code>の切っても切り離せない関係」なのです！</p>
+<h1 id="関係を壊してみる"><span class="link-to-here-outer"><a href="#関係を壊してみる" title="関係を壊してみる"><span class="link-to-here">Link to<br />
+here</span></a></span>関係を壊してみる</h1>
+<p>それではいよいよ、「<code>Monoid</code>と<code>Writer</code>の切っても切り離せない関係」を利用して、<code>Monad</code>則を破ってみましょう💣</p>
+<h2 id="とmonoidの結合則"><span class="link-to-here-outer"><a href="#とmonoidの結合則" title="とmonoidの結合則"><span class="link-to-here">Link to<br />
+here</span></a></span><code>&lt;&gt;</code>と<code>Monoid</code>の結合則</h2>
+<p>前述のとおり、<code>Writer</code>における<code>&gt;&gt;=</code>が結合則を満たすのは、<code>Writer</code>がラップしている<code>Monoid</code>な値の<code>&lt;&gt;</code>が結合則を満たしてこそ、なのでした。これは言い換えれば、その、ラップしている<code>Monoid</code>な値の<code>&lt;&gt;</code>が結合則を破れば、自然に<code>Writer</code>の<code>&gt;&gt;=</code>も結合則を破るはずです。この方法は、結合則を満たさない<code>&gt;&gt;=</code>っぽい処理をゼロから探すより遥かに簡単です。<code>&gt;&gt;=</code>のような<code>m a -&gt; (a -&gt; m b) -&gt; m b</code>というややこしい型の関数よりも、<code>&lt;&gt;</code>のような<code>a -&gt; a -&gt; a</code>という型の関数の方がずっと身近ですしね！</p>
+<p><code>Monoid</code>の<code>&lt;&gt;</code>のような<code>a -&gt; a -&gt; a</code>という型の関数で、結合則を満たさない処理 — といえば、引き算<code>-</code>や割り算<code>/</code>を思い浮かべる方が多いのではないでしょうか。と、いうわけで<a href="#monoid-examples"><code>Monoid</code>の例</a>で紹介した<code>Sum</code>や<code>Product</code>のように、数値に対する引き算を表す<code>newtype</code>、<code>Difference</code>を定義してみましょう<span class="ascii">:</span></p>
+<!-- ReadmeTest: AppendAsIs -->
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">newtype</span> <span class="dt">Difference</span> a <span class="ot">=</span> <span class="dt">Difference</span> {<span class="ot"> getDifference ::</span> a }</a></code></pre></div>
+<p>それから、<code>Difference</code>を<small>（実際には間違いですが）</small><code>Monoid</code>のインスタンスにします。最近の<span class="ascii">GHC</span>では、<code>Monoid</code>のインスタンスを定義する前に<code>Semigroup</code>のインスタンスにする必要があるのでご注意ください。説明しやすさのために敢えてこれまで触れてきませんでしたが、これまで何度も使った<code>&lt;&gt;</code>は実際のところ<code>Monoid</code>の関数ではなく<code>Semigroup</code>の関数なんですね。<code>Monoid</code>は「<code>&lt;&gt;</code>で（結合則を備えた）二項演算ができるだけでなく、<code>mempty</code>という単位元もある」という性質の型クラスなので、「単に『<code>&lt;&gt;</code>で（結合則を備えた）二項演算ができる』だけの型クラスも欲しい！」というニーズから、<code>Monoid</code>の<code>&lt;&gt;</code>は<code>Semigroup</code>の関数となり、<code>Monoid</code>は<code>Semigroup</code>のサブクラスという関係に変わったのでした。</p>
+<p>何はともあれ、<code>Difference</code>を<code>Semigroup</code>のインスタンスにしましょう<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Semigroup</span> (<span class="dt">Difference</span> a) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb31-2" title="2">  <span class="dt">Difference</span> a <span class="op">&lt;&gt;</span> <span class="dt">Difference</span> b <span class="ot">=</span> <span class="dt">Difference</span> (a <span class="op">-</span> b)</a></code></pre></div>
+<p>はい、単に両辺を<code>-</code>で引き算するだけですね。</p>
+<p>今度こそ<code>Difference</code>を<code>Monoid</code>のインスタンスにします。本記事では<code>mempty</code>を直接使うことはないので何でもいいはずですが、とりあえず<code>Sum</code>と同様に<code>0</code>ということにしておきます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Monoid</span> (<span class="dt">Difference</span> a) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb32-2" title="2">  <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Difference</span> <span class="dv">0</span></a></code></pre></div>
+<p>😈これで<code>&lt;&gt;</code>が結合則を満たさないおかしな<code>Monoid</code>のインスタンス、<code>Difference</code>ができました！早速試して結合則を破っていることを確認してみましょう<span class="ascii">:</span></p>
+<!-- ReadmeTest: CompareAfterPrompt ByExpression -->
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" title="1"><span class="co">-- こちらは 1 - (2 - 3) と同じ</span></a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="op">&gt;</span> getDifference <span class="op">$</span> <span class="dt">Difference</span> <span class="dv">1</span> <span class="op">&lt;&gt;</span> (<span class="dt">Difference</span> <span class="dv">2</span> <span class="op">&lt;&gt;</span> <span class="dt">Difference</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="dv">2</span></a>
+<a class="sourceLine" id="cb33-4" title="4"></a>
+<a class="sourceLine" id="cb33-5" title="5"><span class="co">-- こちらは (1 - 2) - 3 と同じなので...</span></a>
+<a class="sourceLine" id="cb33-6" title="6"><span class="op">&gt;</span> getDifference <span class="op">$</span> (<span class="dt">Difference</span> <span class="dv">1</span> <span class="op">&lt;&gt;</span> <span class="dt">Difference</span> <span class="dv">2</span>) <span class="op">&lt;&gt;</span> <span class="dt">Difference</span> <span class="dv">3</span></a>
+<a class="sourceLine" id="cb33-7" title="7"><span class="op">-</span><span class="dv">4</span> <span class="co">-- &lt;- 当然 1 - (2 - 3) とは異なる結果に！</span></a></code></pre></div>
+<p>バッチリ破れてますね！このように<code>&lt;&gt;</code>における結合則は、引き算などおなじみの演算で、簡単に破ることができます💪</p>
+<h2 id="とmonadの結合則"><span class="link-to-here-outer"><a href="#とmonadの結合則" title="とmonadの結合則"><span class="link-to-here">Link to<br />
+here</span></a></span><code>&gt;&gt;=</code>と<code>Monad</code>の結合則</h2>
+<p><code>&lt;&gt;</code>における結合則を破ることができたと言うことは、<code>Writer</code>の<code>&gt;&gt;=</code>による結合則も、もはや破れたも同然です。先ほど定義した<code>Difference</code>型を使えば、<code>&gt;&gt;=</code>は途端に結合則を満たさなくなるでしょう。</p>
+<p>例を示す前に、<code>Writer</code>を使う際しばしば用いられる、ユーティリティー関数を定義しておきます。実践で<code>Writer</code>を使いたくなったときにも大変便利なので、是非覚えておいてください<span class="ascii">:</span></p>
+<!-- ReadmeTest: AppendAsIs -->
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" title="1"><span class="ot">tell ::</span> <span class="dt">Monoid</span> w <span class="ot">=&gt;</span> w <span class="ot">-&gt;</span> <span class="dt">Writer</span> w ()</a>
+<a class="sourceLine" id="cb34-2" title="2">tell w <span class="ot">=</span> <span class="dt">Writer</span> ((), w)</a></code></pre></div>
+<p>この<code>tell</code>関数は、受け取った<code>Monoid</code>な値をそのまま「ログとして書き込む」関数です。結果として返す値はただのユニット<code>()</code>なので、気にする必要がありません。<code>tell</code>のみを使って<code>Writer</code>を組み立てれば、「ログとして書き込む」値のみに集中することができます。これから紹介する例でもやはり関心があるのは「ログとして書き込む」値だけなので、ここで<code>tell</code>を定義しました。</p>
+<p>それでは<code>tell</code>を使って、<code>Writer</code>の<code>&gt;&gt;=</code>における結合則も破ってみましょう<span class="ascii">:</span></p>
+<!-- ReadmeTest: CompareAfterPrompt ByExpression -->
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" title="1"><span class="co">-- こちらは Difference 1 &lt;&gt; (Difference 2 &lt;&gt; Difference 3) と同じ</span></a>
+<a class="sourceLine" id="cb35-2" title="2"><span class="op">&gt;</span> getDifference <span class="op">.</span> <span class="fu">snd</span> <span class="op">.</span> runWriter <span class="op">$</span> tell (<span class="dt">Difference</span> <span class="dv">1</span>) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">2</span>) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">3</span>)))</a>
+<a class="sourceLine" id="cb35-3" title="3"><span class="dv">2</span></a>
+<a class="sourceLine" id="cb35-4" title="4"></a>
+<a class="sourceLine" id="cb35-5" title="5"><span class="co">-- こちらは (Difference 1 &lt;&gt; Difference 2) &lt;&gt; Difference 3 と同じなので...</span></a>
+<a class="sourceLine" id="cb35-6" title="6"><span class="op">&gt;</span> getDifference <span class="op">.</span> <span class="fu">snd</span> <span class="op">.</span> runWriter <span class="op">$</span> (tell (<span class="dt">Difference</span> <span class="dv">1</span>) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">2</span>))) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb35-7" title="7"><span class="op">-</span><span class="dv">4</span> <span class="co">-- &lt;- 当然 1 - (2 - 3) とは異なる結果に！</span></a></code></pre></div>
+<p>予想どおり一つ目の<code>Writer</code>と二つ目の<code>Writer</code>とで異なる結果となりました。<code>1 - (2 - 3)</code>と<code>(1 - 2) - 3</code>を<code>Writer</code>を使って遠回しに言い換えているだけなので、当然と言えば当然です。</p>
+<p>しかし<code>tell (Difference 1) &gt;&gt;= (\_ -&gt; tell (Difference 2) &gt;&gt;= \_ -&gt; tell (Difference 3))</code>などの<code>Writer</code>型の式が<code>Monad</code>の結合則<code>m &gt;&gt;= (\x -&gt; k x &gt;&gt;= h) = (m &gt;&gt;= (\x -&gt; k x)) &gt;&gt;= h</code>にどう対応するのか、ちょっと分かりづらいですかね？<small>（式も長いし）</small>一つずつ注釈を加えます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" title="1"><span class="co">-- こちらは m &gt;&gt;= (\x -&gt; k x &gt;&gt;= h) = (m &gt;&gt;= (\x -&gt; k x)) &gt;&gt;= h の前半、</span></a>
+<a class="sourceLine" id="cb36-2" title="2"><span class="co">--   m &gt;&gt;= (\x -&gt; k x &gt;&gt;= h) に相当する</span></a>
+<a class="sourceLine" id="cb36-3" title="3"><span class="op">&gt;</span>  tell (<span class="dt">Difference</span> <span class="dv">1</span>) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">2</span>) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">3</span>)))</a>
+<a class="sourceLine" id="cb36-4" title="4"><span class="co">-- ^^^^^^^^^^^^^^^^^^^       ^    ^^^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^^^^^</span></a>
+<a class="sourceLine" id="cb36-5" title="5"><span class="co">--          m                x             k                             h</span></a>
+<a class="sourceLine" id="cb36-6" title="6"><span class="co">--</span></a>
+<a class="sourceLine" id="cb36-7" title="7"></a>
+<a class="sourceLine" id="cb36-8" title="8"><span class="co">-- こちらは m &gt;&gt;= (\x -&gt; k x &gt;&gt;= h) = (m &gt;&gt;= (\x -&gt; k x)) &gt;&gt;= h の後半、</span></a>
+<a class="sourceLine" id="cb36-9" title="9"><span class="co">--   (m &gt;&gt;= (\x -&gt; k x)) &gt;&gt;= h に相当する</span></a>
+<a class="sourceLine" id="cb36-10" title="10"><span class="op">&gt;</span>  (tell (<span class="dt">Difference</span> <span class="dv">1</span>) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">2</span>))) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb36-11" title="11"><span class="co">--  ^^^^^^^^^^^^^^^^^^^       ^    ^^^^^^^^^^^^^^^^^^^       ^^^^^^^^^^^^^^^^^^^^^^^^^^^</span></a>
+<a class="sourceLine" id="cb36-12" title="12"><span class="co">--           m                x             k                             h</span></a></code></pre></div>
+<p>ラムダ式の引数<code>x</code>は実際には使われていない点に注意してください。これでも<code>const</code>を使って<code>\x -&gt; const (tell (Difference 2)) x</code>と書き換えれば、<code>const (tell (Difference 2))</code>が<code>k</code>に厳密に対応するので、上記の二組の式は<code>&gt;&gt;=</code>の結合則を破るペアだと言えます。</p>
+<h2 id="do記法とmonadの結合則"><span class="link-to-here-outer"><a href="#do記法とmonadの結合則" title="do記法とmonadの結合則"><span class="link-to-here">Link to<br />
+here</span></a></span><code>do</code>記法と<code>Monad</code>の結合則</h2>
+<p>前の節では、<code>Monoid</code>の結合則を守っていない値をラップしている<code>Writer</code>を作ることで、<code>&gt;&gt;=</code>の結合則を破る例を簡単に作り出せることを紹介しました。ここでは本記事の最後として、<code>&gt;&gt;=</code>の結合則を破った結果、<code>do</code>記法がいかに直感に反する挙動となるか紹介して、<code>&gt;&gt;=</code>の結合則を守ることが私たちにどのようなメリットをもたらすのか解説します。</p>
+<p>例として、先ほど<code>&gt;&gt;=</code>の結合則を破るのに使った<code>1 - 2 - 3</code>を再利用しましょう。<code>Difference</code>をラップした<code>Writer</code>で<code>1 - 2 - 3</code>を計算させると、次のような式になります<span class="ascii">:</span></p>
+<!-- ReadmeTest: ValidateAsExpression -->
+<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" title="1">tell (<span class="dt">Difference</span> <span class="dv">1</span>) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">2</span>)) <span class="op">&gt;&gt;=</span> (\_ <span class="ot">-&gt;</span> tell (<span class="dt">Difference</span> <span class="dv">3</span>))</a></code></pre></div>
+<p>これを<code>do</code>記法に変換すると、次のようになります<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">do</span></a>
+<a class="sourceLine" id="cb38-2" title="2">  tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb38-3" title="3">  tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb38-4" title="4">  tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a></code></pre></div>
+<p><code>do</code>記法における各行の間に<code>&gt;&gt;=</code>が隠れたことで、すっきりしましたね！</p>
+<p>この状態から、<code>do</code>記法を使って<code>1 - (2 - 3)</code>と<code>(1 - 2) - 3</code>を表す<code>Writer</code>の式にするには、次のように書き換えます<span class="ascii">:</span></p>
+<!-- ReadmeTest: AppendAsIs -->
+<div class="sourceCode" id="cb39"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb39-1" title="1"><span class="co">-- こちらが 1 - (2 - 3) を表す</span></a>
+<a class="sourceLine" id="cb39-2" title="2">do_1minus&#39;2minus3&#39; <span class="ot">=</span></a>
+<a class="sourceLine" id="cb39-3" title="3">  <span class="kw">do</span></a>
+<a class="sourceLine" id="cb39-4" title="4">    tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb39-5" title="5">    <span class="kw">do</span></a>
+<a class="sourceLine" id="cb39-6" title="6">      tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb39-7" title="7">      tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb39-8" title="8"></a>
+<a class="sourceLine" id="cb39-9" title="9"><span class="co">-- こちらが (1 - 2) - 3 を表す</span></a>
+<a class="sourceLine" id="cb39-10" title="10">do_&#39;1minus2&#39;minus3 <span class="ot">=</span></a>
+<a class="sourceLine" id="cb39-11" title="11">  <span class="kw">do</span></a>
+<a class="sourceLine" id="cb39-12" title="12">    <span class="kw">do</span></a>
+<a class="sourceLine" id="cb39-13" title="13">      tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb39-14" title="14">      tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb39-15" title="15">    tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a></code></pre></div>
+<p>コメントに書いたとおり、<code>do_1minus'2minus3'</code>が<code>1 - (2 - 3)</code>、<code>do_'1minus2'minus3</code>が<code>(1 - 2) - 3</code>と同等な<code>Writer</code>です。<span class="ascii">Haskell</span>はシングルクォートを変数の名前に含めることができるので、シングルクォートでカッコを表すことにしました<small>（まさかこんなところで役に立つとはね！）</small>。</p>
+<p>上記の二つの式では、カッコ<code>()</code>で囲う代わりにもう一つの<code>do</code>記法に収めることで、<code>do</code>記法における各行を実行する順番をいじっています。</p>
+<p>本当にこれで<code>1 - (2 - 3)</code>や<code>(1 - 2) - 3</code>と同等な式になっているのでしょうか？試しに<code>runWriter</code>して結果を確かめてみましょう<span class="ascii">:</span></p>
+<!-- ReadmeTest: CompareAfterPrompt ByExpression -->
+<div class="sourceCode" id="cb40"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb40-1" title="1"><span class="co">-- こちらが 1 - (2 - 3) を表す</span></a>
+<a class="sourceLine" id="cb40-2" title="2"><span class="op">&gt;</span> getDifference <span class="op">.</span> <span class="fu">snd</span> <span class="op">$</span> runWriter do_1minus&#39;2minus3&#39;</a>
+<a class="sourceLine" id="cb40-3" title="3"><span class="dv">2</span></a>
+<a class="sourceLine" id="cb40-4" title="4"></a>
+<a class="sourceLine" id="cb40-5" title="5"><span class="co">-- こちらが (1 - 2) - 3 を表す</span></a>
+<a class="sourceLine" id="cb40-6" title="6"><span class="op">&gt;</span> getDifference <span class="op">.</span> <span class="fu">snd</span> <span class="op">$</span> runWriter do_&#39;1minus2&#39;minus3</a>
+<a class="sourceLine" id="cb40-7" title="7"><span class="op">-</span><span class="dv">4</span></a></code></pre></div>
+<p>バッチリ👌想定どおり、<code>do_1minus'2minus3'</code>が<code>1 - (2 - 3) = 2</code>を計算し、<code>do_'1minus2'minus3</code>が<code>(1 - 2) - 3 = -4</code>を計算していますね！</p>
+<p>さてこれまでで、<code>Writer</code> <code>Monad</code>は<code>Monoid</code>の結合則を利用することで<code>&gt;&gt;=</code>の結合則を満たしていることを示し、ラップしている<code>Monoid</code>な値が結合則を満たしていなければ、必然的に<code>Writer</code>も結合則を破ってしまうことを、<code>&gt;&gt;=</code>や<code>do</code>記法を使って具体的に示しました。それでは今挙げた、<code>do</code>記法で結合則を破った例は、一体何を示唆しているのでしょうか？普通に<span class="ascii">Haskell</span>でコードを書いていて、前述のような書き換え、すなわち、</p>
+<!-- ReadmeTest: ValidateAsExpression -->
+<div class="sourceCode" id="cb41"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">do</span></a>
+<a class="sourceLine" id="cb41-2" title="2">  tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb41-3" title="3">  <span class="kw">do</span></a>
+<a class="sourceLine" id="cb41-4" title="4">    tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb41-5" title="5">    tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a></code></pre></div>
+<p>から、</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">do</span></a>
+<a class="sourceLine" id="cb42-2" title="2">  <span class="kw">do</span></a>
+<a class="sourceLine" id="cb42-3" title="3">    tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb42-4" title="4">    tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb42-5" title="5">  tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a></code></pre></div>
+<p>への書き換え<small>（あるいはその逆）</small>は、一見するとそんな機会ないように思えます。しかしこれが、<code>do</code>記法をカッコ代わりに使うという変な方法ではなく、次のように変数に代入することで切り出していた場合、いかがでしょうか？</p>
+<!-- ReadmeTest: AppendAsIs -->
+<div class="sourceCode" id="cb43"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb43-1" title="1">someSingleAction <span class="ot">=</span> tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb43-2" title="2"></a>
+<a class="sourceLine" id="cb43-3" title="3">someSequence <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb43-4" title="4">  tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb43-5" title="5">  tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb43-6" title="6"></a>
+<a class="sourceLine" id="cb43-7" title="7">someCompositeAction <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb43-8" title="8">  someSingleAction</a>
+<a class="sourceLine" id="cb43-9" title="9">  someSequence</a></code></pre></div>
+<p>上記👆のような三つの<code>Writer</code>の値を、下記👇の三つの値にリファクタリングする場合です。</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb44-1" title="1">refactoredSequence <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb44-2" title="2">  tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb44-3" title="3">  tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb44-4" title="4"></a>
+<a class="sourceLine" id="cb44-5" title="5">splitOutSingleAction <span class="ot">=</span> tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb44-6" title="6"></a>
+<a class="sourceLine" id="cb44-7" title="7">refactoredCompositeAction <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb44-8" title="8">  refactoredSequence</a>
+<a class="sourceLine" id="cb44-9" title="9">  splitOutSingleAction</a></code></pre></div>
+<p>あるいは、たった<span class="ascii">3</span>行しかありませんし、一つの値に統合する方がいいかも知れません<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb45-1" title="1">flattenedAction <span class="ot">=</span> <span class="kw">do</span></a>
+<a class="sourceLine" id="cb45-2" title="2">  tell (<span class="dt">Difference</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb45-3" title="3">  tell (<span class="dt">Difference</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb45-4" title="4">  tell (<span class="dt">Difference</span> <span class="dv">3</span>)</a></code></pre></div>
+<p>これらの書き換えは、いずれも<code>do</code>記法が内部で使っている<code>&gt;&gt;=</code>の結合則を前提とすれば、可能であってしかるべきです。<code>do</code>記法は、適当に<code>Monad</code>のインスタンスの値（「アクション」などとも呼ばれます）を上から下まで列挙すれば、自動で<code>&gt;&gt;=</code>を使ってつなげてくれる、というものです。なので、適当に並べたアクションがどういう形に結合されるのか気にする必要があるのでは、安心して使えません。一方、上記の<span class="ascii">3</span>組の式は、<code>Writer Difference</code>、すなわち引き算を表す「偽<code>Monoid</code>」をラップしているが故に、<code>&gt;&gt;=</code>の結合則を満たしておりません。結果、<code>do</code>記法に変えたときに並べたアクションをどこで切り出すかで、結果が変わってしまいます。これでは安心して列挙できません！</p>
+<!-- ReadmeTest: CompareAfterPrompt ByExpression -->
+<!--
+```haskell
+> getDifference . snd $ runWriter someCompositeAction
+2
+> getDifference . snd $ runWriter refactoredCompositeAction
+-4
+> getDifference . snd $ runWriter flattenedAction
+2
+```
+-->
+<h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h1>
+<p>以上です。これまでで、<code>Monad</code>則のうち結合則がなぜ重要なのか、結合則を実際に破ってみることを通じて説明しました。<code>Monad</code>と同様に結合則を持った<code>Monoid</code>は、<code>Monad</code>以上にインスタンスを見つけるのが簡単で、なおかつ、例えば引き算のように「二項演算だけど結合則を満たしていない」処理を見つけるのが簡単です。本記事では<code>Monoid</code>のそうした性質と、<code>Monoid</code>の性質でもって<code>Monad</code>則を満たしている<code>Writer</code> <code>Monad</code>に注目することで、簡単に<code>Monad</code>則を破る例を提示することができました。それから、<code>Monad</code>の結合則を実際に破った例を使って、<code>Monad</code>の結合則が<code>do</code>記法を自然に書けるようにするために必要であることを示しました。これらの実例から主張したいことを一般化すると、次のとおりです<span class="ascii">:</span></p>
+<ul>
+<li><code>do</code>記法の各行の間で、値を返すついでに何かを行うのが<code>Monad</code>のインスタンス</li>
+<li><code>do</code>記法の各行の間で、値を返すついでに行っている処理が結合則を満たす型が、<code>Monad</code>則を満たすと言える</li>
+<li><code>Monad</code>則を守らない型を<code>do</code>記法で使うと、<code>do</code>記法の結合を気にして書かなければならなくなる</li>
+</ul>
+<p>それでは、<span class="ascii">2021</span>年も🎁<span class="ascii">Happy Haskell Hacking with Monad</span>🎁<span class="ascii">!</span></p>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>一応、<code>Monad</code>についてはそのスーパークラスである<code>Applicative</code>の則、<code>Functor</code>の則がありますが、<code>Monad</code>則を満たしていればそれらは自動的に満たせるので、ここでは省略します。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>残念ながら実際のところ、<code>Float</code>型・<code>Double</code>型などの浮動小数点数に対する<code>Sum</code>や<code>Product</code>は結合則を満たさない場合があります。これは他の多くのプログラミング言語にもある、浮動小数点数の悩ましい問題です。詳しくは「情報落ち」で検索してみてください。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>ここでの定義は、実際に使われている<a href="http://hackage.haskell.org/package/transformers"><span class="ascii">transformers</span>パッケージ</a>の<code>Writer</code>の定義とは大きく異なっているのでご注意ください。実際の<code>Writer</code>はパフォーマンス上の都合や<span class="ascii">Monad Transformer</span>との兼ね合いで、幾分工夫された定義となっています。<a href="#fnref3" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2020/antenna-with-gh-actions.html" style="margin-left: auto;" lang="ja">Haskell AntennaのCI/CDをGitHub Actionsに移行する</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>Haskell AntennaのCI/CDをGitHub Actionsに移行する</title>
     <link href="https://haskell.jp/blog/posts/2020/antenna-with-gh-actions.html" />
     <id>https://haskell.jp/blog/posts/2020/antenna-with-gh-actions.html</id>
@@ -216,6 +723,9 @@ here</span></a></span>おまけ：<span class="ascii">Zenn</span>を追加しま
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2020/break-monad-law-with-writer.html" lang="ja">Writer Monadで気軽にMonad則を破る</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -2600,132 +3110,6 @@ here</span></a></span>（番外編）<span class="ascii">pretty-simple</span>も
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2019/haskell-in-vrchat.html" style="margin-left: auto;" lang="ja">VRのためにHaskellを使った話</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>VRのためにHaskellを使った話</title>
-    <link href="https://haskell.jp/blog/posts/2019/haskell-in-vrchat.html" />
-    <id>https://haskell.jp/blog/posts/2019/haskell-in-vrchat.html</id>
-    <published>2019-12-03T00:00:00Z</published>
-    <updated>2019-12-03T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#はじめに" title="はじめに">はじめに</a></li>
-<li><a href="#vr空間でltがしたい" title="vr空間でltがしたい"><span class="ascii">VR</span>空間で<span class="ascii">LT</span>がしたい</a></li>
-<li><a href="#webフレームワーク" title="webフレームワーク"><span class="ascii">Web</span>フレームワーク</a></li>
-<li><a href="#はじめてのhaskellペアプロ" title="はじめてのhaskellペアプロ">はじめての<span class="ascii">Haskell</span>ペアプロ</a></li>
-<li><a href="#デプロイ" title="デプロイ">デプロイ</a></li>
-<li><a href="#実際に開催してみて" title="実際に開催してみて">実際に開催してみて</a></li>
-<li><a href="#リポジトリ" title="リポジトリ">リポジトリ</a></li>
-</ul>
-</div>
-</div>
-<h1 id="はじめに"><span class="link-to-here-outer"><a href="#はじめに" title="はじめに"><span class="link-to-here">Link to<br />
-here</span></a></span>はじめに</h1>
-<p>はじめまして。趣味で<span class="ascii">Haskell</span>しているはる<span class="ascii">(haru2036)</span>と申します。まったり進行で開発しているので<span class="ascii">GHC</span>のバージョンアップの速さについていけてない感があります…… さて、今回はあんまり深い話はありません。どちらかと言うとこんなニッチなところに<span class="ascii">Haskell</span>使ったよというネタで書きます。</p>
-<h1 id="vr空間でltがしたい"><span class="link-to-here-outer"><a href="#vr空間でltがしたい" title="vr空間でltがしたい"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">VR</span>空間で<span class="ascii">LT</span>がしたい</h1>
-<p>突然ですが、私は<a href="https://vrchat.com/"><span class="ascii">VRChat</span></a>（以下<span class="ascii">VRC</span>）というソーシャル<span class="ascii">VR</span>サービス（<span class="ascii">Second Life</span>の<span class="ascii">VR</span>版みたいなものです）にハマっています。<br />
-友人との雑談の中で<span class="ascii">VRC</span>の中で<span class="ascii">LT</span>会ができればプログラミングなどの話題で盛り上がれる人が集まってワイワイ楽しくできるのではないかと話して、その場のノリでとりあえず実装してみることにしました。</p>
-<figure>
-<img src="/img/2019/haskell-in-vrchat/vrc-lt-room.png" title="完成したワールド" alt="完成したワールド" /><figcaption>完成したワールド</figcaption>
-</figure>
-<p>今回作りたかったのはスライドを表示するためのスクリーンと、ページ送りに使うボタンを実装したワールドです。</p>
-<figure>
-<img src="/img/2019/haskell-in-vrchat/vrc-lt-control-panel.png" title="発表者用コントロールパネル" alt="発表者用コントロールパネル" /><figcaption>発表者用コントロールパネル</figcaption>
-</figure>
-<p><span class="ascii">VRC</span>ではアバターやワールドを自由に作ることができるのですが、<span class="ascii">VRC</span>が提供するコンポーネント以外のスクリプトは利用できません。<span class="ascii">Haskell</span>ユーザとしては得意なことを活用しづらい土壌です。<br />
-幸いスライドを表示する手段はゲーム内で<span class="ascii">URL</span>から画像を取得し表示する<span class="ascii">VRC_Panorama</span>というコンポーネントを利用することにより確保できましたが、<span class="ascii">VRC_Panorama</span>が取得できる画像はワールド作成時に決め打ちで指定された<span class="ascii">URL</span>のリストに含まれるもののみです。<br />
-そのため、スライド画像への<span class="ascii">URL</span>のリストを直接<span class="ascii">VRC_Panorama</span>に渡していると、イベントを開催する際よくある飛び入り参加やスライドの用意が遅れた参加者に対応できなくなってしまいます。</p>
-<p>その問題を解決するために、イベント開始時からのページ数とスライドの画像<span class="ascii">URL</span>をマップする<span class="ascii">WebAPI</span>を用意しました。<br />
-具体的には、<code>/slides/{pageCount}</code> のような形のエンドポイントを持った<span class="ascii">API</span>を用意し、そこから実際の画像へリダイレクトをかけるという方法を取りました。</p>
-<figure>
-<img src="/img/2019/haskell-in-vrchat/vrc-lt-image.png" title="実装イメージ図" alt="実装イメージ図" /><figcaption>実装イメージ図</figcaption>
-</figure>
-<h1 id="webフレームワーク"><span class="link-to-here-outer"><a href="#webフレームワーク" title="webフレームワーク"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Web</span>フレームワーク</h1>
-<p>今回は自分で使うだけだしということでさらっとやってみたかったので<span class="ascii">Spock</span>を利用しました。もう少し誰でも使えるサービスにしたいと考えているので<span class="ascii">Servant</span>に載せ替えてかっちり作り直そうかと思い移植しているところです。</p>
-<h1 id="はじめてのhaskellペアプロ"><span class="link-to-here-outer"><a href="#はじめてのhaskellペアプロ" title="はじめてのhaskellペアプロ"><span class="link-to-here">Link to<br />
-here</span></a></span>はじめての<span class="ascii">Haskell</span>ペアプロ</h1>
-<p>じつは<span class="ascii">LT</span>会をやろうと思いついた友人の<a href="https://twitter.com/b0xp2"><span class="ascii">BOXP</span></a>は<span class="ascii">Clojure</span>ユーザで、せっかくだからと<span class="ascii">API</span>の開発を手伝ってくれました。<br />
-あまり<span class="ascii">Haskell</span>に馴染みはなかったものの、いわゆる関数型プログラミング的な概念はバッチリなのでスススっと書いてくれました。<br />
-書いてくれる上での障壁になったのは、型関連の要素<span class="ascii">(</span><code>data</code>や<code>type</code>や<code>newtype</code>がぱっと見わからなかった、型コンストラクタ、値コンストラクタの概念）に馴染みが薄かったことでした。<br />
-<span class="ascii">Discord</span>で画面共有しながら説明を行ったのですが、やはり同じ画面を見ながら説明するのはとてもやりやすいと感じました。<br />
-本人からのメッセージはこちら。</p>
-<blockquote>
-<p>プログラミング<span class="ascii">Haskell</span>を昔読んでかじったことがある程度で素人もいいところでしたが、当人のサポートもあり思いついた数日後には実装が終わっていました。 はるくんの話にもある通り<span class="ascii">Discord</span>で画面共有しながらペアプロし、<span class="ascii">Haskell</span>でのテストコードの書き方も一から教えてもらいながら書きました。これは願ってもない体験だったので根気よく教えてくれたことに非常に感謝しています。</p>
-<p>また、個人的には実装以外でのブレストや実際の会場でのデバッグを<span class="ascii">VRChat</span>上でできた事もとてもよかったなと思っています。 単純に実装を確認するためには二人以上で<span class="ascii">VRChat</span>に入る必要があるというのもありましたが、完全リモートでも身振り手振りありでブレストができたことや、アバターのおかげで環境に囚われないコミュニケーションができていたことも<span class="ascii">Good</span>でした。</p>
-</blockquote>
-<h1 id="デプロイ"><span class="link-to-here-outer"><a href="#デプロイ" title="デプロイ"><span class="link-to-here">Link to<br />
-here</span></a></span>デプロイ</h1>
-<p>今回は自分で使うだけな上に常時稼働している必要もなく、コストを最小限に抑えたかったので<span class="ascii">Heroku</span>にデプロイしました。<br />
-<span class="ascii">Dockerfile</span>を書き、スタティックリンク周りで悩みながらもイメージを生成して<span class="ascii">Heroku</span>のレジストリに<span class="ascii">Push</span>し、後はいつもの<span class="ascii">Heroku</span>という感じでうまくいきました。</p>
-<p>余談ですが、最近参加した<span class="ascii">Gotanda.hs</span>というイベントで<code>cabal build --enable-executable-static</code>でいい感じにシングルバイナリが生成できるというお話を聞いたので、最近<span class="ascii">stack</span>ばっかり使ってたのを改めて適材適所で使い分けていきたいなーと思っています。</p>
-<h1 id="実際に開催してみて"><span class="link-to-here-outer"><a href="#実際に開催してみて" title="実際に開催してみて"><span class="link-to-here">Link to<br />
-here</span></a></span>実際に開催してみて</h1>
-<p>ここは<span class="ascii">Haskell</span>ほぼ全く関係ないですが……</p>
-<p><img src="/img/2019/haskell-in-vrchat/vrc-lt.png" /> <span class="ascii">VRC-LT</span>という名前で<span class="ascii">6</span>回ほど開催しているのですが、場所の制約を受けずに勉強会ができ、その後の懇親会も会場の撤収時刻や終電を気にせず話したい人はとことん話し続ける事ができるというところが非常に良かったです。<br />
-ホワイトボードはまだ未実装ですが、空間に書けるペンも配布されているのでその手のアイテムも取り入れれば懇親会での話も更にはずむのではないでしょうか。</p>
-<p><span class="ascii">VRChat</span>は<span class="ascii">PC</span>のみでも利用することができます。 <span class="ascii">VRC-LT</span>はほぼ月イチペースで不定期開催ですので、もしよろしければ参加していただけると嬉しいです。 開催時のアーカイブ等も以下の<span class="ascii">Web</span>サイトにて公開中です。合わせてご覧ください。 <a href="https://vrc-lt.github.io"><span class="ascii">https://vrc-lt.github.io</span></a></p>
-<h1 id="リポジトリ"><span class="link-to-here-outer"><a href="#リポジトリ" title="リポジトリ"><span class="link-to-here">Link to<br />
-here</span></a></span>リポジトリ</h1>
-<p>そんなこんなで開発中のリポジトリはこちらになります。<br />
-拙いところもいっぱいですが<span class="ascii">Issue</span>や<span class="ascii">PR</span>などで気になった点を教えていただければ幸いです！<br />
-<a href="https://github.com/vrc-lt/VRC-Slide-Server"><span class="ascii">https://github.com/vrc-lt/VRC-Slide-Server</span></a></p>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2019/unicode-show.html" lang="ja">日本語をshowしてうまく表示されなかったら</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2019/haskell-day-2019.html" style="margin-left: auto;" lang="ja">Haskell Day 2019を開催しました！</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
