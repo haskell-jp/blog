@@ -18,7 +18,7 @@ tags: Haskell-jp Admins
 
 # 背景
 
-そもそもの設立の動機は、山下さん（[nobsun](https://twitter.com/nobsun)）の好意によって個人名義で保有していたhaskell.jp ドメインを共同で管理出来るようにするためでした。ドメインを団体として保有するには、法人格と、法人名義の銀行口座が必要なのです。これ以外にも、Haskell-jpとして共有する価値のあるアカウントを管理する際の名義として、随時「日本Haskellユーザーグループ管理委員会」を使用します。
+そもそもの設立の動機は、山下さん（[\@nobsun](https://twitter.com/nobsun)）の好意によって個人名義で保有していたhaskell.jp ドメインを共同で管理出来るようにするためでした。ドメインを団体として保有するには、法人格と、法人名義の銀行口座が必要なのです。これ以外にも、Haskell-jpとして共有する価値のあるアカウントを管理する際の名義として、随時「日本Haskellユーザーグループ管理委員会」を使用します。
 
 # 今後の活動と連絡先
 
@@ -37,13 +37,13 @@ Haskell-jp Adminsが出来たからといって、Haskell-jpのあり方が大�
 
 # 現在の理事・社員
 
-- 代表理事: 山本悠滋（[@igrep](https://twitter.com/igrep)
+- 代表理事: 山本悠滋（[\@igrep](https://twitter.com/igrep)）
 - 社員:
-    - 中嶋大嗣（[@nakaji\_dayo](https://twitter.com/nakaji_dayo/)
-    - 山下伸夫（[@nobsun](https://twitter.com/nobsun)）
-    - 岡本和樹（[@kakkun61](https://twitter.com/kakkun61)）
-    - 木下郁章（[@fumieval](https://twitter.com/fumieval)）
-    - 廣瀬達也（[@lotz84\_](https://twitter.com/lotz84_)）
+    - 中嶋大嗣（[\@nakaji\_dayo](https://twitter.com/nakaji_dayo/)
+    - 山下伸夫（[\@nobsun](https://twitter.com/nobsun)）
+    - 岡本和樹（[\@kakkun61](https://twitter.com/kakkun61)）
+    - 木下郁章（[\@fumieval](https://twitter.com/fumieval)）
+    - 廣瀬達也（[\@lotz84\_](https://twitter.com/lotz84_)）
 
 # Haskell-jp Adminsの社員になるには・社員を辞めるには
 
