@@ -39,7 +39,7 @@ Haskell-jp Adminsが出来たからといって、Haskell-jpのあり方が大�
 
 - 代表理事: 山本悠滋（[\@igrep](https://twitter.com/igrep)）
 - 社員:
-    - 中嶋大嗣（[\@nakaji\_dayo](https://twitter.com/nakaji_dayo/)
+    - 中嶋大嗣（[\@nakaji\_dayo](https://twitter.com/nakaji_dayo/))
     - 山下伸夫（[\@nobsun](https://twitter.com/nobsun)）
     - 岡本和樹（[\@kakkun61](https://twitter.com/kakkun61)）
     - 木下郁章（[\@fumieval](https://twitter.com/fumieval)）
