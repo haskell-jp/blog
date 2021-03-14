@@ -29,9 +29,7 @@ Haskell-jp Adminsが出来たからといって、Haskell-jpのあり方が大�
     - [haskell-jp/communityにissue](https://github.com/haskell-jp/community/issues)として登録したり、
     - [Haskell-jpのTwitterアカウント \@haskell\_jp](https://twitter.com/haskell_jp)にメンションをください。
 - プライベートに提案・相談したい場合は:
-    - haskell-jp-admins@googlegroups.com にメールを送るか、
-    - 〒220-0004 神奈川県横浜市西区北幸 1-11-1 水信ビル7階 にお手紙をください。
-        - [横浜アントレサロン](https://entre-salon.com/salon/yokohama/)を利用させていただいています。
+    - haskell-jp-admins@googlegroups.com にメールを送ってください
 
 我々Haskell-jp Adminsは、そうした活動をバックアップするために種々の問題に取り組んでいきます。
 
