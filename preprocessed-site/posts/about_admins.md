@@ -10,7 +10,7 @@ tags: Haskell-jp Admins
 
 去る2021年2月9日、任意団体であり明確な会員資格を持たない、[日本Haskellユーザーグループ（Haskell-jp）](https://haskell.jp/blog/posts/about_us.html)における共有財産やコミュニケーションの場の管理・運営を担う法人として、一般社団法人日本Haskellユーザーグループ管理委員会（通称 Haskell-jp Admins。[法人番号 5020005014971](https://www.houjin-bangou.nta.go.jp/henkorireki-johoto.html?selHouzinNo=5020005014971)）を設立しました。法人格を持つことを活かして、Haskell-jp Adminsは次の事業に取り組みます。
 
-- プログラミング言語Haskellや、Haskellに関するイベントの企画・開催・運営
+- プログラミング言語Haskellに関するイベントの企画・開催・運営
     - イベントの会場を借りたり、ノベルティーを作成したりする際の名義として使用する予定です
 - haskell.jp ドメインの維持・管理
 - [Haskell-jpのSlack Workspace](https://haskell.jp/signin-slack.html)を始めとする、交流や情報共有を行う場の提供・管理・運営
