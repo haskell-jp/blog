@@ -43,10 +43,6 @@ Haskell-jp Adminsが出来たからといって、Haskell-jpのあり方が大�
     - 木下郁章（[\@fumieval](https://twitter.com/fumieval)）
     - 廣瀬達也（[\@lotz84\_](https://twitter.com/lotz84_)）
 
-# Haskell-jp Adminsの社員になるには・社員を辞めるには
-
-TODO: 次回のHaskell-jp Admins会議の議題にします
-
 # 定款
 
 TODO: まだ公開してないので公開しよう
