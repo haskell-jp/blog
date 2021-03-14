@@ -27,7 +27,7 @@ Haskell-jp Adminsが出来たからといって、Haskell-jpのあり方が大�
 - 公の場で提案・相談したい場合は:
     - 前述の[Haskell-jpのSlack Workspace](https://haskell.jp/signin-slack.html)の#randomチャンネルなどで投稿いただくか、
     - [haskell-jp/communityにissue](https://github.com/haskell-jp/community/issues)として登録したり、
-    - [Haskell-jpのTwitterアカウント @haskell\_jp](https://twitter.com/haskell_jp)にメンションをください。
+    - [Haskell-jpのTwitterアカウント \@haskell\_jp](https://twitter.com/haskell_jp)にメンションをください。
 - プライベートに提案・相談したい場合は:
     - haskell-jp-admins@googlegroups.com にメールを送るか、
     - 〒220-0004 神奈川県横浜市西区北幸 1-11-1 水信ビル7階 にお手紙をください。
