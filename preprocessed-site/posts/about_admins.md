@@ -3,7 +3,7 @@ title: 日本Haskellユーザーグループ管理委員会（Haskell-jp Admins�
 headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 author: Haskell-jp Admins
-date: March 21, 2021
+date: March 29, 2021
 tags: Haskell-jp Admins
 ...
 ---
