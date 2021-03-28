@@ -49,4 +49,6 @@ Haskell-jp Adminsが出来たからといって、Haskell-jpのあり方が大�
 
 # 定款
 
-TODO: まだ公開してないので公開しよう
+こちらに一部個人情報を削除した上で掲載しています。
+
+[一般社団法人 日本Haskellユーザーグループ管理委員会 定款](https://github.com/haskell-jp/community/blob/master/admins/article.md)
