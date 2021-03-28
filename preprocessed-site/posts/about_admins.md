@@ -43,6 +43,10 @@ Haskell-jp Adminsが出来たからといって、Haskell-jpのあり方が大�
     - 木下郁章（[\@fumieval](https://twitter.com/fumieval)）
     - 廣瀬達也（[\@lotz84\_](https://twitter.com/lotz84_)）
 
+# 所在地
+
+〒220-0004 神奈川県横浜市西区北幸 1-11-1 水信ビル7階
+
 # 定款
 
 TODO: まだ公開してないので公開しよう
