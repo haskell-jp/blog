@@ -7,7 +7,7 @@ date: May 30, 2021
 ...
 ---
 
-[先日のHaskell-jp Admins](about_admins.html)と同様に事務的な連絡で恐縮ですが、当ブログや[Haskell-jpのSlack Workspace](/signin-slack.html)、[GitHubのOrganization](https://haskell.jp/signin-slack.html)などにおけるコミュニケーションに適用される、[「相互を尊重したコミュニケーションのためのガイドライン」](https://github.com/haskell-jp/community/blob/master/GRC.md)を制定致しました。
+[先日のHaskell-jp Admins](about_admins.html)と同様に事務的な連絡で恐縮ですが、当ブログや[Haskell-jpのSlack Workspace](https://haskell.jp/signin-slack.html)、[GitHubのOrganization](https://github.com/haskell-jp)などにおけるコミュニケーションに適用される、[「相互を尊重したコミュニケーションのためのガイドライン」](https://github.com/haskell-jp/community/blob/master/GRC.md)を制定致しました。
 
 [Haskell-jp 相互を尊重したコミュニケーションのためのガイドライン](https://github.com/haskell-jp/community/blob/master/GRC.md)
 
