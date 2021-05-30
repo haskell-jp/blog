@@ -15,4 +15,4 @@ date: May 23, 2021
 
 このGRCは、今後[Haskell-jpのSlack Workspace](https://haskell.jp/signin-slack.html)や[Haskell-jpのGitHubにおけるOrganizationが管理するリポジトリー](https://github.com/haskell-jp/)、それからHaskell-jpとして開催するイベントなど、様々な場面で適用されます。参加されるみなさんはご理解の上、快適なコミュニティー活動をお楽しみください。
 
-それから、もちろん今秋開催予定のHaskell Day 2021においても、こちらのGRCを採用します。参加者、発表者、運営者の方々はご理解とご協力をよろしくお願いします。
+それから、もちろん今秋開催予定の[Haskell Day 2021](https://haskell.jp/haskell-day-2021/)においても、こちらのGRCを採用します。参加者、発表者、運営者の方々はご理解とご協力をよろしくお願いします。
