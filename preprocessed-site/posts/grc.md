@@ -3,7 +3,7 @@ title: 「相互を尊重したコミュニケーションのためのガイド�
 headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 author: Haskell-jp Admins
-date: May 23, 2021
+date: May 30, 2021
 ...
 ---
 
