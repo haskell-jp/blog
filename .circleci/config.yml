@@ -49,7 +49,7 @@ jobs:
               | {(.[0]): .[1:] | join("=")})
               | add' |
           curl -H 'Content-Type:application/json' -d @- \
-            https://haskell-jp-blog-artifact.herokuapp.com/
+            http://haskell-jp-blog-artifact.hask.moe/
         fi
     - persist_to_workspace:
         root: .
