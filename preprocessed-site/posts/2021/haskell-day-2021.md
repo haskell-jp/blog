@@ -1,6 +1,6 @@
 ---
 title: Haskell Day 2021を開催します
-headingBackgroundImage: https://haskell.jp/haskell-day-2021/ogp.png
+headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Kazuki Okamoto
 postedBy: <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a>
@@ -8,7 +8,9 @@ date: June 9, 2021
 tags: イベント
 ---
 
-Haskell Day 2021を開催します！
+[Haskell Day 2021](https://haskell.jp/haskell-day-2021/)を開催します！
+
+[![Haskell Day 2021](../../img/2021/haskell-day-2021/ogp.png)](https://haskell.jp/haskell-day-2021/)
 
 こんにちはkakkun61こと岡本和樹です。
 
@@ -22,7 +24,7 @@ Haskell Dayは日本語で開催されるHaskellに関するイベントとし�
 
 # 発表者募集
 
-現在[発表者募集中](https://haskell.jp/haskell-day-2021/#call-for-papers)です！
+現在[発表者募集](https://haskell.jp/haskell-day-2021/#call-for-papers)中です！
 
 今回はオンライン開催ということで、お手数ですが発表者にもオンサイトのイベントとことなった準備を要求することになります。運営としてできるかぎりのサポートをしますので安心して応募いただければと思います。
 
