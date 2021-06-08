@@ -46,3 +46,7 @@ Haskellは、関数型プログラミングの**強力な**サポートと、厳
     - 発言は[こちらのリポジトリー](https://github.com/haskell-jp/slack-log)の[doc/jsonディレクトリー](https://github.com/haskell-jp/slack-log/tree/master/doc/json)に**保存・公開**されます。あらかじめご容赦ください。
 - [定期的な勉強会やイベント](https://haskell-jp.connpass.com)の開催を通じた、ユーザー同士の交流の活性化。
     - Haskell-jp もくもく会: 趣味や仕事で書いてるプログラムの続きを書く、最近気になるあのライブラリを使ってみる、0から勉強してみる、など、Haskellに関する作業をもくもくとやったり、希望者でLTを行ったりするゆるい会です。[Haskellもくもく会](https://haskellmokumoku.connpass.com)を前身としています。
+
+# Haskell-jp Adminsこと日本Haskellユーザーグループ管理委員会について
+
+Haskell-jp Adminsについては[こちらの設立のお知らせ](about_admins.html)をご覧ください。
