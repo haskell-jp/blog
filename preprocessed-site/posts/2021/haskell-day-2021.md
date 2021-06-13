@@ -4,7 +4,7 @@ headingBackgroundImage: ../../img/background.png
 headingDivClass: post-heading
 author: Haskell-jp
 postedBy: <a href="https://twitter.com/kakkun61">Kazuki Okamoto (@kakkun61)</a>
-date: June 9, 2021
+date: June 14, 2021
 tags: イベント
 ---
 
