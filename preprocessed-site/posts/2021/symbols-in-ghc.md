@@ -35,7 +35,7 @@ Haskell、というかそのデファクトスタンダードな処理系であ�
 
 [^ghc-proposals]: 余談: [ghc-proposals](https://github.com/ghc-proposals/ghc-proposals)に送られたPull requestを見ると、今どのような提案が議論されているか分かります。
 
-実は日本語版も[Qiitaに](https://qiita.com/takenobu-hs/items/b95f0a4409c59440d4a9)あるのですが、上記のGitHub版の方が更新されているようです。そこで、今回はおまけとしてGHCに最近（バージョン9.2.1以降に）追加された、新しいピリオド `.` の使い方を紹介しましょう。
+実は日本語版も[Qiitaに](https://qiita.com/takenobu-hs/items/b95f0a4409c59440d4a9)あるのですが、上記のGitHub版の方が更新されているようです。そこで、今回はおまけとして、[GitHub版の方にも載っている](https://github.com/takenobu-hs/haskell-symbol-search-cheatsheet#--overloadedrecorddot)、GHCに最近（バージョン9.2.1以降に）追加された、新しいピリオド `.` の使い方を紹介しましょう。
 
 従来、Haskellでピリオドといえば関数合成を表す二項演算子でした:
 
