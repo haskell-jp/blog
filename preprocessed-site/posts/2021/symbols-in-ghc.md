@@ -98,7 +98,7 @@ ghci> someRecord . field2
 
 - 他のプログラマーが定義した、二項演算子（記号関数）を調べるときは:
     - [Hoogle](https://hoogle.haskell.org/)
-    - 補足: Stackageの最新のLTSから検索したいときは[Stackage](https://www.stackage.org/)のページ上部にあるフォームで検索してみましょう。こちらも内部はHOogleが使われています。
+    - 補足: Stackageの最新のLTSから検索したいときは[Stackage](https://www.stackage.org/)のページ上部にあるフォームで検索してみましょう。こちらも内部はHoogleが使われています。
 - それ以外の場合は:
     - [takenobu-hs/haskell-symbol-search-cheatsheet](https://github.com/takenobu-hs/haskell-symbol-search-cheatsheet)
 - Haskellのレコード型に嫌気が差したら:
