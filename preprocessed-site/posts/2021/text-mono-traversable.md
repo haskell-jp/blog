@@ -23,7 +23,7 @@ Haskellのよく言われる問題点の一つとして、文字列型が下記�
 
 # mono-traversableパッケージの紹介
 
-mono-traversableパッケージは、名前のとおり`MonoTraversable`や`MonoFoldable`、`MonoFunctor`といったおなじみの型クラスの名前に`Mono`という接頭辞を付けた型クラスによって、多様なコンテナ型を抽象化してくれます。これらの型クラスはすべて、`ByteString`や`Text`のような、「要素として持てる値の型が1種類だけ」の型も対象にしているのが特徴です。Type Familyを応用し、次のように型毎に様子の型を固定することで、そうした特徴を実現しています:
+mono-traversableパッケージは、名前のとおり`MonoTraversable`や`MonoFoldable`、`MonoFunctor`といったおなじみの型クラスの名前に`Mono`という接頭辞を付けた型クラスによって、多様なコンテナ型を抽象化してくれます。これらの型クラスはすべて、`ByteString`や`Text`のような、「要素として持てる値の型が1種類だけ」の型も対象にしているのが特徴です。Type Familyを応用し、次のように型毎に要素の型を固定することで、そうした特徴を実現しています:
 
 ```haskell
 type family Element mono
