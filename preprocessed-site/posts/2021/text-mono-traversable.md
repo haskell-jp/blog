@@ -58,7 +58,7 @@ instance MonoFunctor [a] where
 
 - ℹ️調査したmono-traversableパッケージのバージョンは1.0.15.3です
 - ℹ️原則として関数の名前しか見ていないので、実際には異なる用途かも知れません
-- ℹ️mono-traversableパッケージにある型クラスの他、baseパッケージにある`Monoid`, `Semigroup`などのメソッドも調査対象に含めました
+- ℹ️mono-traversableパッケージにある型クラスの他、baseパッケージにある`Monoid`、`Semigroup`などのメソッドも調査対象に含めました
 - ℹ️`String`についてはbaseパッケージにある関数のみを対象にしていますが、`Data.List`モジュールのドキュメントと自分の記憶を頼りに埋めているので間違いがあるかも知れません
 - ℹ️`Text`・`ByteString`についてはStrictなバージョンのドキュメントのみ参照しています。Lazyな方になかったらごめんなさい！
 - ℹ️`Textual`型クラスについては、`ByteString`がインスタンスになっていないのでご注意ください
