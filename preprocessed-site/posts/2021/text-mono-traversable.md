@@ -56,12 +56,12 @@ instance MonoFunctor [a] where
 
 # mono-traversableパッケージにおける型クラスのメソッドと、各種文字列型向け関数の対応表
 
-- ℹ️調査したmono-traversableパッケージのバージョンは1.0.15.3です。
+- ℹ️調査したmono-traversableパッケージのバージョンは1.0.15.3です
 - ℹ️原則として関数の名前しか見ていないので、実際には異なる用途かも知れません
-- ℹ️mono-foldableパッケージにある型クラスの他、`base`パッケージにある`Monoid`, `Semigroup`などのメソッドも調査対象に含めました
+- ℹ️mono-traversableパッケージにある型クラスの他、baseパッケージにある`Monoid`, `Semigroup`などのメソッドも調査対象に含めました
 - ℹ️`String`についてはbaseパッケージにある関数のみを対象にしていますが、`Data.List`モジュールのドキュメントと自分の記憶を頼りに埋めているので間違いがあるかも知れません
-- ℹ️`Text`・`ByteString`については大抵の場合Strictなバージョンのドキュメントのみ参照しています。Lazyな方になかったらごめんなさい！
-- ℹ️`Textual`型クラスについては、`ByteString`がインスタンスになっていないのでご注意ください。
+- ℹ️`Text`・`ByteString`についてはStrictなバージョンのドキュメントのみ参照しています。Lazyな方になかったらごめんなさい！
+- ℹ️`Textual`型クラスについては、`ByteString`がインスタンスになっていないのでご注意ください
 - ℹ️以下のような関数は除外しました:
     - `IO`が絡むもの
     - プリミティブな処理で使うもの
@@ -458,9 +458,9 @@ data B.ByteString
                                 {-# UNPACK #-}Int
 -->
 
-以上です。残念ながら万能とはいかないようで、いくつか「N/A」、すなわち対応するものがない関数もありますが、多くの場合それらは他の関数の組み合わせで実現できるでしょう。
+以上です。残念ながら万能とはいかないようで、いくつか「N/A」、すなわち対応するものがない関数もありますが、他の関数の組み合わせで実装できるものもあるでしょう。
 
-# ⚠️注意事項
+# ⚠️パフォーマンスに関わる注意事項
 
 `MonoTraversable`などに限らず、型クラスを使って関数を多相化したとき全般に言えることですが、コンパイル時にインスタンスの解決が行えなかった場合、直接対象の型の相当する関数を呼ぶより少し遅くなってしまう場合があります（[参考](https://blog.miz-ar.info/2016/06/writing-efficient-program-with-haskell/#2.specialization)）。
 
@@ -478,8 +478,10 @@ stringVal = valByFunction CodecEnvValByFunction
   }
 ```
 
-`CodecEnvVal a`型は、`a`型を`String`と相互変換するための情報を含んだ型です。`stringVal`の場合、名前のとおり文字列っぽい型と`String`との相互変換できなければなりません。もちろん単純に`String`型だけをサポートして`Text`用には別途`CodecEnvVal Text`を作ってもいいのですが、一つの`CodecEnvVal a`だけで扱えた方が当然楽なので、今回は`MonoFoldable`の`otoList`と`IsString`の`fromString`を使って両方をサポートすることにしました。なお、これでは`ByteString`がサポートできませんが、ここで相互変換する`String`は、要件上人間が読み書きするファイルにおける文字列を想定しているので、`ByteString`はバイナリーデータにだけ使うべきだ、という立場から敢えてサポートしていません。
+`CodecEnvVal a`型は、`a`型を`String`型と相互変換するための情報を含んだ型です。`stringVal`の場合、名前のとおり文字列っぽい型と`String`との相互変換ができなければなりません。もちろん単純に`String`型だけをサポートして`Text`用には別途`CodecEnvVal Text`を作ってもいいのですが、一つの`CodecEnvVal a`だけで扱えた方が楽でしょうし、今回は`MonoFoldable`の`otoList`と`IsString`の`fromString`を使って両方をサポートすることにしました。なお、これでは`ByteString`がサポートできませんが、ここで相互変換する`String`は、要件上人間が読み書きするファイルにおける文字列を想定しているので、`ByteString`はバイナリーデータにだけ使うべきだ、という立場から敢えてサポートしていません。
 
 # まとめ
 
 mono-traversableパッケージをうまく使えば、自前で専用の型クラスを作らなくても`String`・`Text`・`ByteString`などを一挙にサポートする関数が書けるかも知れません！
+
+それでは2022年はmono-traversableでHappy Haskell String Programming!🚝
