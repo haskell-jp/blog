@@ -10,6 +10,1094 @@
     </author>
     <updated>2021-12-25T00:00:00Z</updated>
     <entry>
+    <title>文字列型を抽象化するのにはmono-traversableパッケージがいいかも</title>
+    <link href="https://haskell.jp/blog/posts/2021/text-mono-traversable.html" />
+    <id>https://haskell.jp/blog/posts/2021/text-mono-traversable.html</id>
+    <published>2021-12-25T00:00:00Z</published>
+    <updated>2021-12-25T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>この記事は<a href="https://qiita.com/advent-calendar/2021/haskell"><span class="ascii">Haskell Advent Calendar 2021</span></a>の<span class="ascii">25</span>日目の記事です。</p>
+<p><span class="ascii">Haskell</span>のよく言われる問題点の一つとして、文字列型が下記のようによく使われるものだけで<strong><span class="ascii">5</span>種類</strong>もある、という点があります<span class="ascii">:</span></p>
+<ul>
+<li><code>String</code></li>
+<li><span class="ascii">Strict</span>な<code>Text</code></li>
+<li><span class="ascii">Lazy</span>な<code>Text</code></li>
+<li><span class="ascii">Strict</span>な<code>ByteString</code></li>
+<li><span class="ascii">Lazy</span>な<code>ByteString</code></li>
+</ul>
+<p><small>（上記の頻繁に使われるもの以外にも、もっとあります）</small></p>
+<p>それぞれ確かに使いどころが違うので、アプリケーションで使用する場合は場面に応じて使い分ければいいのですが、文字列を使ったライブラリーを開発する場合はなかなか悩ましいものがあります。内部で依存しているライブラリーが使用しているものがあれば、それをそのまま使うのが簡単で確実ですが、そうでない場合も多いでしょう。そこで本稿では文字列型を抽象化して扱いたい場合の手段として、<a href="https://hackage.haskell.org/package/mono-traversable"><span class="ascii">mono-traversalbe</span>パッケージ</a>を検討したいと思います。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#mono-traversableパッケージの紹介" title="mono-traversableパッケージの紹介"><span class="ascii">mono-traversable</span>パッケージの紹介</a></li>
+<li><a href="#mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表" title="mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表"><span class="ascii">mono-traversable</span>パッケージにおける型クラスのメソッドと、各種文字列型向け関数の対応表</a></li>
+<li><a href="#パフォーマンスに関わる注意事項" title="パフォーマンスに関わる注意事項">⚠️パフォーマンスに関わる注意事項</a></li>
+<li><a href="#事例-stringから相互変換できる型を抽象化する" title="事例-stringから相互変換できる型を抽象化する">事例<span class="ascii">:</span> <code>String</code>から相互変換できる型を抽象化する</a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="mono-traversableパッケージの紹介"><span class="link-to-here-outer"><a href="#mono-traversableパッケージの紹介" title="mono-traversableパッケージの紹介"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">mono-traversable</span>パッケージの紹介</h1>
+<p><span class="ascii">mono-traversable</span>パッケージは、名前のとおり<code>MonoTraversable</code>や<code>MonoFoldable</code>、<code>MonoFunctor</code>といったおなじみの型クラスの名前に<code>Mono</code>という接頭辞を付けた型クラスによって、多様なコンテナ型を抽象化してくれます。これらの型クラスはすべて、<code>ByteString</code>や<code>Text</code>のような、「要素として持てる値の型が<span class="ascii">1</span>種類だけ」の型も対象にしているのが特徴です。<span class="ascii">Type Family</span>を応用し、次のように型毎に要素の型を固定することで、そうした特徴を実現しています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Element</span> mono</a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">ByteString</span> <span class="ot">=</span> <span class="dt">Word8</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">Text</span> <span class="ot">=</span> <span class="dt">Char</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> [a] <span class="ot">=</span> a</a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co">-- ...</span></a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="kw">class</span> <span class="dt">MonoFunctor</span> mono <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="co">-- ...</span></a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="ot">  omap ::</span> (<span class="dt">Element</span> mono <span class="ot">-&gt;</span> <span class="dt">Element</span> mono) <span class="ot">-&gt;</span> mono <span class="ot">-&gt;</span> mono</a>
+<a class="sourceLine" id="cb1-12" title="12"></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">ByteString</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  omap <span class="ot">=</span> <span class="dt">ByteString</span><span class="op">.</span><span class="fu">map</span></a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">Text</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-17" title="17">  omap <span class="ot">=</span> Text.map</a>
+<a class="sourceLine" id="cb1-18" title="18"></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> [a] <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-20" title="20">  omap <span class="ot">=</span> <span class="fu">map</span></a></code></pre></div>
+<p>※<span class="ascii">mono-traversable</span>パッケージのソースから引用して少し改変しました。</p>
+<p>さらに、これまで紹介した<code>MonoTraversable</code>や<code>MonoFoldable</code>、<code>MonoFunctor</code>に加えて、<code>SemiSequence</code>や<code>IsSequence</code>という型クラスで分解や構築に関わる操作<small>（例えば<code>cons</code>や<code>break</code>）</small>などの他、<small>（今回は取り上げませんが）</small><code>SetContainer</code>などの型クラスで<code>Map</code>や<code>Set</code>、<code>IntMap</code>などの型まで抽象化してくれます。</p>
+<p>そこで次の節では、この<span class="ascii">mono-traversable</span>パッケージにおける型クラスを中心に、<code>Data.Text</code>モジュールや<code>Data.ByteString</code>モジュールにおける各関数が、どの型クラスに対するどの関数に対応するのか、まとめた表を作ってみました。</p>
+<h1 id="mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表"><span class="link-to-here-outer"><a href="#mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表" title="mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">mono-traversable</span>パッケージにおける型クラスのメソッドと、各種文字列型向け関数の対応表</h1>
+<ul>
+<li>ℹ️調査した<span class="ascii">mono-traversable</span>パッケージのバージョンは<span class="ascii">1.0.15.3</span>です</li>
+<li>ℹ️原則として関数の名前しか見ていないので、実際には異なる用途かも知れません</li>
+<li>ℹ️<span class="ascii">mono-traversable</span>パッケージにある型クラスの他、<span class="ascii">base</span>パッケージにある<code>Monoid</code>、<code>Semigroup</code>などのメソッドも調査対象に含めました</li>
+<li>ℹ️<code>String</code>については<span class="ascii">base</span>パッケージにある関数のみを対象にしていますが、<code>Data.List</code>モジュールのドキュメントと自分の記憶を頼りに埋めているので間違いがあるかも知れません</li>
+<li>ℹ️<code>Text</code>・<code>ByteString</code>については<span class="ascii">Strict</span>なバージョンのドキュメントのみ参照しています。<span class="ascii">Lazy</span>な方になかったらごめんなさい！</li>
+<li>ℹ️<code>Textual</code>型クラスについては、<code>ByteString</code>がインスタンスになっていないのでご注意ください</li>
+<li>ℹ️以下のような関数は除外しました<span class="ascii">:</span>
+<ul>
+<li><code>IO</code>が絡むもの</li>
+<li>プリミティブな処理で使うもの</li>
+</ul></li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th><code>Text</code></th>
+<th><code>ByteString</code></th>
+<th><code>String</code> <span class="ascii">(</span><code>[Char]</code><span class="ascii">)</span></th>
+<th>型クラス <span class="ascii">/</span> 関数</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>all</code></td>
+<td><code>all</code></td>
+<td><code>all</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oall</code></td>
+</tr>
+<tr class="even">
+<td><code>any</code></td>
+<td><code>any</code></td>
+<td><code>any</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oany</code></td>
+</tr>
+<tr class="odd">
+<td><code>append</code></td>
+<td><code>append</code></td>
+<td><code>++</code></td>
+<td><code>Semigroup</code> <span class="ascii">/</span> <code>&lt;&gt;</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>breakByte</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>breakEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>breakOnAll</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>breakOnEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>breakOn</code></td>
+<td><code>breakSubstring</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>break</code></td>
+<td><code>break</code></td>
+<td><code>break</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>break</code></td>
+</tr>
+<tr class="even">
+<td><code>center</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>chunksOf</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>commonPrefixes</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>compareLength</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>concatMap</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>concatMap</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldMap</code></td>
+</tr>
+<tr class="odd">
+<td><code>concat</code></td>
+<td><code>concat</code></td>
+<td><code>concat</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofold</code></td>
+</tr>
+<tr class="even">
+<td><code>cons</code></td>
+<td><code>cons</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>cons</code></td>
+</tr>
+<tr class="odd">
+<td><code>copy</code></td>
+<td><code>copy</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>count</code></td>
+<td><code>count</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>dropAround</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>dropEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>dropEnd</code></td>
+</tr>
+<tr class="odd">
+<td><code>dropWhileEnd</code></td>
+<td><code>dropWhileEnd</code></td>
+<td><code>dropWhileEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>dropWhile</code></td>
+<td><code>dropWhile</code></td>
+<td><code>dropWhile</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>dropWhile</code></td>
+</tr>
+<tr class="odd">
+<td><code>drop</code></td>
+<td><code>drop</code></td>
+<td><code>drop</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>drop</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>elemIndexEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>elemIndex</code></td>
+<td><code>elemIndex</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>elemIndices</code></td>
+<td><code>elemIndices</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>elem</code></td>
+<td><code>elem</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oelem</code></td>
+</tr>
+<tr class="even">
+<td><code>empty</code></td>
+<td><code>empty</code></td>
+<td><code>""</code></td>
+<td><code>Monoid</code> <span class="ascii">/</span> <code>mempty</code></td>
+</tr>
+<tr class="odd">
+<td><code>filter</code></td>
+<td><code>filter</code></td>
+<td><code>filter</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>filter</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>findIndexEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>findIndex</code></td>
+<td><code>findIndex</code></td>
+<td><code>findIndex</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>findIndices</code></td>
+<td><code>findIndices</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>findSubstring</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>findSubstrings</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>find</code></td>
+<td><code>find</code></td>
+<td><code>find</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>find</code></td>
+</tr>
+<tr class="even">
+<td><code>foldl'</code></td>
+<td><code>foldl'</code></td>
+<td><code>foldl'</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldl'</code></td>
+</tr>
+<tr class="odd">
+<td><code>foldl1'</code></td>
+<td><code>foldl1'</code></td>
+<td><code>foldl1'</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldl1Ex'</code></td>
+</tr>
+<tr class="even">
+<td><code>foldl1</code></td>
+<td><code>foldl1</code></td>
+<td><code>foldl1</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>foldl</code></td>
+<td><code>foldl</code></td>
+<td><code>foldl</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>foldr'</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>foldr1'</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>foldr1</code></td>
+<td><code>foldr1</code></td>
+<td><code>foldr1</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldr1Ex</code></td>
+</tr>
+<tr class="odd">
+<td><code>foldr</code></td>
+<td><code>foldr</code></td>
+<td><code>foldr</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldr</code></td>
+</tr>
+<tr class="even">
+<td><code>groupBy</code></td>
+<td><code>groupBy</code></td>
+<td><code>groupBy</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>groupBy</code></td>
+</tr>
+<tr class="odd">
+<td><code>group</code></td>
+<td><code>group</code></td>
+<td><code>group</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>group</code></td>
+</tr>
+<tr class="even">
+<td><code>head</code></td>
+<td><code>head</code></td>
+<td><code>head</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>headEx</code></td>
+</tr>
+<tr class="odd">
+<td><code>index</code></td>
+<td><code>index</code></td>
+<td><code>index</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>indexEx</code></td>
+</tr>
+<tr class="even">
+<td><code>init</code></td>
+<td><code>init</code></td>
+<td><code>init</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>initEx</code></td>
+</tr>
+<tr class="odd">
+<td><code>inits</code></td>
+<td><code>inits</code></td>
+<td><code>inits</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>intercalate</code></td>
+<td><code>intercalate</code></td>
+<td><code>intercalate</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ointercalate</code></td>
+</tr>
+<tr class="odd">
+<td><code>intersperse</code></td>
+<td><code>intersperse</code></td>
+<td><code>intersperse</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>intersperse</code></td>
+</tr>
+<tr class="even">
+<td><code>isInfixOf</code></td>
+<td><code>isInfixOf</code></td>
+<td><code>isInfixOf</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>isInfixOf</code></td>
+</tr>
+<tr class="odd">
+<td><code>isPrefixOf</code></td>
+<td><code>isPrefixOf</code></td>
+<td><code>isPrefixOf</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>isPrefixOf</code></td>
+</tr>
+<tr class="even">
+<td><code>isSuffixOf</code></td>
+<td><code>isSuffixOf</code></td>
+<td><code>isSuffixOf</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>isSuffixOf</code></td>
+</tr>
+<tr class="odd">
+<td><code>justifyLeft</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>justifyRight</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>last</code></td>
+<td><code>last</code></td>
+<td><code>last</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>lastEx</code></td>
+</tr>
+<tr class="even">
+<td><code>length</code></td>
+<td><code>length</code></td>
+<td><code>length</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>olength</code></td>
+</tr>
+<tr class="odd">
+<td><code>lines</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>lines</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>lines</code></td>
+</tr>
+<tr class="even">
+<td><code>mapAccumL</code></td>
+<td><code>mapAccumL</code></td>
+<td><code>mapAccumL</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>mapAccumR</code></td>
+<td><code>mapAccumR</code></td>
+<td><code>mapAccumR</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>map</code></td>
+<td><code>map</code></td>
+<td><code>map</code></td>
+<td><code>MonoFunctor</code> <span class="ascii">/</span> <code>omap</code></td>
+</tr>
+<tr class="odd">
+<td><code>maximum</code></td>
+<td><code>maximum</code></td>
+<td><code>maximum</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>maximumEx</code></td>
+</tr>
+<tr class="even">
+<td><code>minimum</code></td>
+<td><code>minimum</code></td>
+<td><code>minimum</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>minimumEx</code></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>notElem</code></td>
+<td><code>notElem</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>onotElem</code></td>
+</tr>
+<tr class="even">
+<td><code>null</code></td>
+<td><code>null</code></td>
+<td><code>null</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>onull</code></td>
+</tr>
+<tr class="odd">
+<td><code>pack</code></td>
+<td><code>pack</code></td>
+<td><code>id</code></td>
+<td><code>IsString</code> <span class="ascii">/</span> <code>fromString</code></td>
+</tr>
+<tr class="even">
+<td><code>partition</code></td>
+<td><code>partition</code></td>
+<td><code>partition</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>partition</code></td>
+</tr>
+<tr class="odd">
+<td><code>replace</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>replaceSeq</code></td>
+</tr>
+<tr class="even">
+<td><code>replicate</code></td>
+<td><code>replicate</code></td>
+<td><code>replicate</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>replicate</code></td>
+</tr>
+<tr class="odd">
+<td><code>reverse</code></td>
+<td><code>reverse</code></td>
+<td><code>reverse</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>reverse</code></td>
+</tr>
+<tr class="even">
+<td><code>scanl1</code></td>
+<td><code>scanl1</code></td>
+<td><code>scanl1</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>scanl</code></td>
+<td><code>scanl</code></td>
+<td><code>scanl</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>scanr1</code></td>
+<td><code>scanr1</code></td>
+<td><code>scanr1</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>scanr</code></td>
+<td><code>scanr</code></td>
+<td><code>scanr</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>singleton</code></td>
+<td><code>singleton</code></td>
+<td><code>singleton</code></td>
+<td><code>MonoPointed</code> <span class="ascii">/</span> <code>opoint</code></td>
+</tr>
+<tr class="odd">
+<td><code>snoc</code></td>
+<td><code>snoc</code></td>
+<td><code>snoc</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>snoc</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>sort</code></td>
+<td><code>sort</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>sort</code></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>spanEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>span</code></td>
+<td><code>span</code></td>
+<td><code>span</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>span</code></td>
+</tr>
+<tr class="odd">
+<td><code>splitAt</code></td>
+<td><code>splitAt</code></td>
+<td><code>splitAt</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitAt</code></td>
+</tr>
+<tr class="even">
+<td><code>splitOn</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>splitOn</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitSeq</code></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>splitWith</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitElem</code></td>
+</tr>
+<tr class="even">
+<td><code>split</code></td>
+<td><code>splitWith</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitWhen</code></td>
+</tr>
+<tr class="odd">
+<td><code>stripEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>N/A</code></td>
+</tr>
+<tr class="even">
+<td><code>stripPrefix</code></td>
+<td><code>stripPrefix</code></td>
+<td><code>stripPrefix</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>stripPrefix</code></td>
+</tr>
+<tr class="odd">
+<td><code>stripStart</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>stripSuffix</code></td>
+<td><code>stripSuffix</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>stripSuffix</code></td>
+</tr>
+<tr class="odd">
+<td><code>strip</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>tail</code></td>
+<td><code>tail</code></td>
+<td><code>tail</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>tail</code></td>
+</tr>
+<tr class="odd">
+<td><code>tails</code></td>
+<td><code>tails</code></td>
+<td><code>tails</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>takeEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>takeWhileEnd</code></td>
+<td><code>takeWhileEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>takeWhile</code></td>
+<td><code>takeWhile</code></td>
+<td><code>takeWhile</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>takeWhile</code></td>
+</tr>
+<tr class="odd">
+<td><code>take</code></td>
+<td><code>take</code></td>
+<td><code>take</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>take</code></td>
+</tr>
+<tr class="even">
+<td><code>toCaseFold</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>toCaseFold</code></td>
+</tr>
+<tr class="odd">
+<td><code>toLower</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>toLower</code></td>
+</tr>
+<tr class="even">
+<td><code>toTitle</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>toUpper</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>toUpper</code></td>
+</tr>
+<tr class="even">
+<td><code>transpose</code></td>
+<td><code>transpose</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>uncons</code></td>
+<td><code>uncons</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>uncons</code></td>
+</tr>
+<tr class="even">
+<td><code>unfoldrN</code></td>
+<td><code>unfoldrN</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>unfoldr</code></td>
+<td><code>unfoldr</code></td>
+<td><code>unfoldr</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>unlines</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>unlines</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>unlines</code></td>
+</tr>
+<tr class="odd">
+<td><code>unpack</code></td>
+<td><code>unpack</code></td>
+<td><code>id</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>otoList</code></td>
+</tr>
+<tr class="even">
+<td><code>unsnoc</code></td>
+<td><code>unsnoc</code></td>
+<td><code>N/A</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>unsnoc</code></td>
+</tr>
+<tr class="odd">
+<td><code>unwords</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>unwords</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>unwords</code></td>
+</tr>
+<tr class="even">
+<td><code>words</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>words</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>words</code></td>
+</tr>
+<tr class="odd">
+<td><code>zipWith</code></td>
+<td><code>zipWith</code></td>
+<td><code>zipWith</code></td>
+<td><code>MonoZip</code> <span class="ascii">/</span> <code>ozipWith</code></td>
+</tr>
+<tr class="even">
+<td><code>zip</code></td>
+<td><code>zip</code></td>
+<td><code>zip</code></td>
+<td><code>MonoZip</code> <span class="ascii">/</span> <code>ozip</code></td>
+</tr>
+</tbody>
+</table>
+<!--
+元ネタとして`:browse`した結果をメモしておきます
+
+> :browse Data.Text
+T.all :: (Char -> Bool) -> T.Text -> Bool
+T.any :: (Char -> Bool) -> T.Text -> Bool
+T.append :: T.Text -> T.Text -> T.Text
+T.break :: (Char -> Bool) -> T.Text -> (T.Text, T.Text)
+T.breakOn :: T.Text -> T.Text -> (T.Text, T.Text)
+T.breakOnAll :: T.Text -> T.Text -> [(T.Text, T.Text)]
+T.breakOnEnd :: T.Text -> T.Text -> (T.Text, T.Text)
+T.center :: Int -> Char -> T.Text -> T.Text
+T.chunksOf :: Int -> T.Text -> [T.Text]
+T.commonPrefixes ::
+  T.Text -> T.Text -> Maybe (T.Text, T.Text, T.Text)
+T.compareLength :: T.Text -> Int -> Ordering
+T.concat :: [T.Text] -> T.Text
+T.concatMap :: (Char -> T.Text) -> T.Text -> T.Text
+T.cons :: Char -> T.Text -> T.Text
+T.copy :: T.Text -> T.Text
+T.count :: T.Text -> T.Text -> Int
+T.drop :: Int -> T.Text -> T.Text
+T.dropAround :: (Char -> Bool) -> T.Text -> T.Text
+T.dropEnd :: Int -> T.Text -> T.Text
+T.dropWhile :: (Char -> Bool) -> T.Text -> T.Text
+T.dropWhileEnd :: (Char -> Bool) -> T.Text -> T.Text
+T.filter :: (Char -> Bool) -> T.Text -> T.Text
+T.find :: (Char -> Bool) -> T.Text -> Maybe Char
+T.findIndex :: (Char -> Bool) -> T.Text -> Maybe Int
+T.foldl :: (a -> Char -> a) -> a -> T.Text -> a
+T.foldl' :: (a -> Char -> a) -> a -> T.Text -> a
+T.foldl1 :: (Char -> Char -> Char) -> T.Text -> Char
+T.foldl1' :: (Char -> Char -> Char) -> T.Text -> Char
+T.foldr :: (Char -> a -> a) -> a -> T.Text -> a
+T.foldr1 :: (Char -> Char -> Char) -> T.Text -> Char
+T.group :: T.Text -> [T.Text]
+T.groupBy :: (Char -> Char -> Bool) -> T.Text -> [T.Text]
+T.head :: T.Text -> Char
+T.index :: T.Text -> Int -> Char
+T.init :: T.Text -> T.Text
+T.inits :: T.Text -> [T.Text]
+T.intercalate :: T.Text -> [T.Text] -> T.Text
+T.intersperse :: Char -> T.Text -> T.Text
+T.isInfixOf :: T.Text -> T.Text -> Bool
+T.isPrefixOf :: T.Text -> T.Text -> Bool
+T.isSuffixOf :: T.Text -> T.Text -> Bool
+T.justifyLeft :: Int -> Char -> T.Text -> T.Text
+T.justifyRight :: Int -> Char -> T.Text -> T.Text
+T.last :: T.Text -> Char
+T.length :: T.Text -> Int
+T.lines :: T.Text -> [T.Text]
+T.map :: (Char -> Char) -> T.Text -> T.Text
+T.mapAccumL ::
+  (a -> Char -> (a, Char)) -> a -> T.Text -> (a, T.Text)
+T.mapAccumR ::
+  (a -> Char -> (a, Char)) -> a -> T.Text -> (a, T.Text)
+T.maximum :: T.Text -> Char
+T.minimum :: T.Text -> Char
+T.null :: T.Text -> Bool
+T.pack :: String -> T.Text
+T.partition :: (Char -> Bool) -> T.Text -> (T.Text, T.Text)
+T.replace :: T.Text -> T.Text -> T.Text -> T.Text
+T.replicate :: Int -> T.Text -> T.Text
+T.reverse :: T.Text -> T.Text
+T.scanl :: (Char -> Char -> Char) -> Char -> T.Text -> T.Text
+T.scanl1 :: (Char -> Char -> Char) -> T.Text -> T.Text
+T.scanr :: (Char -> Char -> Char) -> Char -> T.Text -> T.Text
+T.scanr1 :: (Char -> Char -> Char) -> T.Text -> T.Text
+T.snoc :: T.Text -> Char -> T.Text
+T.span :: (Char -> Bool) -> T.Text -> (T.Text, T.Text)
+T.split :: (Char -> Bool) -> T.Text -> [T.Text]
+T.splitAt :: Int -> T.Text -> (T.Text, T.Text)
+T.splitOn :: T.Text -> T.Text -> [T.Text]
+T.strip :: T.Text -> T.Text
+T.stripEnd :: T.Text -> T.Text
+T.stripPrefix :: T.Text -> T.Text -> Maybe T.Text
+T.stripStart :: T.Text -> T.Text
+T.stripSuffix :: T.Text -> T.Text -> Maybe T.Text
+T.tail :: T.Text -> T.Text
+T.tails :: T.Text -> [T.Text]
+T.take :: Int -> T.Text -> T.Text
+T.takeEnd :: Int -> T.Text -> T.Text
+T.takeWhile :: (Char -> Bool) -> T.Text -> T.Text
+T.takeWhileEnd :: (Char -> Bool) -> T.Text -> T.Text
+T.toCaseFold :: T.Text -> T.Text
+T.toLower :: T.Text -> T.Text
+T.toTitle :: T.Text -> T.Text
+T.toUpper :: T.Text -> T.Text
+T.transpose :: [T.Text] -> [T.Text]
+T.uncons :: T.Text -> Maybe (Char, T.Text)
+T.unfoldr :: (a -> Maybe (Char, a)) -> a -> T.Text
+T.unfoldrN :: Int -> (a -> Maybe (Char, a)) -> a -> T.Text
+T.unlines :: [T.Text] -> T.Text
+T.unsnoc :: T.Text -> Maybe (T.Text, Char)
+T.unwords :: [T.Text] -> T.Text
+T.words :: T.Text -> [T.Text]
+T.zip :: T.Text -> T.Text -> [(Char, Char)]
+T.zipWith :: (Char -> Char -> Char) -> T.Text -> T.Text -> T.Text
+type T.Text :: *
+data T.Text
+  = Data.Text.Internal.Text {-# UNPACK #-}Data.Text.Array.Array
+                            {-# UNPACK #-}Int
+                            {-# UNPACK #-}Int
+T.empty :: T.Text
+T.singleton :: Char -> T.Text
+T.unpack :: T.Text -> String
+T.unpackCString# :: GHC.Prim.Addr# -> T.Text
+
+B.all :: (GHC.Word.Word8 -> Bool) -> B.ByteString -> Bool
+B.any :: (GHC.Word.Word8 -> Bool) -> B.ByteString -> Bool
+B.append :: B.ByteString -> B.ByteString -> B.ByteString
+B.appendFile :: FilePath -> B.ByteString -> IO ()
+B.break ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.breakByte ::
+  GHC.Word.Word8 -> B.ByteString -> (B.ByteString, B.ByteString)
+B.breakEnd ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.breakSubstring ::
+  B.ByteString -> B.ByteString -> (B.ByteString, B.ByteString)
+B.concat :: [B.ByteString] -> B.ByteString
+B.concatMap ::
+  (GHC.Word.Word8 -> B.ByteString) -> B.ByteString -> B.ByteString
+B.cons :: GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.copy :: B.ByteString -> B.ByteString
+B.count :: GHC.Word.Word8 -> B.ByteString -> Int
+B.drop :: Int -> B.ByteString -> B.ByteString
+B.dropWhile ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.dropWhileEnd ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.elem :: GHC.Word.Word8 -> B.ByteString -> Bool
+B.elemIndex :: GHC.Word.Word8 -> B.ByteString -> Maybe Int
+B.elemIndexEnd :: GHC.Word.Word8 -> B.ByteString -> Maybe Int
+B.elemIndices :: GHC.Word.Word8 -> B.ByteString -> [Int]
+B.empty :: B.ByteString
+B.filter ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.find ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> Maybe GHC.Word.Word8
+B.findIndex ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> Maybe Int
+B.findIndexEnd ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> Maybe Int
+B.findIndices :: (GHC.Word.Word8 -> Bool) -> B.ByteString -> [Int]
+B.findSubstring :: B.ByteString -> B.ByteString -> Maybe Int
+B.findSubstrings :: B.ByteString -> B.ByteString -> [Int]
+B.foldl :: (a -> GHC.Word.Word8 -> a) -> a -> B.ByteString -> a
+B.foldl' :: (a -> GHC.Word.Word8 -> a) -> a -> B.ByteString -> a
+B.foldl1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.foldl1' ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.foldr :: (GHC.Word.Word8 -> a -> a) -> a -> B.ByteString -> a
+B.foldr' :: (GHC.Word.Word8 -> a -> a) -> a -> B.ByteString -> a
+B.foldr1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.foldr1' ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.getContents :: IO B.ByteString
+B.getLine :: IO B.ByteString
+B.group :: B.ByteString -> [B.ByteString]
+B.groupBy ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> [B.ByteString]
+B.hGet :: GHC.IO.Handle.Types.Handle -> Int -> IO B.ByteString
+B.hGetContents :: GHC.IO.Handle.Types.Handle -> IO B.ByteString
+B.hGetLine :: GHC.IO.Handle.Types.Handle -> IO B.ByteString
+B.hGetNonBlocking ::
+  GHC.IO.Handle.Types.Handle -> Int -> IO B.ByteString
+B.hGetSome :: GHC.IO.Handle.Types.Handle -> Int -> IO B.ByteString
+B.hPut :: GHC.IO.Handle.Types.Handle -> B.ByteString -> IO ()
+B.hPutNonBlocking ::
+  GHC.IO.Handle.Types.Handle -> B.ByteString -> IO B.ByteString
+B.hPutStr :: GHC.IO.Handle.Types.Handle -> B.ByteString -> IO ()
+B.hPutStrLn :: GHC.IO.Handle.Types.Handle -> B.ByteString -> IO ()
+B.head :: B.ByteString -> GHC.Word.Word8
+B.index :: B.ByteString -> Int -> GHC.Word.Word8
+B.init :: B.ByteString -> B.ByteString
+B.inits :: B.ByteString -> [B.ByteString]
+B.interact :: (B.ByteString -> B.ByteString) -> IO ()
+B.intercalate :: B.ByteString -> [B.ByteString] -> B.ByteString
+B.intersperse :: GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.isInfixOf :: B.ByteString -> B.ByteString -> Bool
+B.isPrefixOf :: B.ByteString -> B.ByteString -> Bool
+B.isSuffixOf :: B.ByteString -> B.ByteString -> Bool
+B.last :: B.ByteString -> GHC.Word.Word8
+B.length :: B.ByteString -> Int
+B.map ::
+  (GHC.Word.Word8 -> GHC.Word.Word8) -> B.ByteString -> B.ByteString
+B.mapAccumL ::
+  (acc -> GHC.Word.Word8 -> (acc, GHC.Word.Word8))
+  -> acc -> B.ByteString -> (acc, B.ByteString)
+B.mapAccumR ::
+  (acc -> GHC.Word.Word8 -> (acc, GHC.Word.Word8))
+  -> acc -> B.ByteString -> (acc, B.ByteString)
+B.maximum :: B.ByteString -> GHC.Word.Word8
+B.minimum :: B.ByteString -> GHC.Word.Word8
+B.notElem :: GHC.Word.Word8 -> B.ByteString -> Bool
+B.null :: B.ByteString -> Bool
+B.pack :: [GHC.Word.Word8] -> B.ByteString
+B.packCString :: Foreign.C.String.CString -> IO B.ByteString
+B.packCStringLen :: Foreign.C.String.CStringLen -> IO B.ByteString
+B.partition ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.putStr :: B.ByteString -> IO ()
+B.putStrLn :: B.ByteString -> IO ()
+B.readFile :: FilePath -> IO B.ByteString
+B.replicate :: Int -> GHC.Word.Word8 -> B.ByteString
+B.reverse :: B.ByteString -> B.ByteString
+B.scanl ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.scanl1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> B.ByteString
+B.scanr ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.scanr1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> B.ByteString
+B.singleton :: GHC.Word.Word8 -> B.ByteString
+B.snoc :: B.ByteString -> GHC.Word.Word8 -> B.ByteString
+B.sort :: B.ByteString -> B.ByteString
+B.span ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.spanEnd ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.split :: GHC.Word.Word8 -> B.ByteString -> [B.ByteString]
+B.splitAt :: Int -> B.ByteString -> (B.ByteString, B.ByteString)
+B.splitWith ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> [B.ByteString]
+B.stripPrefix :: B.ByteString -> B.ByteString -> Maybe B.ByteString
+B.stripSuffix :: B.ByteString -> B.ByteString -> Maybe B.ByteString
+B.tail :: B.ByteString -> B.ByteString
+B.tails :: B.ByteString -> [B.ByteString]
+B.take :: Int -> B.ByteString -> B.ByteString
+B.takeWhile ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.takeWhileEnd ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.transpose :: [B.ByteString] -> [B.ByteString]
+B.uncons :: B.ByteString -> Maybe (GHC.Word.Word8, B.ByteString)
+B.unfoldr :: (a -> Maybe (GHC.Word.Word8, a)) -> a -> B.ByteString
+B.unfoldrN ::
+  Int
+  -> (a -> Maybe (GHC.Word.Word8, a)) -> a -> (B.ByteString, Maybe a)
+B.unpack :: B.ByteString -> [GHC.Word.Word8]
+B.unsnoc :: B.ByteString -> Maybe (B.ByteString, GHC.Word.Word8)
+B.unzip ::
+  [(GHC.Word.Word8, GHC.Word.Word8)] -> (B.ByteString, B.ByteString)
+B.useAsCString ::
+  B.ByteString -> (Foreign.C.String.CString -> IO a) -> IO a
+B.useAsCStringLen ::
+  B.ByteString -> (Foreign.C.String.CStringLen -> IO a) -> IO a
+B.writeFile :: FilePath -> B.ByteString -> IO ()
+B.zip ::
+  B.ByteString -> B.ByteString -> [(GHC.Word.Word8, GHC.Word.Word8)]
+B.zipWith ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> a)
+  -> B.ByteString -> B.ByteString -> [a]
+type B.ByteString :: *
+data B.ByteString
+  = Data.ByteString.Internal.PS {-# UNPACK #-}(GHC.ForeignPtr.ForeignPtr
+                                                 GHC.Word.Word8)
+                                {-# UNPACK #-}Int
+                                {-# UNPACK #-}Int
+-->
+<p>以上です。残念ながら万能とはいかないようで、いくつか「<span class="ascii">N/A</span>」、すなわち対応するものがない関数もありますが、他の関数の組み合わせで実装できるものもあるでしょう。</p>
+<h1 id="パフォーマンスに関わる注意事項"><span class="link-to-here-outer"><a href="#パフォーマンスに関わる注意事項" title="パフォーマンスに関わる注意事項"><span class="link-to-here">Link to<br />
+here</span></a></span>⚠️パフォーマンスに関わる注意事項</h1>
+<p><code>MonoTraversable</code>などに限らず、型クラスを使って関数を多相化したとき全般に言えることですが、コンパイル時にインスタンスの解決が行えなかった場合、直接対象の型の相当する関数を呼ぶより少し遅くなってしまう場合があります（<a href="https://blog.miz-ar.info/2016/06/writing-efficient-program-with-haskell/#2.specialization">参考</a>）。</p>
+<p>また、それに限らず、各型クラスのメソッドでない関数は、各型の相当する関数でオーバーライドできないため、効率の悪い処理になってしまう恐れがあります。例えば、<a href="https://hackage.haskell.org/package/mono-traversable-1.0.15.3/docs/src/Data.MonoTraversable.html#ointercalate"><code>ointercalate</code>関数</a>の実装を見ると、<code>Text</code>や<code>ByteString</code>などについては<code>RULES</code>プラグマで最適な実装を設定しているようですが、それ以外の型については一旦リストに変換してから結合する、という効率の悪そうな処理をしています。</p>
+<h1 id="事例-stringから相互変換できる型を抽象化する"><span class="link-to-here-outer"><a href="#事例-stringから相互変換できる型を抽象化する" title="事例-stringから相互変換できる型を抽象化する"><span class="link-to-here">Link to<br />
+here</span></a></span>事例<span class="ascii">:</span> <code>String</code>から相互変換できる型を抽象化する</h1>
+<p>最後に、最近私が作った（まだリリースしてない）ライブラリーにおいて、<code>MonoFoldable</code>と<code>IsString</code>を使うことで、<code>Text</code>と<code>String</code>両方をサポートした関数を紹介しておきます。ただ、時間とやる気パワーが残り少なくなってしまったので、該当の箇所だけ<a href="https://github.com/igrep/envparse-applicative/blob/0fb7b23e45a09b4f53406b46bd563312ed27f2a4/src/EnvParse/Applicative.hs#L156">こちら</a>からコピペして、説明は簡単にしておきます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">stringVal ::</span> (<span class="dt">IsString</span> a, <span class="dt">MT.MonoFoldable</span> a, <span class="dt">MT.Element</span> a <span class="op">~</span> <span class="dt">Char</span>) <span class="ot">=&gt;</span> <span class="dt">CodecEnvVal</span> a</a>
+<a class="sourceLine" id="cb2-2" title="2">stringVal <span class="ot">=</span> valByFunction <span class="dt">CodecEnvValByFunction</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  { encode <span class="ot">=</span> MT.otoList</a>
+<a class="sourceLine" id="cb2-4" title="4">  , decode <span class="ot">=</span> <span class="dt">Right</span> <span class="op">.</span> fromString</a>
+<a class="sourceLine" id="cb2-5" title="5">  }</a></code></pre></div>
+<p><code>CodecEnvVal a</code>型は、<code>a</code>型を<code>String</code>型と相互変換するための情報を含んだ型です。<code>stringVal</code>の場合、名前のとおり文字列っぽい型と<code>String</code>との相互変換ができなければなりません。もちろん単純に<code>String</code>型だけをサポートして<code>Text</code>用には別途<code>CodecEnvVal Text</code>を作ってもいいのですが、一つの<code>CodecEnvVal a</code>だけで扱えた方が楽でしょうし、今回は<code>MonoFoldable</code>の<code>otoList</code>と<code>IsString</code>の<code>fromString</code>を使って両方をサポートすることにしました。なお、これでは<code>ByteString</code>がサポートできませんが、ここで相互変換する<code>String</code>は、要件上人間が読み書きするファイルにおける文字列を想定しているので、<code>ByteString</code>はバイナリーデータにだけ使うべきだ、という立場から敢えてサポートしていません。</p>
+<h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h1>
+<p><span class="ascii">mono-traversable</span>パッケージをうまく使えば、自前で専用の型クラスを作らなくても<code>String</code>・<code>Text</code>・<code>ByteString</code>などを一挙にサポートする関数が書けるかも知れません！</p>
+<p>それでは<span class="ascii">2022</span>年は<span class="ascii">mono-traversable</span>で<span class="ascii">Happy Haskell String Programming!</span>🚝</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2021/symbols-in-ghc.html" style="margin-left: auto;" lang="ja">Haskellにおける記号の調べ方</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>Haskellにおける記号の調べ方</title>
     <link href="https://haskell.jp/blog/posts/2021/symbols-in-ghc.html" />
     <id>https://haskell.jp/blog/posts/2021/symbols-in-ghc.html</id>
@@ -141,6 +1229,9 @@ here</span></a></span>まとめ</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2021/text-mono-traversable.html" lang="ja">文字列型を抽象化するのにはmono-traversableパッケージがいいかも</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -1969,491 +3060,6 @@ here</span></a></span>おわりに</h1>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2020/io-monad-and-sideeffect.html" style="margin-left: auto;" lang="ja">IO モナドと副作用</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>IO モナドと副作用</title>
-    <link href="https://haskell.jp/blog/posts/2020/io-monad-and-sideeffect.html" />
-    <id>https://haskell.jp/blog/posts/2020/io-monad-and-sideeffect.html</id>
-    <published>2020-04-05T00:00:00Z</published>
-    <updated>2020-04-05T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p><span class="ascii">Haskell</span> は他のプログラミング言語には見られない特徴を多く持っている。その中の<span class="ascii">1</span>つが純粋性だ。<span class="ascii">Haskell</span> は純粋関数型プログラミング言語であることを、売りの<span class="ascii">1</span>つにしている。しかし、純粋性は多くの場合表現力の縮小を招く。ところが <span class="ascii">Haskell</span> は、<span class="ascii">IO</span>モナドの導入により、通常のプログラミング言語と変わらぬ表現力を持てるようになっている。これは、とても驚くべきことだ。しかし、同時にこれは <span class="ascii">Haskell</span> 入門者にとって、大きな混乱を招いているようだ。</p>
-<p>今回は、そもそも純粋性とはなんなのか、なぜ他の言語は純粋性を担保できないのか、そして <span class="ascii">Haskell</span> はどうやって <span class="ascii">IO</span> モナドにより純粋性を担保しつつ他の言語と変わらない表現力を持てるようにしているのかについて、触れていきたいと思う。</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#純粋性とは何か" title="純粋性とは何か">純粋性とは何か</a></li>
-<li><a href="#動作を扱う関数" title="動作を扱う関数">動作を扱う関数</a></li>
-<li><a href="#io-モナド" title="io-モナド"><span class="ascii">IO</span> モナド</a></li>
-<li><a href="#動作を第一級で取り扱う" title="動作を第一級で取り扱う">動作を第一級で取り扱う</a></li>
-<li><a href="#まとめ" title="まとめ">まとめ</a></li>
-<li><a href="#おまけ-ioモナドの実装" title="おまけ-ioモナドの実装">おまけ<span class="ascii">: IO</span>モナドの実装</a></li>
-</ul>
-</div>
-</div>
-<h2 id="純粋性とは何か"><span class="link-to-here-outer"><a href="#純粋性とは何か" title="純粋性とは何か"><span class="link-to-here">Link to<br />
-here</span></a></span>純粋性とは何か</h2>
-<p><span class="ascii">Haskell</span> は純粋関数型プログラミング言語 <span class="ascii">(purely functional programming language)</span> を売りにしている。関数型 <span class="ascii">(functional)</span> の部分は他に任せるとして、ここでは<strong>純粋 <span class="ascii">(purely)</span></strong> の部分に着目しよう。純粋とはなんだろうか？ どういう条件を満たせば、プログラミング言語は純粋と言えるんだろうか？ <a href="https://www.haskell.org/"><span class="ascii">Haskell</span> の公式サイト</a> ではこう述べられている<span class="ascii">:</span></p>
-<blockquote>
-<p><span class="ascii">Every function in Haskell is a function in the mathematical sense (i.e.,</span> “<span class="ascii">pure</span>”<span class="ascii">).</span></p>
-<p><span class="ascii">Haskell</span> の全ての関数は、数学の意味での関数 <span class="ascii">(</span>つまり「純粋」<span class="ascii">)</span> です。</p>
-<p>– <a href="https://www.haskell.org/"><span class="ascii">haskell.org</span></a> <span class="ascii">Features: Purely functional</span> より</p>
-</blockquote>
-<p>ふむ、どうやら全ての関数が、数学的な意味での関数であれば、そのプログラミング言語は純粋と言えるようだ。ところで、数学的な意味での関数とはなんだろうか？ 関数が純粋とはどういうことを指すんだろうか？ これは噛み砕くと、</p>
-<ol type="1">
-<li><p>関数はどんな時も、同じ引数を与えられたら同じ結果を返す</p>
-<p>つまり、関数は毎回まっさらな状態で始まり、前にどんなことがあったのか、今巷でどういうことが起きてるのかを全く考慮に入れず、ただ受け取った引数から得られる情報だけを使って結果を計算する。</p></li>
-<li><p>関数は、副作用を持たない</p>
-<p>つまり、関数は計算の結果を返す以外の役割を持たない。例えば、関数を<span class="ascii">1</span>回呼び出すのと、関数を<span class="ascii">1</span>回呼び出してその結果を捨てまたもう<span class="ascii">1</span>回呼び出すので結果が変わることはない。</p></li>
-</ol>
-<p>という<span class="ascii">2</span>つの性質にまとめられる <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。具体的には、関数 <code>f</code> が、</p>
-<ul>
-<li><span class="ascii">1</span>回目の <code>f 1</code> では <code>2</code> を返し、<span class="ascii">2</span>回目の <code>f 1</code> では <code>3</code> を返す</li>
-</ul>
-<p>という動作をするなら、これは <span class="ascii">1</span> の条件にも <span class="ascii">2</span> の条件にも違反することになる。では、関数 <code>printString</code> が</p>
-<ul>
-<li>受け取った文字列をターミナルに出力し、<code>()</code> を結果として返す</li>
-</ul>
-<p>ことを考えよう。関数 <code>printString</code> は常に <code>()</code> を返すので <span class="ascii">1</span> の条件にはマッチする。しかし、この関数は、与えられた文字列をターミナルに出力するので、<span class="ascii">1</span>回呼び出すか<span class="ascii">2</span>回呼び出すかは重要な違いになる。よって、<span class="ascii">2</span> 番目の条件を満たさないため、純粋ではない。逆に、関数 <code>getNowYear</code> が、</p>
-<ul>
-<li>完全に副作用を持たず、何回呼び出しても他には何の影響もないが、今の年数を返す関数で、年が変わるごとに結果が変わる</li>
-</ul>
-<p>となると <span class="ascii">1</span> の条件に違反するため、やはり純粋ではない。関数が純粋になるためには、何の面白味もないかもしれないが、<span class="ascii">1</span> と <span class="ascii">2</span> の条件を守らないといけない。決して夕日が沈むと突然結果を出さなくなったり、関数を呼ぶ度に近所の犬が吠えたり静かになったりしてはいけない。</p>
-<p>さて、このような定義なら、多くのプログラミング言語の関数が純粋性を持たないのは納得できるだろう。同じ引数でも呼ぶタイミングによって結果が変わる関数、関数を呼ぶと全く予期しなかったスイッチが作動し、別の関数の結果が突然変わるようなプログラムを思いつく人は少なくないはずだ。ただ、その人たちは同時にこうも思うだろう。</p>
-<blockquote>
-<p>そのような関数はプログラミングでは必要不可欠だ。<span class="ascii">Haskell</span> はその必要不可欠な関数を、純粋性のためだけに書けないようにしてるのだろうか？</p>
-</blockquote>
-<p>その疑問は至極妥当で、当然のものだ。そして安心して欲しい。その質問に対する答えは <span class="ascii">NO</span> だ。<span class="ascii">Haskell</span> は純粋性を保ちながら、そのような必要不可欠な関数を表現する方法を持っている。</p>
-<h2 id="動作を扱う関数"><span class="link-to-here-outer"><a href="#動作を扱う関数" title="動作を扱う関数"><span class="link-to-here">Link to<br />
-here</span></a></span>動作を扱う関数</h2>
-<p><span class="ascii">Haskell</span> には、ターミナルに出力する動作を扱う関数や、ターミナルへの入力を受け取る動作を扱う関数が存在する。これは、どうも先ほどまでの純粋性の定義とは相容れないように見える。<span class="ascii">Haskell</span> の純粋関数型プログラミング言語という性質は、そのような関数を除いては純粋という意味なんだろうか？ それなら他のプログラミング言語でも事情は変わらない。ところが、<span class="ascii">Haskell</span> はそのような関数まで純粋なのだ。そのカラクリについて、見ていこう。</p>
-<p><span class="ascii">Haskell</span> でターミナルに文字列を <span class="ascii">(</span>改行付きで<span class="ascii">)</span> 出力する動作を扱う関数として、<code>putStrLn</code> という関数がある。これを題材として扱っていこう。この関数はどういう型を持っているのだろう？ もし、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">putStrLn</span><span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> ()</a></code></pre></div>
-<p>という型になっていたら、この場合は文字列を受け取り <code>()</code> 型の値を返す関数になる。<code>()</code> 型は次のように定義される <a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a><span class="ascii">:</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">data</span> () <span class="ot">=</span> ()</a></code></pre></div>
-<p>つまり、<code>()</code> というたった一つの値を持つ型になる。なので、<code>putStrLn</code> が <code>putStrLn :: String -&gt; ()</code> という型を持っていた場合は、常に <code>()</code> という値を返す関数となり、純粋性の <span class="ascii">1</span> 番目の条件を満たす。しかし、<code>putStrLn</code> は呼び出し回数に応じて文字列をターミナルに出力していくので、副作用を持ち、<span class="ascii">2</span> 番目の条件には到底当てはまらない。では、<span class="ascii">2</span> 番目の条件に当てはまるようにするにはどうすればいいだろう？ そのような選択肢は到底ないように見える。</p>
-<p>実際には、<span class="ascii">Haskell</span> の <code>putStrLn</code> は</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">putStrLn</span><span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a></code></pre></div>
-<p>という型を持つ。つまり、返る値は <code>IO ()</code> という不思議な型を持つ。こうすると純粋に文字列をターミナルに出力できるんだろうか？ 答えは <span class="ascii">NO</span> だ。<span class="ascii">Haskell</span> の <code>putStrLn</code> 関数は、</p>
-<ul>
-<li>受け取った文字列をターミナルに出力する</li>
-</ul>
-<p>関数ではない。<span class="ascii">Haskell</span> は、到底純粋性を持たないような操作をする関数を、そもそも関数の見方を変えて提供することで純粋性を保っている。この関数 <code>putStrLn</code> は</p>
-<ul>
-<li>受け取った文字列から、「ターミナルにその文字列を出力する動作」を返す</li>
-</ul>
-<p>関数だ。そして、「ターミナルにその文字列を出力する動作」は <code>IO ()</code> という型を持つ。動作 <span class="ascii">(action)</span> とは、文字通り「何をするか」 <a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> を表す。<code>IO a</code> は、</p>
-<ul>
-<li>動作、つまり「何をするか」を表す値を持つ</li>
-<li>その動作をした結果、得られる値の型が <code>a</code> であることを表す</li>
-</ul>
-<p>型だ。抽象的すぎてあまりピンとこないかもしれない。もし、その動作が結果を返す以外に何もしないなら、それは純粋な操作であるから、次のように書ける<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">data</span> <span class="dt">PureAction</span> a <span class="ot">=</span> <span class="dt">PureAction</span> (() <span class="ot">-&gt;</span> a)</a></code></pre></div>
-<p>つまり、引数が何もない純粋関数だ。例えば、整数を<span class="ascii">2</span>つ受け取って、その和を計算する動作を返す関数は次のように書けるだろう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">addAction ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">PureAction</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb5-2" title="2">addAction x y <span class="ot">=</span> <span class="dt">PureAction</span> (\_ <span class="ot">-&gt;</span> x <span class="op">+</span> y)</a></code></pre></div>
-<p><code>putStrLn</code> も <code>addAction</code> と同じように、値そのものではなくその値を計算する<strong>動作</strong>それ自体を返す。ただ、<code>putStrLn</code> が返す <code>IO</code> の動作は、<code>PureAction</code> の動作よりもっと一般的なものだ。つまり、純粋な動作ではないかもしれないということだ。もしかしたらそれは、今の時刻で結果を変えるかもしれないし、結果は常に変わらなくても何回呼び出すかでターミナルに表示する文字を変えるかもしれない。つまり、完全に純粋な関数では表せないかもしれない。でも、動作自体は不変的だ。<code>putStrLn "str"</code> は</p>
-<ul>
-<li>ターミナルに <code>"str"</code> を出力する動作</li>
-</ul>
-<p>を表す。これが、<span class="ascii">10</span>時にはこういう動作を返してきたのが、<span class="ascii">12</span>時には</p>
-<ul>
-<li>ターミナルに <code>"str"</code> を出力し、お昼の鐘を鳴らす動作</li>
-</ul>
-<p>を返すようになるということはないし、この動作を返す以外に</p>
-<ul>
-<li>勝手にターミナルに文字列を出力する</li>
-</ul>
-<p>ということもない。例えば、<span class="ascii">GHCi</span> で以下のようなプログラムの出力を見てみよう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">let</span> _ <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;str&quot;</span> <span class="kw">in</span> ()</a>
-<a class="sourceLine" id="cb6-2" title="2">()</a></code></pre></div>
-<p>これは</p>
-<ol type="1">
-<li><code>putStrLn "str"</code> を計算し、</li>
-<li>結果を捨て</li>
-<li><code>()</code> を返す</li>
-</ol>
-<p>というプログラムだ。このプログラムを評価しても、<code>()</code> だけしか目にしないはずで、何回実行しても同じ結果が得られるはずだ。つまり、<code>putStrLn</code> は余計なことを何もしていないと言えるだろう。そう説明すると、ちょっと <span class="ascii">Haskell</span> をかじった人は</p>
-<blockquote>
-<p>この説明は間違っている。この式は <code>putStrLn "str"</code> を全く評価していないので、実際に <code>putStrLn "str"</code> が余計なことを何もしていないかは分からない</p>
-</blockquote>
-<p>と言うだろう。その通りだ。この説明は間違っている。それを確認してみよう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="kw">let</span> _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;something happened!&quot;</span> <span class="kw">in</span> ()</a>
-<a class="sourceLine" id="cb7-2" title="2">()</a></code></pre></div>
-<p>もし、さっきの <code>putStrLn "str"</code> がちゃんと計算されていたなら、今回は <code>something happened!</code> というエラーが見れるはずだ。ところが、全く何の問題もなく式の実行は終わり、<code>()</code> が出力されてしまった。<span class="ascii">Haskell</span> は遅延評価により、最終結果に本当に必要な部分しか計算してくれないので、<code>putStrLn "str"</code> の部分は計算されず無視されてしまっていただけのようだ。では、ちゃんと修正してみよう。修正は、<code>seq</code> という魔法の関数を使うことで可能だ。<code>seq :: a -&gt; b -&gt; b</code> は一番最初に渡された引数を <span class="ascii">(</span>必要かどうかに関わらず、強制的に<span class="ascii">)</span> 計算し、その後<span class="ascii">2</span>番目の引数を返す関数だ。この関数を使うと、次のように修正が可能だ<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;str&quot;</span> <span class="ot">`seq`</span> ()</a>
-<a class="sourceLine" id="cb8-2" title="2">()</a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="op">&gt;&gt;&gt;</span> <span class="fu">error</span> <span class="st">&quot;something happened!&quot;</span> <span class="ot">`seq`</span> ()</a>
-<a class="sourceLine" id="cb8-4" title="4"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> something happened<span class="op">!</span></a></code></pre></div>
-<p>今度は大丈夫だろう。<code>putStrLn "str"</code> の部分をエラーに変えると、ちゃんとエラーが出力されている。<code>putStrLn "str"</code> は計算されているようだ。そう、<code>putStrLn "str"</code> が実行されて実際に行われるのは、その定義通り</p>
-<ul>
-<li>「ターミナルに <code>"str"</code> を出力する動作」を返す</li>
-</ul>
-<p>ということだけで、他には何もしない。常に同じ動作を返すし、副作用を起こしたりもしない。これは純粋関数の定義に当てはまっている。<code>putStrLn</code> は純粋な関数なのだ。そして、その動作には、動作の結果の型によって型が決まっていて、それが <code>IO</code> 型ということになる。</p>
-<blockquote>
-<p>では、実際に <code>putStrLn</code> はどういう定義になるんだろう？ その定義は純粋な枠組みで定義できるんだろうか？</p>
-</blockquote>
-<p>と疑問を持つ人はいるかもしれない。その疑問はとても良いところをついている。そう、<code>putStrLn</code> は、<span class="ascii">Haskell</span> では定義できない。もしくは、定義するならば「文字列をターミナルに出力する動作」を表す値の作成方法を、何らかの仕組みで提供する必要がある。もし、</p>
-<ul>
-<li>「文字列 <code>s</code> をターミナルに出力する動作」を <code>PutStrLn s :: IO ()</code> と書ける</li>
-</ul>
-<p>なら、その時は、<code>putStrLn</code> を次のように定義できる<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="fu">putStrLn</span><span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="fu">putStrLn</span> s <span class="ot">=</span> <span class="dt">PutStrLn</span> s</a></code></pre></div>
-<p>ただ、今度は <code>PutStrLn</code> を <span class="ascii">Haskell</span> で定義するにはどうすればいいのだろう？ という話になり、この話は延々と続くことになるだろう。現実世界の純粋なエミュレータを <span class="ascii">Haskell</span> 内部で実装すれば収束するかもしれない。しかし、私たちは、現実世界をコストなく扱いたいわけであり、純粋かどうかは重要なことではない。そして、別に <code>putStrLn</code> を <span class="ascii">Haskell</span> 内で純粋に定義したいのではなく、「文字列 <code>s</code> をターミナルに出力する動作」を扱いたいだけなのだ。なので、<span class="ascii">Haskell</span> は純粋な部分だけは目に見える範囲で提供し、非純粋な部分は隠蔽し、純粋に扱うことだけをできるようにしている。</p>
-<p>では、実際にこの動作を実行したい時はどうすればいいんだろう？ <code>putStrLn "str"</code> が純粋に、「<code>"str"</code> をターミナルに出力する動作」を返してきて、それを純粋に扱うことしかできないとなると、実際にターミナルに出力することはできないのではないだろうか？ それもその通りだ。では、<span class="ascii">Haskell</span> ではその問題をどう解決するか。実は <span class="ascii">Haskell</span> の <code>main</code> プログラムは、<code>IO</code> 型の値で定義するようになっている。つまり、</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb10-2" title="2">main <span class="ot">=</span> <span class="fu">putStrLn</span> <span class="st">&quot;str&quot;</span></a></code></pre></div>
-<p>というように、<code>main</code> を何らかの <code>IO</code> 動作で定義する。そして、実際にこのプログラムからコンパイルされた実行ファイルは、定義された動作をそのまま行うようになっている。こうすることで、<span class="ascii">Haskell</span> は純粋性を保ちながら、非純粋な動作を扱えるようになっている。</p>
-<h2 id="io-モナド"><span class="link-to-here-outer"><a href="#io-モナド" title="io-モナド"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">IO</span> モナド</h2>
-<p><span class="ascii">Haskell</span> の <code>putStrLn</code> が純粋な理由は分かってもらえただろうか？ さて中には、</p>
-<blockquote>
-<p>主張は分かったが、純粋に扱うだけに制限するということは、普通のプログラミング言語より非純粋な動作を上手く扱えないんじゃないか</p>
-</blockquote>
-<p>と疑問に思う人もいるだろう。これも当然の疑問だ。普通のプログラミング言語は、表現力豊かで、様々な制御構文を持ち、それぞれの構文が純粋性に拘らないため、とてもユニークな非純粋なプログラムを書くことができる。ただ、安心して欲しい。<span class="ascii">Haskell</span> も、それに負けない表現力で、非純粋な動作を作成することができる。さて、<span class="ascii">Haskell</span> は、普通のプログラミング言語の機構の基盤は</p>
-<ul>
-<li><span class="ascii">2</span>つの動作を上手く結合できること</li>
-</ul>
-<p>ではないかと考えた。そして、このうまく結合する機構を、<code>IO</code> 動作の上で実現する方法を考えた。結果、<span class="ascii">Haskell</span> では<span class="ascii">2</span>つの特殊な操作が組み込まれている<span class="ascii">:</span></p>
-<ul>
-<li>純粋な計算を、<code>IO</code> 動作に変換する<span class="ascii">:</span> <code>pure :: a -&gt; IO a</code></li>
-<li><span class="ascii">2</span>つの <code>IO</code> 動作を繋げる<span class="ascii">:</span> <code>(&gt;&gt;=) :: IO a -&gt; (a -&gt; IO b) -&gt; IO b</code></li>
-</ul>
-<p><code>(&gt;&gt;=)</code> については少し説明が必要だろう。<span class="ascii">2</span>つの <code>IO</code> 動作を繋げるというのは、<code>(&gt;&gt;=) :: IO a -&gt; IO b -&gt; IO b</code> となった方が自然そうである。しかし、普通のプログラミング言語は、</p>
-<ul>
-<li>前の動作の結果により、次に行う動作を変える <span class="ascii">(</span><code>if</code> 文や <code>while</code> 文など<span class="ascii">)</span></li>
-</ul>
-<p>ということが可能だ。そして、前の動作の結果は変数束縛などにより自由に参照できる。<span class="ascii">Haskell</span> は、<code>IO</code> 動作を純粋性により実際に実行することはできない。その代わり、上の動作の制御機構を、繋げる操作に組み入れることで代用しようとしたのだ。つまり、</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> b</a></code></pre></div>
-<p>の操作は、</p>
-<ol type="1">
-<li>最初に受け取った <code>IO</code> 動作を実行し、</li>
-<li>その結果から、次に行う <code>IO</code> 動作を<strong>純粋に</strong>生成し、</li>
-<li>生成された動作を行う</li>
-</ol>
-<p>という動作全体を表す <code>IO</code> 動作を生成する。この結果から次に行う <code>IO</code> 動作を生成する部分をうまく定義すれば、<code>(&gt;&gt;=)</code> によって様々な制御構文を模倣できるのではないかと考えたのだ。この仕組みはとても上手くいった。<span class="ascii">Haskell</span> では、非純粋な動作を<code>if</code> 文や <code>while</code> 文で任意に実行することを、次のような純粋に動作を切り替える関数で代用する<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="ot">ifIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
-<a class="sourceLine" id="cb12-2" title="2">ifIO b act1 act2 <span class="ot">=</span> <span class="kw">case</span> b <span class="kw">of</span></a>
-<a class="sourceLine" id="cb12-3" title="3">  <span class="dt">True</span>  <span class="ot">-&gt;</span> act1</a>
-<a class="sourceLine" id="cb12-4" title="4">  <span class="dt">False</span> <span class="ot">-&gt;</span> act2</a>
-<a class="sourceLine" id="cb12-5" title="5"></a>
-<a class="sourceLine" id="cb12-6" title="6"><span class="ot">whileIO ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> a) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb12-7" title="7">whileIO isEnd x0 act <span class="ot">=</span> go x0 <span class="kw">where</span></a>
-<a class="sourceLine" id="cb12-8" title="8">  go x <span class="ot">=</span> ifIO (isEnd x)</a>
-<a class="sourceLine" id="cb12-9" title="9">    (<span class="fu">pure</span> ())</a>
-<a class="sourceLine" id="cb12-10" title="10">    (</a>
-<a class="sourceLine" id="cb12-11" title="11">        act x <span class="op">&gt;&gt;=</span> \nx <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb12-12" title="12">        go nx</a>
-<a class="sourceLine" id="cb12-13" title="13">    )</a></code></pre></div>
-<p>これらの関数を使えば、</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb13-2" title="2">main <span class="ot">=</span></a>
-<a class="sourceLine" id="cb13-3" title="3">  <span class="fu">getLine</span> <span class="op">&gt;&gt;=</span> \loopCmd <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb13-4" title="4">  ifIO (loopCmd <span class="op">/=</span> <span class="st">&quot;loop&quot;</span>)</a>
-<a class="sourceLine" id="cb13-5" title="5">    (<span class="fu">putStrLn</span> <span class="st">&quot;No loop&quot;</span>)</a>
-<a class="sourceLine" id="cb13-6" title="6">    (whileIO (\(b, _) <span class="ot">-&gt;</span> b) (<span class="dt">False</span>, <span class="dv">0</span>) (\(_, i) <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb13-7" title="7">        <span class="fu">putStrLn</span> (<span class="st">&quot;loop &quot;</span> <span class="op">++</span> <span class="fu">show</span> i) <span class="op">&gt;&gt;=</span> \_ <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb13-8" title="8">        <span class="fu">getLine</span> <span class="op">&gt;&gt;=</span> \loopEndCmd <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb13-9" title="9">        ifIO (loopEndCmd <span class="op">==</span> <span class="st">&quot;end&quot;</span>)</a>
-<a class="sourceLine" id="cb13-10" title="10">          (<span class="fu">pure</span> (<span class="dt">True</span>, i))</a>
-<a class="sourceLine" id="cb13-11" title="11">          (<span class="fu">pure</span> (<span class="dt">False</span>, i <span class="op">+</span> <span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb13-12" title="12">    ))</a></code></pre></div>
-<p>のようなプログラムが書ける。このプログラムは、</p>
-<ol type="1">
-<li>最初にターミナルへの入力を待ち、<code>loop</code> と打たれれば、ループに入る。それ以外の場合は <code>"No loop"</code> と出力し、プログラムを終了する。</li>
-<li>今のループの回数を出力し、ターミナルへの入力を待つ。</li>
-<li>ターミナルに <code>end</code> と打たれれば、プログラムを終了する。それ以外の場合、ループカウントを<span class="ascii">1</span>増加させて、<span class="ascii">2</span> に戻る。</li>
-</ol>
-<p>ということを行う。このように、純粋な範囲内で繋げる操作を工夫することで、普通のプログラミング言語の機構を <code>IO</code> 動作内に組み込めるようになっている。ただ、このプログラムは大変見にくい。なので、<span class="ascii">Haskell</span> はさらに、この繋げる操作を元に、次のような <span class="ascii">DSL</span> を提供している<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb14-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb14-3" title="3">  loopCmd <span class="ot">&lt;-</span> <span class="fu">getLine</span></a>
-<a class="sourceLine" id="cb14-4" title="4">  ifIO (loopCmd <span class="op">/=</span> <span class="st">&quot;loop&quot;</span>)</a>
-<a class="sourceLine" id="cb14-5" title="5">    (<span class="fu">putStrLn</span> <span class="st">&quot;No loop&quot;</span>)</a>
-<a class="sourceLine" id="cb14-6" title="6">    (whileIO (\(b, _) <span class="ot">-&gt;</span> b) (<span class="dt">False</span>, <span class="dv">0</span>) (\(_, i) <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb14-7" title="7">        <span class="fu">putStrLn</span> (<span class="st">&quot;loop &quot;</span> <span class="op">++</span> <span class="fu">show</span> i)</a>
-<a class="sourceLine" id="cb14-8" title="8">        loopEndCmd <span class="ot">&lt;-</span> <span class="fu">getLine</span></a>
-<a class="sourceLine" id="cb14-9" title="9">        ifIO (loopEndCmd <span class="op">==</span> <span class="st">&quot;end&quot;</span>)</a>
-<a class="sourceLine" id="cb14-10" title="10">          (<span class="fu">pure</span> (<span class="dt">True</span>, i))</a>
-<a class="sourceLine" id="cb14-11" title="11">          (<span class="fu">pure</span> (<span class="dt">False</span>, i <span class="op">+</span> <span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb14-12" title="12">    ))</a></code></pre></div>
-<p>少しは見やすくなっただろうか？ この操作は、そこまで特別な操作をしてるわけではない。インデントを解析して、</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb15-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb15-3" title="3">  x1 <span class="ot">&lt;-</span> e1</a>
-<a class="sourceLine" id="cb15-4" title="4">  x2 <span class="ot">&lt;-</span> e2</a>
-<a class="sourceLine" id="cb15-5" title="5">  e3</a></code></pre></div>
-<p>というのを、</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb16-2" title="2">main <span class="ot">=</span></a>
-<a class="sourceLine" id="cb16-3" title="3">  e1 <span class="op">&gt;&gt;=</span> \x1 <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb16-4" title="4">  x2 <span class="ot">&lt;-</span> e2</a>
-<a class="sourceLine" id="cb16-5" title="5">  e3</a></code></pre></div>
-<p>に変形して、さらに</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb17-2" title="2">main <span class="ot">=</span></a>
-<a class="sourceLine" id="cb17-3" title="3">  e1 <span class="op">&gt;&gt;=</span> \x1 <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb17-4" title="4">  e2 <span class="op">&gt;&gt;=</span> \x2 <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb17-5" title="5">  e3</a></code></pre></div>
-<p>と変形して、</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb18-2" title="2">main <span class="ot">=</span></a>
-<a class="sourceLine" id="cb18-3" title="3">  e1 <span class="op">&gt;&gt;=</span> \x1 <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb18-4" title="4">  e2 <span class="op">&gt;&gt;=</span> \x2 <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb18-5" title="5">  e3</a></code></pre></div>
-<p>と変形する、というように最初から<span class="ascii">1</span>行<span class="ascii">1</span>行変形して、<code>do</code> がなくなるまで変形を行うだけだ。つまり一行一行の動作を <code>(&gt;&gt;=)</code> で繋げていくのだ。なお、一番最後以外は <code>x &lt;- e</code> という形になっているのが基本で、もしそのような形になっていない <code>e</code> は、<code>_ &lt;- e</code> と変換される <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> 。なので、</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb19-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb19-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span></a>
-<a class="sourceLine" id="cb19-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
-<p>は、</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb20-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb20-3" title="3">  _ <span class="ot">&lt;-</span> <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span></a>
-<a class="sourceLine" id="cb20-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
-<p>と変換された後、先ほどの変換によって、</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb21-2" title="2">main <span class="ot">=</span></a>
-<a class="sourceLine" id="cb21-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span> <span class="op">&gt;&gt;=</span> \_ <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb21-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
-<p>となる。このようにして、<span class="ascii">Haskell</span> は他のプログラミング言語の非純粋な動作を、純粋な枠組みでも同じように扱えるようになっている <a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> 。<span class="ascii">Haskell</span> は、この仕組みをモナディック<code>IO</code>と名付け、<code>IO</code> 型を <code>IO</code> モナドと呼んでいる。モナドとは何か、どういう便利な側面があるのかについては、他の記事に譲る。</p>
-<h2 id="動作を第一級で取り扱う"><span class="link-to-here-outer"><a href="#動作を第一級で取り扱う" title="動作を第一級で取り扱う"><span class="link-to-here">Link to<br />
-here</span></a></span>動作を第一級で取り扱う</h2>
-<p>どうやら、<span class="ascii">Haskell</span> の <code>IO</code> 動作の仕組みが、純粋な枠組みでも他のプログラミング言語とそう劣るものではないということが分かってもらえただろうか？ ところで、先ほどの <code>ifIO</code> や <code>whileIO</code> は、<code>IO</code> 動作を何事もなく引数にとって返したりしていた。<code>ifIO</code> の定義をもう一度よく見てみよう<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="ot">ifIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
-<a class="sourceLine" id="cb22-2" title="2">ifIO b act1 act2 <span class="ot">=</span> <span class="kw">case</span> b <span class="kw">of</span></a>
-<a class="sourceLine" id="cb22-3" title="3">  <span class="dt">True</span>  <span class="ot">-&gt;</span> act1</a>
-<a class="sourceLine" id="cb22-4" title="4">  <span class="dt">False</span> <span class="ot">-&gt;</span> act2</a></code></pre></div>
-<p>このプログラムは、条件を表す引数と、<code>IO</code> 動作を<span class="ascii">2</span>個受け取り、条件によって<span class="ascii">2</span>つの動作のうちのどちらかを返していた。これは考えてみれば、とても不思議で強力なことだと思わないだろうか？ 普通のプログラミング言語の <code>if</code> 文は、条件から書かれたプログラムのどちらかを実行する。一方、<code>ifIO</code> は実行を制御しているわけではない。単に、普通の関数と同じように、<span class="ascii">2</span>つの動作を受け取って、そのうちの片方を関数の返り値として返すだけだ。<code>ifIO</code> を呼び出したプログラマは、返ってきた動作をゴミ箱に捨ててもいいし、<code>(&gt;&gt;=)</code> で繋げて「<span class="ascii">2</span>回続けて同じ動作をする」<span class="ascii">1</span>つの動作にしてもいい。もちろんその動作も <code>main</code> に組み入れるかはプログラマ次第だ。なんなら、<code>main</code> 以外にライブラリの一部としてグローバルに定義してもいい。ライブラリを使うユーザは、やっぱりそれを使うも使わないも自由だ。<code>main</code> に組み入れない限り、その動作は単なるデータであり、実行もされない。</p>
-<p><code>IO</code> 動作がデータであることは、プログラムをより豊かにする。さっきの <code>ifIO</code> は、条件によって片方の動作を返していた。<code>IO</code>動作はもっと多彩に制御できる。例えば、条件によって動作の順番を変えたかったら次のように書けばいい<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="ot">chooseOrderIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
-<a class="sourceLine" id="cb23-2" title="2">chooseOrderIO b act1 act2 <span class="ot">=</span> <span class="kw">case</span> b <span class="kw">of</span></a>
-<a class="sourceLine" id="cb23-3" title="3">  <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb23-4" title="4">    act1</a>
-<a class="sourceLine" id="cb23-5" title="5">    act2</a>
-<a class="sourceLine" id="cb23-6" title="6">  <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb23-7" title="7">    act2</a>
-<a class="sourceLine" id="cb23-8" title="8">    act1</a></code></pre></div>
-<p><code>chooseOrderIO</code> は条件によって、受け取った動作を実行する順番を変え、その順序で結合した動作を返す。順番が同じで結果だけ選ぶといったこともできる<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1"><span class="ot">ifResultIO ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
-<a class="sourceLine" id="cb24-2" title="2">ifResultIO b act1 act2 <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb24-3" title="3">  x1 <span class="ot">&lt;-</span> act1</a>
-<a class="sourceLine" id="cb24-4" title="4">  x2 <span class="ot">&lt;-</span> act2</a>
-<a class="sourceLine" id="cb24-5" title="5">  <span class="kw">case</span> b <span class="kw">of</span></a>
-<a class="sourceLine" id="cb24-6" title="6">    <span class="dt">True</span>  <span class="ot">-&gt;</span> x1</a>
-<a class="sourceLine" id="cb24-7" title="7">    <span class="dt">False</span> <span class="ot">-&gt;</span> x2</a></code></pre></div>
-<p><code>ifIO</code> は条件によって動作そのものを選んでいたが、<code>ifResultIO</code> はどの条件でも <code>act1</code> と <code>act2</code> の順に動作をすること自体は変えない。代わりに、その動作の結果をどっちにするかだけを変える。このように、<span class="ascii">Haskell</span> は <code>IO</code> 動作を、多彩に、しかも純粋にコーディネートすることができる。これは、他の多くのプログラミング言語にはなく、しかも強力な機能だ。そう、<span class="ascii">Haskell</span> の <code>IO</code> 動作は、それが単なるデータであるがゆえに、通常のプログラミングの範囲で自由に加工できるのだ。</p>
-<p>これを、動作が第一級であるという。第一級とは、つまり他のデータと全く同じように扱えるということだ。</p>
-<h2 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
-here</span></a></span>まとめ</h2>
-<p>この記事では、</p>
-<ol type="1">
-<li>純粋とは何か</li>
-<li><span class="ascii">Haskell</span> は、どうして純粋なのか</li>
-<li><span class="ascii">Haskell</span> は、純粋な中で、他の言語の機構をどうやって実現しているのか</li>
-<li><span class="ascii">Haskell</span> が、その中で獲得した強力な機能とは何か</li>
-</ol>
-<p>について紹介した。どうだろう？ <span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドについて、少しでも理解の補助になっただろうか？</p>
-<p><span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドとは、動作そのものを値に持つ型だった。そして、その値は、特別な繋げる操作により他の言語と同じように加工でき、しかも通常のプログラミングの範囲で加工が可能になっている。しかも、加工自体は純粋にでき、動作の生成も純粋にできる。これが、<span class="ascii">Haskell</span> が純粋であると言われる所以だった。</p>
-<p>この <span class="ascii">Haskell</span> の根幹をなす機能が、どういう点で魅力的なのか分かってもらえたら、この記事を書いた甲斐があるというものだ。もし、あなたもこの機能の魅力に取り憑かれたらなら、ぜひ <code>IO</code> 動作をふんだんに加工してプログラミングをしていって欲しい。では、楽しい <span class="ascii">Haskell</span> ライフを。</p>
-<h2 id="おまけ-ioモナドの実装"><span class="link-to-here-outer"><a href="#おまけ-ioモナドの実装" title="おまけ-ioモナドの実装"><span class="link-to-here">Link to<br />
-here</span></a></span>おまけ<span class="ascii">: IO</span>モナドの実装</h2>
-<p>ところで、もしかしたら、読者の中には、</p>
-<blockquote>
-<p><span class="ascii">Haskell</span> の <span class="ascii">IO</span> モナドは、現実世界を状態にする <span class="ascii">State</span> モナドだ</p>
-</blockquote>
-<p>という主張を、見たことがある人がいるかもしれない。最後におまけとしてこの話に触れておこうと思う。気になる人は、この後も呼んでみると、<code>IO</code> モナドの理解の助けになるかもしれない <span class="ascii">(</span>または、むしろ混乱するかもしれない。もし、混乱したなら、とりあえずこの話は忘れることをお勧めする。ここに書いてある話を理解しなくても、<code>IO</code> モナドの利用に関して全く支障はない。そういう話もあるぐらいの事柄だ。なので、安心してまずは <span class="ascii">Haskell</span> プログラミングを楽しんでほしい。いつか楽しみ飽きたら戻ってきてもいいかもしれない<span class="ascii">)</span>。</p>
-<p>まず、この話は、</p>
-<ul>
-<li>非純粋な世界の話だということ</li>
-<li>単なる <span class="ascii">State</span> モナドではないということ</li>
-</ul>
-<p>を押さえておいて欲しい。さて、<span class="ascii">Haskell</span> の代表的な処理系 <span class="ascii">GHC</span> は、標準の範囲では純粋関数型プログラミングを提供するが、全体としては非純粋な計算も許容している。そして、その計算を <code>IO</code> モナドの内部に使っている。<span class="ascii">GHC</span> では <code>IO</code> モナドは、通常の言語内の一部として定義されている<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (<span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span> <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span>, a <span class="op">#</span>))</a></code></pre></div>
-<p>この型は、詳細は省くが、本質的には、</p>
-<ul>
-<li><code>State# RealWorld</code> 型の値を受け取り、<code>State# RealWorld</code> 型の値と <code>a</code> 型の値のタプルを返す関数</li>
-</ul>
-<p>の <code>newtype</code> になっている。<code>State</code> モナドについて知ってる人は、これは <code>State (State# RealWorld) a</code> と同じだと思うだろう。しかし、<code>IO a</code> の値は、他に <span class="ascii">Haskell</span> の型では表現できない契約を持つ。それは、</p>
-<ul>
-<li><code>State# RealWorld</code> の型の値は、必ず<span class="ascii">1</span>回だけ使用される</li>
-</ul>
-<p>という契約だ。なので、</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1"><span class="dt">IO</span> <span class="op">$</span> \s<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> s<span class="op">#</span>, \() <span class="ot">-&gt;</span> s<span class="op">#</span> <span class="op">#</span>)</a></code></pre></div>
-<p>は <a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> <code>s#</code> を<span class="ascii">2</span>箇所で使ってるため <code>IO (() -&gt; State# RealWorld)</code> の値になれないし、</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="dt">IO</span> <span class="op">$</span> \s<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> s<span class="op">#</span>, <span class="dt">IO</span> <span class="op">$</span> \_ <span class="ot">-&gt;</span> (<span class="op">#</span> s<span class="op">#</span>, () <span class="op">#</span>) <span class="op">#</span>)</a></code></pre></div>
-<p>は一番外側の <code>IO</code> は <code>s#</code> を <span class="ascii">2</span> 箇所で使っているため契約違反で、内側の <code>IO</code> は受け取った引数を一度も使っていないのでやはり契約違反ということになる。この定義を使って、例えば <span class="ascii">Haskell</span> で可変参照を扱う <code>IORef</code> のフレームワークは、次のように定義されている <a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> <span class="ascii">:</span></p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">data</span> <span class="dt">IORef</span> a <span class="ot">=</span> <span class="dt">IORef</span> (<span class="dt">MutVar</span><span class="op">#</span> <span class="dt">RealWorld</span> a)</a>
-<a class="sourceLine" id="cb28-2" title="2"></a>
-<a class="sourceLine" id="cb28-3" title="3"><span class="ot">newIORef ::</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">IORef</span> a)</a>
-<a class="sourceLine" id="cb28-4" title="4">newIORef <span class="fu">init</span> <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \s1<span class="op">#</span> <span class="ot">-&gt;</span> <span class="kw">case</span> newMutVar<span class="op">#</span> <span class="fu">init</span> s1<span class="op">#</span> <span class="kw">of</span></a>
-<a class="sourceLine" id="cb28-5" title="5">  (<span class="op">#</span> s2<span class="op">#</span>, var <span class="op">#</span>) <span class="ot">-&gt;</span> (s2<span class="op">#</span>, <span class="dt">IORef</span> var)</a>
-<a class="sourceLine" id="cb28-6" title="6"></a>
-<a class="sourceLine" id="cb28-7" title="7"><span class="ot">readIORef ::</span> <span class="dt">IORef</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
-<a class="sourceLine" id="cb28-8" title="8">readIORef (<span class="dt">IORef</span> var) <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \s1<span class="op">#</span> <span class="ot">-&gt;</span> readMutVar<span class="op">#</span> var<span class="op">#</span> s1<span class="op">#</span></a>
-<a class="sourceLine" id="cb28-9" title="9"></a>
-<a class="sourceLine" id="cb28-10" title="10"><span class="ot">writeIORef ::</span> <span class="dt">IORef</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb28-11" title="11">writeIORef (<span class="dt">IORef</span> var<span class="op">#</span>) val <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \s1<span class="op">#</span> <span class="ot">-&gt;</span> <span class="kw">case</span> writeMutVar<span class="op">#</span> var<span class="op">#</span> val s1<span class="op">#</span> <span class="kw">of</span></a>
-<a class="sourceLine" id="cb28-12" title="12">  s2<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> s2<span class="op">#</span>, () <span class="op">#</span>)</a></code></pre></div>
-<p>この定義は、ちゃんと <code>IO</code> 型の制約を守っている。なおここで出てくる、<code>#</code> が付く関数やデータ型は、<span class="ascii">GHC</span> の中で特別扱いされ、プリミティブな関数やデータ型になっている。それぞれ、以下の型の関数として扱える<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" title="1">newMutVar<span class="op">#</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> s, <span class="dt">MutVar</span><span class="op">#</span> s a <span class="op">#</span>)</a>
-<a class="sourceLine" id="cb29-2" title="2"></a>
-<a class="sourceLine" id="cb29-3" title="3">readMutVar<span class="op">#</span><span class="ot"> ::</span> <span class="dt">MutVar</span><span class="op">#</span> s a <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> s, a <span class="op">#</span>)</a>
-<a class="sourceLine" id="cb29-4" title="4"></a>
-<a class="sourceLine" id="cb29-5" title="5">writeMutVar<span class="op">#</span><span class="ot"> ::</span> <span class="dt">MutVar</span><span class="op">#</span> s a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s <span class="ot">-&gt;</span> <span class="dt">State</span><span class="op">#</span> s</a></code></pre></div>
-<p>注意して欲しいのは、これらの関数は純粋ではないということだ。これは、<span class="ascii">GHCi</span> 上で次のように確認できる<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XMagicHash</span> <span class="op">-</span><span class="dt">XUnboxedTuples</span></a>
-<a class="sourceLine" id="cb30-2" title="2"><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span><span class="kw">module</span> <span class="dt">GHC.Prim</span> <span class="dt">GHC.Types</span></a>
-<a class="sourceLine" id="cb30-3" title="3"><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span>{</a>
-<a class="sourceLine" id="cb30-4" title="4"><span class="dt">IO</span> <span class="op">$</span> \r0<span class="op">#</span> <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb30-5" title="5">  <span class="kw">let</span> (<span class="op">#</span> r1<span class="op">#</span>, var<span class="op">#</span> <span class="op">#</span>) <span class="ot">=</span> newMutVar<span class="op">#</span> <span class="dt">False</span> r0<span class="op">#</span> <span class="kw">in</span></a>
-<a class="sourceLine" id="cb30-6" title="6">  <span class="kw">let</span> (<span class="op">#</span> r2<span class="op">#</span>, b1 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> var<span class="op">#</span> r1<span class="op">#</span></a>
-<a class="sourceLine" id="cb30-7" title="7">      r3<span class="op">#</span> <span class="ot">=</span> writeMutVar<span class="op">#</span> var<span class="op">#</span> <span class="dt">True</span> r2<span class="op">#</span></a>
-<a class="sourceLine" id="cb30-8" title="8">  <span class="kw">in</span></a>
-<a class="sourceLine" id="cb30-9" title="9">  <span class="kw">let</span> (<span class="op">#</span> _, b2 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> var<span class="op">#</span> r1<span class="op">#</span> <span class="kw">in</span></a>
-<a class="sourceLine" id="cb30-10" title="10">  (<span class="op">#</span> r3<span class="op">#</span>, b1 <span class="op">==</span> b2 <span class="op">#</span>)</a>
-<a class="sourceLine" id="cb30-11" title="11"><span class="op">:</span>}</a>
-<a class="sourceLine" id="cb30-12" title="12"><span class="dt">False</span></a></code></pre></div>
-<p><code>b1</code> と <code>b2</code> は両方とも <code>readMutVar# var# r1#</code> から得た値になる。ところが、これらを比較してみると <code>False</code> になる <a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> 。もし、<code>readMutVar#</code> が純粋なら、<code>b1</code> と <code>b2</code> の結果は同じになるため、上の評価結果は <code>True</code> になるはずだ。しかし、残念ながら <code>readMutVar#</code> は純粋ではないので、<code>b1</code> と <code>b2</code> は異なる値になってしまう。なお、この式は、<code>IO</code> 型で定義しているが、実際には</p>
-<ul>
-<li><span class="ascii">2</span> 回目の <code>readMutVar#</code> の呼び出しで <code>r1#</code> を <span class="ascii">2</span> 回使用しているし、</li>
-<li>返ってきた <code>State# RealWorld</code> の値を捨てている</li>
-</ul>
-<p>ので契約違反であることに注意だ。<span class="ascii">GHCi</span> 上で、うまく評価結果を確認するために、<code>IO</code> を使っている。</p>
-<p>さて、純粋性を守れないなら、<span class="ascii">GHC</span> は一体全体何のためにこのような定義をしているんだろう？ 関数が純粋でなくてもいいなら、単に</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (() <span class="ot">-&gt;</span> a)</a></code></pre></div>
-<p>と定義しても問題ないのではないだろうか？ この方が自然に動作を表しているように思える。ところが、このような定義は、ある問題を招くのだ。<span class="ascii">Haskell</span> は純粋関数型プログラミング言語という売りの他に、遅延評価という他の言語にはあまり見られない評価機構を採用している。もちろん、<span class="ascii">GHC</span> も遅延評価が基本だ。正確には、<span class="ascii">Haskell</span> の評価順序は、</p>
-<blockquote>
-<p><span class="ascii">The order of evaluation of expressions in Haskell is constrained only by data dependencies; an implementation has a great deal of freedom in choosing this order.</span></p>
-<p><span class="ascii">Haskell</span> の式の評価順序は、データ依存によってのみ縛られます。これは、実装がこの順序の選択において、大きな自由度を持つことを意味します。</p>
-<p>– <a href="https://www.haskell.org/onlinereport/haskell2010/haskellch7.html#x14-1420007"><span class="ascii">Haskell Language Report - Chapter 7 Basic Input/Output</span></a></p>
-</blockquote>
-<p>とあるように、データ依存関係によってのみ制御できる。ところが、<code>IO</code>動作は違う。例えば、</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb32-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb32-3" title="3">  <span class="fu">putStrLn</span> <span class="st">&quot;str1&quot;</span></a>
-<a class="sourceLine" id="cb32-4" title="4">  <span class="fu">putStrLn</span> <span class="st">&quot;str2&quot;</span></a></code></pre></div>
-<p>という式において、<code>putStrLn "str1"</code> と <code>putStrLn "str2"</code> の動作の間には、何らのデータ依存関係も存在しない。しかしながら、<code>main</code> は</p>
-<ul>
-<li><code>"str1"</code> をターミナルに出力した後、<code>"str2"</code> をターミナルに出力する</li>
-</ul>
-<p>という動作を表して欲しいはずだ。つまり、<code>IO</code>動作はデータ依存関係によってのみ順序が決まるわけではなく、その繋げ方によって順序が決まって欲しいのだ。ところが、単純に</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (() <span class="ot">-&gt;</span> a)</a></code></pre></div>
-<p>という定義を採用してしまうと、<code>IO</code>の中身は繋げ方の順序を情報として持たないため、動作の実行順序を制御するのに、別途工夫が必要になる。そこで、元の定義の登場だ<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">newtype</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">IO</span> (<span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span> <span class="ot">-&gt;</span> (<span class="op">#</span> <span class="dt">State</span><span class="op">#</span> <span class="dt">RealWorld</span>, a <span class="op">#</span>))</a></code></pre></div>
-<p>この <code>State# RealWorld</code> は、実際には <code>()</code> 型と同じく単一の値を持つほぼ何の意味も持たない型になる。しかし、この型の値を計算度に付与することで、データ依存を作ることができる。具体的には、この <code>IO</code> に対して次のように <code>pure</code> <span class="ascii">/</span> <code>(&gt;&gt;=)</code> を定義するのだ<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" title="1"><span class="fu">pure</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
-<a class="sourceLine" id="cb35-2" title="2"><span class="fu">pure</span> x <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \r<span class="op">#</span> <span class="ot">-&gt;</span> (<span class="op">#</span> r<span class="op">#</span>, x <span class="op">#</span>)</a>
-<a class="sourceLine" id="cb35-3" title="3"></a>
-<a class="sourceLine" id="cb35-4" title="4"><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> b</a>
-<a class="sourceLine" id="cb35-5" title="5"><span class="dt">IO</span> f <span class="op">&gt;&gt;=</span> g <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \r0<span class="op">#</span> <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb35-6" title="6">  <span class="kw">let</span> (<span class="op">#</span> r1<span class="op">#</span>, x <span class="op">#</span>) <span class="ot">=</span> f r0<span class="op">#</span></a>
-<a class="sourceLine" id="cb35-7" title="7">      <span class="dt">IO</span> g&#39; <span class="ot">=</span> g x</a>
-<a class="sourceLine" id="cb35-8" title="8">  <span class="kw">in</span> g&#39; r1<span class="op">#</span></a></code></pre></div>
-<p>特に、<code>(&gt;&gt;=)</code> の定義が重要になる。<code>(&gt;&gt;=)</code> が返してくる <code>IO</code> の中身は、</p>
-<ol type="1">
-<li>受け取った <code>State# RealWorld</code> をまず最初の <code>IO</code> 動作に渡す</li>
-<li>その結果を <code>g</code> に渡して、次の <code>IO</code> 動作を生成する</li>
-<li>生成した <code>IO</code> 動作に、最初の <code>IO</code> 動作が返してきた <code>State# RealWorld</code> を渡す</li>
-</ol>
-<p>ということを行っている。これにより、</p>
-<ol type="1">
-<li>受け取った <code>State# RealWorld</code></li>
-<li><code>f</code> の結果の <code>State# RealWorld</code></li>
-<li><code>g'</code> の結果の <code>State# RealWorld</code></li>
-</ol>
-<p>という順で <code>State# RealWorld</code> のデータ依存関係が出来上がる。つまり、通常の <span class="ascii">Haskell</span> の評価の枠組みで、評価順序を保証できるようになるのだ。実際に、<code>IORef</code> を例に考えてみよう。</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb36-2" title="2">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb36-3" title="3">  x <span class="ot">&lt;-</span> newIORef <span class="dt">False</span></a>
-<a class="sourceLine" id="cb36-4" title="4">  b1 <span class="ot">&lt;-</span> readIORef x</a>
-<a class="sourceLine" id="cb36-5" title="5">  writeIORef <span class="dt">True</span> x</a>
-<a class="sourceLine" id="cb36-6" title="6">  b2 <span class="ot">&lt;-</span> readIORef x</a>
-<a class="sourceLine" id="cb36-7" title="7">  <span class="fu">pure</span> <span class="op">$</span> b1 <span class="op">==</span> b2</a></code></pre></div>
-<p>というプログラムにおいて、最終的な <code>pure $ b1 == b2</code> からのデータ依存関係に、一見 <code>writeIORef True x</code> は関与していないように見える。ところが、内部を見てみると、上のプログラムは、</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" title="1"><span class="ot">main ::</span> <span class="dt">IO</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb37-2" title="2">main <span class="ot">=</span> <span class="dt">IO</span> <span class="op">$</span> \r0<span class="op">#</span> <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb37-3" title="3">  <span class="kw">let</span> (<span class="op">#</span> r1<span class="op">#</span>, x<span class="op">#</span> <span class="op">#</span>) <span class="ot">=</span> newMutVar<span class="op">#</span> <span class="dt">False</span> r0<span class="op">#</span></a>
-<a class="sourceLine" id="cb37-4" title="4">      (<span class="op">#</span> r2<span class="op">#</span>, b1 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> x<span class="op">#</span> r1<span class="op">#</span></a>
-<a class="sourceLine" id="cb37-5" title="5">      r3<span class="op">#</span> <span class="ot">=</span> writeMutVar<span class="op">#</span> <span class="dt">True</span> x<span class="op">#</span> r2<span class="op">#</span></a>
-<a class="sourceLine" id="cb37-6" title="6">      (<span class="op">#</span> r4<span class="op">#</span>, b2 <span class="op">#</span>) <span class="ot">=</span> readMutVar<span class="op">#</span> x<span class="op">#</span> r3<span class="op">#</span></a>
-<a class="sourceLine" id="cb37-7" title="7">  <span class="kw">in</span> (<span class="op">#</span> r4<span class="op">#</span>, b1 <span class="op">==</span> b2 <span class="op">#</span>)</a></code></pre></div>
-<p>と同じ意味を持ち、全て隠れた <code>State# RealWorld</code> によってデータ依存で紐づいている。もちろん、<code>let</code> 内の定義の順番を変えても何の問題もない。重要なのは <code>r0#</code> から <code>r1#</code> の結果が得られ、<code>r1#</code> から <code>r2#</code> の結果が得られ、というようなデータ依存だけだ。これにより、<span class="ascii">GHC</span> は <span class="ascii">Haskell</span> の評価順序に特別な規則を設けない <a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a> <a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a> で、<code>IO</code> を実装しているのだ。</p>
-<p>なお、こうなると <code>IO</code> の</p>
-<ul>
-<li><code>State# RealWorld</code> の型の値は、必ず<span class="ascii">1</span>回だけ使用される</li>
-</ul>
-<p>という契約も意義が見えてくる。もし、この契約が破られると、途中でデータ依存が分岐したり、または途中で途絶えたりすることになる。そうなると、動作がどういう挙動をするかは、<span class="ascii">Haskell</span> 内では規定されなくなってしまう。実際に、最適化によってどう動作するかが変わってきてしまう例も作れる。<code>IO</code> の契約とは、データ依存が必ず一本の線で繋がり、<span class="ascii">Haskell</span> の評価の枠できちんと順番が規定されるということを保証しているのだ。</p>
-<p>これが、<span class="ascii">GHC</span> がこのような定義を <code>IO</code> で採用している理由になる。もちろん、アナロジーとして現実世界全体を表す架空の状態を <code>State# RealWorld</code> と見立て、<code>IO</code>動作の実行により新たな現実世界全体の状態が手に入るという見方は可能だ。名前の由来もそこから来ている。ただ、基本的には、<span class="ascii">GHC</span> において、特別な仕組みを入れずに <code>IO</code> を実装するためのやり方であるということを押さえておいて欲しい。</p>
-<section class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>定義は、 <a href="https://www.schoolofhaskell.com/school/starting-with-haskell/basics-of-haskell/3-pure-functions-laziness-io"><span class="ascii">School of Haskell</span> のチュートリアル</a> から拝借している。<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>この定義は、<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch6.html#x13-1220006.1.5"><span class="ascii">Haskell Language Report 6.1.5 The Unit Datatype</span></a> で述べられているが、実際には <span class="ascii">Haskell</span> の構文規則に違反している特別な構文が使われている。なので、実際に <span class="ascii">Haskell</span> でこのように定義できるわけではなく、擬似的に書くとこうなるという意味になる。<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>動作は、計算 <span class="ascii">(computation)</span> とも呼ばれる。また、日本の <span class="ascii">Haskell</span> コミュニティでは、英語そのままで「アクション」とも呼ばれている。<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>厳密には、<code>(&gt;&gt;)</code> という別の関数を使って定義されるんだが、意味的にはそのような変換と思ってもらって構わない。正式な変換方法は、<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch3.html#x8-470003.14"><span class="ascii">Haskell Language Report 3.14 Do Expressions</span></a> を参照するといいだろう。<a href="#fnref4" class="footnote-back">↩</a></p></li>
-<li id="fn5"><p>多くの言語では、<code>main</code> プログラム以外の、例えばライブラリが勝手にスレッドを<span class="ascii">1</span>つ立てるなどの挙動をサポートしている。そのような挙動は、<span class="ascii">Haskell</span> では残念ながらできない。なぜなら、<span class="ascii">Haskell</span> では <code>main</code> に動作を組み入れない限りその動作は実行されないからだ。この点では、他の言語より表現力は劣っているということもできる。しかし、そのような機能は、多くの場合明示的に模倣できる。<a href="#fnref5" class="footnote-back">↩</a></p></li>
-<li id="fn6"><p><code>(# x, y #)</code> は <code>(# a, b #)</code> 型の値を表す特別な構文だ。ここでは詳細は述べないので、<code>x</code> と <code>y</code> のタプルの特別な表記方法だと思ってもらって構わない。<a href="#fnref6" class="footnote-back">↩</a></p></li>
-<li id="fn7"><p>実際には <code>ST</code> モナドとの兼ね合いで、直接こう定義はされていないが、分かりやすさのため簡略化している。<a href="#fnref7" class="footnote-back">↩</a></p></li>
-<li id="fn8"><p>実際には、最適化次第で結果が変わることもある。<a href="#fnref8" class="footnote-back">↩</a></p></li>
-<li id="fn9"><p>さらに、<code>State# RealWorld</code> は <span class="ascii">unlifted</span> なデータ型になっており、サンクを持たない。このため、強制的に正格評価になるようになっており、<code>IO</code>動作が遅延され、最後に一気に評価されるということを防いでいる。これも、通常の <span class="ascii">GHC</span> の枠組みの中で提供されているのは、とても興味深い。<a href="#fnref9" class="footnote-back">↩</a></p></li>
-<li id="fn10"><p>厳密には、残念ながら全てを特別扱いせずに済ませられているわけではない。<span class="ascii">GHC</span> では、<code>State# RealWorld</code> に関して一部の最適化で特別な処理を施している。<a href="#fnref10" class="footnote-back">↩</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2020/haskell-casually-at-work.html" lang="ja">Haskellを業務で使う、カジュアルに</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2020/property-io.html" style="margin-left: auto;" lang="ja">HspecでQuickCheckするときもshouldBeなどが使えます</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>

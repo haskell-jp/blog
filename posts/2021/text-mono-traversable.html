@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="文字列型を抽象化するのにはmono-traversableパッケージがいいかも">
+    
+      <meta name="author" content="YAMAMOTO Yuji">
+    
+    <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
+    <link rel="icon" href="https://haskell.jp/img/favicon.png" />
+
+    <!-- OGP Settings -->
+    <meta property="og:title" content="文字列型を抽象化するのにはmono-traversableパッケージがいいかも - Haskell-jp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="/posts/2021/text-mono-traversable.html" />
+    <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
+    <meta property="og:site_name" content="Haskell-jp Blog" />
+    <meta property="og:description" content="この記事は[Haskell Advent Calendar 2021](https://qiita.com/advent-calendar/2021/haskell)の25日目の記事です。Haskellのよく言われる問題点の一つとして、文字列型が下記のようによく使われるものだけで**5種類**もある、という点があります:- `String`- Strictな`Text`- Lazyな`Text`-" />
+
+    <!-- Twitter Card Settings -->
+    <meta name="twitter:card" content="summary" />
+
+    
+
+    <title>文字列型を抽象化するのにはmono-traversableパッケージがいいかも - Haskell-jp</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- Pandoc syntax highlighting CSS -->
+    <link href="../../css/syntax.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../../css/clean-blog.css" rel="stylesheet">
+
+    <!-- Our original CSS -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://haskell.jp"><img src="../../img/logo.svg"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="../../posts/about_us.html">About</a>
+                    </li>
+                    <li>
+                        <a href="../../">Blog</a>
+                    </li>
+                    <li>
+                        <a href="https://haskell.jp/signin-slack.html">Slack Team</a>
+                    </li>
+                    <li>
+                        <a href="https://www.reddit.com/r/haskell_jp/">Reddit</a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/haskell-jp/community/blob/master/GRC.md">GRC</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <div class="ribbon">
+            <a href="https://haskell.jp/haskell-day-2021/">
+                <div>Haskell Day 2021 開催決定!</div>
+            </a>
+        </div>
+        <!-- /.container -->
+    </nav>
+    
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+                    <div lang="ja" class="post-heading">
+                    
+                        <div class="jumbotron page-header-jumbotron">
+                            <h1>文字列型を抽象化するのにはmono-traversableパッケージがいいかも</h1>
+                            <h2 class="subheading"></h2><span class="meta">Posted by <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a> on December 25, 2021</span>
+                            <div class="text-right" style="margin-top: 2em;">
+                                <a class="btn btn-primary" href="https://github.com/haskell-jp/blog#%E8%A8%98%E4%BA%8B%E3%82%92%E6%8A%95%E7%A8%BF%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88" role="button">
+                                    投稿したい方はこちら
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <p>この記事は<a href="https://qiita.com/advent-calendar/2021/haskell"><span class="ascii">Haskell Advent Calendar 2021</span></a>の<span class="ascii">25</span>日目の記事です。</p>
+<p><span class="ascii">Haskell</span>のよく言われる問題点の一つとして、文字列型が下記のようによく使われるものだけで<strong><span class="ascii">5</span>種類</strong>もある、という点があります<span class="ascii">:</span></p>
+<ul>
+<li><code>String</code></li>
+<li><span class="ascii">Strict</span>な<code>Text</code></li>
+<li><span class="ascii">Lazy</span>な<code>Text</code></li>
+<li><span class="ascii">Strict</span>な<code>ByteString</code></li>
+<li><span class="ascii">Lazy</span>な<code>ByteString</code></li>
+</ul>
+<p><small>（上記の頻繁に使われるもの以外にも、もっとあります）</small></p>
+<p>それぞれ確かに使いどころが違うので、アプリケーションで使用する場合は場面に応じて使い分ければいいのですが、文字列を使ったライブラリーを開発する場合はなかなか悩ましいものがあります。内部で依存しているライブラリーが使用しているものがあれば、それをそのまま使うのが簡単で確実ですが、そうでない場合も多いでしょう。そこで本稿では文字列型を抽象化して扱いたい場合の手段として、<a href="https://hackage.haskell.org/package/mono-traversable"><span class="ascii">mono-traversalbe</span>パッケージ</a>を検討したいと思います。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#mono-traversableパッケージの紹介" title="mono-traversableパッケージの紹介"><span class="ascii">mono-traversable</span>パッケージの紹介</a></li>
+<li><a href="#mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表" title="mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表"><span class="ascii">mono-traversable</span>パッケージにおける型クラスのメソッドと、各種文字列型向け関数の対応表</a></li>
+<li><a href="#パフォーマンスに関わる注意事項" title="パフォーマンスに関わる注意事項">⚠️パフォーマンスに関わる注意事項</a></li>
+<li><a href="#事例-stringから相互変換できる型を抽象化する" title="事例-stringから相互変換できる型を抽象化する">事例<span class="ascii">:</span> <code>String</code>から相互変換できる型を抽象化する</a></li>
+<li><a href="#まとめ" title="まとめ">まとめ</a></li>
+</ul>
+</div>
+</div>
+<h1 id="mono-traversableパッケージの紹介"><span class="link-to-here-outer"><a href="#mono-traversableパッケージの紹介" title="mono-traversableパッケージの紹介"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">mono-traversable</span>パッケージの紹介</h1>
+<p><span class="ascii">mono-traversable</span>パッケージは、名前のとおり<code>MonoTraversable</code>や<code>MonoFoldable</code>、<code>MonoFunctor</code>といったおなじみの型クラスの名前に<code>Mono</code>という接頭辞を付けた型クラスによって、多様なコンテナ型を抽象化してくれます。これらの型クラスはすべて、<code>ByteString</code>や<code>Text</code>のような、「要素として持てる値の型が<span class="ascii">1</span>種類だけ」の型も対象にしているのが特徴です。<span class="ascii">Type Family</span>を応用し、次のように型毎に要素の型を固定することで、そうした特徴を実現しています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Element</span> mono</a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">ByteString</span> <span class="ot">=</span> <span class="dt">Word8</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">Text</span> <span class="ot">=</span> <span class="dt">Char</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> [a] <span class="ot">=</span> a</a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co">-- ...</span></a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="kw">class</span> <span class="dt">MonoFunctor</span> mono <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="co">-- ...</span></a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="ot">  omap ::</span> (<span class="dt">Element</span> mono <span class="ot">-&gt;</span> <span class="dt">Element</span> mono) <span class="ot">-&gt;</span> mono <span class="ot">-&gt;</span> mono</a>
+<a class="sourceLine" id="cb1-12" title="12"></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">ByteString</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  omap <span class="ot">=</span> <span class="dt">ByteString</span><span class="op">.</span><span class="fu">map</span></a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">Text</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-17" title="17">  omap <span class="ot">=</span> Text.map</a>
+<a class="sourceLine" id="cb1-18" title="18"></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> [a] <span class="kw">where</span></a>
+<a class="sourceLine" id="cb1-20" title="20">  omap <span class="ot">=</span> <span class="fu">map</span></a></code></pre></div>
+<p>※<span class="ascii">mono-traversable</span>パッケージのソースから引用して少し改変しました。</p>
+<p>さらに、これまで紹介した<code>MonoTraversable</code>や<code>MonoFoldable</code>、<code>MonoFunctor</code>に加えて、<code>SemiSequence</code>や<code>IsSequence</code>という型クラスで分解や構築に関わる操作<small>（例えば<code>cons</code>や<code>break</code>）</small>などの他、<small>（今回は取り上げませんが）</small><code>SetContainer</code>などの型クラスで<code>Map</code>や<code>Set</code>、<code>IntMap</code>などの型まで抽象化してくれます。</p>
+<p>そこで次の節では、この<span class="ascii">mono-traversable</span>パッケージにおける型クラスを中心に、<code>Data.Text</code>モジュールや<code>Data.ByteString</code>モジュールにおける各関数が、どの型クラスに対するどの関数に対応するのか、まとめた表を作ってみました。</p>
+<h1 id="mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表"><span class="link-to-here-outer"><a href="#mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表" title="mono-traversableパッケージにおける型クラスのメソッドと各種文字列型向け関数の対応表"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">mono-traversable</span>パッケージにおける型クラスのメソッドと、各種文字列型向け関数の対応表</h1>
+<ul>
+<li>ℹ️調査した<span class="ascii">mono-traversable</span>パッケージのバージョンは<span class="ascii">1.0.15.3</span>です</li>
+<li>ℹ️原則として関数の名前しか見ていないので、実際には異なる用途かも知れません</li>
+<li>ℹ️<span class="ascii">mono-traversable</span>パッケージにある型クラスの他、<span class="ascii">base</span>パッケージにある<code>Monoid</code>、<code>Semigroup</code>などのメソッドも調査対象に含めました</li>
+<li>ℹ️<code>String</code>については<span class="ascii">base</span>パッケージにある関数のみを対象にしていますが、<code>Data.List</code>モジュールのドキュメントと自分の記憶を頼りに埋めているので間違いがあるかも知れません</li>
+<li>ℹ️<code>Text</code>・<code>ByteString</code>については<span class="ascii">Strict</span>なバージョンのドキュメントのみ参照しています。<span class="ascii">Lazy</span>な方になかったらごめんなさい！</li>
+<li>ℹ️<code>Textual</code>型クラスについては、<code>ByteString</code>がインスタンスになっていないのでご注意ください</li>
+<li>ℹ️以下のような関数は除外しました<span class="ascii">:</span>
+<ul>
+<li><code>IO</code>が絡むもの</li>
+<li>プリミティブな処理で使うもの</li>
+</ul></li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th><code>Text</code></th>
+<th><code>ByteString</code></th>
+<th><code>String</code> <span class="ascii">(</span><code>[Char]</code><span class="ascii">)</span></th>
+<th>型クラス <span class="ascii">/</span> 関数</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>all</code></td>
+<td><code>all</code></td>
+<td><code>all</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oall</code></td>
+</tr>
+<tr class="even">
+<td><code>any</code></td>
+<td><code>any</code></td>
+<td><code>any</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oany</code></td>
+</tr>
+<tr class="odd">
+<td><code>append</code></td>
+<td><code>append</code></td>
+<td><code>++</code></td>
+<td><code>Semigroup</code> <span class="ascii">/</span> <code>&lt;&gt;</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>breakByte</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>breakEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>breakOnAll</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>breakOnEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>breakOn</code></td>
+<td><code>breakSubstring</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>break</code></td>
+<td><code>break</code></td>
+<td><code>break</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>break</code></td>
+</tr>
+<tr class="even">
+<td><code>center</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>chunksOf</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>commonPrefixes</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>compareLength</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>concatMap</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>concatMap</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldMap</code></td>
+</tr>
+<tr class="odd">
+<td><code>concat</code></td>
+<td><code>concat</code></td>
+<td><code>concat</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofold</code></td>
+</tr>
+<tr class="even">
+<td><code>cons</code></td>
+<td><code>cons</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>cons</code></td>
+</tr>
+<tr class="odd">
+<td><code>copy</code></td>
+<td><code>copy</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>count</code></td>
+<td><code>count</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>dropAround</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>dropEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>dropEnd</code></td>
+</tr>
+<tr class="odd">
+<td><code>dropWhileEnd</code></td>
+<td><code>dropWhileEnd</code></td>
+<td><code>dropWhileEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>dropWhile</code></td>
+<td><code>dropWhile</code></td>
+<td><code>dropWhile</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>dropWhile</code></td>
+</tr>
+<tr class="odd">
+<td><code>drop</code></td>
+<td><code>drop</code></td>
+<td><code>drop</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>drop</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>elemIndexEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>elemIndex</code></td>
+<td><code>elemIndex</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>elemIndices</code></td>
+<td><code>elemIndices</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>elem</code></td>
+<td><code>elem</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oelem</code></td>
+</tr>
+<tr class="even">
+<td><code>empty</code></td>
+<td><code>empty</code></td>
+<td><code>""</code></td>
+<td><code>Monoid</code> <span class="ascii">/</span> <code>mempty</code></td>
+</tr>
+<tr class="odd">
+<td><code>filter</code></td>
+<td><code>filter</code></td>
+<td><code>filter</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>filter</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>findIndexEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>findIndex</code></td>
+<td><code>findIndex</code></td>
+<td><code>findIndex</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>findIndices</code></td>
+<td><code>findIndices</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>findSubstring</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>findSubstrings</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>find</code></td>
+<td><code>find</code></td>
+<td><code>find</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>find</code></td>
+</tr>
+<tr class="even">
+<td><code>foldl'</code></td>
+<td><code>foldl'</code></td>
+<td><code>foldl'</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldl'</code></td>
+</tr>
+<tr class="odd">
+<td><code>foldl1'</code></td>
+<td><code>foldl1'</code></td>
+<td><code>foldl1'</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldl1Ex'</code></td>
+</tr>
+<tr class="even">
+<td><code>foldl1</code></td>
+<td><code>foldl1</code></td>
+<td><code>foldl1</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>foldl</code></td>
+<td><code>foldl</code></td>
+<td><code>foldl</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>foldr'</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>foldr1'</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>foldr1</code></td>
+<td><code>foldr1</code></td>
+<td><code>foldr1</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldr1Ex</code></td>
+</tr>
+<tr class="odd">
+<td><code>foldr</code></td>
+<td><code>foldr</code></td>
+<td><code>foldr</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldr</code></td>
+</tr>
+<tr class="even">
+<td><code>groupBy</code></td>
+<td><code>groupBy</code></td>
+<td><code>groupBy</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>groupBy</code></td>
+</tr>
+<tr class="odd">
+<td><code>group</code></td>
+<td><code>group</code></td>
+<td><code>group</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>group</code></td>
+</tr>
+<tr class="even">
+<td><code>head</code></td>
+<td><code>head</code></td>
+<td><code>head</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>headEx</code></td>
+</tr>
+<tr class="odd">
+<td><code>index</code></td>
+<td><code>index</code></td>
+<td><code>index</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>indexEx</code></td>
+</tr>
+<tr class="even">
+<td><code>init</code></td>
+<td><code>init</code></td>
+<td><code>init</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>initEx</code></td>
+</tr>
+<tr class="odd">
+<td><code>inits</code></td>
+<td><code>inits</code></td>
+<td><code>inits</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>intercalate</code></td>
+<td><code>intercalate</code></td>
+<td><code>intercalate</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ointercalate</code></td>
+</tr>
+<tr class="odd">
+<td><code>intersperse</code></td>
+<td><code>intersperse</code></td>
+<td><code>intersperse</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>intersperse</code></td>
+</tr>
+<tr class="even">
+<td><code>isInfixOf</code></td>
+<td><code>isInfixOf</code></td>
+<td><code>isInfixOf</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>isInfixOf</code></td>
+</tr>
+<tr class="odd">
+<td><code>isPrefixOf</code></td>
+<td><code>isPrefixOf</code></td>
+<td><code>isPrefixOf</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>isPrefixOf</code></td>
+</tr>
+<tr class="even">
+<td><code>isSuffixOf</code></td>
+<td><code>isSuffixOf</code></td>
+<td><code>isSuffixOf</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>isSuffixOf</code></td>
+</tr>
+<tr class="odd">
+<td><code>justifyLeft</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>justifyRight</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>last</code></td>
+<td><code>last</code></td>
+<td><code>last</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>lastEx</code></td>
+</tr>
+<tr class="even">
+<td><code>length</code></td>
+<td><code>length</code></td>
+<td><code>length</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>olength</code></td>
+</tr>
+<tr class="odd">
+<td><code>lines</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>lines</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>lines</code></td>
+</tr>
+<tr class="even">
+<td><code>mapAccumL</code></td>
+<td><code>mapAccumL</code></td>
+<td><code>mapAccumL</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>mapAccumR</code></td>
+<td><code>mapAccumR</code></td>
+<td><code>mapAccumR</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>map</code></td>
+<td><code>map</code></td>
+<td><code>map</code></td>
+<td><code>MonoFunctor</code> <span class="ascii">/</span> <code>omap</code></td>
+</tr>
+<tr class="odd">
+<td><code>maximum</code></td>
+<td><code>maximum</code></td>
+<td><code>maximum</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>maximumEx</code></td>
+</tr>
+<tr class="even">
+<td><code>minimum</code></td>
+<td><code>minimum</code></td>
+<td><code>minimum</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>minimumEx</code></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>notElem</code></td>
+<td><code>notElem</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>onotElem</code></td>
+</tr>
+<tr class="even">
+<td><code>null</code></td>
+<td><code>null</code></td>
+<td><code>null</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>onull</code></td>
+</tr>
+<tr class="odd">
+<td><code>pack</code></td>
+<td><code>pack</code></td>
+<td><code>id</code></td>
+<td><code>IsString</code> <span class="ascii">/</span> <code>fromString</code></td>
+</tr>
+<tr class="even">
+<td><code>partition</code></td>
+<td><code>partition</code></td>
+<td><code>partition</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>partition</code></td>
+</tr>
+<tr class="odd">
+<td><code>replace</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>replaceSeq</code></td>
+</tr>
+<tr class="even">
+<td><code>replicate</code></td>
+<td><code>replicate</code></td>
+<td><code>replicate</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>replicate</code></td>
+</tr>
+<tr class="odd">
+<td><code>reverse</code></td>
+<td><code>reverse</code></td>
+<td><code>reverse</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>reverse</code></td>
+</tr>
+<tr class="even">
+<td><code>scanl1</code></td>
+<td><code>scanl1</code></td>
+<td><code>scanl1</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>scanl</code></td>
+<td><code>scanl</code></td>
+<td><code>scanl</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>scanr1</code></td>
+<td><code>scanr1</code></td>
+<td><code>scanr1</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>scanr</code></td>
+<td><code>scanr</code></td>
+<td><code>scanr</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>singleton</code></td>
+<td><code>singleton</code></td>
+<td><code>singleton</code></td>
+<td><code>MonoPointed</code> <span class="ascii">/</span> <code>opoint</code></td>
+</tr>
+<tr class="odd">
+<td><code>snoc</code></td>
+<td><code>snoc</code></td>
+<td><code>snoc</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>snoc</code></td>
+</tr>
+<tr class="even">
+<td><span class="ascii">N/A</span></td>
+<td><code>sort</code></td>
+<td><code>sort</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>sort</code></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>spanEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>span</code></td>
+<td><code>span</code></td>
+<td><code>span</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>span</code></td>
+</tr>
+<tr class="odd">
+<td><code>splitAt</code></td>
+<td><code>splitAt</code></td>
+<td><code>splitAt</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitAt</code></td>
+</tr>
+<tr class="even">
+<td><code>splitOn</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>splitOn</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitSeq</code></td>
+</tr>
+<tr class="odd">
+<td><span class="ascii">N/A</span></td>
+<td><code>splitWith</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitElem</code></td>
+</tr>
+<tr class="even">
+<td><code>split</code></td>
+<td><code>splitWith</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>splitWhen</code></td>
+</tr>
+<tr class="odd">
+<td><code>stripEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>N/A</code></td>
+</tr>
+<tr class="even">
+<td><code>stripPrefix</code></td>
+<td><code>stripPrefix</code></td>
+<td><code>stripPrefix</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>stripPrefix</code></td>
+</tr>
+<tr class="odd">
+<td><code>stripStart</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>stripSuffix</code></td>
+<td><code>stripSuffix</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>stripSuffix</code></td>
+</tr>
+<tr class="odd">
+<td><code>strip</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>tail</code></td>
+<td><code>tail</code></td>
+<td><code>tail</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>tail</code></td>
+</tr>
+<tr class="odd">
+<td><code>tails</code></td>
+<td><code>tails</code></td>
+<td><code>tails</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>takeEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>takeWhileEnd</code></td>
+<td><code>takeWhileEnd</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>takeWhile</code></td>
+<td><code>takeWhile</code></td>
+<td><code>takeWhile</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>takeWhile</code></td>
+</tr>
+<tr class="odd">
+<td><code>take</code></td>
+<td><code>take</code></td>
+<td><code>take</code></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>take</code></td>
+</tr>
+<tr class="even">
+<td><code>toCaseFold</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>toCaseFold</code></td>
+</tr>
+<tr class="odd">
+<td><code>toLower</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>toLower</code></td>
+</tr>
+<tr class="even">
+<td><code>toTitle</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>toUpper</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>toUpper</code></td>
+</tr>
+<tr class="even">
+<td><code>transpose</code></td>
+<td><code>transpose</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>uncons</code></td>
+<td><code>uncons</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>IsSequence</code> <span class="ascii">/</span> <code>uncons</code></td>
+</tr>
+<tr class="even">
+<td><code>unfoldrN</code></td>
+<td><code>unfoldrN</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="odd">
+<td><code>unfoldr</code></td>
+<td><code>unfoldr</code></td>
+<td><code>unfoldr</code></td>
+<td><span class="ascii">N/A</span></td>
+</tr>
+<tr class="even">
+<td><code>unlines</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>unlines</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>unlines</code></td>
+</tr>
+<tr class="odd">
+<td><code>unpack</code></td>
+<td><code>unpack</code></td>
+<td><code>id</code></td>
+<td><code>MonoFoldable</code> <span class="ascii">/</span> <code>otoList</code></td>
+</tr>
+<tr class="even">
+<td><code>unsnoc</code></td>
+<td><code>unsnoc</code></td>
+<td><code>N/A</code></td>
+<td><code>SemiSequence</code> <span class="ascii">/</span> <code>unsnoc</code></td>
+</tr>
+<tr class="odd">
+<td><code>unwords</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>unwords</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>unwords</code></td>
+</tr>
+<tr class="even">
+<td><code>words</code></td>
+<td><span class="ascii">N/A</span></td>
+<td><code>words</code></td>
+<td><code>Textual</code> <span class="ascii">/</span> <code>words</code></td>
+</tr>
+<tr class="odd">
+<td><code>zipWith</code></td>
+<td><code>zipWith</code></td>
+<td><code>zipWith</code></td>
+<td><code>MonoZip</code> <span class="ascii">/</span> <code>ozipWith</code></td>
+</tr>
+<tr class="even">
+<td><code>zip</code></td>
+<td><code>zip</code></td>
+<td><code>zip</code></td>
+<td><code>MonoZip</code> <span class="ascii">/</span> <code>ozip</code></td>
+</tr>
+</tbody>
+</table>
+<!--
+元ネタとして`:browse`した結果をメモしておきます
+
+> :browse Data.Text
+T.all :: (Char -> Bool) -> T.Text -> Bool
+T.any :: (Char -> Bool) -> T.Text -> Bool
+T.append :: T.Text -> T.Text -> T.Text
+T.break :: (Char -> Bool) -> T.Text -> (T.Text, T.Text)
+T.breakOn :: T.Text -> T.Text -> (T.Text, T.Text)
+T.breakOnAll :: T.Text -> T.Text -> [(T.Text, T.Text)]
+T.breakOnEnd :: T.Text -> T.Text -> (T.Text, T.Text)
+T.center :: Int -> Char -> T.Text -> T.Text
+T.chunksOf :: Int -> T.Text -> [T.Text]
+T.commonPrefixes ::
+  T.Text -> T.Text -> Maybe (T.Text, T.Text, T.Text)
+T.compareLength :: T.Text -> Int -> Ordering
+T.concat :: [T.Text] -> T.Text
+T.concatMap :: (Char -> T.Text) -> T.Text -> T.Text
+T.cons :: Char -> T.Text -> T.Text
+T.copy :: T.Text -> T.Text
+T.count :: T.Text -> T.Text -> Int
+T.drop :: Int -> T.Text -> T.Text
+T.dropAround :: (Char -> Bool) -> T.Text -> T.Text
+T.dropEnd :: Int -> T.Text -> T.Text
+T.dropWhile :: (Char -> Bool) -> T.Text -> T.Text
+T.dropWhileEnd :: (Char -> Bool) -> T.Text -> T.Text
+T.filter :: (Char -> Bool) -> T.Text -> T.Text
+T.find :: (Char -> Bool) -> T.Text -> Maybe Char
+T.findIndex :: (Char -> Bool) -> T.Text -> Maybe Int
+T.foldl :: (a -> Char -> a) -> a -> T.Text -> a
+T.foldl' :: (a -> Char -> a) -> a -> T.Text -> a
+T.foldl1 :: (Char -> Char -> Char) -> T.Text -> Char
+T.foldl1' :: (Char -> Char -> Char) -> T.Text -> Char
+T.foldr :: (Char -> a -> a) -> a -> T.Text -> a
+T.foldr1 :: (Char -> Char -> Char) -> T.Text -> Char
+T.group :: T.Text -> [T.Text]
+T.groupBy :: (Char -> Char -> Bool) -> T.Text -> [T.Text]
+T.head :: T.Text -> Char
+T.index :: T.Text -> Int -> Char
+T.init :: T.Text -> T.Text
+T.inits :: T.Text -> [T.Text]
+T.intercalate :: T.Text -> [T.Text] -> T.Text
+T.intersperse :: Char -> T.Text -> T.Text
+T.isInfixOf :: T.Text -> T.Text -> Bool
+T.isPrefixOf :: T.Text -> T.Text -> Bool
+T.isSuffixOf :: T.Text -> T.Text -> Bool
+T.justifyLeft :: Int -> Char -> T.Text -> T.Text
+T.justifyRight :: Int -> Char -> T.Text -> T.Text
+T.last :: T.Text -> Char
+T.length :: T.Text -> Int
+T.lines :: T.Text -> [T.Text]
+T.map :: (Char -> Char) -> T.Text -> T.Text
+T.mapAccumL ::
+  (a -> Char -> (a, Char)) -> a -> T.Text -> (a, T.Text)
+T.mapAccumR ::
+  (a -> Char -> (a, Char)) -> a -> T.Text -> (a, T.Text)
+T.maximum :: T.Text -> Char
+T.minimum :: T.Text -> Char
+T.null :: T.Text -> Bool
+T.pack :: String -> T.Text
+T.partition :: (Char -> Bool) -> T.Text -> (T.Text, T.Text)
+T.replace :: T.Text -> T.Text -> T.Text -> T.Text
+T.replicate :: Int -> T.Text -> T.Text
+T.reverse :: T.Text -> T.Text
+T.scanl :: (Char -> Char -> Char) -> Char -> T.Text -> T.Text
+T.scanl1 :: (Char -> Char -> Char) -> T.Text -> T.Text
+T.scanr :: (Char -> Char -> Char) -> Char -> T.Text -> T.Text
+T.scanr1 :: (Char -> Char -> Char) -> T.Text -> T.Text
+T.snoc :: T.Text -> Char -> T.Text
+T.span :: (Char -> Bool) -> T.Text -> (T.Text, T.Text)
+T.split :: (Char -> Bool) -> T.Text -> [T.Text]
+T.splitAt :: Int -> T.Text -> (T.Text, T.Text)
+T.splitOn :: T.Text -> T.Text -> [T.Text]
+T.strip :: T.Text -> T.Text
+T.stripEnd :: T.Text -> T.Text
+T.stripPrefix :: T.Text -> T.Text -> Maybe T.Text
+T.stripStart :: T.Text -> T.Text
+T.stripSuffix :: T.Text -> T.Text -> Maybe T.Text
+T.tail :: T.Text -> T.Text
+T.tails :: T.Text -> [T.Text]
+T.take :: Int -> T.Text -> T.Text
+T.takeEnd :: Int -> T.Text -> T.Text
+T.takeWhile :: (Char -> Bool) -> T.Text -> T.Text
+T.takeWhileEnd :: (Char -> Bool) -> T.Text -> T.Text
+T.toCaseFold :: T.Text -> T.Text
+T.toLower :: T.Text -> T.Text
+T.toTitle :: T.Text -> T.Text
+T.toUpper :: T.Text -> T.Text
+T.transpose :: [T.Text] -> [T.Text]
+T.uncons :: T.Text -> Maybe (Char, T.Text)
+T.unfoldr :: (a -> Maybe (Char, a)) -> a -> T.Text
+T.unfoldrN :: Int -> (a -> Maybe (Char, a)) -> a -> T.Text
+T.unlines :: [T.Text] -> T.Text
+T.unsnoc :: T.Text -> Maybe (T.Text, Char)
+T.unwords :: [T.Text] -> T.Text
+T.words :: T.Text -> [T.Text]
+T.zip :: T.Text -> T.Text -> [(Char, Char)]
+T.zipWith :: (Char -> Char -> Char) -> T.Text -> T.Text -> T.Text
+type T.Text :: *
+data T.Text
+  = Data.Text.Internal.Text {-# UNPACK #-}Data.Text.Array.Array
+                            {-# UNPACK #-}Int
+                            {-# UNPACK #-}Int
+T.empty :: T.Text
+T.singleton :: Char -> T.Text
+T.unpack :: T.Text -> String
+T.unpackCString# :: GHC.Prim.Addr# -> T.Text
+
+B.all :: (GHC.Word.Word8 -> Bool) -> B.ByteString -> Bool
+B.any :: (GHC.Word.Word8 -> Bool) -> B.ByteString -> Bool
+B.append :: B.ByteString -> B.ByteString -> B.ByteString
+B.appendFile :: FilePath -> B.ByteString -> IO ()
+B.break ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.breakByte ::
+  GHC.Word.Word8 -> B.ByteString -> (B.ByteString, B.ByteString)
+B.breakEnd ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.breakSubstring ::
+  B.ByteString -> B.ByteString -> (B.ByteString, B.ByteString)
+B.concat :: [B.ByteString] -> B.ByteString
+B.concatMap ::
+  (GHC.Word.Word8 -> B.ByteString) -> B.ByteString -> B.ByteString
+B.cons :: GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.copy :: B.ByteString -> B.ByteString
+B.count :: GHC.Word.Word8 -> B.ByteString -> Int
+B.drop :: Int -> B.ByteString -> B.ByteString
+B.dropWhile ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.dropWhileEnd ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.elem :: GHC.Word.Word8 -> B.ByteString -> Bool
+B.elemIndex :: GHC.Word.Word8 -> B.ByteString -> Maybe Int
+B.elemIndexEnd :: GHC.Word.Word8 -> B.ByteString -> Maybe Int
+B.elemIndices :: GHC.Word.Word8 -> B.ByteString -> [Int]
+B.empty :: B.ByteString
+B.filter ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.find ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> Maybe GHC.Word.Word8
+B.findIndex ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> Maybe Int
+B.findIndexEnd ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> Maybe Int
+B.findIndices :: (GHC.Word.Word8 -> Bool) -> B.ByteString -> [Int]
+B.findSubstring :: B.ByteString -> B.ByteString -> Maybe Int
+B.findSubstrings :: B.ByteString -> B.ByteString -> [Int]
+B.foldl :: (a -> GHC.Word.Word8 -> a) -> a -> B.ByteString -> a
+B.foldl' :: (a -> GHC.Word.Word8 -> a) -> a -> B.ByteString -> a
+B.foldl1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.foldl1' ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.foldr :: (GHC.Word.Word8 -> a -> a) -> a -> B.ByteString -> a
+B.foldr' :: (GHC.Word.Word8 -> a -> a) -> a -> B.ByteString -> a
+B.foldr1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.foldr1' ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> GHC.Word.Word8
+B.getContents :: IO B.ByteString
+B.getLine :: IO B.ByteString
+B.group :: B.ByteString -> [B.ByteString]
+B.groupBy ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> [B.ByteString]
+B.hGet :: GHC.IO.Handle.Types.Handle -> Int -> IO B.ByteString
+B.hGetContents :: GHC.IO.Handle.Types.Handle -> IO B.ByteString
+B.hGetLine :: GHC.IO.Handle.Types.Handle -> IO B.ByteString
+B.hGetNonBlocking ::
+  GHC.IO.Handle.Types.Handle -> Int -> IO B.ByteString
+B.hGetSome :: GHC.IO.Handle.Types.Handle -> Int -> IO B.ByteString
+B.hPut :: GHC.IO.Handle.Types.Handle -> B.ByteString -> IO ()
+B.hPutNonBlocking ::
+  GHC.IO.Handle.Types.Handle -> B.ByteString -> IO B.ByteString
+B.hPutStr :: GHC.IO.Handle.Types.Handle -> B.ByteString -> IO ()
+B.hPutStrLn :: GHC.IO.Handle.Types.Handle -> B.ByteString -> IO ()
+B.head :: B.ByteString -> GHC.Word.Word8
+B.index :: B.ByteString -> Int -> GHC.Word.Word8
+B.init :: B.ByteString -> B.ByteString
+B.inits :: B.ByteString -> [B.ByteString]
+B.interact :: (B.ByteString -> B.ByteString) -> IO ()
+B.intercalate :: B.ByteString -> [B.ByteString] -> B.ByteString
+B.intersperse :: GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.isInfixOf :: B.ByteString -> B.ByteString -> Bool
+B.isPrefixOf :: B.ByteString -> B.ByteString -> Bool
+B.isSuffixOf :: B.ByteString -> B.ByteString -> Bool
+B.last :: B.ByteString -> GHC.Word.Word8
+B.length :: B.ByteString -> Int
+B.map ::
+  (GHC.Word.Word8 -> GHC.Word.Word8) -> B.ByteString -> B.ByteString
+B.mapAccumL ::
+  (acc -> GHC.Word.Word8 -> (acc, GHC.Word.Word8))
+  -> acc -> B.ByteString -> (acc, B.ByteString)
+B.mapAccumR ::
+  (acc -> GHC.Word.Word8 -> (acc, GHC.Word.Word8))
+  -> acc -> B.ByteString -> (acc, B.ByteString)
+B.maximum :: B.ByteString -> GHC.Word.Word8
+B.minimum :: B.ByteString -> GHC.Word.Word8
+B.notElem :: GHC.Word.Word8 -> B.ByteString -> Bool
+B.null :: B.ByteString -> Bool
+B.pack :: [GHC.Word.Word8] -> B.ByteString
+B.packCString :: Foreign.C.String.CString -> IO B.ByteString
+B.packCStringLen :: Foreign.C.String.CStringLen -> IO B.ByteString
+B.partition ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.putStr :: B.ByteString -> IO ()
+B.putStrLn :: B.ByteString -> IO ()
+B.readFile :: FilePath -> IO B.ByteString
+B.replicate :: Int -> GHC.Word.Word8 -> B.ByteString
+B.reverse :: B.ByteString -> B.ByteString
+B.scanl ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.scanl1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> B.ByteString
+B.scanr ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> GHC.Word.Word8 -> B.ByteString -> B.ByteString
+B.scanr1 ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> GHC.Word.Word8)
+  -> B.ByteString -> B.ByteString
+B.singleton :: GHC.Word.Word8 -> B.ByteString
+B.snoc :: B.ByteString -> GHC.Word.Word8 -> B.ByteString
+B.sort :: B.ByteString -> B.ByteString
+B.span ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.spanEnd ::
+  (GHC.Word.Word8 -> Bool)
+  -> B.ByteString -> (B.ByteString, B.ByteString)
+B.split :: GHC.Word.Word8 -> B.ByteString -> [B.ByteString]
+B.splitAt :: Int -> B.ByteString -> (B.ByteString, B.ByteString)
+B.splitWith ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> [B.ByteString]
+B.stripPrefix :: B.ByteString -> B.ByteString -> Maybe B.ByteString
+B.stripSuffix :: B.ByteString -> B.ByteString -> Maybe B.ByteString
+B.tail :: B.ByteString -> B.ByteString
+B.tails :: B.ByteString -> [B.ByteString]
+B.take :: Int -> B.ByteString -> B.ByteString
+B.takeWhile ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.takeWhileEnd ::
+  (GHC.Word.Word8 -> Bool) -> B.ByteString -> B.ByteString
+B.transpose :: [B.ByteString] -> [B.ByteString]
+B.uncons :: B.ByteString -> Maybe (GHC.Word.Word8, B.ByteString)
+B.unfoldr :: (a -> Maybe (GHC.Word.Word8, a)) -> a -> B.ByteString
+B.unfoldrN ::
+  Int
+  -> (a -> Maybe (GHC.Word.Word8, a)) -> a -> (B.ByteString, Maybe a)
+B.unpack :: B.ByteString -> [GHC.Word.Word8]
+B.unsnoc :: B.ByteString -> Maybe (B.ByteString, GHC.Word.Word8)
+B.unzip ::
+  [(GHC.Word.Word8, GHC.Word.Word8)] -> (B.ByteString, B.ByteString)
+B.useAsCString ::
+  B.ByteString -> (Foreign.C.String.CString -> IO a) -> IO a
+B.useAsCStringLen ::
+  B.ByteString -> (Foreign.C.String.CStringLen -> IO a) -> IO a
+B.writeFile :: FilePath -> B.ByteString -> IO ()
+B.zip ::
+  B.ByteString -> B.ByteString -> [(GHC.Word.Word8, GHC.Word.Word8)]
+B.zipWith ::
+  (GHC.Word.Word8 -> GHC.Word.Word8 -> a)
+  -> B.ByteString -> B.ByteString -> [a]
+type B.ByteString :: *
+data B.ByteString
+  = Data.ByteString.Internal.PS {-# UNPACK #-}(GHC.ForeignPtr.ForeignPtr
+                                                 GHC.Word.Word8)
+                                {-# UNPACK #-}Int
+                                {-# UNPACK #-}Int
+-->
+<p>以上です。残念ながら万能とはいかないようで、いくつか「<span class="ascii">N/A</span>」、すなわち対応するものがない関数もありますが、他の関数の組み合わせで実装できるものもあるでしょう。</p>
+<h1 id="パフォーマンスに関わる注意事項"><span class="link-to-here-outer"><a href="#パフォーマンスに関わる注意事項" title="パフォーマンスに関わる注意事項"><span class="link-to-here">Link to<br />
+here</span></a></span>⚠️パフォーマンスに関わる注意事項</h1>
+<p><code>MonoTraversable</code>などに限らず、型クラスを使って関数を多相化したとき全般に言えることですが、コンパイル時にインスタンスの解決が行えなかった場合、直接対象の型の相当する関数を呼ぶより少し遅くなってしまう場合があります（<a href="https://blog.miz-ar.info/2016/06/writing-efficient-program-with-haskell/#2.specialization">参考</a>）。</p>
+<p>また、それに限らず、各型クラスのメソッドでない関数は、各型の相当する関数でオーバーライドできないため、効率の悪い処理になってしまう恐れがあります。例えば、<a href="https://hackage.haskell.org/package/mono-traversable-1.0.15.3/docs/src/Data.MonoTraversable.html#ointercalate"><code>ointercalate</code>関数</a>の実装を見ると、<code>Text</code>や<code>ByteString</code>などについては<code>RULES</code>プラグマで最適な実装を設定しているようですが、それ以外の型については一旦リストに変換してから結合する、という効率の悪そうな処理をしています。</p>
+<h1 id="事例-stringから相互変換できる型を抽象化する"><span class="link-to-here-outer"><a href="#事例-stringから相互変換できる型を抽象化する" title="事例-stringから相互変換できる型を抽象化する"><span class="link-to-here">Link to<br />
+here</span></a></span>事例<span class="ascii">:</span> <code>String</code>から相互変換できる型を抽象化する</h1>
+<p>最後に、最近私が作った（まだリリースしてない）ライブラリーにおいて、<code>MonoFoldable</code>と<code>IsString</code>を使うことで、<code>Text</code>と<code>String</code>両方をサポートした関数を紹介しておきます。ただ、時間とやる気パワーが残り少なくなってしまったので、該当の箇所だけ<a href="https://github.com/igrep/envparse-applicative/blob/0fb7b23e45a09b4f53406b46bd563312ed27f2a4/src/EnvParse/Applicative.hs#L156">こちら</a>からコピペして、説明は簡単にしておきます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">stringVal ::</span> (<span class="dt">IsString</span> a, <span class="dt">MT.MonoFoldable</span> a, <span class="dt">MT.Element</span> a <span class="op">~</span> <span class="dt">Char</span>) <span class="ot">=&gt;</span> <span class="dt">CodecEnvVal</span> a</a>
+<a class="sourceLine" id="cb2-2" title="2">stringVal <span class="ot">=</span> valByFunction <span class="dt">CodecEnvValByFunction</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  { encode <span class="ot">=</span> MT.otoList</a>
+<a class="sourceLine" id="cb2-4" title="4">  , decode <span class="ot">=</span> <span class="dt">Right</span> <span class="op">.</span> fromString</a>
+<a class="sourceLine" id="cb2-5" title="5">  }</a></code></pre></div>
+<p><code>CodecEnvVal a</code>型は、<code>a</code>型を<code>String</code>型と相互変換するための情報を含んだ型です。<code>stringVal</code>の場合、名前のとおり文字列っぽい型と<code>String</code>との相互変換ができなければなりません。もちろん単純に<code>String</code>型だけをサポートして<code>Text</code>用には別途<code>CodecEnvVal Text</code>を作ってもいいのですが、一つの<code>CodecEnvVal a</code>だけで扱えた方が楽でしょうし、今回は<code>MonoFoldable</code>の<code>otoList</code>と<code>IsString</code>の<code>fromString</code>を使って両方をサポートすることにしました。なお、これでは<code>ByteString</code>がサポートできませんが、ここで相互変換する<code>String</code>は、要件上人間が読み書きするファイルにおける文字列を想定しているので、<code>ByteString</code>はバイナリーデータにだけ使うべきだ、という立場から敢えてサポートしていません。</p>
+<h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
+here</span></a></span>まとめ</h1>
+<p><span class="ascii">mono-traversable</span>パッケージをうまく使えば、自前で専用の型クラスを作らなくても<code>String</code>・<code>Text</code>・<code>ByteString</code>などを一挙にサポートする関数が書けるかも知れません！</p>
+<p>それでは<span class="ascii">2022</span>年は<span class="ascii">mono-traversable</span>で<span class="ascii">Happy Haskell String Programming!</span>🚝</p>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="../../" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="../../posts/2021/symbols-in-ghc.html" style="margin-left: auto;" lang="ja">Haskellにおける記号の調べ方</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <a href="https://github.com/haskell-jp/blog">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; YAMAMOTO Yuji 2021</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="../../js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../../js/bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../../js/clean-blog.js"></script>
+
+</body>
+
+</html>
