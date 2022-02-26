@@ -22,11 +22,11 @@ Haskell-jp立ち上げ前、有志による議論に使用していたSlackチ�
 
 現時点の運用ルールは、以下のとおりです。
 
-- **#general**では本Slackチーム自体に関する連絡に加え、**Haskellに関する質問を募集**します！
+- **#questions**や**#beginners**では**Haskellに関する質問を募集**します！
     - 質問に対する回答は、**スレッド機能を使って回答**しましょう。複数の質問を同時に投稿しやすくするための配慮です。
-- その他、いわゆる「[ネチケット](https://ja.wikipedia.org/wiki/ネチケット)（死語？）」を守り、参加者のみなさんが不快になるような行動は避けてください。
-- 追記: 発言を[SlackArchive](http://slackarchive.io/)というサービスを通して、**当Slackチームに所属しない人にも保存・公開**することにいたしました。あらかじめご容赦ください。
-    - 保存した発言は <https://haskell-jp.slackarchive.io/> で閲覧できます。
+- その他、「[GRC](https://github.com/haskell-jp/community/blob/master/GRC.md)」を守り、参加者のみなさんが不快になるような行動は避けてください。
+- 追記: 発言を[slack-log](https://github.com/haskell-jp/slack-log/)というツールを通して、**当Slackチームに所属しない人にも保存・公開**することにいたしました。あらかじめご容赦ください。
+    - 保存した発言は <https://haskell.jp/slack-log/> で閲覧できます。
 
 # その2 Haskellもくもく会 -> Haskell-jpもくもく会！
 
