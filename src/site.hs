@@ -12,7 +12,8 @@ import Data.Data (Data)
 import Data.Default (def)
 import Data.List.NonEmpty (NonEmpty((:|)), groupBy, toList)
 import Data.Maybe (fromMaybe)
-import Data.Monoid ((<>))
+import Data.Text (Text)
+import qualified Data.Text as Text
 import qualified Data.Tree as Tree
 import Data.Typeable (Typeable)
 import Hakyll
@@ -184,12 +185,12 @@ createSubHeadingContentForPost item = do
         tagsHtml = maybe "" (\tags -> "<span class=\"meta\">Tags: " ++ tags ++ "</span>") mtags
     return $ subHeadingHtml ++ postedByHtml ++ tagsHtml
 
-isDraftPost :: MonadMetadata m => Identifier -> m Bool
+isDraftPost :: (MonadMetadata m, MonadFail m) => Identifier -> m Bool
 isDraftPost ident = do
     isDraft <- fromMaybe "false" <$> getMetadataField ident "draft"
     return $ isDraft == "true"
 
-postItemIdentifiers :: MonadMetadata m => m [Identifier]
+postItemIdentifiers :: (MonadMetadata m, MonadFail m) => m [Identifier]
 postItemIdentifiers = do
     idents <- getMatches "posts/**"
     idents' <- filterM (fmap not . isDraftPost) idents
@@ -254,7 +255,7 @@ addSpaceAroundAsciiInlines = concatMap addSpaceInline
 -- 'textLangToInline'.  Blocks of Latin text will be placed in @\<span\>@ tags
 -- with an @\"ascii\"@ class.
 addSpaceInline :: Inline -> [Inline]
-addSpaceInline (Str string) = textLangToInline <$> splitOnLanguage string
+addSpaceInline (Str text) = textLangToInline <$> splitOnLanguage (Text.unpack text)
 addSpaceInline inline = [inline]
 
 -- | This is a tag around a 'String' representing whether the 'String' is Latin
@@ -287,8 +288,8 @@ data CharLang
 -- >>> textLangToInline $ English "foobar"
 -- Span ("",["ascii"],[]) [Str "foobar"]
 textLangToInline :: TextLang -> Inline
-textLangToInline (Japanese string) = Str string
-textLangToInline (English string) = Span ("", ["ascii"], []) [Str string]
+textLangToInline (Japanese string) = Str (Text.pack string)
+textLangToInline (English string) = Span ("", ["ascii"], []) [Str (Text.pack string)]
 
 -- | Split a 'String' into groups of 'TextLang'.
 --
@@ -388,7 +389,7 @@ charLangToTextLang cs@(JapaneseChar{} :| _) =
 charLangToTextLang cs@(EnglishChar{} :| _) =
   English . toList $ charLangToChar <$> cs
 
-getFeedConfig :: MonadMetadata m => Identifier -> m FeedConfiguration
+getFeedConfig :: (MonadMetadata m, MonadFail m) => Identifier -> m FeedConfiguration
 getFeedConfig ident = do
     feedTitle       <- getMetadataField' ident "title"
     feedDescription <- getMetadataField' ident "description"
@@ -407,15 +408,15 @@ data PostSection = PostSection
   } deriving Show
 
 -- | Extract element ID from `Attr`.
-attrId :: Attr -> String
+attrId :: Attr -> Text
 attrId (x, _, _) = x
 
 -- | Construct `Attr` with ID.
-idAttr :: String -> Attr
+idAttr :: Text -> Attr
 idAttr s = (s, [], [])
 
 -- | Construct `Attr` with one class.
-classAttr :: String -> Attr
+classAttr :: Text -> Attr
 classAttr s = ("", [s], [])
 
 -- | Eliminate all links from `Block`s or `Inline`s.
@@ -469,7 +470,7 @@ makeTOCList xs0@(x0 : _) = PB.bulletList $ Tree.foldTree fld <$> unfoldTree_DF u
 
     listItem :: PostSection -> PB.Blocks
     listItem PostSection{..} =
-        PB.plain $ PB.link ("#" ++ attrId psHeaderAttr)
+        PB.plain $ PB.link ("#" <> attrId psHeaderAttr)
                            (attrId psHeaderAttr)
                            (PB.fromList $ elimLink psHeaderInline)
 
@@ -482,7 +483,7 @@ makeSectionBlock PostSection{..} = hd <> PB.fromList psContent
            <> PB.fromList psHeaderInline
 
     anchor = PB.spanWith (classAttr "link-to-here-outer") $
-               PB.link ("#" ++ attrId psHeaderAttr)
+               PB.link ("#" <> attrId psHeaderAttr)
                        (attrId psHeaderAttr) $
                  PB.spanWith (classAttr "link-to-here") $
                    PB.str "Link to" <> PB.linebreak <> PB.str "here"
@@ -505,4 +506,3 @@ postMakeTOC (Pandoc meta blk0) = Pandoc meta (PB.toList processed)
                 PB.divWith (classAttr "table-of-contents-title")
                   (PB.plain $ PB.str "Contents")
                 <> tocList
-
