@@ -29,4 +29,4 @@ tags: Haskell-jp Admins
 
 # 今後の連絡先
 
-こちらは[設立時の記事](./about_admins.html)から特に変更はありません。[該当するセクション](./about_admins.html#今後の活動と連絡先)をご覧ください。
+こちらは[設立時の記事](../about_admins.html)から特に変更はありません。[該当するセクション](../about_admins.html#今後の活動と連絡先)をご覧ください。
