@@ -3,7 +3,7 @@ title: 一般社団法人としてのHaskell-jp Admins解散のお知らせ
 headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 author: Haskell-jp Admins
-date: September 12, 2022
+date: September 18, 2022
 tags: Haskell-jp Admins
 ...
 ---
