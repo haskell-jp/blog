@@ -16,9 +16,6 @@ jobs:
         keys:
         - 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
         - 'dependencies-'
-    # 下記のパッケージはビルド時にメモリが不足するため、一旦 -j1 でビルドしておく
-    # Ref: https://haskell.e-bigmoon.com/posts/2017/12-31-travis-out-of-memory.html
-    #- run: stack build --compiler=ghc-9.0.2 --no-terminal -j1 Cabal wai-logger
     - run: stack build --compiler=ghc-9.0.2 --no-terminal --only-dependencies
     - save_cache:
         key: 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
