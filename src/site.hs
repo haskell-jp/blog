@@ -12,7 +12,7 @@ import Data.Data (Data)
 import Data.Default (def)
 import Data.List.NonEmpty (NonEmpty((:|)), groupBy, toList)
 import Data.Maybe (fromMaybe)
-import Data.Monoid ((<>))
+import qualified Data.Text as T
 import qualified Data.Tree as Tree
 import Data.Typeable (Typeable)
 import Hakyll
@@ -189,7 +189,7 @@ isDraftPost ident = do
     isDraft <- fromMaybe "false" <$> getMetadataField ident "draft"
     return $ isDraft == "true"
 
-postItemIdentifiers :: MonadMetadata m => m [Identifier]
+postItemIdentifiers :: (MonadFail m, MonadMetadata m) => m [Identifier]
 postItemIdentifiers = do
     idents <- getMatches "posts/**"
     idents' <- filterM (fmap not . isDraftPost) idents
@@ -254,15 +254,15 @@ addSpaceAroundAsciiInlines = concatMap addSpaceInline
 -- 'textLangToInline'.  Blocks of Latin text will be placed in @\<span\>@ tags
 -- with an @\"ascii\"@ class.
 addSpaceInline :: Inline -> [Inline]
-addSpaceInline (Str string) = textLangToInline <$> splitOnLanguage string
+addSpaceInline (Str string) = textLangToInline <$> splitOnLanguage (T.unpack string)
 addSpaceInline inline = [inline]
 
 -- | This is a tag around a 'String' representing whether the 'String' is Latin
 -- ('English') or 'Japanese'.  'String's that are neither Latin or 'Japanese'
 -- are treated as 'Japanese'.  See 'charLangToTextLang'.
 data TextLang
-  = Japanese String
-  | English String
+  = Japanese T.Text
+  | English T.Text
   deriving (Data, Eq, Read, Show, Typeable)
 
 -- | This is a tag around a 'Char' representing whether the 'Char' is Latin or
@@ -384,11 +384,11 @@ groupByCharLang = groupBy f
 -- Japanese "\20132\30058"
 charLangToTextLang :: NonEmpty CharLang -> TextLang
 charLangToTextLang cs@(JapaneseChar{} :| _) =
-  Japanese . toList $ charLangToChar <$> cs
+  Japanese . T.pack . toList $ charLangToChar <$> cs
 charLangToTextLang cs@(EnglishChar{} :| _) =
-  English . toList $ charLangToChar <$> cs
+  English . T.pack . toList $ charLangToChar <$> cs
 
-getFeedConfig :: MonadMetadata m => Identifier -> m FeedConfiguration
+getFeedConfig :: (MonadFail m, MonadMetadata m) => Identifier -> m FeedConfiguration
 getFeedConfig ident = do
     feedTitle       <- getMetadataField' ident "title"
     feedDescription <- getMetadataField' ident "description"
@@ -407,15 +407,15 @@ data PostSection = PostSection
   } deriving Show
 
 -- | Extract element ID from `Attr`.
-attrId :: Attr -> String
+attrId :: Attr -> T.Text
 attrId (x, _, _) = x
 
 -- | Construct `Attr` with ID.
-idAttr :: String -> Attr
+idAttr :: T.Text -> Attr
 idAttr s = (s, [], [])
 
 -- | Construct `Attr` with one class.
-classAttr :: String -> Attr
+classAttr :: T.Text -> Attr
 classAttr s = ("", [s], [])
 
 -- | Eliminate all links from `Block`s or `Inline`s.
@@ -469,7 +469,7 @@ makeTOCList xs0@(x0 : _) = PB.bulletList $ Tree.foldTree fld <$> unfoldTree_DF u
 
     listItem :: PostSection -> PB.Blocks
     listItem PostSection{..} =
-        PB.plain $ PB.link ("#" ++ attrId psHeaderAttr)
+        PB.plain $ PB.link ("#" <> attrId psHeaderAttr)
                            (attrId psHeaderAttr)
                            (PB.fromList $ elimLink psHeaderInline)
 
@@ -482,7 +482,7 @@ makeSectionBlock PostSection{..} = hd <> PB.fromList psContent
            <> PB.fromList psHeaderInline
 
     anchor = PB.spanWith (classAttr "link-to-here-outer") $
-               PB.link ("#" ++ attrId psHeaderAttr)
+               PB.link ("#" <> attrId psHeaderAttr)
                        (attrId psHeaderAttr) $
                  PB.spanWith (classAttr "link-to-here") $
                    PB.str "Link to" <> PB.linebreak <> PB.str "here"
