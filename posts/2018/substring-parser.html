@@ -215,21 +215,21 @@ here</span></a></span>「タイプセーフプリキュア！」とは？</h2>
 「プリキュア実装」とは一言で言うと「プリキュアやプリキュアに変身する女の子たち、変身時の台詞など諸々のプリキュアの設定をソースコードに収録したライブラリー」です。</p>
 <p>例えば、今回取り上げます私の「タイプセーフプリキュア！」は（もちろん）<span class="ascii">Haskell</span>で書かれたプリキュア実装で、次のように書くことで、キュアアンジュが変身する際の台詞を取得することができます。<br />
 <small>（出力されるリストは、手で整形しています）</small></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">ACME.PreCure</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="co">-- キュアアンジュには、薬師寺さあやが「ミライクリスタル・ブルー」を</span></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co">-- セットした「プリハート」を使うことで変身します。</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="op">&gt;</span> transformationSpeech <span class="dt">Saaya</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalBlue</span>)</a>
-<a class="sourceLine" id="cb1-5" title="5">[ <span class="st">&quot;ミライクリスタル！&quot;</span></a>
-<a class="sourceLine" id="cb1-6" title="6">, <span class="st">&quot;ハートキラっと！&quot;</span></a>
-<a class="sourceLine" id="cb1-7" title="7">, <span class="st">&quot;は～ぎゅ～～！&quot;</span></a>
-<a class="sourceLine" id="cb1-8" title="8">, <span class="st">&quot;ぎゅ～！&quot;</span></a>
-<a class="sourceLine" id="cb1-9" title="9">, <span class="st">&quot;ぎゅ～～！&quot;</span></a>
-<a class="sourceLine" id="cb1-10" title="10">, <span class="st">&quot;輝く未来をー、抱きしめて！&quot;</span></a>
-<a class="sourceLine" id="cb1-11" title="11">, <span class="st">&quot;みんなを癒す！知恵のプリキュア！キュアアンジュ！&quot;</span></a>
-<a class="sourceLine" id="cb1-12" title="12">]</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">ACME.PreCure</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- キュアアンジュには、薬師寺さあやが「ミライクリスタル・ブルー」を</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- セットした「プリハート」を使うことで変身します。</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> transformationSpeech <span class="dt">Saaya</span> (<span class="dt">PreHeart</span> <span class="dt">MiraiCrystalBlue</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>[ <span class="st">&quot;ミライクリスタル！&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>, <span class="st">&quot;ハートキラっと！&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>, <span class="st">&quot;は～ぎゅ～～！&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>, <span class="st">&quot;ぎゅ～！&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>, <span class="st">&quot;ぎゅ～～！&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>, <span class="st">&quot;輝く未来をー、抱きしめて！&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>, <span class="st">&quot;みんなを癒す！知恵のプリキュア！キュアアンジュ！&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
 <p><span class="ascii">GHCi</span>で上記のコードを試す場合は、下記のコードで<span class="ascii">typesafe-precure</span>と<a href="https://github.com/haskell-jp/unicode-show"><span class="ascii">unicode-show</span></a>をインストールした上で起動するとよいでしょう。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1">$ <span class="ex">stack</span> build typesafe-precure unicode-show</a>
-<a class="sourceLine" id="cb2-2" title="2">$ <span class="ex">stack</span> exec ghci -- -interactive-print=<span class="st">&quot;Text.Show.Unicode.uprint&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> stack build typesafe-precure unicode-show</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> stack exec ghci <span class="at">--</span> <span class="at">-interactive-print</span><span class="op">=</span><span class="st">&quot;Text.Show.Unicode.uprint&quot;</span></span></code></pre></div>
 <p>その他の機能や、使っている<span class="ascii">GHC</span>の拡張などについては下記の記事をご覧ください。</p>
 <ul>
 <li><a href="http://the.igreque.info/posts/2016/06-type-safe-precure.html"><span class="ascii">igreque : Info -&gt; Haskell</span>でプリキュアを作ってみた</a></li>
@@ -247,18 +247,18 @@ here</span></a></span><span class="ascii">cure-index.json</span>とは？</h2>
 here</span></a></span>今回のプリキュアハッカソンに向けて行ったこと</h1>
 <p>従来の<span class="ascii">cure-index.json</span>には、最新作である「<span class="ascii">HUG</span>っと！プリキュア」と、その一つ前の作品である「キラキラ☆プリキュアアラモード」の情報しか収録されていませんでした。<br />
 前述の<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">去年の<span class="ascii">Haskell Advent Calendar</span>の記事</a>でも触れましたが、収録のためにはプリキュアの設定の書式を大幅に変更しなければならず、面倒なのでひとまず後回しにしていたのです。</p>
-<p>そこで今年のプリキュアハッカソンにて発表するのによいネタだろうと思い、あの手この手を使って、全シリーズを<span class="ascii">cure-index.json</span>に含める対応を行いました<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>🎉。</p>
+<p>そこで今年のプリキュアハッカソンにて発表するのによいネタだろうと思い、あの手この手を使って、全シリーズを<span class="ascii">cure-index.json</span>に含める対応を行いました<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>🎉。</p>
 <h2 id="修正前の書式"><span class="link-to-here-outer"><a href="#修正前の書式" title="修正前の書式"><span class="link-to-here">Link to<br />
 here</span></a></span>🔴修正<strong>前</strong>の書式</h2>
 <p>それでは、具体的にどんな修正を行ったのか紹介しましょう。<br />
 修正前は、プリキュアの設定を収録した各モジュール（<code>ACME.PreCure.Textbook</code>以下にあるので、今後は「<strong>各<code>Textbook</code>モジュール</strong>」と呼びます）には<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/MahoGirls/Types.hs#L71">👇こんな感じの<span class="ascii">Types.hs</span>がたくさん</a>ありました。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">data</span> <span class="dt">CureMiracle</span> <span class="ot">=</span> <span class="dt">CureMiracle</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
-<a class="sourceLine" id="cb3-2" title="2"></a>
-<a class="sourceLine" id="cb3-3" title="3">transformedInstance</a>
-<a class="sourceLine" id="cb3-4" title="4">  [t| CureMiracle |]</a>
-<a class="sourceLine" id="cb3-5" title="5">  cureName_Miracle</a>
-<a class="sourceLine" id="cb3-6" title="6">  introducesHerselfAs_Miracle</a>
-<a class="sourceLine" id="cb3-7" title="7">  variation_Dia</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CureMiracle</span> <span class="ot">=</span> <span class="dt">CureMiracle</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>transformedInstance</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  [t| CureMiracle |]</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  cureName_Miracle</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  introducesHerselfAs_Miracle</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  variation_Dia</span></code></pre></div>
 <p>上記はキュアミラクルを表す型の定義と、その日本語での名前、変身時の名乗りといったプロフィールを設定しているコードです。<br />
 このほかにも、プリキュアに変身する女の子の設定や、変身の際に必要な変身アイテムなどの型定義がたくさんあります。<br />
 <code>transformedInstance</code>で始まる行は、<span class="ascii">Template Haskell</span>を使った、型クラスのインスタンス宣言です。<br />
@@ -268,32 +268,32 @@ here</span></a></span>🔴修正<strong>前</strong>の書式</h2>
 <h2 id="修正後の書式"><span class="link-to-here-outer"><a href="#修正後の書式" title="修正後の書式"><span class="link-to-here">Link to<br />
 here</span></a></span>🔵修正<strong>後</strong>の書式</h2>
 <p>そのため、今回修正した後の各<code>Textbook</code>モジュールでは、<a href="https://github.com/igrep/typesafe-precure/blob/fd5f89797372f616a551e07251c0fcd2ca1531c2/src/ACME/PreCure/Textbook/MahoGirls/Profiles.hs#L20">👇こんな感じの<span class="ascii">Profiles.hs</span></a>で、各種の設定を宣言することにしました。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="ot">transformees ::</span> [<span class="dt">Transformee</span>]</a>
-<a class="sourceLine" id="cb4-2" title="2">transformees <span class="ot">=</span></a>
-<a class="sourceLine" id="cb4-3" title="3">  [ mkTransformee</a>
-<a class="sourceLine" id="cb4-4" title="4">      <span class="st">&quot;Cure Miracle&quot;</span></a>
-<a class="sourceLine" id="cb4-5" title="5">      <span class="st">&quot;&quot;</span></a>
-<a class="sourceLine" id="cb4-6" title="6">      cureName_Miracle</a>
-<a class="sourceLine" id="cb4-7" title="7">      variation_Dia</a>
-<a class="sourceLine" id="cb4-8" title="8">      introducesHerselfAs_Miracle</a>
-<a class="sourceLine" id="cb4-9" title="9">  , <span class="op">...</span></a>
-<a class="sourceLine" id="cb4-10" title="10">  ]</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">transformees ::</span> [<span class="dt">Transformee</span>]</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>transformees <span class="ot">=</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  [ mkTransformee</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;Cure Miracle&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      cureName_Miracle</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      variation_Dia</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      introducesHerselfAs_Miracle</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  , <span class="op">...</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  ]</span></code></pre></div>
 <p><code>mkTransformee</code>関数で作っている<code>Transformee</code>型の値は、<span class="ascii">cure-index.json</span>の一部として、<span class="ascii">JSON</span>に変換する中間データです。もちろん<code>ToJSON</code>のインスタンスになっております。<br />
 このように新しい各<code>Textbook</code>モジュールでは、直接<span class="ascii">Haskell</span>のソースコードとしてプリキュアの設定を書く代わりに、<strong>一旦<span class="ascii">JSON</span>に変換する用の中間データを設けることで、<span class="ascii">cure-index.json</span>に収録しやすい状態に</strong>しています。</p>
 <p>こうして作られた<code>Transformee</code>などの中間データ用の値は、各<code>Textbook</code>モジュールのルートに当たるモジュールで、型クラスのインスタンス宣言を行ったり、<code>ANN</code>という機能でモジュールに紐付けられます。<br />
 以下は「魔法つかいプリキュア！」のルートに当たるモジュール<a href="https://github.com/igrep/typesafe-precure/blob/477fc23a018020fe67895e79361520016fd844bf/src/ACME/PreCure/Textbook/MahoGirls.hs"><code>MahoGirls.hs</code></a>からの抜粋です。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls.Profiles</span></a>
-<a class="sourceLine" id="cb5-4" title="4"></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="op">...</span></a>
-<a class="sourceLine" id="cb5-6" title="6"></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="ot">{-# ANN module transformees #-}</span></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="op">$</span>(declareTransformees transformees)</a>
-<a class="sourceLine" id="cb5-9" title="9"></a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="op">...</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls</span> <span class="kw">where</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">ACME.PreCure.Textbook.MahoGirls.Profiles</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# ANN module transformees #-}</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(declareTransformees transformees)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span></code></pre></div>
 <p><code>Profiles.hs</code>で定義した<code>transformees</code>というリストを、<code>ANN</code>で<code>MahoGirls</code>モジュールに紐付け、<code>declareTransformees</code>という<span class="ascii">Template Haskell</span>のマクロで型宣言やインスタンス宣言を生成するのに使っています。<br />
-<code>ANN</code>については<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">前回の「タイプセーフプリキュア！を支える技術」</a>をご覧ください<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
+<code>ANN</code>については<a href="https://haskell.jp/blog/posts/2017/typesafe-precure2.html">前回の「タイプセーフプリキュア！を支える技術」</a>をご覧ください<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>。</p>
 <p>修正前との違いにおける要点を繰り返しましょう。修正後の各<code>Textbook</code>モジュールでは、</p>
 <ul>
 <li>プリキュアの情報を、
@@ -326,22 +326,22 @@ here</span></a></span>パーサーコンビネーターとは</h3>
 <p>実際のパーサーコンビネーターのライブラリーを単純化して例を挙げましょう。<br />
 例えば、通例パーサーコンビネーターのライブラリーは<code>decimal</code>という、「<span class="ascii">10</span>進数の文字列を受け取って、整数を返すパーサー」を提供していることが多いです。</p>
 <p><code>parse</code>関数に、解析したい文字列と一緒に渡すことで、「文字列を解析した結果」と、「残りの文字列」を取得することができます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&gt;</span> parse decimal <span class="st">&quot;123abc&quot;</span></a>
-<a class="sourceLine" id="cb6-2" title="2">(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> parse decimal <span class="st">&quot;123abc&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>)</span></code></pre></div>
 <p>👆上記の例では「解析したい文字列」として<code>123abc</code>を渡したので、パースした結果の整数<code>123</code>と、その残りの文字列<code>"abc"</code>を返しています。</p>
 <p>これだけではつまらないので、ほかのパーサーの例も挙げましょう。<br />
 👇今度は「文字 セミコロン <code>;</code> を受け取って、そのまま返すパーサー」です。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="op">&gt;</span> parse (char <span class="ch">';'</span>) <span class="st">&quot;;aaa&quot;</span></a>
-<a class="sourceLine" id="cb7-2" title="2">(<span class="ch">';'</span>, <span class="st">&quot;aaa&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> parse (char <span class="ch">';'</span>) <span class="st">&quot;;aaa&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>(<span class="ch">';'</span>, <span class="st">&quot;aaa&quot;</span>)</span></code></pre></div>
 <p>「パースした結果」がセミコロン <code>;</code> で、「残りの文字列」が<code>"aaa"</code>となっていますね。</p>
 <p>それでは以上<span class="ascii">2</span>つのパーサーを組み合わせて、<strong><span class="ascii">10</span>進数の文字列を受け取った後、セミコロンを受け取り、整数を返すパーサー</strong>を作ってみましょう。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="op">&gt;</span> decimalAndSemicolon <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb8-2" title="2">    n <span class="ot">&lt;-</span> decimal</a>
-<a class="sourceLine" id="cb8-3" title="3">    char <span class="ch">';'</span></a>
-<a class="sourceLine" id="cb8-4" title="4">    <span class="fu">return</span> n</a>
-<a class="sourceLine" id="cb8-5" title="5"></a>
-<a class="sourceLine" id="cb8-6" title="6"><span class="op">&gt;</span> parse decimalAndSemicolon <span class="st">&quot;123;abc&quot;</span></a>
-<a class="sourceLine" id="cb8-7" title="7">(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>) <span class="co">-- 結果にセミコロンが含まれてない点に注意</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> decimalAndSemicolon <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> decimal</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    char <span class="ch">';'</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> n</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> parse decimalAndSemicolon <span class="st">&quot;123;abc&quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>(<span class="dv">123</span>, <span class="st">&quot;abc&quot;</span>) <span class="co">-- 結果にセミコロンが含まれてない点に注意</span></span></code></pre></div>
 <p><span class="ascii">Haskell</span>におけるパーサーコンビネーターのライブラリーは、パーサーを<code>Monad</code>として提供することで、上記のように<code>do</code>記法でパーサーを組み合わせることができるようになっています。<br />
 ここでは詳細は割愛しますが、</p>
 <ol type="1">
@@ -351,13 +351,13 @@ here</span></a></span>パーサーコンビネーターとは</h3>
 </ol>
 <p>という処理を行っているのがわかるでしょうか？</p>
 <p>ちなみに、パーサーコンビネーターに慣れた読者の方なら、いわゆる<span class="ascii">Applicative</span>スタイルを使って、次のようにも書けると気づくでしょう。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1">decimalAndSemicolon <span class="ot">=</span> decimal <span class="op">&lt;*</span> char <span class="ch">';'</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>decimalAndSemicolon <span class="ot">=</span> decimal <span class="op">&lt;*</span> char <span class="ch">';'</span></span></code></pre></div>
 <p>これならパースした結果をいちいち変数に束縛する必要もなく、より簡潔に書くことができますね！</p>
 <p>パーサーコンビネーターのパワーを実感していただくために、もう一つ例を紹介します。<br />
 <code>many</code>という関数にパーサーコンビネーターを渡すと、「受け取ったパーサーコンビネーターで失敗するまで繰り返しパースして、その結果をリストとして返す」パーサーが作れます。<br />
 例えば先ほどの「<span class="ascii">10</span>進数の文字列を受け取った後、セミコロンを受け取り、整数を返すパーサー」から、「セミコロンが末尾に着けられた整数のリストを返すパーサー」を作ることができます。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1">parse (many decimalAndSemicolon) <span class="st">&quot;12;34;56;&quot;</span></a>
-<a class="sourceLine" id="cb10-2" title="2">([<span class="dv">12</span>, <span class="dv">34</span>, <span class="dv">56</span>], <span class="st">&quot;&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>parse (many decimalAndSemicolon) <span class="st">&quot;12;34;56;&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>([<span class="dv">12</span>, <span class="dv">34</span>, <span class="dv">56</span>], <span class="st">&quot;&quot;</span>)</span></code></pre></div>
 <p>このようにパーサーコンビネーターは、小さなパーサーをどんどん組み合わせることで、複雑な文字列から複雑なデータ構造を取り出すパーサーを、クールに作れるようにしてくれます。</p>
 <h3 id="パーサーコンビネーターが正規表現より良いところ悪いところ"><span class="link-to-here-outer"><a href="#パーサーコンビネーターが正規表現より良いところ悪いところ" title="パーサーコンビネーターが正規表現より良いところ悪いところ"><span class="link-to-here">Link to<br />
 here</span></a></span>パーサーコンビネーターが正規表現より良いところ・悪いところ</h3>
@@ -399,7 +399,7 @@ here</span></a></span>👎文字列の先頭からのマッチしかできない
 <p>この問題は、パーサーコンビネーターをベター正規表現として使おうと思った場合に、しばしばパーサー作りを面倒くさくします。<br />
 パーサーコンビネーターは、原理上必ず文字列の先頭から解析するよう作られています。<br />
 例えば先ほど紹介したパーサー<code>decimal</code>の場合、</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="op">&gt;</span> parse decimal <span class="st">&quot;abc123&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> parse decimal <span class="st">&quot;abc123&quot;</span></span></code></pre></div>
 <p>と書いても、<code>"abc123"</code>は先頭が「<span class="ascii">10</span>進数の文字列」ではないので、失敗してしまいます<small>（実際の戻り値はライブラリーによって異なります。試してみましょう！）</small>。</p>
 <p>パーサーコンビネーターはそもそもの用途が<span class="ascii">0</span>からプログラミング言語などのマシンリーダブルな構文を作るところにあるので、妥当と言えば妥当な制限です。<br />
 その場合は必ず、文字列を頭から読んでパースすることになるでしょうから。</p>
@@ -418,8 +418,8 @@ here</span></a></span>ソースコードの書き換えと<span class="ascii">su
 また、抽出したいデータ構造も多様かつそこそこに複雑で、中には再帰的なデータ構造もあります。正規表現を用いてのパースも、かなり困難なことでしょう。<br />
 とはいえパーサーコンビネーターを通常のとおりに使うと、これまでに述べたとおり、「文字列の先頭からしかマッチできない」という制限が、考えることを複雑にします。</p>
 <p>こうした状況は今回の問題に限らず、このように、ソースコードの多くの類似箇所を書き換える場面において、しばしば発生するでしょう。<br />
-そこで今回は<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>こうした問題全般に対応するライブラリーとして、<a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを作りました。</p>
-<p><span class="ascii">substring-parser</span>を使えば、任意のパーサーコンビネーター<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>を<strong>文字列の中間でも</strong>マッチさせることができます。<br />
+そこで今回は<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>こうした問題全般に対応するライブラリーとして、<a href="https://gitlab.com/igrep/substring-parser"><span class="ascii">substring-parser</span></a>というライブラリーを作りました。</p>
+<p><span class="ascii">substring-parser</span>を使えば、任意のパーサーコンビネーター<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>を<strong>文字列の中間でも</strong>マッチさせることができます。<br />
 残念ながらドキュメントらしいドキュメントが全く書けてない状況ではありますが、一応動きます。<br />
 <a href="https://gitlab.com/igrep/substring-parser/blob/master/test/Spec.hs"><span class="ascii">Spec.hs</span></a>が動作を知る際の参考になるかも知れません。</p>
 <h4 id="substring-parserの仕組み"><span class="link-to-here-outer"><a href="#substring-parserの仕組み" title="substring-parserの仕組み"><span class="link-to-here">Link to<br />
@@ -431,7 +431,8 @@ here</span></a></span><span class="ascii">substring-parser</span>の仕組み</h
 <li>とりあえず先頭からマッチさせてみる。</li>
 <li>失敗したら先頭の一文字をスキップして、次の文字からまたマッチさせてみる。</li>
 </ol>
-<p>という手順を繰り返すだけです。 結果として文字列の先頭にある「マッチさせたくない文字列」をスキップすることができるのです。</p>
+<p>という手順を繰り返すだけです。
+結果として文字列の先頭にある「マッチさせたくない文字列」をスキップすることができるのです。</p>
 <p>⚠️残念ながら決して効率のいい方法ではないので、真面目なパーサーを書くときはおすすめしません！<br />
 あくまでも今回のような、書き捨てだけど、それなりに複雑な文字列を解析する必要がある場合のみ使うべきでしょう。</p>
 <h2 id="結果できたもの"><span class="link-to-here-outer"><a href="#結果できたもの" title="結果できたもの"><span class="link-to-here">Link to<br />
@@ -443,20 +444,20 @@ here</span></a></span>結果、できたもの</h2>
 ご興味のある方はご覧になってみてください。</p>
 <p>また、もう少し小さいサンプルとして、プリキュアハッカソンの成果発表でデモをした時点のコミットも載せておきます。<br />
 👇のコマンドを実行すれば、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/app/migrate2cure-index.hs#L101-L118">こちらのコミット時点のパーサー</a>で、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/Dokidoki/Types.hs#L19-L23">同時点の<span class="ascii">Types.hs</span></a>から、<span class="ascii">cure-index.json</span>で使用する<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Index/Types.hs#L44-L46"><code>Girl</code></a>という型の値を取り出すことができます！</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="op">&gt;</span> git clone https<span class="op">://</span>github<span class="op">.</span>com<span class="op">/</span>igrep<span class="op">/</span>typesafe<span class="op">-</span>precure</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="op">&gt;</span> cd typesafe<span class="op">-</span>precure</a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="op">&gt;</span> git checkout 73948fb4a82baaf4e33900d77326791c7703f786</a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="op">&gt;</span> stack build <span class="op">:</span>migrate2cure<span class="op">-</span><span class="fu">index</span></a>
-<a class="sourceLine" id="cb12-5" title="5"><span class="op">&gt;</span> stack exec migrate2cure<span class="op">-</span><span class="fu">index</span></a>
-<a class="sourceLine" id="cb12-6" title="6"></a>
-<a class="sourceLine" id="cb12-7" title="7"><span class="op">...</span> 略 <span class="op">...</span></a>
-<a class="sourceLine" id="cb12-8" title="8"></a>
-<a class="sourceLine" id="cb12-9" title="9"><span class="co">-- src/ACME/PreCure/Textbook/Dokidoki --</span></a>
-<a class="sourceLine" id="cb12-10" title="10"><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Mana\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Mana\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
-<a class="sourceLine" id="cb12-11" title="11"><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Rikka\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Rikka\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
-<a class="sourceLine" id="cb12-12" title="12"><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Alice\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Alice\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
-<a class="sourceLine" id="cb12-13" title="13"><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Makoto\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Makoto\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</a>
-<a class="sourceLine" id="cb12-14" title="14"><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Aguri\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Aguri\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> git clone https<span class="op">://</span>github<span class="op">.</span>com<span class="op">/</span>igrep<span class="op">/</span>typesafe<span class="op">-</span>precure</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> cd typesafe<span class="op">-</span>precure</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> git checkout 73948fb4a82baaf4e33900d77326791c7703f786</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack build <span class="op">:</span>migrate2cure<span class="op">-</span><span class="fu">index</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack exec migrate2cure<span class="op">-</span><span class="fu">index</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="op">...</span> 略 <span class="op">...</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- src/ACME/PreCure/Textbook/Dokidoki --</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Mana\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Mana\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Rikka\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Rikka\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Alice\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Alice\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Makoto\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Makoto\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="dt">Girl</span> {girlId <span class="ot">=</span> <span class="st">&quot;\&quot;Aguri\&quot;&quot;</span>, girlNameEn <span class="ot">=</span> <span class="st">&quot;\&quot;Aguri\&quot; ++ error \&quot;Need family name!\&quot;&quot;</span>, girlNameJa <span class="ot">=</span> <span class="st">&quot;girlName&quot;</span>}</span></code></pre></div>
 <h1 id="その他の似たソリューション"><span class="link-to-here-outer"><a href="#その他の似たソリューション" title="その他の似たソリューション"><span class="link-to-here">Link to<br />
 here</span></a></span>その他の似たソリューション</h1>
 <p>今回は、自前で作ったライブラリーと一から書いたパーサーを組み合わせることで「ソースコードの多くの類似箇所を書き換える」問題に対応しましたが、似たようなことを行うツールはほかにもあります。<br />
@@ -479,7 +480,8 @@ here</span></a></span><a href="https://github.com/SuperpowersCorp/refactorio"><s
 <code>ByteString -&gt; ByteString</code>という型の<span class="ascii">Haskell</span>の関数を渡すことで、指定したディレクトリーのファイルすべてに対して関数を適用し、書き換えます。</p>
 <p>加えて、<code>--haskell</code>や<code>--html</code>、<code>--javascript</code>など、各言語に特化したオプションを渡すと、各言語のソースコードを修正する<span class="ascii">lens</span>ベースの<span class="ascii">module</span>を<span class="ascii">import</span>した状態で、関数を作れるようにしてくれます。<br />
 具体的には、例えば<code>--haskell</code>オプションを渡すと、<a href="https://hackage.haskell.org/package/haskell-src-exts"><span class="ascii">haskell-src-exts</span></a>と<a href="https://hackage.haskell.org/package/haskell-src-exts-prisms"><span class="ascii">haskell-src-exts-prisms</span></a>パッケージのモジュールを<span class="ascii">import</span>することで、<span class="ascii">Haskell</span>の<span class="ascii">AST</span>の各トークンに対応した<code>Prism</code>などが使えるようになります。</p>
-<p>後は<a href="https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate"><code>biplate</code></a>など<span class="ascii">lens</span>ライブラリーのコンビネーターと組み合わせれば、一気に<span class="ascii">Haskell</span>のソースコードを編集することができます。 「任意のデータ構造に対する<span class="ascii">jQuery</span>」とも言われる<span class="ascii">lens</span>ライブラリーのパワーを存分に生かしたツールなのです。</p>
+<p>後は<a href="https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate"><code>biplate</code></a>など<span class="ascii">lens</span>ライブラリーのコンビネーターと組み合わせれば、一気に<span class="ascii">Haskell</span>のソースコードを編集することができます。
+「任意のデータ構造に対する<span class="ascii">jQuery</span>」とも言われる<span class="ascii">lens</span>ライブラリーのパワーを存分に生かしたツールなのです。</p>
 <p>残念なところは、今でも開発中である点と、<span class="ascii">lens</span>ライブラリーに習熟していなければ使いこなせないという点でしょうか。<br />
 よく使う<code>Lens</code>型や<code>Prism</code>型だけでなく、<code>Traversal</code>も使えなければなりません。<br />
 特に<a href="https://github.com/SuperpowersCorp/refactorio#haskell-via-haskell-src-exts-and-haskell-src-exts-prisms">サンプル</a>で紹介されているような<a href="https://www.stackage.org/haddock/lts-12.8/lens-4.16.1/Data-Data-Lens.html#v:biplate"><code>biplate</code></a>を使った場合において、指定した<code>Prism</code>がマッチしなかった場合、何事もなかったかのようにソースが書き換えられないため、デバッグが面倒なところもつらいです。</p>
@@ -500,14 +502,14 @@ here</span></a></span>まとめ</h1>
 <li>パーサーコンビネーター最高！ ✌️😆✌️</li>
 </ul>
 <p>それではこの秋もパーサーコンビネーターで<span class="ascii">Happy Haskell Hacking!!</span>✌️✌️✌️</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>プリキュアハッカソンは「ハッカソン」の名を冠してはいるものの、実態としてはプリキュアの映画を観ながら好き勝手に開発するというゆるい会です。<br />
-また、そもそもそれほど時間もないので、私は当日の<span class="ascii">3</span>～<span class="ascii">4</span>週間ほど前から今回の対応を始めておりました。「今回のプリキュアハッカソンに<strong>向けて</strong>行ったこと」なる見出しなのは、そのためです。<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>当時は各<code>Textbook</code>モジュールの<code>Types.hs</code>というファイルで<code>ANN</code>や<code>declareTransformees</code>などを使っていましたが、現在は「ルートに当たるモジュール」で行うことにしました。ファイル数を減らすのと、<span class="ascii">export</span>する識別子を型に絞ることで、<code>transformeesHugtto</code>のような、あまりかっこよくない識別子を隠す、というのがその目的です。<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>実際には、前職時代に同様の問題に遭遇した際作成しました。今後も必要になったときにちょっとずつ開発していく予定です。<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>一応<a href="http://hackage.haskell.org/package/parsers"><code>parsers</code></a>パッケージを使って様々なパーサーコンビネーターのライブラリーをサポートするように作りましたが、現状<a href="http://hackage.haskell.org/package/attoparsec"><code>attoparsec</code></a>でのみテストしています。用途を考えれば多分十分じゃないかと思っています。<a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>プリキュアハッカソンは「ハッカソン」の名を冠してはいるものの、実態としてはプリキュアの映画を観ながら好き勝手に開発するというゆるい会です。<br />
+また、そもそもそれほど時間もないので、私は当日の<span class="ascii">3</span>～<span class="ascii">4</span>週間ほど前から今回の対応を始めておりました。「今回のプリキュアハッカソンに<strong>向けて</strong>行ったこと」なる見出しなのは、そのためです。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>当時は各<code>Textbook</code>モジュールの<code>Types.hs</code>というファイルで<code>ANN</code>や<code>declareTransformees</code>などを使っていましたが、現在は「ルートに当たるモジュール」で行うことにしました。ファイル数を減らすのと、<span class="ascii">export</span>する識別子を型に絞ることで、<code>transformeesHugtto</code>のような、あまりかっこよくない識別子を隠す、というのがその目的です。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>実際には、前職時代に同様の問題に遭遇した際作成しました。今後も必要になったときにちょっとずつ開発していく予定です。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>一応<a href="http://hackage.haskell.org/package/parsers"><code>parsers</code></a>パッケージを使って様々なパーサーコンビネーターのライブラリーをサポートするように作りましたが、現状<a href="http://hackage.haskell.org/package/attoparsec"><code>attoparsec</code></a>でのみテストしています。用途を考えれば多分十分じゃないかと思っています。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

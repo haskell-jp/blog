@@ -191,7 +191,7 @@ here</span></a></span><span class="ascii">main-tester</span>ができること</
 </ul></li>
 </ol>
 <p>ここに書いたことは、ビルドした実行ファイルを子プロセスとして呼び出すことによってもできます。<br />
-入出力の順番など、標準出力や標準エラー出力のより細かい挙動をテストするにはその方がいいでしょう<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+入出力の順番など、標準出力や標準エラー出力のより細かい挙動をテストするにはその方がいいでしょう<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>。<br />
 しかし、テストのために<code>PATH</code>を分離させる必要があったり、そのために<a href="https://github.com/commercialhaskell/stack/issues/2885"><code>stack exec</code>を使ったらめっちゃ遅い</a>という問題があったり、そもそも子プロセス呼び出しはそれだけでオーバーヘッドがあったりと、様々な問題があります。<br />
 物事をよりシンプルにするには、<code>main</code>関数を直接呼び出した方がよいでしょう。<br />
 <span class="ascii">main-tester</span>は、<span class="ascii">CLI</span>アプリケーションの<span class="ascii">E2E</span>テストにおける、そうした子プロセスの呼び出しの問題と、より大きな関数をテストしたいというニーズに応えるためのライブラリーなのです。</p>
@@ -210,66 +210,67 @@ here</span></a></span>ほかのライブラリーとの違い</h1>
 既存のライブラリーでこれを行うと、<code>ExitCode</code>が例外として処理されるため、テストしたい<code>main</code>関数の実行が終了してしまいます。<br />
 結果、<code>main</code>関数が標準出力・標準エラー出力に書き込んだ文字列を取得することができないのです。<br />
 「○○というエラーメッセージを出力して異常終了する」といったことをテストしたい場合、これでは使いづらいでしょう。<br />
-<strong>「<code>main</code>関数の<span class="ascii">E2E</span>テストを行うためのライブラリーである」</strong>という観点から、必須の機能であると判断し、実装しました。 ちなみに、<code>ExitCode</code>以外の例外についてはそのまま投げられます。仕様を単純にするために、これはユーザーのテストコードの中で処理することとしています。</p>
+<strong>「<code>main</code>関数の<span class="ascii">E2E</span>テストを行うためのライブラリーである」</strong>という観点から、必須の機能であると判断し、実装しました。
+ちなみに、<code>ExitCode</code>以外の例外についてはそのまま投げられます。仕様を単純にするために、これはユーザーのテストコードの中で処理することとしています。</p>
 <h1 id="使い方バグ報告"><span class="link-to-here-outer"><a href="#使い方バグ報告" title="使い方バグ報告"><span class="link-to-here">Link to<br />
 here</span></a></span>使い方・バグ報告</h1>
 <p>機能は非常にシンプルなので、使い方については<a href="https://hackage.haskell.org/package/main-tester-0.1.0.0/docs/Test-Main.html">ドキュメント</a>のサンプルコードを読めば大体わかるかなぁと思いますが、簡単にサンプルを載せておきましょう。</p>
 <p>例えばこんなソース👇のプログラムがあった場合、</p>
 <p><span class="ascii">ExampleMain.hs:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">module</span> <span class="dt">ExampleMain</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">import</span> <span class="dt">Data.List</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">import</span> <span class="dt">System.Exit</span></a>
-<a class="sourceLine" id="cb1-5" title="5"></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb1-7" title="7">main <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb1-8" title="8">  <span class="fu">putStr</span> <span class="st">&quot;What's your name?: &quot;</span></a>
-<a class="sourceLine" id="cb1-9" title="9">  name <span class="ot">&lt;-</span> <span class="fu">getLine</span></a>
-<a class="sourceLine" id="cb1-10" title="10">  <span class="kw">if</span> <span class="st">&quot;Yuji&quot;</span> <span class="ot">`isInfixOf`</span> name</a>
-<a class="sourceLine" id="cb1-11" title="11">    <span class="kw">then</span> <span class="fu">putStrLn</span> <span class="st">&quot;Nice name!&quot;</span></a>
-<a class="sourceLine" id="cb1-12" title="12">    <span class="kw">else</span> die <span class="op">$</span> name <span class="op">++</span> <span class="st">&quot;? Sorry I don't know such a guy!&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">ExampleMain</span> <span class="kw">where</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Exit</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">putStr</span> <span class="st">&quot;What's your name?: &quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  name <span class="ot">&lt;-</span> <span class="fu">getLine</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span> <span class="st">&quot;Yuji&quot;</span> <span class="ot">`isInfixOf`</span> name</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">then</span> <span class="fu">putStrLn</span> <span class="st">&quot;Nice name!&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> die <span class="op">$</span> name <span class="op">++</span> <span class="st">&quot;? Sorry I don't know such a guy!&quot;</span></span></code></pre></div>
 <p><span class="ascii">main-tester</span>を使えば、次のように<span class="ascii">Hspec</span>でテストできます。</p>
 <p><span class="ascii">ExampleSpec.hs:</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">{-# LANGUAGE OverloadedStrings #-}</span></a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">import</span> <span class="dt">System.Exit</span></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="kw">import</span> <span class="dt">Test.Main</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="kw">import</span> <span class="dt">Test.Hspec</span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">ExampleMain</span></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString</span> <span class="kw">as</span> <span class="dt">B</span></a>
-<a class="sourceLine" id="cb2-8" title="8"></a>
-<a class="sourceLine" id="cb2-9" title="9">main <span class="ot">=</span> hspec <span class="op">$</span></a>
-<a class="sourceLine" id="cb2-10" title="10">  describe <span class="st">&quot;your-cool-command&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-11" title="11">    context <span class="st">&quot;Given 'Yuji' to stdin&quot;</span> <span class="op">$</span></a>
-<a class="sourceLine" id="cb2-12" title="12">      it <span class="st">&quot;prints a string including 'Nice name' without an error&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-13" title="13">        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;Yuji&quot;</span><span class="op">$</span> captureProcessResult ExampleMain.main</a>
-<a class="sourceLine" id="cb2-14" title="14">        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitSuccess</span></a>
-<a class="sourceLine" id="cb2-15" title="15">        prStderr result <span class="ot">`shouldSatisfy`</span> B.null</a>
-<a class="sourceLine" id="cb2-16" title="16">        prStdout result <span class="ot">`shouldSatisfy`</span> (<span class="st">&quot;Nice name&quot;</span> <span class="ot">`B.isInfixOf`</span>)</a>
-<a class="sourceLine" id="cb2-17" title="17"></a>
-<a class="sourceLine" id="cb2-18" title="18">    context <span class="st">&quot;Given other name to stdin&quot;</span> <span class="op">$</span></a>
-<a class="sourceLine" id="cb2-19" title="19">      it <span class="st">&quot;prints an error message&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-20" title="20">        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;other name&quot;</span> <span class="op">$</span> captureProcessResult ExampleMain.main</a>
-<a class="sourceLine" id="cb2-21" title="21">        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitFailure</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-22" title="22">        prStderr result <span class="ot">`shouldSatisfy`</span> (<span class="fu">not</span> <span class="op">.</span> B.null)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE OverloadedStrings #-}</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Exit</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Test.Main</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Test.Hspec</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">ExampleMain</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString</span> <span class="kw">as</span> <span class="dt">B</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> hspec <span class="op">$</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  describe <span class="st">&quot;your-cool-command&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    context <span class="st">&quot;Given 'Yuji' to stdin&quot;</span> <span class="op">$</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      it <span class="st">&quot;prints a string including 'Nice name' without an error&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;Yuji&quot;</span><span class="op">$</span> captureProcessResult ExampleMain.main</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitSuccess</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        prStderr result <span class="ot">`shouldSatisfy`</span> B.null</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        prStdout result <span class="ot">`shouldSatisfy`</span> (<span class="st">&quot;Nice name&quot;</span> <span class="ot">`B.isInfixOf`</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    context <span class="st">&quot;Given other name to stdin&quot;</span> <span class="op">$</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      it <span class="st">&quot;prints an error message&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        result <span class="ot">&lt;-</span> withStdin <span class="st">&quot;other name&quot;</span> <span class="op">$</span> captureProcessResult ExampleMain.main</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        prExitCode result <span class="ot">`shouldBe`</span> <span class="dt">ExitFailure</span> <span class="dv">1</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        prStderr result <span class="ot">`shouldSatisfy`</span> (<span class="fu">not</span> <span class="op">.</span> B.null)</span></code></pre></div>
 <p>それぞれのファイルを同じディレクトリーに置いた上で、次のように実行すれば試せるはずです <small>（<span class="ascii">cabal</span>ユーザーの皆さんは適当に読み替えてください…）</small>。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> build hspec main-tester</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="op">&gt;</span> <span class="ex">stack</span> exec runghc -- --ghc-arg=-i. ExampleSpec.hs</a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="ex">your-cool-command</span></a>
-<a class="sourceLine" id="cb3-5" title="5">  <span class="ex">Given</span> <span class="st">'Yuji'</span> to stdin</a>
-<a class="sourceLine" id="cb3-6" title="6">    <span class="ex">prints</span> a string including <span class="st">'Nice name'</span> without an error</a>
-<a class="sourceLine" id="cb3-7" title="7">  <span class="ex">Given</span> other name to stdin</a>
-<a class="sourceLine" id="cb3-8" title="8">    <span class="ex">prints</span> an error message</a>
-<a class="sourceLine" id="cb3-9" title="9"></a>
-<a class="sourceLine" id="cb3-10" title="10"><span class="ex">Finished</span> in 0.0130 seconds</a>
-<a class="sourceLine" id="cb3-11" title="11"><span class="ex">2</span> examples, 0 failures</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="ex">build</span> hspec main-tester</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> runghc <span class="at">--</span> <span class="at">--ghc-arg</span><span class="op">=</span>-i. ExampleSpec.hs</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">your-cool-command</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Given</span> <span class="st">'Yuji'</span> to stdin</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">prints</span> a string including <span class="st">'Nice name'</span> without an error</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Given</span> other name to stdin</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">prints</span> an error message</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.0130 seconds</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">2</span> examples, 0 failures</span></code></pre></div>
 <p>バグを見つけたら<a href="https://gitlab.com/igrep/main-tester/issues">こちらの<span class="ascii">GitLab</span>の<span class="ascii">Issue</span></a>に報告してください<small>（最近の個人的な判官贔屓により、敢えて<span class="ascii">GitLab</span>にしております 😏）</small>。<br />
 それではこの春は<span class="ascii">main-tester</span>で<span class="ascii">Happy Haskell Testing!!</span> 💚💚💚</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p><code>main</code>関数を子スレッドとして<code>forkIO</code>することで同じことが恐らくできますが、テスト結果の報告に使うべき、標準出力・標準エラー出力を食い合うことになってしまうので、非常にやりづらいと思います。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p><code>main</code>関数を子スレッドとして<code>forkIO</code>することで同じことが恐らくできますが、テスト結果の報告に使うべき、標準出力・標準エラー出力を食い合うことになってしまうので、非常にやりづらいと思います。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

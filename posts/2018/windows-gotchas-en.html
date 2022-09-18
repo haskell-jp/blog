@@ -192,7 +192,7 @@ Oh, it’s caused again by building with hakyll!</p>
 Both of them represent the “gateway” of data, and assigning character encoding to them enables us to handle the only, consistently encoded strings by converting the incoming data.<br />
 In Haskell’s type <code>Char</code>, the only default encoding is UTF-32 (is this the right name in this case?).</p>
 <p>The character encoding assigned to a <code>Handle</code> by default depends on the locale settings of the OS: in Japanese Windows, Windows-31J (a.k.a CP932).<br />
-But it’s now soon becoming 2018 (when writing the original article). Most files you create should be in UTF-8 unless you write programs in notepad.exe<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.<br />
+But it’s now soon becoming 2018 (when writing the original article). Most files you create should be in UTF-8 unless you write programs in notepad.exe<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.<br />
 It doesn’t work to read a UTF-8 file as a Windows-31J file because they’re very different encoding system.<br />
 The <code>invalid byte sequence</code> error, shown at the head of this section, is caused by that inconsistency.<br />
 Remember this kind of errors are often caused when reading or writing stdout/stdin, as well as plain files.</p>
@@ -217,32 +217,33 @@ If you’ve done like me, run by full path:</p>
 <pre><code>/c/Windows/System32/chcp.com 932</code></pre>
 <h3 id="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here-outer"><a href="#if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc." title="if-it-still-doesnt-work-or-youre-the-developer-of-the-libraries-etc."><span class="link-to-here">Link to<br />
 here</span></a></span>If it still doesn’t work, or you’re the developer of the libraries etc.</h3>
-<p>Unfortunately, the error can often persist even after running <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.<br />
+<p>Unfortunately, the error can often persist even after running <code>chcp 65001</code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.<br />
 According to my guess, the <code>chcp 65001</code> command doesn’t affect the grandchild processes of the Command Prompt (or bash etc.) on which the <code>chcp</code> is run (i.e. the child processes of the command you enter).</p>
 <p>If the error still happens you can either report to the developer, or fix it yourself!<br />
 When reporting; asking the developer to run after doing <code>chcp 932</code> could help him/her reproduce the bug (Sorry, I’ve never tried it).<br />
 When fixing by yourself, perhaps the best and most certain way would be to switch the character encoding of the <code>Handle</code> object.</p>
 <p>This problem is caused by the inconsistency between the <code>Handle</code>'s character encoding and the encoding of the bytes that are actually transferred. So switching into the proper encoding should fix it.<br />
 If the error happens when reading/writing a common UTF-8 file via the <code>Handle</code>, writing like below can avoid it:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</a>
-<a class="sourceLine" id="cb5-3" title="3"></a>
-<a class="sourceLine" id="cb5-4" title="4">hSetEncoding handle utf8</a></code></pre></div>
-<p>As a bonus, I’ll show you an example of how <a href="https://github.com/haskell/haddock/pull/566">I myself addressed a problem caused by the standard output (or standard error output), and fixed a bug in haddock</a>. In short, it can at least suppress the error to paste the code below before your program uses the <code>Handle</code> (Copied from <a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">this commit</a>).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="ot">{-# LANGUAGE CPP #-}</span></a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</a>
-<a class="sourceLine" id="cb6-4" title="4"></a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="pp">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)</a>
-<a class="sourceLine" id="cb6-7" title="7"><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))</a>
-<a class="sourceLine" id="cb6-8" title="8"><span class="pp">#endif</span></a>
-<a class="sourceLine" id="cb6-9" title="9"></a>
-<a class="sourceLine" id="cb6-10" title="10"><span class="op">...</span></a>
-<a class="sourceLine" id="cb6-11" title="11"></a>
-<a class="sourceLine" id="cb6-12" title="12"><span class="pp">#if defined(mingw32_HOST_OS)</span></a>
-<a class="sourceLine" id="cb6-13" title="13">  liftIO <span class="op">$</span> hSetEncoding stdout <span class="op">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></a>
-<a class="sourceLine" id="cb6-14" title="14"><span class="pp">#endif</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">GHC.IO.Encoding</span> (utf8)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>hSetEncoding handle utf8</span></code></pre></div>
+<p>As a bonus, I’ll show you an example of how <a href="https://github.com/haskell/haddock/pull/566">I myself addressed a problem caused by the standard output (or standard error output), and fixed a bug in haddock</a>.
+In short, it can at least suppress the error to paste the code below before your program uses the <code>Handle</code> (Copied from <a href="https://github.com/haskell/haddock/pull/566/commits/855118ee45e323fd9b2ee32103c7ba3eb1fbe4f2">this commit</a>).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE CPP #-}</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span> (hSetEncoding, stdout)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#if defined(mingw32_HOST_OS)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.CodePage</span> (mkLocaleEncoding)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">GHC.IO.Encoding.Failure</span> (<span class="dt">CodingFailureMode</span>(<span class="dt">TransliterateCodingFailure</span>))</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#if defined(mingw32_HOST_OS)</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  liftIO <span class="op">$</span> hSetEncoding stdout <span class="op">$</span> mkLocaleEncoding <span class="dt">TransliterateCodingFailure</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div>
 <p>CPP macros to <code>import</code> modules only available on Windows makes this code hard to read, so let’s cut out the verbose part:</p>
 <pre><code>hSetEncoding stdout $ mkLocaleEncoding TransliterateCodingFailure</code></pre>
 <p>Here’re the details:<br />
@@ -281,12 +282,12 @@ But this is not the case only for Haskell.</p>
 </ul>
 <p>That’s all!<br />
 Then, Happy Hacking in Haskell on Windows 10!! I don’t know WSL!🏁🏁🏁</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Translator’s note: In Japanese locale, notepad.exe saves the file in Windows-31J. This will be changed (into UTF-8) in the future release of Windows 10.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>By the way, when I once tried to build the compiler of <a href="http://eta-lang.org/">Eta</a>, (as far as I remember) <code>chcp 65001</code> didn’t fix the problem, but <code>chcp 20127</code> did.<br />
-As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environment of the developer of Eta is US-ASCII…<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>Translator’s note: In Japanese locale, notepad.exe saves the file in Windows-31J. This will be changed (into UTF-8) in the future release of Windows 10.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>By the way, when I once tried to build the compiler of <a href="http://eta-lang.org/">Eta</a>, (as far as I remember) <code>chcp 65001</code> didn’t fix the problem, but <code>chcp 20127</code> did.<br />
+As <code>chcp 20127</code> switches into US-ASCII, I suspect the local environment of the developer of Eta is US-ASCII…<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

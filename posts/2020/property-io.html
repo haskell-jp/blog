@@ -163,28 +163,28 @@ Contents
 here</span></a></span>📣<code>shouldBe</code>などは<code>property</code>の中でも使えるので使ってください！</h1>
 <p>みなさんは<span class="ascii">Hspec</span>で<span class="ascii">QuickCheck</span>を使った<span class="ascii">property test</span>を書く際、どのように書いているでしょうか？<br />
 例えば<a href="https://hspec.github.io/quickcheck.html"><span class="ascii">Hspec</span>のマニュアル</a>のように、<span class="ascii">Hspec</span>に<span class="ascii">property test</span>を組み込む例として、次のような例を挙げています。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb1-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
-<a class="sourceLine" id="cb1-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</span></code></pre></div>
 <p>※<a href="https://github.com/hspec/hspec/blob/9f3f4c38952f526701a67b6e26336a3a5aec0e89/doc/quickcheck.md">こちらのコミット</a>の時点での話です。</p>
 <p><code>property</code>関数に渡した関数<small>（以下、「<code>porperty</code>ブロック」と呼びます）</small>の中では<span class="ascii">Hspec</span>でおなじみの<code>shouldBe</code>などの<span class="ascii">expectation</span>用関数を使わず、<code>==</code>で結果を判定してますよね。<br />
 このサンプルに倣って、<span class="ascii">Hspec</span>で書いたテストに<span class="ascii">property test</span>を書くときは、<code>==</code>を使ってる方が多いんじゃないでしょうか？</p>
 <p>ところが、この記事のタイトルに書いたとおり、実際のところ<code>property</code>ブロックの中でも<code>shouldBe</code>は利用できます。<br />
 つまりは、こちら👇のようにも書ける、ということです！</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
-<a class="sourceLine" id="cb2-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</span></code></pre></div>
 <p>このように<code>property</code>ブロックの中でも<code>shouldBe</code>や<code>shouldSatisfy</code>といった、<span class="ascii">Hspec</span>固有の<span class="ascii">expectation</span>関数を使うことの利点は、単に構文を他のテストと一貫させることができる、だけではありません。<br />
 <strong>テストが失敗したときのエラーが分かりやすくなる</strong>、という遥かに重大なメリットがあるのです。</p>
 <p>試しにわざとテストを失敗させてみましょう。<br />
 先ほどの例<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb3-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
-<a class="sourceLine" id="cb3-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (<span class="ot">x ::</span> <span class="dt">Int</span>)</span></code></pre></div>
 <p>における<code>(x :: Int)</code>という式を<code>(x + 1 :: Int)</code>に変えれば、必ず失敗するはずです。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb4-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
-<a class="sourceLine" id="cb4-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="op">==</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</span></code></pre></div>
 <p>※お手元で試す場合は<a href="https://github.com/hspec/hspec/blob/9f3f4c38952f526701a67b6e26336a3a5aec0e89/doc/_includes/QuickCheck.hs">こちら</a>から元のコードを持ってきて、<code>stack build hspec</code>なりを実行した上で修正・実行するのが簡単でしょう。</p>
 <p>結果、下記のようなエラーメッセージとなるでしょう。</p>
 <pre><code>...
@@ -193,9 +193,9 @@ here</span></a></span>📣<code>shouldBe</code>などは<code>property</code>の
          0</code></pre>
 <p>このエラーでは「テストが失敗したこと」と「どんな入力を<span class="ascii">QuickCheck</span>が生成したか」までしか教えてくれず、わかりづらいですよね。</p>
 <p>一方、<code>shouldBe</code>を使用して以下のように書き換えると…</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb6-2" title="2">  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></a>
-<a class="sourceLine" id="cb6-3" title="3">    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>describe <span class="st">&quot;read&quot;</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  it <span class="st">&quot;is inverse to show&quot;</span> <span class="op">$</span> property <span class="op">$</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</span></code></pre></div>
 <p>エラーメッセージはこう👇なります。</p>
 <pre><code>  1) read, when used with ints, is inverse to show
        Falsifiable (after 1 test):
@@ -214,35 +214,36 @@ here</span></a></span>😕なぜ使える？</h1>
 <span class="ascii">Hspec</span>の<code>shouldBe</code>などが返す値は型シノニムのたらい回しをたどればわかるとおり、結局のところ<code>IO ()</code>型の値です。<br />
 ところが<code>Testable</code>のインスタンス一覧を見る限り、<code>IO a</code>は<code>Testable</code>のインスタンスではありません。<br />
 先ほどの例のように</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1">property <span class="op">$</span> \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>property <span class="op">$</span> \x <span class="ot">-&gt;</span> (<span class="fu">read</span> <span class="op">.</span> <span class="fu">show</span>) x <span class="ot">`shouldBe`</span> (x <span class="op">+</span> <span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>)</span></code></pre></div>
 <p>と書いた場合における、関数型<code>(a -&gt; prop)</code>のインスタンスは、<code>(Arbitrary a, Show a, Testable prop) =&gt; Testable (a -&gt; prop)</code>という定義のとおり、関数の戻り値の型が<code>Testable</code>のインスタンスでないと、型チェックを通らないはずです。<br />
 <code>Testable</code>のインスタンスでない、<code>IO ()</code>を返しているにも関わらず型エラーが起きなかったのは、一体なぜでしょうか？</p>
 <p>その秘密を探るべく、<span class="ascii">GHCi</span>を立ち上げましょう。<br />
 先ほどの例のソースコードを<code>ghci</code>コマンドに読ませれば、まとめて<span class="ascii">Hspec</span>のモジュールも<code>import</code>できるので簡単です。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;</span> <span class="ex">stack</span> exec ghci .\QuickCheck.hs</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> ghci .<span class="dt">\Q</span>uickCheck.hs</span></code></pre></div>
 <p><span class="ascii">GHCi</span>が起動したら、<code>:i Testable</code>と入力して、<code>Testable</code>型クラスのインスタンス一覧を出力しましょう。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>i <span class="dt">Testable</span></a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="kw">class</span> <span class="dt">Testable</span> prop <span class="kw">where</span></a>
-<a class="sourceLine" id="cb10-3" title="3"><span class="ot">  property ::</span> prop <span class="ot">-&gt;</span> <span class="dt">Property</span></a>
-<a class="sourceLine" id="cb10-4" title="4">  <span class="ot">{-# MINIMAL property #-}</span></a>
-<a class="sourceLine" id="cb10-5" title="5">        <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
-<a class="sourceLine" id="cb10-6" title="6"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Property</span></a>
-<a class="sourceLine" id="cb10-7" title="7">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
-<a class="sourceLine" id="cb10-8" title="8"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> prop <span class="ot">=&gt;</span> <span class="dt">Testable</span> (<span class="dt">Gen</span> prop)</a>
-<a class="sourceLine" id="cb10-9" title="9">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
-<a class="sourceLine" id="cb10-10" title="10"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Discard</span></a>
-<a class="sourceLine" id="cb10-11" title="11">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
-<a class="sourceLine" id="cb10-12" title="12"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb10-13" title="13">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
-<a class="sourceLine" id="cb10-14" title="14"><span class="kw">instance</span> [safe] (<span class="dt">Arbitrary</span> a, <span class="dt">Show</span> a, <span class="dt">Testable</span> prop) <span class="ot">=&gt;</span></a>
-<a class="sourceLine" id="cb10-15" title="15">                <span class="dt">Testable</span> (a <span class="ot">-&gt;</span> prop)</a>
-<a class="sourceLine" id="cb10-16" title="16">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
-<a class="sourceLine" id="cb10-17" title="17"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> ()</a>
-<a class="sourceLine" id="cb10-18" title="18">  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></a>
-<a class="sourceLine" id="cb10-19" title="19"><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Test.HUnit.Lang.Assertion</span></a>
-<a class="sourceLine" id="cb10-20" title="20">  <span class="co">-- Defined in ‘Test.QuickCheck.IO’</span></a></code></pre></div>
-<p>ありました！💡 最後の方にある<code>instance [safe] Testable Test.HUnit.Lang.Assertion</code>という行に注目してください。<br />
-<a href="http://hackage.haskell.org/package/HUnit-1.6.0.0/docs/Test-HUnit-Lang.html#t:Assertion"><code>Test.HUnit.Lang.Assertion</code></a>は、<code>IO ()</code>の型シノニムであり、<span class="ascii">Hspec</span>でも間接的に型シノニムとして参照されています<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="op">:</span>i <span class="dt">Testable</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Testable</span> prop <span class="kw">where</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  property ::</span> prop <span class="ot">-&gt;</span> <span class="dt">Property</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">{-# MINIMAL property #-}</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Property</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> [safe] <span class="dt">Testable</span> prop <span class="ot">=&gt;</span> <span class="dt">Testable</span> (<span class="dt">Gen</span> prop)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Discard</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Bool</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> [safe] (<span class="dt">Arbitrary</span> a, <span class="dt">Show</span> a, <span class="dt">Testable</span> prop) <span class="ot">=&gt;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Testable</span> (a <span class="ot">-&gt;</span> prop)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> [safe] <span class="dt">Testable</span> ()</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Defined in ‘Test.QuickCheck.Property’</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> [safe] <span class="dt">Testable</span> <span class="dt">Test.HUnit.Lang.Assertion</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Defined in ‘Test.QuickCheck.IO’</span></span></code></pre></div>
+<p>ありました！💡
+最後の方にある<code>instance [safe] Testable Test.HUnit.Lang.Assertion</code>という行に注目してください。<br />
+<a href="http://hackage.haskell.org/package/HUnit-1.6.0.0/docs/Test-HUnit-Lang.html#t:Assertion"><code>Test.HUnit.Lang.Assertion</code></a>は、<code>IO ()</code>の型シノニムであり、<span class="ascii">Hspec</span>でも間接的に型シノニムとして参照されています<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>。<br />
 要するに<code>instance [safe] Testable Test.HUnit.Lang.Assertion</code>という行は<code>instance [safe] Testable (IO ())</code>と読み替えることができます<small>（<code>[safe]</code>という表記が指しているものについてはここでは省略します！すみません！）</small>。</p>
 <p>紹介したとおり<code>Testable</code>のドキュメントには<code>Testable Assertion</code>なんて記載はありませんし、じゃあ一体どこで定義したのか、というとそう、続く行に<code>-- Defined in ‘Test.QuickCheck.IO’</code>と書かれているとおり、<a href="https://hackage.haskell.org/package/quickcheck-io-0.2.0/docs/Test-QuickCheck-IO.html"><code>Test.QuickCheck.IO</code></a>というモジュールで定義されています！</p>
 <p><code>Test.QuickCheck.IO</code>は、名前のとおり<span class="ascii">QuickCheck</span>の<code>Testable</code>について、<code>IO</code>の<span class="ascii">orphan instance</span>を定義するためのモジュールです。<br />
@@ -252,13 +253,13 @@ here</span></a></span>😕なぜ使える？</h1>
 <li><span class="ascii">orphan instance</span>わかりづらい😥</li>
 <li><span class="ascii">GHCi</span>の<code>:i</code>は<span class="ascii">orphan instance</span>であろうとインスタンスを定義した箇所を見つけてくれるから便利！</li>
 </ul>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>この節の冒頭で「型シノニムのたらい回し」と呼んだものを追いかけてみましょう。<br />
+<li id="fn1" role="doc-endnote"><p>この節の冒頭で「型シノニムのたらい回し」と呼んだものを追いかけてみましょう。<br />
 おなじみ<a href="http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#v:shouldBe"><code>shouldBe</code></a>は<a href="http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#t:Expectation"><code>Expectation</code></a>という型の値を返します。<br />
 そして<code>Expectation</code>は<code>Assertion</code>の型シノニムであり、クリックすると<a href="http://hackage.haskell.org/package/HUnit-1.6.0.0/docs/Test-HUnit-Lang.html#t:Assertion"><code>Test.HUnit.Lang.Assertion</code></a>であることがわかります。<br />
-そして<code>Assertion</code>はそう、<code>type Assertion = IO ()</code>とあるとおり<code>IO ()</code>なのです。やっと知ってる型にたどり着きました😌。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+そして<code>Assertion</code>はそう、<code>type Assertion = IO ()</code>とあるとおり<code>IO ()</code>なのです。やっと知ってる型にたどり着きました😌。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

@@ -164,48 +164,52 @@ here</span></a></span><span class="ascii">The Gibbon Compiler: Accelerating a sm
 <p>発表者<span class="ascii">: Ryan R. Newton</span> <em><span class="ascii">Indiana University</span></em><span class="ascii">, Michael Vollmer</span> <em><span class="ascii">Indiana University, USA</span></em><span class="ascii">, Chaitanya Koparkar</span> <em><span class="ascii">Indiana University</span></em></p>
 <p><span class="ascii">Gibbon</span>は最適化の手法を研究するために作られたコンパイラーです。<br />
 具体的には、我々<small>（特に<span class="ascii">Haskeller</span>）</small>がよく使う、木構造全体に対する処理の最適化です。</p>
-<p>こうした木構造のデータは、通常ポインターを使ってメモリー内にバラバラに格納されますが、<span class="ascii">Gibbon</span>による最適化を行うと、実際にプログラムがどのような順番で木を処理しているのか解析して、（元のデータ構造を配列に変換した上で）その順番に並べられた配列として処理するコードに変換する、という大胆な変換を行います。 図にするとこんなイメージでしょうか？</p>
+<p>こうした木構造のデータは、通常ポインターを使ってメモリー内にバラバラに格納されますが、<span class="ascii">Gibbon</span>による最適化を行うと、実際にプログラムがどのような順番で木を処理しているのか解析して、（元のデータ構造を配列に変換した上で）その順番に並べられた配列として処理するコードに変換する、という大胆な変換を行います。
+図にするとこんなイメージでしょうか？</p>
 <figure>
-<img src="../../img/2019/hiw-gibbon/tree-and-array1.svg" alt="変換前の木構造。各ノードがそれぞれ（レベル順で）A, B, … , Gという値を持っている" /><figcaption>変換前の木構造。各ノードがそれぞれ（レベル順で）<span class="ascii">A, B,</span> … <span class="ascii">, G</span>という値を持っている</figcaption>
+<img src="../../img/2019/hiw-gibbon/tree-and-array1.svg" alt="変換前の木構造。各ノードがそれぞれ（レベル順で）A, B, … , Gという値を持っている" />
+<figcaption aria-hidden="true">変換前の木構造。各ノードがそれぞれ（レベル順で）<span class="ascii">A, B,</span> … <span class="ascii">, G</span>という値を持っている</figcaption>
 </figure>
 <p>👆のような木構造があったとして、</p>
 <figure>
-<img src="../../img/2019/hiw-gibbon/tree-and-array2.svg" alt="行きがけ順（A, B, D, E, C, F, Gの順）でアクセスする" /><figcaption>行きがけ順（<span class="ascii">A, B, D, E, C, F, G</span>の順）でアクセスする</figcaption>
+<img src="../../img/2019/hiw-gibbon/tree-and-array2.svg" alt="行きがけ順（A, B, D, E, C, F, Gの順）でアクセスする" />
+<figcaption aria-hidden="true">行きがけ順（<span class="ascii">A, B, D, E, C, F, G</span>の順）でアクセスする</figcaption>
 </figure>
 <p>👆における、赤い線の順番<small>（行きがけ順）</small>にアクセスする関数があったとします。<br />
 適当に<span class="ascii">Haskell</span>の再帰関数として書くと、👇こういうコードです。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">data</span> <span class="dt">Tree</span> <span class="ot">=</span> <span class="dt">Node</span> <span class="dt">Char</span> (<span class="dt">Maybe</span> <span class="dt">Tree</span>) (<span class="dt">Maybe</span> <span class="dt">Tree</span>) <span class="kw">deriving</span> <span class="dt">Show</span></a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="ot">tree ::</span> <span class="dt">Tree</span></a>
-<a class="sourceLine" id="cb1-4" title="4">tree <span class="ot">=</span></a>
-<a class="sourceLine" id="cb1-5" title="5">  <span class="dt">Node</span> <span class="ch">'A'</span></a>
-<a class="sourceLine" id="cb1-6" title="6">    ( <span class="dt">Just</span></a>
-<a class="sourceLine" id="cb1-7" title="7">      ( <span class="dt">Node</span> <span class="ch">'B'</span></a>
-<a class="sourceLine" id="cb1-8" title="8">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'D'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
-<a class="sourceLine" id="cb1-9" title="9">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'E'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
-<a class="sourceLine" id="cb1-10" title="10">      )</a>
-<a class="sourceLine" id="cb1-11" title="11">    )</a>
-<a class="sourceLine" id="cb1-12" title="12">    ( <span class="dt">Just</span></a>
-<a class="sourceLine" id="cb1-13" title="13">      ( <span class="dt">Node</span> <span class="ch">'C'</span></a>
-<a class="sourceLine" id="cb1-14" title="14">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'F'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
-<a class="sourceLine" id="cb1-15" title="15">        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'G'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</a>
-<a class="sourceLine" id="cb1-16" title="16">      )</a>
-<a class="sourceLine" id="cb1-17" title="17">    )</a>
-<a class="sourceLine" id="cb1-18" title="18"></a>
-<a class="sourceLine" id="cb1-19" title="19"><span class="ot">preOrder ::</span> (<span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">Tree</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb1-20" title="20">preOrder access (<span class="dt">Node</span> char mLeft mRight) <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb1-21" title="21">  access char</a>
-<a class="sourceLine" id="cb1-22" title="22"></a>
-<a class="sourceLine" id="cb1-23" title="23">  <span class="kw">case</span> mLeft <span class="kw">of</span></a>
-<a class="sourceLine" id="cb1-24" title="24">    <span class="dt">Just</span> left <span class="ot">-&gt;</span> preOrder access left</a>
-<a class="sourceLine" id="cb1-25" title="25">    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</a>
-<a class="sourceLine" id="cb1-26" title="26"></a>
-<a class="sourceLine" id="cb1-27" title="27">  <span class="kw">case</span> mRight <span class="kw">of</span></a>
-<a class="sourceLine" id="cb1-28" title="28">    <span class="dt">Just</span> right <span class="ot">-&gt;</span> preOrder access right</a>
-<a class="sourceLine" id="cb1-29" title="29">    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Tree</span> <span class="ot">=</span> <span class="dt">Node</span> <span class="dt">Char</span> (<span class="dt">Maybe</span> <span class="dt">Tree</span>) (<span class="dt">Maybe</span> <span class="dt">Tree</span>) <span class="kw">deriving</span> <span class="dt">Show</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ot">tree ::</span> <span class="dt">Tree</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>tree <span class="ot">=</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Node</span> <span class="ch">'A'</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    ( <span class="dt">Just</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      ( <span class="dt">Node</span> <span class="ch">'B'</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'D'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'E'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    ( <span class="dt">Just</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      ( <span class="dt">Node</span> <span class="ch">'C'</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'F'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        (<span class="dt">Just</span> (<span class="dt">Node</span> <span class="ch">'G'</span> <span class="dt">Nothing</span> <span class="dt">Nothing</span>))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ot">preOrder ::</span> (<span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">Tree</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>preOrder access (<span class="dt">Node</span> char mLeft mRight) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  access char</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">case</span> mLeft <span class="kw">of</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Just</span> left <span class="ot">-&gt;</span> preOrder access left</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="kw">case</span> mRight <span class="kw">of</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Just</span> right <span class="ot">-&gt;</span> preOrder access right</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</span></code></pre></div>
 <p><span class="ascii">Gibbon</span>はこの関数と、それが処理する木構造を解析して、</p>
 <figure>
-<img src="../../img/2019/hiw-gibbon/tree-and-array3.svg" alt="変換された配列。A, B, D, E, C, F, Gの順に要素が並んだただの配列" /><figcaption>変換された配列。<span class="ascii">A, B, D, E, C, F, G</span>の順に要素が並んだただの配列</figcaption>
+<img src="../../img/2019/hiw-gibbon/tree-and-array3.svg" alt="変換された配列。A, B, D, E, C, F, Gの順に要素が並んだただの配列" />
+<figcaption aria-hidden="true">変換された配列。<span class="ascii">A, B, D, E, C, F, G</span>の順に要素が並んだただの配列</figcaption>
 </figure>
 <p>👆のような、ただの配列（とそれに対する関数）にまとめて変換してしまう、というのです！</p>
 <p>現代のコンピューターは、このような配列の要素にまとめてアクセス処理する方が、ポインターをたどって各要素を処理するより、たいてい遙かに速いです。<br />

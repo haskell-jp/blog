@@ -207,9 +207,11 @@ here</span></a></span>テストデータ生成</h2>
 <p>特にバイナリデータや複雑なデータを、一刻も早く高品質に生成することが重要な局面で、<span class="ascii">Haskell</span>は威力を発揮します。</p>
 <h2 id="パーサー"><span class="link-to-here-outer"><a href="#パーサー" title="パーサー"><span class="link-to-here">Link to<br />
 here</span></a></span>パーサー</h2>
-<p>日常業務において、各種ログなどのデータを解析したい局面は頻繁に有ります。 単純なデータであれば、<span class="ascii">grep</span>コマンドや<span class="ascii">Perl</span>などの正規表現を用いて手早く仕事を済ませることも出来ます。</p>
+<p>日常業務において、各種ログなどのデータを解析したい局面は頻繁に有ります。
+単純なデータであれば、<span class="ascii">grep</span>コマンドや<span class="ascii">Perl</span>などの正規表現を用いて手早く仕事を済ませることも出来ます。</p>
 <p>しかし、データの構造が複雑であったり再帰的な構造である場合には、正規表現をデバッグするよりも、<span class="ascii">Haskell</span>で思い切ってパーサーを書いてしまう方が手早く済ませられることがあります。</p>
-<p><span class="ascii">Haskell</span>では、関数の組み立てが容易であることや<span class="ascii">do</span>記法といった言語的な特徴を活かし、簡潔にパーサーを記述することができます。 言語的な特徴を活かした便利なパーサーコンビネータ関連のライブラリ（<a href="https://hackage.haskell.org/package/parsec"><code>Parsec</code></a>や<a href="https://hackage.haskell.org/package/megaparsec"><code>Megaparsec</code></a>や<a href="https://hackage.haskell.org/package/replace-attoparsec"><code>replace-attoparsec</code></a>など）が豊富に存在します。</p>
+<p><span class="ascii">Haskell</span>では、関数の組み立てが容易であることや<span class="ascii">do</span>記法といった言語的な特徴を活かし、簡潔にパーサーを記述することができます。
+言語的な特徴を活かした便利なパーサーコンビネータ関連のライブラリ（<a href="https://hackage.haskell.org/package/parsec"><code>Parsec</code></a>や<a href="https://hackage.haskell.org/package/megaparsec"><code>Megaparsec</code></a>や<a href="https://hackage.haskell.org/package/replace-attoparsec"><code>replace-attoparsec</code></a>など）が豊富に存在します。</p>
 <p>一度パーサーの骨格を用意してしまえば、流用は容易であるため、強力な日常ツールとして<span class="ascii">Haskell</span>を便利に使用できます。</p>
 <h2 id="階層データ処理"><span class="link-to-here-outer"><a href="#階層データ処理" title="階層データ処理"><span class="link-to-here">Link to<br />
 here</span></a></span>階層データ処理</h2>
@@ -219,13 +221,15 @@ here</span></a></span>階層データ処理</h2>
 <p>素早く、非常に高品質にデータ処理を行うことが重要な局面で、<span class="ascii">Haskell</span>は有効に機能します。</p>
 <h2 id="高機能電卓"><span class="link-to-here-outer"><a href="#高機能電卓" title="高機能電卓"><span class="link-to-here">Link to<br />
 here</span></a></span>高機能電卓</h2>
-<p>日常業務において、なんらかの変換テーブルや、計算式、定数値などの値を、散発的に直ちに得たい局面があります。 その都度、電卓で計算したり、<span class="ascii">Excel</span>などの計算フォームを用意することで、手軽に業務を済ませられる場合もあります。</p>
+<p>日常業務において、なんらかの変換テーブルや、計算式、定数値などの値を、散発的に直ちに得たい局面があります。
+その都度、電卓で計算したり、<span class="ascii">Excel</span>などの計算フォームを用意することで、手軽に業務を済ませられる場合もあります。</p>
 <p>しかし、繰り返し必要となる計算式や、ある程度複雑な計算であれば、これらの計算式などを、<span class="ascii">Haskell</span>の関数群として定義しておき、対話環境<span class="ascii">GHCi</span>から用いることで、使い勝手良く素早く値を得ることができます。</p>
 <p>数値や対話操作などを補助する便利なライブラリ<span class="ascii">(</span><a href="https://hackage.haskell.org/package/base/docs/Numeric.html"><code>Numeric</code></a>や<a href="https://hackage.haskell.org/package/base/docs/Data-Bits.html"><code>Data.Bits</code></a>や<a href="http://hackage.haskell.org/package/ghci-hexcalc/docs/Data-GHex.html"><code>Data.GHex</code></a><span class="ascii">)</span>や言語拡張<span class="ascii">(</span><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#binary-integer-literals"><code>BinaryLiterals</code></a>や<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#numeric-underscores"><code>NumericUnderscores</code></a><span class="ascii">)</span>などが豊富に存在します。</p>
 <p><span class="ascii">Haskell</span>における関数の組み立てが容易な特徴は、対話環境における対話的な操作との相性が良いため、試行錯誤的な計算作業にも有用です。</p>
 <h2 id="その他"><span class="link-to-here-outer"><a href="#その他" title="その他"><span class="link-to-here">Link to<br />
 here</span></a></span>その他</h2>
-<p>他にも、定型的なファイル処理や<span class="ascii">CLI</span>コマンドや<span class="ascii">DSL</span>の構築などを、<span class="ascii">Haskell</span>を用いて便利に実現出来ます。 手元に各種雛形を蓄積していると、作業の素早さと正確さが求められる場合に、有益でしょう。</p>
+<p>他にも、定型的なファイル処理や<span class="ascii">CLI</span>コマンドや<span class="ascii">DSL</span>の構築などを、<span class="ascii">Haskell</span>を用いて便利に実現出来ます。
+手元に各種雛形を蓄積していると、作業の素早さと正確さが求められる場合に、有益でしょう。</p>
 <p>もちろん、これらは<span class="ascii">Haskell</span>に限らず、多くのプログラミング言語にも言えます。</p>
 <p><span class="ascii">Haskell</span>は、型システムに守られながら、関数を容易に組み立てられる特徴を持ちます。また、代数的データ型とパターンマッチの特徴により、直感的・シンプルで高品質なデータ表現・処理が可能です。さらに、<span class="ascii">GHCi</span>を用いる対話操作により、日常作業を高品質かつ手早く行えます。</p>
 <p><span class="ascii">Haskell</span>は、（型システムの高度な機能などを使わない）基本的な機能のみにおいても、日常業務において有効に活用できるツールの一つです。</p>
@@ -273,7 +277,8 @@ here</span></a></span>その他</h2>
 <hr />
 <h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
 here</span></a></span>おわりに</h1>
-<p>この記事では、<span class="ascii">Haskell</span>を業務でカジュアルに使う観点やヒントについて紹介しました。 「作業」や「思考」が必要な、よりたくさんの局面で<span class="ascii">Haskell</span>を使用できます。</p>
+<p>この記事では、<span class="ascii">Haskell</span>を業務でカジュアルに使う観点やヒントについて紹介しました。
+「作業」や「思考」が必要な、よりたくさんの局面で<span class="ascii">Haskell</span>を使用できます。</p>
 <p>関数合成、部分適用、高階関数、多相関数などの言語的な特徴は、関数をボトムアップや対話的に、素早くかつ高品質に組み上げるのに便利です。代数的データ型などの言語的な特徴は、ある種の思考パターン（選択、非一様、入れ子など）をストレートに表現するのに便利です。対話環境<span class="ascii">GHCi</span>は、試行錯誤的に作業や思考を進めるのに便利です。</p>
 <p><span class="ascii">Haskell</span>に限らず、自分の思考特性にあったプログラミング言語を、業務を加速する日常的なツールとして備えておくことは有用です。</p>
 <p>しかし、そもそもプログラミング言語の可能性・適用範囲は非常に広いものです。その適用範囲を、「業務」に狭めてしまう必要もありません。</p>

@@ -150,8 +150,11 @@
 <p><span class="ascii">Haskell-jp</span>のコンテンツの一つとして<a href="https://haskell.jp/antenna/"><span class="ascii">Haskell Antenna</span></a>という<span class="ascii">Web</span>ページの開発・運用をしております。</p>
 <p><img src="../../img/2019/hourly-antenna/antenna-page.jpg" style="width: 100%;"></p>
 <p><a href="https://haskell.jp/blog/posts/2019/hourly-antenna.html"><span class="ascii">2019</span>年の今頃、これを自動毎時更新しようと <span class="ascii">Drone Cloud</span>による毎時更新を設定しました</a>。</p>
-<p>しかし。。。なんと去年の<span class="ascii">3</span>月ぐらいからこれが止まっています（どうやら、<a href="https://discourse.drone.io/t/cron-on-cloud-drone-io/3899/2"><span class="ascii">Drone Cloud</span>のこの機能を利用してマイニングをした人がいたらしく止めてしまった</a>ようです）。 現在は<strong>僕がだいたい毎朝<span class="ascii">1</span>回、手動で<span class="ascii">CI</span>を回しています</strong>。。。</p>
-<p>ずっとなんとかしなきゃなぁと思い続けてはや<span class="ascii">9</span>ヶ月。 やっと重い腰をあげてなんとかしました！ というよりは、なんとかする方法を思い付いたので実装してみました。</p>
+<p>しかし。。。なんと去年の<span class="ascii">3</span>月ぐらいからこれが止まっています（どうやら、<a href="https://discourse.drone.io/t/cron-on-cloud-drone-io/3899/2"><span class="ascii">Drone Cloud</span>のこの機能を利用してマイニングをした人がいたらしく止めてしまった</a>ようです）。
+現在は<strong>僕がだいたい毎朝<span class="ascii">1</span>回、手動で<span class="ascii">CI</span>を回しています</strong>。。。</p>
+<p>ずっとなんとかしなきゃなぁと思い続けてはや<span class="ascii">9</span>ヶ月。
+やっと重い腰をあげてなんとかしました！
+というよりは、なんとかする方法を思い付いたので実装してみました。</p>
 <div id="table-of-contents-outer">
 <div id="table-of-contents">
 <div class="table-of-contents-title">
@@ -172,150 +175,169 @@ Contents
 </div>
 <h1 id="どうするか"><span class="link-to-here-outer"><a href="#どうするか" title="どうするか"><span class="link-to-here">Link to<br />
 here</span></a></span>どうするか？</h1>
-<p><a href="https://cloud.google.com/free/docs/gcp-free-tier?hl=ja#always-free"><span class="ascii">GCP</span>には<span class="ascii">always free</span>プランというのがあり</a>、<span class="ascii">GCE</span>インスタンスの場合は<span class="ascii">f1-micro</span>であれば一台だけ無料です（<span class="ascii">2020/1</span>現在）。 これに、毎時実行して更新をプッシュする<span class="ascii">antenna</span>プログラムを仕込んでおけば良いではないかということに気づきました。</p>
-<p><span class="ascii">Haskell Antenna</span>自体は<span class="ascii">GitHub Pages</span>であり、<span class="ascii">HTML</span>などは<a href="https://github.com/haskell-jp/antenna"><span class="ascii">haskell-jp/antenna</span></a>という <span class="ascii">Haskell</span>製<span class="ascii">CLI</span>アプリケーションで生成しています。 これを<span class="ascii">cron</span>か何かで毎時実行すればいいんですけど</p>
+<p><a href="https://cloud.google.com/free/docs/gcp-free-tier?hl=ja#always-free"><span class="ascii">GCP</span>には<span class="ascii">always free</span>プランというのがあり</a>、<span class="ascii">GCE</span>インスタンスの場合は<span class="ascii">f1-micro</span>であれば一台だけ無料です（<span class="ascii">2020/1</span>現在）。
+これに、毎時実行して更新をプッシュする<span class="ascii">antenna</span>プログラムを仕込んでおけば良いではないかということに気づきました。</p>
+<p><span class="ascii">Haskell Antenna</span>自体は<span class="ascii">GitHub Pages</span>であり、<span class="ascii">HTML</span>などは<a href="https://github.com/haskell-jp/antenna"><span class="ascii">haskell-jp/antenna</span></a>という <span class="ascii">Haskell</span>製<span class="ascii">CLI</span>アプリケーションで生成しています。
+これを<span class="ascii">cron</span>か何かで毎時実行すればいいんですけど</p>
 <ol type="1">
 <li><span class="ascii">cron</span>と<span class="ascii">Docker</span>の組み合わせが割とめんどくさい（<span class="ascii">antenna</span>は<span class="ascii">Docker Image</span>として提供している）</li>
 <li><span class="ascii">cron</span>にした場合更新を<span class="ascii">GitHub</span>にどうやってプッシュしようかなどを考えるのがめんどくさい</li>
 </ol>
 <p>という問題があります。</p>
-<p>そこで、<span class="ascii">(2)</span> のプッシュの部分も含めて毎時実行の処理を<span class="ascii">antenna</span>アプリケーションに閉じ込めてしまえば、<code>docker run</code> しておくだけで良いのではないか？というのを思い付きました！ ということで、そういう風に<span class="ascii">antenna</span>を改良します。</p>
+<p>そこで、<span class="ascii">(2)</span> のプッシュの部分も含めて毎時実行の処理を<span class="ascii">antenna</span>アプリケーションに閉じ込めてしまえば、<code>docker run</code> しておくだけで良いのではないか？というのを思い付きました！
+ということで、そういう風に<span class="ascii">antenna</span>を改良します。</p>
 <h1 id="実装する"><span class="link-to-here-outer"><a href="#実装する" title="実装する"><span class="link-to-here">Link to<br />
 here</span></a></span>実装する</h1>
-<p><span class="ascii">antenna</span>プログラムに「<span class="ascii">git</span>コマンドを使って<span class="ascii">GitHub</span>リポジトリに更新をプッシュする機能」と「全てを毎時実行する機能」の<span class="ascii">2</span>つを組み込む必要があります。 ここで後方互換性を維持するために、これらはオプションでオンする機能にしましょう。 なのでまずは、<span class="ascii">antenna CLI</span>アプリケーションのオプションを整理するところから始めます。</p>
+<p><span class="ascii">antenna</span>プログラムに「<span class="ascii">git</span>コマンドを使って<span class="ascii">GitHub</span>リポジトリに更新をプッシュする機能」と「全てを毎時実行する機能」の<span class="ascii">2</span>つを組み込む必要があります。
+ここで後方互換性を維持するために、これらはオプションでオンする機能にしましょう。
+なのでまずは、<span class="ascii">antenna CLI</span>アプリケーションのオプションを整理するところから始めます。</p>
 <h2 id="オプションの整理"><span class="link-to-here-outer"><a href="#オプションの整理" title="オプションの整理"><span class="link-to-here">Link to<br />
 here</span></a></span>オプションの整理</h2>
-<p>改修前の<span class="ascii">antenna</span>はオプションを持っていません。 <code>getArgs</code> で引数（設定ファイルのパス）を受け取るだけです</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">import</span> <span class="dt">System.Environment</span> (getArgs)</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co">-- generate 関数が設定から HTML ファイル群を生成する IO アクション</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb1-5" title="5">main <span class="ot">=</span> (listToMaybe <span class="op">&lt;$&gt;</span> getArgs) <span class="op">&gt;&gt;=</span> \<span class="kw">case</span></a>
-<a class="sourceLine" id="cb1-6" title="6">  <span class="dt">Nothing</span>   <span class="ot">-&gt;</span> <span class="fu">error</span> <span class="st">&quot;please input config file path.&quot;</span></a>
-<a class="sourceLine" id="cb1-7" title="7">  <span class="dt">Just</span> path <span class="ot">-&gt;</span> generate path <span class="op">=&lt;&lt;</span> readConfig path</a></code></pre></div>
+<p>改修前の<span class="ascii">antenna</span>はオプションを持っていません。
+<code>getArgs</code> で引数（設定ファイルのパス）を受け取るだけです</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span> (getArgs)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- generate 関数が設定から HTML ファイル群を生成する IO アクション</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> (listToMaybe <span class="op">&lt;$&gt;</span> getArgs) <span class="op">&gt;&gt;=</span> \<span class="kw">case</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Nothing</span>   <span class="ot">-&gt;</span> <span class="fu">error</span> <span class="st">&quot;please input config file path.&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Just</span> path <span class="ot">-&gt;</span> generate path <span class="op">=&lt;&lt;</span> readConfig path</span></code></pre></div>
 <p>これを <a href="https://hackage.haskell.org/package/extensible-0.7/docs/Data-Extensible-GetOpt.html"><span class="ascii">extensible</span> の <code>GetOpt</code></a> を使ってオプションを貰えるように拡張します</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="co">-- withGetOpt' は usage を独自で扱えるように拡張した Data.Extensible.withGetOpt です</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb2-3" title="3">main <span class="ot">=</span> withGetOpt' <span class="st">&quot;[options] [input-file]&quot;</span> opts <span class="op">$</span> \r args usage <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">if</span> <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>help    <span class="ot">-&gt;</span> hPutBuilder stdout (fromString usage)</a>
-<a class="sourceLine" id="cb2-5" title="5">     <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>version <span class="ot">-&gt;</span> hPutBuilder stdout (Version.build version)</a>
-<a class="sourceLine" id="cb2-6" title="6">     <span class="op">|</span> <span class="fu">otherwise</span>     <span class="ot">-&gt;</span> runCmd r <span class="op">$</span> listToMaybe args</a>
-<a class="sourceLine" id="cb2-7" title="7">  <span class="kw">where</span></a>
-<a class="sourceLine" id="cb2-8" title="8">    opts <span class="ot">=</span> <span class="op">#</span>help    <span class="op">@=</span> helpOpt</a>
-<a class="sourceLine" id="cb2-9" title="9">        <span class="op">&lt;:</span> <span class="op">#</span>version <span class="op">@=</span> versionOpt</a>
-<a class="sourceLine" id="cb2-10" title="10">        <span class="op">&lt;:</span> <span class="op">#</span>verbose <span class="op">@=</span> verboseOpt</a>
-<a class="sourceLine" id="cb2-11" title="11">        <span class="op">&lt;:</span> nil</a>
-<a class="sourceLine" id="cb2-12" title="12"></a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="kw">type</span> <span class="dt">Options</span> <span class="ot">=</span> <span class="dt">Record</span></a>
-<a class="sourceLine" id="cb2-14" title="14">  '[ <span class="st">&quot;help&quot;</span>    <span class="op">&gt;:</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-15" title="15">   , <span class="st">&quot;version&quot;</span> <span class="op">&gt;:</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-16" title="16">   , <span class="st">&quot;verbose&quot;</span> <span class="op">&gt;:</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-17" title="17">   ]</a>
-<a class="sourceLine" id="cb2-18" title="18"></a>
-<a class="sourceLine" id="cb2-19" title="19"><span class="ot">helpOpt ::</span> <span class="dt">OptDescr'</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-20" title="20">helpOpt <span class="ot">=</span> optFlag [<span class="ch">'h'</span>] [<span class="st">&quot;help&quot;</span>] <span class="st">&quot;Show this help text&quot;</span></a>
-<a class="sourceLine" id="cb2-21" title="21"></a>
-<a class="sourceLine" id="cb2-22" title="22"><span class="ot">versionOpt ::</span> <span class="dt">OptDescr'</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-23" title="23">versionOpt <span class="ot">=</span> optFlag [] [<span class="st">&quot;version&quot;</span>] <span class="st">&quot;Show version&quot;</span></a>
-<a class="sourceLine" id="cb2-24" title="24"></a>
-<a class="sourceLine" id="cb2-25" title="25"><span class="ot">verboseOpt ::</span> <span class="dt">OptDescr'</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-26" title="26">verboseOpt <span class="ot">=</span> optFlag [<span class="ch">'v'</span>] [<span class="st">&quot;verbose&quot;</span>] <span class="st">&quot;Enable verbose mode: verbosity level \&quot;debug\&quot;&quot;</span></a></code></pre></div>
-<p>差分全体はこの<a href="https://github.com/haskell-jp/antenna/pull/20"><span class="ascii">PR</span></a>で確認することができます。 興味のある人はみてみてください。 <code>generate</code> 関数は以下の <code>runCmd</code> 関数から呼ばれています</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">import</span> <span class="dt">Mix</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw">import</span> <span class="dt">Mix.Plugin.Logger</span> <span class="kw">as</span> <span class="dt">MixLogger</span></a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="ot">runCmd ::</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb3-5" title="5">runCmd _ <span class="dt">Nothing</span>        <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;please input config file path.&quot;</span></a>
-<a class="sourceLine" id="cb3-6" title="6">runCmd opts (<span class="dt">Just</span> path) <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb3-7" title="7">  config <span class="ot">&lt;-</span> readConfig path</a>
-<a class="sourceLine" id="cb3-8" title="8">  <span class="kw">let</span> plugin <span class="ot">=</span> hsequence</a>
-<a class="sourceLine" id="cb3-9" title="9">             <span class="op">$</span> <span class="op">#</span>logger <span class="op">&lt;@=&gt;</span> MixLogger.buildPlugin logOpts</a>
-<a class="sourceLine" id="cb3-10" title="10">            <span class="op">&lt;:</span> <span class="op">#</span>config <span class="op">&lt;@=&gt;</span> <span class="fu">pure</span> config</a>
-<a class="sourceLine" id="cb3-11" title="11">            <span class="op">&lt;:</span> nil</a>
-<a class="sourceLine" id="cb3-12" title="12">  Mix.run plugin <span class="op">$</span> generate path</a>
-<a class="sourceLine" id="cb3-13" title="13">  <span class="kw">where</span></a>
-<a class="sourceLine" id="cb3-14" title="14">    logOpts <span class="ot">=</span> <span class="op">#</span>handle  <span class="op">@=</span> stdout</a>
-<a class="sourceLine" id="cb3-15" title="15">           <span class="op">&lt;:</span> <span class="op">#</span>verbose <span class="op">@=</span> (opts <span class="op">^.</span> <span class="op">#</span>verbose)</a>
-<a class="sourceLine" id="cb3-16" title="16">           <span class="op">&lt;:</span> nil</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- withGetOpt' は usage を独自で扱えるように拡張した Data.Extensible.withGetOpt です</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> withGetOpt' <span class="st">&quot;[options] [input-file]&quot;</span> opts <span class="op">$</span> \r args usage <span class="ot">-&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span> <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>help    <span class="ot">-&gt;</span> hPutBuilder stdout (fromString usage)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>version <span class="ot">-&gt;</span> hPutBuilder stdout (Version.build version)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> <span class="fu">otherwise</span>     <span class="ot">-&gt;</span> runCmd r <span class="op">$</span> listToMaybe args</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    opts <span class="ot">=</span> <span class="op">#</span>help    <span class="op">@=</span> helpOpt</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">&lt;:</span> <span class="op">#</span>version <span class="op">@=</span> versionOpt</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">&lt;:</span> <span class="op">#</span>verbose <span class="op">@=</span> verboseOpt</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">&lt;:</span> nil</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Options</span> <span class="ot">=</span> <span class="dt">Record</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  '[ <span class="st">&quot;help&quot;</span>    <span class="op">&gt;:</span> <span class="dt">Bool</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>   , <span class="st">&quot;version&quot;</span> <span class="op">&gt;:</span> <span class="dt">Bool</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>   , <span class="st">&quot;verbose&quot;</span> <span class="op">&gt;:</span> <span class="dt">Bool</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>   ]</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="ot">helpOpt ::</span> <span class="dt">OptDescr'</span> <span class="dt">Bool</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>helpOpt <span class="ot">=</span> optFlag [<span class="ch">'h'</span>] [<span class="st">&quot;help&quot;</span>] <span class="st">&quot;Show this help text&quot;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="ot">versionOpt ::</span> <span class="dt">OptDescr'</span> <span class="dt">Bool</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>versionOpt <span class="ot">=</span> optFlag [] [<span class="st">&quot;version&quot;</span>] <span class="st">&quot;Show version&quot;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="ot">verboseOpt ::</span> <span class="dt">OptDescr'</span> <span class="dt">Bool</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>verboseOpt <span class="ot">=</span> optFlag [<span class="ch">'v'</span>] [<span class="st">&quot;verbose&quot;</span>] <span class="st">&quot;Enable verbose mode: verbosity level \&quot;debug\&quot;&quot;</span></span></code></pre></div>
+<p>差分全体はこの<a href="https://github.com/haskell-jp/antenna/pull/20"><span class="ascii">PR</span></a>で確認することができます。
+興味のある人はみてみてください。
+<code>generate</code> 関数は以下の <code>runCmd</code> 関数から呼ばれています</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Mix</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Mix.Plugin.Logger</span> <span class="kw">as</span> <span class="dt">MixLogger</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ot">runCmd ::</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>runCmd _ <span class="dt">Nothing</span>        <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;please input config file path.&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>runCmd opts (<span class="dt">Just</span> path) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  config <span class="ot">&lt;-</span> readConfig path</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> plugin <span class="ot">=</span> hsequence</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>             <span class="op">$</span> <span class="op">#</span>logger <span class="op">&lt;@=&gt;</span> MixLogger.buildPlugin logOpts</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;:</span> <span class="op">#</span>config <span class="op">&lt;@=&gt;</span> <span class="fu">pure</span> config</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;:</span> nil</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  Mix.run plugin <span class="op">$</span> generate path</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    logOpts <span class="ot">=</span> <span class="op">#</span>handle  <span class="op">@=</span> stdout</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>           <span class="op">&lt;:</span> <span class="op">#</span>verbose <span class="op">@=</span> (opts <span class="op">^.</span> <span class="op">#</span>verbose)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>           <span class="op">&lt;:</span> nil</span></code></pre></div>
 <p><code>runCmd</code> 関数は<a href="https://github.com/matsubara0507/mix.hs"><span class="ascii">mix.hs</span></a>を使って <code>RIO env ()</code> のボイラーテンプレートを減らしています。</p>
 <h2 id="git-コマンドを呼ぶ"><span class="link-to-here-outer"><a href="#git-コマンドを呼ぶ" title="git-コマンドを呼ぶ"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">git</span> コマンドを呼ぶ</h2>
-<p><span class="ascii">Haskell</span>アプリケーションから<span class="ascii">git</span>コマンドを実行するには<a href="https://hackage.haskell.org/package/shelly"><span class="ascii">Shelly</span></a>を使うことにします。 <span class="ascii">Shelly</span>は<span class="ascii">mix.hs</span>の<span class="ascii">shell</span>プラグインを使うことで簡単に使用することができます。 まずはコミットを作る部分を実装しましょう</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Git</span> <span class="co">-- 自作Shelly製gitコマンド関数群</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Mix.Plugin.Shell</span> <span class="kw">as</span> <span class="dt">MixShell</span></a>
-<a class="sourceLine" id="cb4-3" title="3"></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="ot">runCmd ::</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb4-5" title="5">runCmd opts (<span class="dt">Just</span> path) <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb4-6" title="6">  config <span class="ot">&lt;-</span> readConfig path</a>
-<a class="sourceLine" id="cb4-7" title="7">  <span class="kw">let</span> plugin <span class="ot">=</span> hsequence</a>
-<a class="sourceLine" id="cb4-8" title="8">             <span class="op">$</span> <span class="op">#</span>logger <span class="op">&lt;@=&gt;</span> MixLogger.buildPlugin logOpts</a>
-<a class="sourceLine" id="cb4-9" title="9">            <span class="op">&lt;:</span> <span class="op">#</span>config <span class="op">&lt;@=&gt;</span> <span class="fu">pure</span> config</a>
-<a class="sourceLine" id="cb4-10" title="10">            <span class="op">&lt;:</span> <span class="op">#</span>work   <span class="op">&lt;@=&gt;</span> <span class="fu">pure</span> <span class="st">&quot;.&quot;</span></a>
-<a class="sourceLine" id="cb4-11" title="11">            <span class="op">&lt;:</span> nil</a>
-<a class="sourceLine" id="cb4-12" title="12">  Mix.run plugin <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb4-13" title="13">    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> MixShell.exec (Git.pull [])</a>
-<a class="sourceLine" id="cb4-14" title="14">    generate path</a>
-<a class="sourceLine" id="cb4-15" title="15">    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> commitGeneratedFiles</a>
-<a class="sourceLine" id="cb4-16" title="16">  <span class="kw">where</span></a>
-<a class="sourceLine" id="cb4-17" title="17">    logOpts <span class="ot">=</span> <span class="op">...</span></a>
-<a class="sourceLine" id="cb4-18" title="18"></a>
-<a class="sourceLine" id="cb4-19" title="19"><span class="ot">commitGeneratedFiles ::</span> <span class="dt">RIO</span> <span class="dt">Env</span> ()</a>
-<a class="sourceLine" id="cb4-20" title="20">commitGeneratedFiles <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb4-21" title="21">  files <span class="ot">&lt;-</span> view <span class="op">#</span>files <span class="op">&lt;$&gt;</span> asks (gitConfig <span class="op">.</span> view <span class="op">#</span>config)</a>
-<a class="sourceLine" id="cb4-22" title="22">  MixShell.exec <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb4-23" title="23">    Git.add files</a>
-<a class="sourceLine" id="cb4-24" title="24">    changes <span class="ot">&lt;-</span> Git.diffFileNames [<span class="st">&quot;--staged&quot;</span>]</a>
-<a class="sourceLine" id="cb4-25" title="25">    when (<span class="fu">not</span> <span class="op">$</span> <span class="fu">null</span> changes) <span class="op">$</span> Git.commit [<span class="st">&quot;-m&quot;</span>, message]</a>
-<a class="sourceLine" id="cb4-26" title="26">  <span class="kw">where</span></a>
-<a class="sourceLine" id="cb4-27" title="27">    message <span class="ot">=</span> <span class="op">...</span></a></code></pre></div>
-<p>全ての差分はこの<a href="https://github.com/haskell-jp/antenna/pull/21"><span class="ascii">PR</span></a>から確認できます。 <code>runCmd</code> 関数に追記したのは <code>when (opts ^. #withCommit)</code> から始まる<span class="ascii">2</span>行です（<code>Options</code> に <code>#withCommit</code> を追加しています）。 <span class="ascii">mix.hs</span>の<span class="ascii">shell</span>プラグインを使うことで<span class="ascii">Shelly</span>のログをだいたいそれっぽく<span class="ascii">rio</span>のロガーに流してくれます。</p>
+<p><span class="ascii">Haskell</span>アプリケーションから<span class="ascii">git</span>コマンドを実行するには<a href="https://hackage.haskell.org/package/shelly"><span class="ascii">Shelly</span></a>を使うことにします。
+<span class="ascii">Shelly</span>は<span class="ascii">mix.hs</span>の<span class="ascii">shell</span>プラグインを使うことで簡単に使用することができます。
+まずはコミットを作る部分を実装しましょう</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Git</span> <span class="co">-- 自作Shelly製gitコマンド関数群</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Mix.Plugin.Shell</span> <span class="kw">as</span> <span class="dt">MixShell</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ot">runCmd ::</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>runCmd opts (<span class="dt">Just</span> path) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  config <span class="ot">&lt;-</span> readConfig path</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> plugin <span class="ot">=</span> hsequence</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>             <span class="op">$</span> <span class="op">#</span>logger <span class="op">&lt;@=&gt;</span> MixLogger.buildPlugin logOpts</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;:</span> <span class="op">#</span>config <span class="op">&lt;@=&gt;</span> <span class="fu">pure</span> config</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;:</span> <span class="op">#</span>work   <span class="op">&lt;@=&gt;</span> <span class="fu">pure</span> <span class="st">&quot;.&quot;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;:</span> nil</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  Mix.run plugin <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> MixShell.exec (Git.pull [])</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    generate path</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> commitGeneratedFiles</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    logOpts <span class="ot">=</span> <span class="op">...</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="ot">commitGeneratedFiles ::</span> <span class="dt">RIO</span> <span class="dt">Env</span> ()</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>commitGeneratedFiles <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  files <span class="ot">&lt;-</span> view <span class="op">#</span>files <span class="op">&lt;$&gt;</span> asks (gitConfig <span class="op">.</span> view <span class="op">#</span>config)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  MixShell.exec <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    Git.add files</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    changes <span class="ot">&lt;-</span> Git.diffFileNames [<span class="st">&quot;--staged&quot;</span>]</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    when (<span class="fu">not</span> <span class="op">$</span> <span class="fu">null</span> changes) <span class="op">$</span> Git.commit [<span class="st">&quot;-m&quot;</span>, message]</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    message <span class="ot">=</span> <span class="op">...</span></span></code></pre></div>
+<p>全ての差分はこの<a href="https://github.com/haskell-jp/antenna/pull/21"><span class="ascii">PR</span></a>から確認できます。
+<code>runCmd</code> 関数に追記したのは <code>when (opts ^. #withCommit)</code> から始まる<span class="ascii">2</span>行です（<code>Options</code> に <code>#withCommit</code> を追加しています）。
+<span class="ascii">mix.hs</span>の<span class="ascii">shell</span>プラグインを使うことで<span class="ascii">Shelly</span>のログをだいたいそれっぽく<span class="ascii">rio</span>のロガーに流してくれます。</p>
 <p>次に、<code>git push</code>も実装します</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="ot">runCmd ::</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb5-2" title="2">runCmd opts (<span class="dt">Just</span> path) <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb5-3" title="3">  <span class="op">...</span></a>
-<a class="sourceLine" id="cb5-4" title="4">  Mix.run plugin <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb5-5" title="5">    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> MixShell.exec (Git.pull [])</a>
-<a class="sourceLine" id="cb5-6" title="6">    generate path</a>
-<a class="sourceLine" id="cb5-7" title="7">    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> commitGeneratedFiles</a>
-<a class="sourceLine" id="cb5-8" title="8">    when (opts <span class="op">^.</span> <span class="op">#</span>withPush)   <span class="op">$</span> pushCommit</a>
-<a class="sourceLine" id="cb5-9" title="9"></a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="ot">pushCommit ::</span> <span class="dt">RIO</span> <span class="dt">Env</span> ()</a>
-<a class="sourceLine" id="cb5-11" title="11">pushCommit <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb5-12" title="12">  branch <span class="ot">&lt;-</span> view <span class="op">#</span>branch <span class="op">&lt;$&gt;</span> asks (gitConfig <span class="op">.</span> view <span class="op">#</span>config)</a>
-<a class="sourceLine" id="cb5-13" title="13">  MixShell.exec (Git.push [<span class="st">&quot;origin&quot;</span>, branch])</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">runCmd ::</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>runCmd opts (<span class="dt">Just</span> path) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  Mix.run plugin <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> MixShell.exec (Git.pull [])</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    generate path</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    when (opts <span class="op">^.</span> <span class="op">#</span>withCommit) <span class="op">$</span> commitGeneratedFiles</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    when (opts <span class="op">^.</span> <span class="op">#</span>withPush)   <span class="op">$</span> pushCommit</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ot">pushCommit ::</span> <span class="dt">RIO</span> <span class="dt">Env</span> ()</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>pushCommit <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  branch <span class="ot">&lt;-</span> view <span class="op">#</span>branch <span class="op">&lt;$&gt;</span> asks (gitConfig <span class="op">.</span> view <span class="op">#</span>config)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  MixShell.exec (Git.push [<span class="st">&quot;origin&quot;</span>, branch])</span></code></pre></div>
 <p>前から使っている <code>gitConfig</code> は設定ファイルから<span class="ascii">git</span>コマンドに関する設定を取ってきています（例えば、どのファイルをコミットするかやどのブランチにプッシュするかなど）。</p>
 <p>これで、差分があった場合は<code>git commit</code>を実行し、最後に<code>git push</code>するようなオプション、<code>--with-commit</code>と<code>--with-push</code>を実装できました（他にも実装していますが割愛）。</p>
 <h2 id="毎時実行"><span class="link-to-here-outer"><a href="#毎時実行" title="毎時実行"><span class="link-to-here">Link to<br />
 here</span></a></span>毎時実行</h2>
-<p>メインディッシュである毎時実行です。 <span class="ascii">Haskell-jp Slack</span>で、スケジューリング実行を<span class="ascii">Haskell</span>アプリケーション内で行うのにちょうど良いパッケージはありますか？と尋ねたところ<a href="https://hackage.haskell.org/package/cron"><span class="ascii">cron</span></a>というパッケージを紹介してもらいました（名前がややこしい笑）。 調べてみたところ、ちょうど良さそうなのでこれを使うことにします</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">import</span> <span class="dt">System.Cron</span> (addJob, execSchedule)</a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="ot">main ::</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb6-4" title="4">main <span class="ot">=</span> withGetOpt' <span class="st">&quot;[options] [input-file]&quot;</span> opts <span class="op">$</span> \r args usage <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb6-5" title="5">  <span class="kw">if</span> <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>help     <span class="ot">-&gt;</span> hPutBuilder stdout (fromString usage)</a>
-<a class="sourceLine" id="cb6-6" title="6">     <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>version  <span class="ot">-&gt;</span> hPutBuilder stdout (Version.build version)</a>
-<a class="sourceLine" id="cb6-7" title="7">     <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>hourly   <span class="ot">-&gt;</span> runCmd r (listToMaybe args) <span class="ot">`withCron`</span> <span class="st">&quot;0 * * * *&quot;</span></a>
-<a class="sourceLine" id="cb6-8" title="8">     <span class="op">|</span> <span class="fu">otherwise</span>      <span class="ot">-&gt;</span> runCmd r (listToMaybe args)</a>
-<a class="sourceLine" id="cb6-9" title="9">  <span class="kw">where</span></a>
-<a class="sourceLine" id="cb6-10" title="10">    opts <span class="ot">=</span> <span class="op">...</span></a>
-<a class="sourceLine" id="cb6-11" title="11"></a>
-<a class="sourceLine" id="cb6-12" title="12"><span class="ot">withCron ::</span> <span class="dt">IO</span> () <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb6-13" title="13">withCron act t <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb6-14" title="14">  _ <span class="ot">&lt;-</span> execSchedule <span class="op">$</span> addJob act t</a>
-<a class="sourceLine" id="cb6-15" title="15">  forever <span class="op">$</span> threadDelay <span class="fu">maxBound</span> <span class="co">-- 無限ループ</span></a></code></pre></div>
-<p>全ての差分はこの<a href="https://github.com/haskell-jp/antenna/pull/22"><span class="ascii">PR</span></a>から確認できます。 すっごい簡単ですね。 ついでに、毎日実行と毎分実行するオプションも追加しています。</p>
+<p>メインディッシュである毎時実行です。
+<span class="ascii">Haskell-jp Slack</span>で、スケジューリング実行を<span class="ascii">Haskell</span>アプリケーション内で行うのにちょうど良いパッケージはありますか？と尋ねたところ<a href="https://hackage.haskell.org/package/cron"><span class="ascii">cron</span></a>というパッケージを紹介してもらいました（名前がややこしい笑）。
+調べてみたところ、ちょうど良さそうなのでこれを使うことにします</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Cron</span> (addJob, execSchedule)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> withGetOpt' <span class="st">&quot;[options] [input-file]&quot;</span> opts <span class="op">$</span> \r args usage <span class="ot">-&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span> <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>help     <span class="ot">-&gt;</span> hPutBuilder stdout (fromString usage)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>version  <span class="ot">-&gt;</span> hPutBuilder stdout (Version.build version)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> r <span class="op">^.</span> <span class="op">#</span>hourly   <span class="ot">-&gt;</span> runCmd r (listToMaybe args) <span class="ot">`withCron`</span> <span class="st">&quot;0 * * * *&quot;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> <span class="fu">otherwise</span>      <span class="ot">-&gt;</span> runCmd r (listToMaybe args)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    opts <span class="ot">=</span> <span class="op">...</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="ot">withCron ::</span> <span class="dt">IO</span> () <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>withCron act t <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  _ <span class="ot">&lt;-</span> execSchedule <span class="op">$</span> addJob act t</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  forever <span class="op">$</span> threadDelay <span class="fu">maxBound</span> <span class="co">-- 無限ループ</span></span></code></pre></div>
+<p>全ての差分はこの<a href="https://github.com/haskell-jp/antenna/pull/22"><span class="ascii">PR</span></a>から確認できます。
+すっごい簡単ですね。
+ついでに、毎日実行と毎分実行するオプションも追加しています。</p>
 <p>これでアプリケーションの方は出来上がったので、こいつを<span class="ascii">GCE</span>インスタンスで動作させてみましょう。</p>
 <h1 id="インスタンスで起動する"><span class="link-to-here-outer"><a href="#インスタンスで起動する" title="インスタンスで起動する"><span class="link-to-here">Link to<br />
 here</span></a></span>インスタンスで起動する</h1>
-<p>まずは<span class="ascii">GCP Console</span>からインスタンス作成します。 構成は次の通りです</p>
+<p>まずは<span class="ascii">GCP Console</span>からインスタンス作成します。
+構成は次の通りです</p>
 <ul>
 <li><span class="ascii">f1-micro</span></li>
 <li>オレゴンリージョン</li>
 <li><span class="ascii">30GB</span>の標準ストレージ</li>
 <li><span class="ascii">OS</span>は<span class="ascii">Ubuntu 18.04</span></li>
 </ul>
-<p><span class="ascii">GCP Console</span>から<span class="ascii">SSH</span>して、<span class="ascii">docker</span> コマンドをインストールします（やり方は<a href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">公式サイト</a>のをそのまま）。 ここまでできたら試しに <code>sudo docker pull haskelljp/antenna</code> して最新のイメージを取得してみましょう。</p>
-<p>次に、<span class="ascii">GitHub</span>にプッシュするために<span class="ascii">SSH Key</span>を生成してデプロイキーを <span class="ascii">haskell-jp/antenna</span> リポジトリに設定します。 できたら適当に <code>git clone git@github.com:haskell-jp/antenna.git</code> してブランチを <code>gh-pages</code> に切り替えます。</p>
+<p><span class="ascii">GCP Console</span>から<span class="ascii">SSH</span>して、<span class="ascii">docker</span> コマンドをインストールします（やり方は<a href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">公式サイト</a>のをそのまま）。
+ここまでできたら試しに <code>sudo docker pull haskelljp/antenna</code> して最新のイメージを取得してみましょう。</p>
+<p>次に、<span class="ascii">GitHub</span>にプッシュするために<span class="ascii">SSH Key</span>を生成してデプロイキーを <span class="ascii">haskell-jp/antenna</span> リポジトリに設定します。
+できたら適当に <code>git clone git@github.com:haskell-jp/antenna.git</code> してブランチを <code>gh-pages</code> に切り替えます。</p>
 <p>あとは次のコマンドで<span class="ascii">antenna</span>プログラムを実行するだけです</p>
 <pre><code>$ sudo docker run -d \
   -v `pwd`:/work
@@ -325,7 +347,8 @@ here</span></a></span>インスタンスで起動する</h1>
 <h1 id="今後やりたいこと"><span class="link-to-here-outer"><a href="#今後やりたいこと" title="今後やりたいこと"><span class="link-to-here">Link to<br />
 here</span></a></span>今後やりたいこと</h1>
 <p><span class="ascii">igrep</span>氏が<a href="https://github.com/haskell-jp/antenna/issues/16"><span class="ascii">Issue</span></a>にしてくれてるように、<span class="ascii">Haskell Antenna</span>の正しい差分を<span class="ascii">Haskell-jp Slack</span>に通知する仕組みを整備しようと考えてます。</p>
-<p>実はコミットを<span class="ascii">Haskell</span>アプリケーション内で組み立てるようになった結果、<span class="ascii">Haskell</span>アプリケーション側でいい感じに差分を調べ上げ、その結果をコミットメッセージに組み込むことができるようになりました。 さすがに<span class="ascii">HTML</span>やフィードの <code>git diff</code> を解析するのは大変なので、いい感じに各サイトの最終更新ログを残すようにしてみようかなって考えてます。</p>
+<p>実はコミットを<span class="ascii">Haskell</span>アプリケーション内で組み立てるようになった結果、<span class="ascii">Haskell</span>アプリケーション側でいい感じに差分を調べ上げ、その結果をコミットメッセージに組み込むことができるようになりました。
+さすがに<span class="ascii">HTML</span>やフィードの <code>git diff</code> を解析するのは大変なので、いい感じに各サイトの最終更新ログを残すようにしてみようかなって考えてます。</p>
             </div>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">

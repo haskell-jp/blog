@@ -196,9 +196,9 @@ here</span></a></span><span class="ascii">1.</span> <code>setup-info</code>を�
 <p>ひとまずみなさんは、下記のいずれかの方法で指定するだけでこの手順はクリアできます。</p>
 <ul>
 <li><p><code>stack.yaml</code>に記載する<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">resolver:</span><span class="at"> ghc-8.8</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="fu">setup-info:</span><span class="at"> </span><span class="st">&quot;https://gist.githubusercontent.com/igrep/7298e1e2515059ae332feaf5501c41a4/raw/d69cc0b75d9be6735bdfcca6aa3eb6398d98983f/stack-setup-info.yaml&quot;</span></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co"># ... 以下略 ...</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">resolver</span><span class="kw">:</span><span class="at"> ghc-8.8</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setup-info</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;https://gist.githubusercontent.com/igrep/7298e1e2515059ae332feaf5501c41a4/raw/d69cc0b75d9be6735bdfcca6aa3eb6398d98983f/stack-setup-info.yaml&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ... 以下略 ...</span></span></code></pre></div>
 <ul>
 <li>ビルドしたいプロジェクトや、<span class="ascii">GHC 8.8</span>を試す用のディレクトリーを作って、そこに👆の内容が書かれた<code>stack.yaml</code>を置きましょう。<br />
 ちょっと試したいだけならそのディレクトリーで<code>stack exec ghci</code>などと実行すれば<span class="ascii">OK</span>です！</li>
@@ -216,14 +216,14 @@ here</span></a></span><span class="ascii">2.</span> （必要なら）<span clas
 <p>ここからは、何かしら依存するパッケージがあるライブラリー・アプリケーションを<span class="ascii">GHC 8.8.1-alpha1</span>で試しにビルドしたいという方向けです。<br />
 <span class="ascii">GHC 8.8.1-alpha1</span>をちょっと試したいだけという方はこれ以降を読む必要はありません。</p>
 <p>まずは、ひとまず対象となるプロジェクトの<code>stack.yaml</code>に</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">allow-newer:</span><span class="at"> </span><span class="ch">true</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">allow-newer</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div>
 <p>を追記しましょう。<br />
 これは、依存している<span class="ascii">Cabal</span>パッケージのバージョンの、上限を取っ払うというものです。<br />
 依存パッケージのバージョンの上限は、パッケージの開発者が自身のパッケージを確実にビルドできるよう、「このパッケージはあのパッケージのバージョン<span class="ascii">N.M</span><strong>以下</strong>じゃないとビルドできないよ！」と<span class="ascii">Cabal</span>の依存関係リゾルバーに教えてあげるためのものです。<br />
 <span class="ascii">cabal-install</span><small>（と、恐らく<span class="ascii">stack</span>も必要に応じて）</small>は、通常であればこの上限を見て、どのバージョンのパッケージをインストールするか決めます。<br />
 その上限により、残念ながら依存関係の解決に失敗することがあるのです。<br />
 そこでそうしたエラーを避けるためにも<code>allow-newer: true</code>と設定して、上限を無視してみましょう。</p>
-<p>というのも、このバージョンの上限はしばしば、予防のために実際より厳しめに設定されることがあるためです<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+<p>というのも、このバージョンの上限はしばしば、予防のために実際より厳しめに設定されることがあるためです<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>。<br />
 そりゃそうですよね。今作っているパッケージが依存している<span class="ascii">API</span>が、どのバージョンで使用できなくなるかなんて、大抵のパッケージではわかりませんし。<br />
 <span class="ascii">Haskell</span>の世界には<a href="https://pvp.haskell.org/"><span class="ascii">PVP</span></a>という、<a href="https://semver.org/lang/ja/"><span class="ascii">Semantic Versioning</span></a>と似た思想のバージョン変更ポリシーがありまして、<span class="ascii">API</span>の互換性がなくなるような修正が含まれる場合、次のバージョンでは<code>A.B.C</code>の<code>A.B</code>の箇所を変更することになっています。<br />
 これを信じて依存バージョンの上限（と下限）を設定してみても、実際にあなたが依存している<span class="ascii">API</span>が使用できなくなるとは限らないのです。</p>
@@ -245,18 +245,18 @@ here</span></a></span><span class="ascii">3. package-indices</span>を設定し�
 <p><span class="ascii">HEAD.hackage</span>は、今回のように<span class="ascii">GHC</span>の開発版をいち早く試したい人が、新しい<span class="ascii">GHC</span>に向けて修正を加えたパッケージを、いち早くアップロードするサイトです。<br />
 <a href="https://github.com/hvr/head.hackage">こちらのリポジトリー</a>にパッチをアップロードすることで、<span class="ascii">cabal-install</span>や<span class="ascii">stack</span>から、普通の<span class="ascii">hackage</span>にあるパッケージとしてダウンロードできるようにしてくれます。</p>
 <p><span class="ascii">HEAD.hackage</span>を<span class="ascii">stack</span>で利用するには、下記のように、<code>package-indices:</code>という設定を、<code>stack.yaml</code>に加えてください。<br />
-下記のように記載することで、<span class="ascii">stack</span>は、<span class="ascii">HEAD.hackage</span>にある修正済みのパッケージを優先して取得してくれるようになります<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">package-indices:</span></a>
-<a class="sourceLine" id="cb4-2" title="2">  <span class="kw">-</span> <span class="fu">name:</span><span class="at"> head.hackage</span></a>
-<a class="sourceLine" id="cb4-3" title="3">    <span class="fu">download-prefix:</span><span class="at"> http://head.hackage.haskell.org/package/</span></a>
-<a class="sourceLine" id="cb4-4" title="4">    <span class="fu">http:</span><span class="at"> http://head.hackage.haskell.org/01-index.tar.gz</span></a>
-<a class="sourceLine" id="cb4-5" title="5">  <span class="kw">-</span> <span class="fu">name:</span><span class="at"> Hackage</span></a>
-<a class="sourceLine" id="cb4-6" title="6">    <span class="fu">download-prefix:</span><span class="at"> https://hackage.haskell.org/package/</span></a>
-<a class="sourceLine" id="cb4-7" title="7">    <span class="fu">http:</span><span class="at"> https://hackage.haskell.org/01-index.tar.gz</span></a></code></pre></div>
+下記のように記載することで、<span class="ascii">stack</span>は、<span class="ascii">HEAD.hackage</span>にある修正済みのパッケージを優先して取得してくれるようになります<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">package-indices</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> head.hackage</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">download-prefix</span><span class="kw">:</span><span class="at"> http://head.hackage.haskell.org/package/</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">http</span><span class="kw">:</span><span class="at"> http://head.hackage.haskell.org/01-index.tar.gz</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Hackage</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">download-prefix</span><span class="kw">:</span><span class="at"> https://hackage.haskell.org/package/</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">http</span><span class="kw">:</span><span class="at"> https://hackage.haskell.org/01-index.tar.gz</span></span></code></pre></div>
 <p>これで<span class="ascii">GHC 8.8</span>対応済みのパッケージを、簡単に取得できるようになります！</p>
 <h1 id="stack-buildを実行しつつひたすらextra-depsを追加編集"><span class="link-to-here-outer"><a href="#stack-buildを実行しつつひたすらextra-depsを追加編集" title="stack-buildを実行しつつひたすらextra-depsを追加編集"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">4. stack build</span>を実行しつつ、ひたすら<span class="ascii">extra-deps</span>を追加・編集</h1>
-<p>ここまで設定できたら、いよいよ<code>stack build</code>してみましょう<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>！<br />
+<p>ここまで設定できたら、いよいよ<code>stack build</code>してみましょう<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>！<br />
 とは言え、この状態ではほぼ間違いなく失敗が続くので、<code>stack build --file-watch</code>と、<strong><code>--file-watch</code>オプションを付けて、<code>stack.yaml</code>を編集する度に再度</strong>ビルドが実行されるようにするのをおすすめします。</p>
 <p>と、言うのも、恐らく次👇のようなエラーがたくさん出ると思われるからです。</p>
 <pre><code>...
@@ -300,15 +300,15 @@ here</span></a></span>それでもうまくいかない場合<span class="ascii"
 <h3 id="自分以外の人が対象のパッケージを修正した場合"><span class="link-to-here-outer"><a href="#自分以外の人が対象のパッケージを修正した場合" title="自分以外の人が対象のパッケージを修正した場合"><span class="link-to-here">Link to<br />
 here</span></a></span>自分以外の人が対象のパッケージを修正した場合<span class="ascii">:</span></h3>
 <p>自分以外の人が対象のパッケージを修正したので、すでにどこかのリポジトリーに<span class="ascii">push</span>済みのコミットがある、という場合、下記👇のように書くと、<span class="ascii">Git</span>リポジトリーの特定のコミットを直接参照した状態で、依存関係に加えることができます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb6-1" title="1"><span class="fu">extra-deps:</span></a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="kw">-</span> <span class="fu">git:</span><span class="at"> https://github.com/github_user/repository_name.git</span></a>
-<a class="sourceLine" id="cb6-3" title="3">  <span class="fu">commit:</span><span class="at"> &lt;修正したコミットのSHA&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">extra-deps</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">git</span><span class="kw">:</span><span class="at"> https://github.com/github_user/repository_name.git</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">commit</span><span class="kw">:</span><span class="at"> &lt;修正したコミットのSHA&gt;</span></span></code></pre></div>
 <h3 id="自分で対象のパッケージを修正するという場合"><span class="link-to-here-outer"><a href="#自分で対象のパッケージを修正するという場合" title="自分で対象のパッケージを修正するという場合"><span class="link-to-here">Link to<br />
 here</span></a></span>自分で対象のパッケージを修正する、という場合<span class="ascii">:</span></h3>
 <p>そうでない場合、対象のパッケージのリポジトリーを一旦<code>git submodule add</code>して、自分のリポジトリーの一部に含めてしまいましょう。<br />
 その上で、<code>extra-deps</code>には下記のように書けば、<span class="ascii">stack</span>はローカルのファイルシステムに置かれたディレクトリーも、直接依存するパッケージとして追加してくれます。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">extra-deps:</span></a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="kw">-</span> ./path/to/package</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">extra-deps</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> ./path/to/package</span></span></code></pre></div>
 <p>逐一別のディレクトリーに<code>git clone</code>して<code>git commit</code>して<code>git push</code>して作られたコミットの<span class="ascii">SHA</span>を参照して… なんてのを繰り返していたら、面倒だからです。</p>
 <h3 id="対象のパッケージがgitリポジトリーで管理されてない場合は"><span class="link-to-here-outer"><a href="#対象のパッケージがgitリポジトリーで管理されてない場合は" title="対象のパッケージがgitリポジトリーで管理されてない場合は"><span class="link-to-here">Link to<br />
 here</span></a></span>対象のパッケージが<span class="ascii">Git</span>リポジトリーで管理されてない場合は？</h3>
@@ -323,12 +323,12 @@ here</span></a></span>番外編<span class="ascii">: Operation Vanguard</span></
 一旦<span class="ascii">submodule</span>として対象のパッケージのリポジトリーを<span class="ascii">clone</span>する、という方法は、<span class="ascii">Operation Vanguard</span>のリポジトリーを見ていて知りました💡。</p>
 <p>すでに対応のほとんどが終了したとのことですが、<span class="ascii">GHC 8.8</span>に対応していないパッケージは恐らくまだたくさんあります。<br />
 ゴールデンウィークももう半分が終わりましたが、時間をとって<span class="ascii">Operation Vanguard</span>のようにチャレンジしてみるのはいかがでしょうか💪💪💪</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>もっとも、私のようにものぐさな人間が作るパッケージには、そもそも上限も何も書いてないことが多いのですが…😰<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>本来であれば<span class="ascii">Hackage Security</span>の設定も必要なはずなんですが、なぜかうまくいかず…😱。<a href="https://github.com/commercialhaskell/stack/issues/3844">こちら</a>で紹介された<span class="ascii">workaround</span>にしたがって、関連する設定を除くことにしました…。<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p><code>stack solver</code>コマンドを使えば、この節で紹介するエラーは簡単にクリアできそうだということを聞いて試した<small>（<span class="ascii">Thanks,</span> <a href="https://github.com/mizunashi-mana"><span class="ascii">@mizunashi-mana</span></a>さん！）</small>のですが、手元のパッケージでは依存関係を解決できず、エラーになってしまいました…。<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>もっとも、私のようにものぐさな人間が作るパッケージには、そもそも上限も何も書いてないことが多いのですが…😰<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>本来であれば<span class="ascii">Hackage Security</span>の設定も必要なはずなんですが、なぜかうまくいかず…😱。<a href="https://github.com/commercialhaskell/stack/issues/3844">こちら</a>で紹介された<span class="ascii">workaround</span>にしたがって、関連する設定を除くことにしました…。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><code>stack solver</code>コマンドを使えば、この節で紹介するエラーは簡単にクリアできそうだということを聞いて試した<small>（<span class="ascii">Thanks,</span> <a href="https://github.com/mizunashi-mana"><span class="ascii">@mizunashi-mana</span></a>さん！）</small>のですが、手元のパッケージでは依存関係を解決できず、エラーになってしまいました…。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

@@ -166,54 +166,55 @@ here</span></a></span>二項演算子（記号関数）の調べ方</h1>
 <p>そんな背景もあり、<span class="ascii">Haskell</span>を使う人はしばしば<a href="https://hoogle.haskell.org/"><span class="ascii">Hoogle</span></a>などの、関数名で検索できる検索エンジンを使用することになります。こちらは二項演算子の名前での検索もサポートしています。</p>
 <p>例えば<span class="ascii">lens</span>パッケージでおなじみの<code>^.</code>で検索すると<a href="https://hoogle.haskell.org/?hoogle=%5E.">次のような結果になりました</a><span class="ascii">:</span></p>
 <figure>
-<img src="../../img/2021/symbols-in-ghc/hoogle.png" alt="Hoogleによる検索結果の例" /><figcaption><span class="ascii">Hoogle</span>による検索結果の例</figcaption>
+<img src="../../img/2021/symbols-in-ghc/hoogle.png" alt="Hoogleによる検索結果の例" />
+<figcaption aria-hidden="true"><span class="ascii">Hoogle</span>による検索結果の例</figcaption>
 </figure>
 <p><span class="ascii">lens</span>パッケージ以外でも、同様の<code>^.</code>が定義されているのが分かりますね。<span class="ascii">lens</span>パッケージは依存関係がとても大きい一方、<code>^.</code>などの定義は十分単純でコピペしてもいいくらい小さいので、このようにいくつものパッケージで定義されています。</p>
 <p>また、特によく使われる二項演算子は<span class="ascii">FPComplete</span>のウェブサイトでもまとめられています<span class="ascii">:</span></p>
 <p><a href="https://www.fpcomplete.com/haskell/tutorial/operators/"><span class="ascii">Operator Glossary</span></a></p>
 <h1 id="ユーザーが定義した二項演算子ではないものの調べ方"><span class="link-to-here-outer"><a href="#ユーザーが定義した二項演算子ではないものの調べ方" title="ユーザーが定義した二項演算子ではないものの調べ方"><span class="link-to-here">Link to<br />
 here</span></a></span>ユーザーが定義した二項演算子ではないものの調べ方</h1>
-<p><span class="ascii">Haskell</span>、というかそのデファクトスタンダードな処理系である<span class="ascii">GHC</span>では、<a href="https://haskell.jp/blog/posts/2018/about-ghc-exts-1.html">言語拡張</a>という形で長年新しい構文が提案されています<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。その中には、当然これまでにない方法で記号を使っているものもあります。そうした記号はプログラマーが定義した関数ではないので、前述の<span class="ascii">Hoogle</span>などを使った方法が通用しません。そこで、当ブログにも何度も寄稿いただいた<span class="ascii">@takenobu_hs</span>さんが、言語拡張によるものも含めた、<span class="ascii">Haskell</span>の構文における記号の一覧を作ってくださいました！</p>
+<p><span class="ascii">Haskell</span>、というかそのデファクトスタンダードな処理系である<span class="ascii">GHC</span>では、<a href="https://haskell.jp/blog/posts/2018/about-ghc-exts-1.html">言語拡張</a>という形で長年新しい構文が提案されています<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>。その中には、当然これまでにない方法で記号を使っているものもあります。そうした記号はプログラマーが定義した関数ではないので、前述の<span class="ascii">Hoogle</span>などを使った方法が通用しません。そこで、当ブログにも何度も寄稿いただいた<span class="ascii">@takenobu_hs</span>さんが、言語拡張によるものも含めた、<span class="ascii">Haskell</span>の構文における記号の一覧を作ってくださいました！</p>
 <p><a href="https://github.com/takenobu-hs/haskell-symbol-search-cheatsheet"><span class="ascii">takenobu-hs/haskell-symbol-search-cheatsheet</span></a></p>
 <p>実は日本語版も<a href="https://qiita.com/takenobu-hs/items/b95f0a4409c59440d4a9"><span class="ascii">Qiita</span>に</a>あるのですが、上記の<span class="ascii">GitHub</span>版の方が更新されているようです。そこで、今回はおまけとして、<a href="https://github.com/takenobu-hs/haskell-symbol-search-cheatsheet#--overloadedrecorddot"><span class="ascii">GitHub</span>版の方にも載っている</a>、<span class="ascii">GHC</span>に最近（バージョン<span class="ascii">9.2.1</span>以降に）追加された、新しいピリオド <code>.</code> の使い方を紹介しましょう。</p>
 <p>従来、<span class="ascii">Haskell</span>でピリオドといえば関数合成を表す二項演算子でした<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">ghci<span class="op">&gt;</span> f x <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb1-2" title="2">ghci<span class="op">&gt;</span> g x <span class="ot">=</span> x <span class="op">*</span> <span class="dv">3</span></a>
-<a class="sourceLine" id="cb1-3" title="3">ghci<span class="op">&gt;</span> h <span class="ot">=</span> g <span class="op">.</span> f</a>
-<a class="sourceLine" id="cb1-4" title="4">ghci<span class="op">&gt;</span> h <span class="dv">2</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="dv">9</span> <span class="co">-- 2 に + 1 して * 3 した結果</span></a></code></pre></div>
-<p>数学における関数合成の記号「<span class="ascii">g</span> ∘ <span class="ascii">f</span>」に似せてピリオドを採用したのでしょう。しかし、世は今まさに<strong>大「ピリオドといえばフィールド<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>へのアクセス演算子じゃろがい」時代</strong>です。それでなくても<span class="ascii">Haskell</span>のレコード型は扱いにくいと言われているのに、フィールドへのアクセスまで変なやり方でした<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a><span class="ascii">:</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="ot">=</span></a>
-<a class="sourceLine" id="cb2-2" title="2">  <span class="dt">SomeRecord</span> {<span class="ot"> field1 ::</span> <span class="dt">String</span>,<span class="ot"> field2 ::</span> <span class="dt">Int</span> }</a>
-<a class="sourceLine" id="cb2-3" title="3"></a>
-<a class="sourceLine" id="cb2-4" title="4">someRecord <span class="ot">=</span> <span class="dt">SomeRecord</span> <span class="st">&quot;value1&quot;</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb2-5" title="5"></a>
-<a class="sourceLine" id="cb2-6" title="6">ghci<span class="op">&gt;</span> field1 someRecord</a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="st">&quot;value1&quot;</span></a>
-<a class="sourceLine" id="cb2-8" title="8"></a>
-<a class="sourceLine" id="cb2-9" title="9">ghci<span class="op">&gt;</span> field2 someRecord</a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="dv">2</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> f x <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> g x <span class="ot">=</span> x <span class="op">*</span> <span class="dv">3</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> h <span class="ot">=</span> g <span class="op">.</span> f</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> h <span class="dv">2</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dv">9</span> <span class="co">-- 2 に + 1 して * 3 した結果</span></span></code></pre></div>
+<p>数学における関数合成の記号「<span class="ascii">g</span> ∘ <span class="ascii">f</span>」に似せてピリオドを採用したのでしょう。しかし、世は今まさに<strong>大「ピリオドといえばフィールド<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>へのアクセス演算子じゃろがい」時代</strong>です。それでなくても<span class="ascii">Haskell</span>のレコード型は扱いにくいと言われているのに、フィールドへのアクセスまで変なやり方でした<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a><span class="ascii">:</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">SomeRecord</span> <span class="ot">=</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SomeRecord</span> {<span class="ot"> field1 ::</span> <span class="dt">String</span>,<span class="ot"> field2 ::</span> <span class="dt">Int</span> }</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>someRecord <span class="ot">=</span> <span class="dt">SomeRecord</span> <span class="st">&quot;value1&quot;</span> <span class="dv">2</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> field1 someRecord</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;value1&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> field2 someRecord</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code></pre></div>
 <p>そこで、<span class="ascii">GHC 9.2</span>からは<a href="https://downloads.haskell.org/ghc/9.2.1/docs/html/users_guide/exts/overloaded_record_dot.html#overloaded-record-dot"><code>OverloadedRecordDot</code></a>という言語拡張が導入され、これを有効にしたファイルではおなじみの言語のようにピリオドでレコードのフィールドにアクセスできるようになりました<span class="ascii">:</span></p>
 <p>（以下は<span class="ascii">GHCi</span>で使用した例です）</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1">ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedRecordDot</span></a>
-<a class="sourceLine" id="cb3-2" title="2"></a>
-<a class="sourceLine" id="cb3-3" title="3">ghci<span class="op">&gt;</span> someRecord<span class="op">.</span>field1</a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="st">&quot;value1&quot;</span></a>
-<a class="sourceLine" id="cb3-5" title="5"></a>
-<a class="sourceLine" id="cb3-6" title="6">ghci<span class="op">&gt;</span> someRecord<span class="op">.</span>field2</a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="dv">2</span></a>
-<a class="sourceLine" id="cb3-8" title="8"></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="co">-- ⚠️ピリオドの前後に空白を入れると関数合成として解釈されてしまう！</span></a>
-<a class="sourceLine" id="cb3-10" title="10">ghci<span class="op">&gt;</span> someRecord <span class="op">.</span> field2</a>
-<a class="sourceLine" id="cb3-11" title="11"></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">5</span><span class="op">:</span><span class="dv">1</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></a>
-<a class="sourceLine" id="cb3-13" title="13">    <span class="op">?</span> <span class="dt">Couldn't</span> match expected <span class="kw">type</span> ‘<span class="dt">Int</span> <span class="ot">-&gt;</span> c’</a>
-<a class="sourceLine" id="cb3-14" title="14">                  with actual <span class="kw">type</span> ‘<span class="dt">SomeRecord</span>’</a>
-<a class="sourceLine" id="cb3-15" title="15">    <span class="op">?</span> <span class="dt">In</span> the first argument <span class="kw">of</span> ‘(<span class="op">.</span>)’, namely ‘someRecord’</a>
-<a class="sourceLine" id="cb3-16" title="16">      <span class="dt">In</span> the expression<span class="op">:</span> someRecord <span class="op">.</span> field2</a>
-<a class="sourceLine" id="cb3-17" title="17">      <span class="dt">In</span> an equation for ‘it’<span class="op">:</span> it <span class="ot">=</span> someRecord <span class="op">.</span> field2</a>
-<a class="sourceLine" id="cb3-18" title="18">    <span class="op">?</span> <span class="dt">Relevant</span> bindings include</a>
-<a class="sourceLine" id="cb3-19" title="19"><span class="ot">        it ::</span> <span class="dt">SomeRecord</span> <span class="ot">-&gt;</span> c (bound at <span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">5</span><span class="op">:</span><span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedRecordDot</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> someRecord<span class="op">.</span>field1</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;value1&quot;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> someRecord<span class="op">.</span>field2</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- ⚠️ピリオドの前後に空白を入れると関数合成として解釈されてしまう！</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> someRecord <span class="op">.</span> field2</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">5</span><span class="op">:</span><span class="dv">1</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span> <span class="dt">Couldn't</span> match expected <span class="kw">type</span> ‘<span class="dt">Int</span> <span class="ot">-&gt;</span> c’</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                  with actual <span class="kw">type</span> ‘<span class="dt">SomeRecord</span>’</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span> <span class="dt">In</span> the first argument <span class="kw">of</span> ‘(<span class="op">.</span>)’, namely ‘someRecord’</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">In</span> the expression<span class="op">:</span> someRecord <span class="op">.</span> field2</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">In</span> an equation for ‘it’<span class="op">:</span> it <span class="ot">=</span> someRecord <span class="op">.</span> field2</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span> <span class="dt">Relevant</span> bindings include</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="ot">        it ::</span> <span class="dt">SomeRecord</span> <span class="ot">-&gt;</span> c (bound at <span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">5</span><span class="op">:</span><span class="dv">1</span>)</span></code></pre></div>
 <p><code>OverloadedRecordDot</code>についてのより詳しい解説は、<a href="https://youtu.be/haZl-q6mfyk?t=2581"><span class="ascii">Haskell Day 2021</span>における、<span class="ascii">fumieval</span>さんの発表</a>をご覧ください。</p>
 <h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
 here</span></a></span>まとめ</h1>
@@ -233,12 +234,12 @@ here</span></a></span>まとめ</h1>
 </ul></li>
 </ul>
 <p>🎁それでは<span class="ascii">2022</span>年も<span class="ascii">Happy Haskell Hacking!!</span>🎅</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>余談<span class="ascii">:</span> <a href="https://github.com/ghc-proposals/ghc-proposals"><span class="ascii">ghc-proposals</span></a>に送られた<span class="ascii">Pull request</span>を見ると、今どのような提案が議論されているか分かります。<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>他のプログラミング言語では「プロパティー」と呼ばれることも多いですが、ここでは<span class="ascii">Haskell</span>のレコード型における用語に合わせました。<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>個人的にはゲッターが関数になるのはとても直感的な気がして割と好きでしたが、確かにデメリットもとても多い仕様でした。セッターは単純な関数になってないですしね。<a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>余談<span class="ascii">:</span> <a href="https://github.com/ghc-proposals/ghc-proposals"><span class="ascii">ghc-proposals</span></a>に送られた<span class="ascii">Pull request</span>を見ると、今どのような提案が議論されているか分かります。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>他のプログラミング言語では「プロパティー」と呼ばれることも多いですが、ここでは<span class="ascii">Haskell</span>のレコード型における用語に合わせました。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>個人的にはゲッターが関数になるのはとても直感的な気がして割と好きでしたが、確かにデメリットもとても多い仕様でした。セッターは単純な関数になってないですしね。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

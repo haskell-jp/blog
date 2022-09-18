@@ -167,18 +167,18 @@ here</span></a></span>なに作ったか</h1>
 今回もメインの処理は<span class="ascii">100</span>行にも満たないような小さなもので、また用途もニッチです。<br />
 具体的には、名前のとおり<a href="https://en.wikipedia.org/wiki/ANSI_escape_code"><span class="ascii">ANSI</span>エスケープコード</a>を文字列から取り除く、ただそれだけです。<br />
 使い方も極めてシンプル<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.String.AnsiEscapeCodes.Strip.Text</span></a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co">-- 現状Text型向けにしか作っていないため、OverloadedStringsを有効にした方が使いやすい</span></a>
-<a class="sourceLine" id="cb1-4" title="4">ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedStrings</span></a>
-<a class="sourceLine" id="cb1-5" title="5">ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.Text</span></a>
-<a class="sourceLine" id="cb1-6" title="6"></a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="co">-- 出力すると下線付きで &quot;hello&quot; と表示されるANSIエスケープコード付きの文字列</span></a>
-<a class="sourceLine" id="cb1-8" title="8">ghci<span class="op">&gt;</span> <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="st">&quot;\ESC[4mhello\ESC[0m&quot;</span></a>
-<a class="sourceLine" id="cb1-10" title="10"></a>
-<a class="sourceLine" id="cb1-11" title="11">ghci<span class="op">&gt;</span> stripAnsiEscapeCodes <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></a>
-<a class="sourceLine" id="cb1-12" title="12"><span class="st">&quot;hello&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.String.AnsiEscapeCodes.Strip.Text</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- 現状Text型向けにしか作っていないため、OverloadedStringsを有効にした方が使いやすい</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XOverloadedStrings</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Data.Text</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- 出力すると下線付きで &quot;hello&quot; と表示されるANSIエスケープコード付きの文字列</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;\ESC[4mhello\ESC[0m&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ghci<span class="op">&gt;</span> stripAnsiEscapeCodes <span class="st">&quot;\x001B[4mhello\x001B[0m&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;hello&quot;</span></span></code></pre></div>
 <h1 id="なぜ作ったか"><span class="link-to-here-outer"><a href="#なぜ作ったか" title="なぜ作ったか"><span class="link-to-here">Link to<br />
 here</span></a></span>なぜ作ったか</h1>
 <p>通常我々が<span class="ascii">ANSI</span>エスケープコードを扱うときは、<strong>ユーザーのために</strong>端末に文字列を分かりやすく表示したいときで、それをプログラムで再利用することは想定していません。<br />

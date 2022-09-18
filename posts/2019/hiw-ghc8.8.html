@@ -197,19 +197,19 @@ here</span></a></span><span class="ascii">GHC status report</span></h1>
 <p><span class="ascii">GitLab</span>への移行や<span class="ascii">Hadrian</span>と呼ばれる新しいビルドシステムの導入など、インフラ周りでいろいろ変更があったこともあり、遅れてしまいましたが<span class="ascii">GHC 8.8</span>がもうすぐ出るよ、という内容の発表でした<small>（発表当時。もう<a href="https://www.haskell.org/ghc/blog/20190825-ghc-8.8.1-released.html"><span class="ascii">GHC 8.8</span>はリリースされています</a>）</small>。</p>
 <p>言及された主な追加機能は以下のとおりです。</p>
 <ul>
-<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeApplications"><code>TypeApplications</code></a>という言語拡張が、型変数だけでなくカインド変数に対しても適用できるようになりました。<br />
-正直に言って、個人的に使いどころがまだまだなさそうな機能ではありますが…。</li>
+<li><p><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeApplications"><code>TypeApplications</code></a>という言語拡張が、型変数だけでなくカインド変数に対しても適用できるようになりました。<br />
+正直に言って、個人的に使いどころがまだまだなさそうな機能ではありますが…。</p></li>
 <li><p><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ScopedTypeVariables"><code>ScopedTypeVariables</code></a>という言語拡張を使った場合に、パターンマッチした変数に型注釈を付けることができるようになる、という機能がありまして、これが拡張されました。<br />
 具体的には、従来下記のように書くことで、関数自体の型注釈にある型変数<code>a</code>と、パターンマッチした変数<code>x</code>に型注釈した<code>b</code>が等しくなるように書くことができたのを、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">f ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Maybe</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb1-2" title="2">f (<span class="dt">Just</span> (<span class="ot">x ::</span> b)) <span class="ot">=</span> <span class="co">{- ... -}</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Maybe</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>f (<span class="dt">Just</span> (<span class="ot">x ::</span> b)) <span class="ot">=</span> <span class="co">{- ... -}</span></span></code></pre></div>
 <p>さらに拡張して、関数自体の型注釈にある型変数<strong>ではない</strong><code>Int</code>と、パターンマッチした変数<code>x</code>に型注釈した<code>b</code>が等しくなるように書くことができるようにした、という拡張です。<br />
 あたかも型変数でパターンマッチしているかのようですね。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">f ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb2-2" title="2">f (<span class="dt">Just</span> (<span class="ot">x ::</span> b)) <span class="ot">=</span> <span class="co">{- ... -}</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>f (<span class="dt">Just</span> (<span class="ot">x ::</span> b)) <span class="ot">=</span> <span class="co">{- ... -}</span></span></code></pre></div>
 <p>一体何の役に立つの？とも思いましたが、<a href="https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0128-scoped-type-variables-types.rst#128motivation">この修正に向けた提案</a>曰く、</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">f ::</span> <span class="dt">ReallyReallyReallyReallyLongTypeName</span> <span class="ot">-&gt;</span> <span class="dt">T</span></a>
-<a class="sourceLine" id="cb3-2" title="2">f (<span class="ot">x ::</span> a) <span class="ot">=</span> … (<span class="fu">read</span> <span class="st">&quot;&quot;</span><span class="ot"> ::</span> a) …</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">ReallyReallyReallyReallyLongTypeName</span> <span class="ot">-&gt;</span> <span class="dt">T</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>f (<span class="ot">x ::</span> a) <span class="ot">=</span> … (<span class="fu">read</span> <span class="st">&quot;&quot;</span><span class="ot"> ::</span> a) …</span></code></pre></div>
 <p>と書くことで、長い型名に対して別名を付けることができるようになる、というメリットがあるそうです。なるほど💡</p></li>
 </ul>
 <h1 id="とりあえず今回はここまで"><span class="link-to-here-outer"><a href="#とりあえず今回はここまで" title="とりあえず今回はここまで"><span class="link-to-here">Link to<br />

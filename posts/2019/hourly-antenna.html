@@ -149,7 +149,10 @@
               <hr />
 <p><span class="ascii">Haskell-jp</span>のコンテンツの一つとして<a href="https://haskell.jp/antenna/"><span class="ascii">Haskell Antenna</span></a>という <span class="ascii">Web</span> ページの開発・運用をしております。</p>
 <p><img src="../../img/2019/hourly-antenna/antenna-page.jpg" style="width: 100%;"></p>
-<p>この<span class="ascii">Web</span>ページは<a href="https://github.com/haskell-jp/antenna"><span class="ascii">Haskell-jp</span>のリポジトリ</a>で開発し、<span class="ascii">GitHub Pages</span>として公開しています。 更新は<a href="https://travis-ci.org/"><span class="ascii">TravisCI</span></a>の<span class="ascii">Daily Cron</span>を使って行なっていましたが、なんとかして <strong>毎時更新を実現したい</strong> と思案していました。 ひょんなことから<a href="https://cloud.drone.io/"><span class="ascii">Drone Cloud</span></a>という<span class="ascii">CI</span>サービスを見つけ、このサービスでは<span class="ascii">Hourly Cron</span>が可能だったので試しに更新の部分だけ移行してみました。 という話です。</p>
+<p>この<span class="ascii">Web</span>ページは<a href="https://github.com/haskell-jp/antenna"><span class="ascii">Haskell-jp</span>のリポジトリ</a>で開発し、<span class="ascii">GitHub Pages</span>として公開しています。
+更新は<a href="https://travis-ci.org/"><span class="ascii">TravisCI</span></a>の<span class="ascii">Daily Cron</span>を使って行なっていましたが、なんとかして <strong>毎時更新を実現したい</strong> と思案していました。
+ひょんなことから<a href="https://cloud.drone.io/"><span class="ascii">Drone Cloud</span></a>という<span class="ascii">CI</span>サービスを見つけ、このサービスでは<span class="ascii">Hourly Cron</span>が可能だったので試しに更新の部分だけ移行してみました。
+という話です。</p>
 <p>ちなみに、本稿は全く<span class="ascii">Haskell</span>のコードが出て来ません <span class="ascii">;)</span></p>
 <div id="table-of-contents-outer">
 <div id="table-of-contents">
@@ -172,7 +175,9 @@ Contents
 </div>
 <h1 id="drone.io"><span class="link-to-here-outer"><a href="#drone.io" title="drone.io"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Drone.io</span></h1>
-<p><span class="ascii">Drone Cloud</span>はパブリックリポジトリであれば無料で利用できる<span class="ascii">CI</span>サービスです。 内部では<a href="https://drone.io/"><span class="ascii">Drone</span></a>という<span class="ascii">OSS</span>の<span class="ascii">CI</span>プラットフォームを利用しています。 <span class="ascii">Drone</span>は以下のような特徴を持っています<span class="ascii">:</span></p>
+<p><span class="ascii">Drone Cloud</span>はパブリックリポジトリであれば無料で利用できる<span class="ascii">CI</span>サービスです。
+内部では<a href="https://drone.io/"><span class="ascii">Drone</span></a>という<span class="ascii">OSS</span>の<span class="ascii">CI</span>プラットフォームを利用しています。
+<span class="ascii">Drone</span>は以下のような特徴を持っています<span class="ascii">:</span></p>
 <ul>
 <li><span class="ascii">Jenkins</span>のような<span class="ascii">OSS</span>である<span class="ascii">(Go</span>言語製<span class="ascii">)</span></li>
 <li><span class="ascii">TravisCI</span>や<span class="ascii">CircleCI</span>のようなパイプラインによる設定を行う<span class="ascii">(YAML</span>形式<span class="ascii">)</span></li>
@@ -193,174 +198,186 @@ here</span></a></span>毎時更新を実現するために</h1>
 <p>順に説明していきましょう。</p>
 <h2 id="antennaのdockerイメージ化"><span class="link-to-here-outer"><a href="#antennaのdockerイメージ化" title="antennaのdockerイメージ化"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Antenna</span>の<span class="ascii">Docker</span>イメージ化</h2>
-<p><span class="ascii">Drone Cloud</span>では無償でキャッシュを利用することができません<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。 <span class="ascii">Haskell(</span>というか<span class="ascii">Stack)</span>の<span class="ascii">CI</span>をしている方ならわかると思いますが、キャッシュなしにビルドするとすごい時間がかかります。 なので、<span class="ascii">Haskell Antenna</span>の静的ページの生成を行う <code>antenna</code> コマンドを<span class="ascii">Docker</span>イメージとしておき、<span class="ascii">Drone</span>内ではこのイメージを利用して静的ページの生成を行う方針でいきます。</p>
-<p>もちろん<span class="ascii">Docker</span>イメージの生成には、<span class="ascii">Stack</span>の<span class="ascii">Docker</span>インテグレーションを使います。 以下のような設定を<span class="ascii">stack.yaml</span>に追記し<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># stack.yaml</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="fu">docker:</span></a>
-<a class="sourceLine" id="cb1-3" title="3">  <span class="fu">repo:</span><span class="at"> fpco/stack-build</span></a>
-<a class="sourceLine" id="cb1-4" title="4">  <span class="fu">enable:</span><span class="at"> </span><span class="ch">false</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="fu">image:</span></a>
-<a class="sourceLine" id="cb1-6" title="6">  <span class="fu">container:</span></a>
-<a class="sourceLine" id="cb1-7" title="7">    <span class="fu">name:</span><span class="at"> antenna</span></a>
-<a class="sourceLine" id="cb1-8" title="8">    <span class="fu">base:</span><span class="at"> fpco/ubuntu-with-libgmp</span></a></code></pre></div>
+<p><span class="ascii">Drone Cloud</span>では無償でキャッシュを利用することができません<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>。
+<span class="ascii">Haskell(</span>というか<span class="ascii">Stack)</span>の<span class="ascii">CI</span>をしている方ならわかると思いますが、キャッシュなしにビルドするとすごい時間がかかります。
+なので、<span class="ascii">Haskell Antenna</span>の静的ページの生成を行う <code>antenna</code> コマンドを<span class="ascii">Docker</span>イメージとしておき、<span class="ascii">Drone</span>内ではこのイメージを利用して静的ページの生成を行う方針でいきます。</p>
+<p>もちろん<span class="ascii">Docker</span>イメージの生成には、<span class="ascii">Stack</span>の<span class="ascii">Docker</span>インテグレーションを使います。
+以下のような設定を<span class="ascii">stack.yaml</span>に追記し<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># stack.yaml</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">docker</span><span class="kw">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> fpco/stack-build</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">enable</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span><span class="kw">:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">container</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> antenna</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base</span><span class="kw">:</span><span class="at"> fpco/ubuntu-with-libgmp</span></span></code></pre></div>
 <p>次のようなコマンドを実行するだけで<code>antenna</code>という<span class="ascii">Docker</span>イメージが生成されます<span class="ascii">:</span></p>
 <pre><code>stack docker pull
 stack --docker image container</code></pre>
-<p><span class="ascii">Docker Hub</span>に<a href="https://hub.docker.com/r/haskelljp/antenna/"><code>haskelljp/antenna</code></a>というネームスペースを確保した<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>のでここにプッシュしました<span class="ascii">:</span></p>
+<p><span class="ascii">Docker Hub</span>に<a href="https://hub.docker.com/r/haskelljp/antenna/"><code>haskelljp/antenna</code></a>というネームスペースを確保した<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>のでここにプッシュしました<span class="ascii">:</span></p>
 <pre><code>docker tag antenna haskelljp/antenna
 docker push haskelljp/antenna</code></pre>
 <p>ちなみに、<code>haskell-jp</code> ではなく <code>haskelljp</code> なのは、<span class="ascii">Docker Hub</span>の組織アカウント名には <code>-</code> が使えなかったからです。</p>
 <h2 id="dockerイメージの自動更新"><span class="link-to-here-outer"><a href="#dockerイメージの自動更新" title="dockerイメージの自動更新"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Docker</span>イメージの自動更新</h2>
-<p><span class="ascii">Docker Hub</span>には<span class="ascii">Automated builds</span>と呼ばれる<span class="ascii">GitHub</span>などのプッシュによって行う自動ビルドがありますが、<span class="ascii">Stack</span>の<span class="ascii">Docker Integration</span>を使うと、その機能を利用することができません。 そこで、<span class="ascii">TravisCI</span>を使って自動ビルドすることにしました。 この辺りは「<a href="https://matsubara0507.github.io/posts/2018-12-02-stack-docker-travici.html"><span class="ascii">Stack</span> の <span class="ascii">Docker Integration</span> とイメージの自動更新 <span class="ascii">-</span> ひげメモ</a>」で記事にしてあるので、細かい話は割愛します。</p>
+<p><span class="ascii">Docker Hub</span>には<span class="ascii">Automated builds</span>と呼ばれる<span class="ascii">GitHub</span>などのプッシュによって行う自動ビルドがありますが、<span class="ascii">Stack</span>の<span class="ascii">Docker Integration</span>を使うと、その機能を利用することができません。
+そこで、<span class="ascii">TravisCI</span>を使って自動ビルドすることにしました。
+この辺りは「<a href="https://matsubara0507.github.io/posts/2018-12-02-stack-docker-travici.html"><span class="ascii">Stack</span> の <span class="ascii">Docker Integration</span> とイメージの自動更新 <span class="ascii">-</span> ひげメモ</a>」で記事にしてあるので、細かい話は割愛します。</p>
 <p>今回は次のような設定をして、<span class="ascii">master</span> ブランチにプッシュがあった時にのみ<span class="ascii">Docker Hub</span>にプッシュします<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb4-1" title="1"><span class="co"># .travis.yml</span></a>
-<a class="sourceLine" id="cb4-2" title="2"></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="co"># ...</span></a>
-<a class="sourceLine" id="cb4-4" title="4"></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="fu">install:</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="kw">-</span> mkdir -p ~/.local/bin</a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="kw">-</span> export PATH=$HOME/.local/bin:$PATH</a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="kw">-</span> travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin <span class="st">'*/stack'</span></a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="kw">-</span> stack docker pull</a>
-<a class="sourceLine" id="cb4-10" title="10"><span class="fu">jobs:</span></a>
-<a class="sourceLine" id="cb4-11" title="11">  <span class="fu">include:</span></a>
-<a class="sourceLine" id="cb4-12" title="12">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> build dependencies</span></a>
-<a class="sourceLine" id="cb4-13" title="13">      <span class="fu">script:</span><span class="at"> stack --no-terminal --docker --install-ghc test --bench --only-dependencies</span></a>
-<a class="sourceLine" id="cb4-14" title="14">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> build antenna</span></a>
-<a class="sourceLine" id="cb4-15" title="15">      <span class="fu">script:</span><span class="at"> stack --no-terminal --docker build --bench --no-run-benchmarks --no-haddock-deps --pedantic</span></a>
-<a class="sourceLine" id="cb4-16" title="16">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> push docker image</span></a>
-<a class="sourceLine" id="cb4-17" title="17">      <span class="fu">if:</span><span class="at"> branch = master AND type = push</span></a>
-<a class="sourceLine" id="cb4-18" title="18">      <span class="fu">script:</span></a>
-<a class="sourceLine" id="cb4-19" title="19">      <span class="kw">-</span> stack --docker image container</a>
-<a class="sourceLine" id="cb4-20" title="20">      <span class="kw">-</span> docker tag antenna haskelljp/antenna</a>
-<a class="sourceLine" id="cb4-21" title="21">      <span class="kw">-</span> echo <span class="st">&quot;$DOCKER_PASSWORD&quot;</span> | docker login -u <span class="st">&quot;$DOCKER_USERNAME&quot;</span> --password-stdin</a>
-<a class="sourceLine" id="cb4-22" title="22">      <span class="kw">-</span> docker push haskelljp/antenna</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .travis.yml</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">install</span><span class="kw">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> mkdir -p ~/.local/bin</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> export PATH=$HOME/.local/bin:$PATH</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> stack docker pull</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">include</span><span class="kw">:</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> build dependencies</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">script</span><span class="kw">:</span><span class="at"> stack --no-terminal --docker --install-ghc test --bench --only-dependencies</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> build antenna</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">script</span><span class="kw">:</span><span class="at"> stack --no-terminal --docker build --bench --no-run-benchmarks --no-haddock-deps --pedantic</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> push docker image</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">if</span><span class="kw">:</span><span class="at"> branch = master AND type = push</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> stack --docker image container</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> docker tag antenna haskelljp/antenna</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> echo &quot;$DOCKER_PASSWORD&quot; | docker login -u &quot;$DOCKER_USERNAME&quot; --password-stdin</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> docker push haskelljp/antenna</span></span></code></pre></div>
 <p><span class="ascii">Docker</span>で<span class="ascii">Haskell</span>のビルドもするために毎回<span class="ascii">Docker Pull</span>が走るようになり少し遅くなったのが辛いですね<span class="ascii">(</span>今後要検討<span class="ascii">)</span>。</p>
 <h2 id="drone-cloudの設定"><span class="link-to-here-outer"><a href="#drone-cloudの設定" title="drone-cloudの設定"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Drone Cloud</span>の設定</h2>
-<p>いよいよ<span class="ascii">Drone</span>による <code>antenna</code> コマンドの実行を設定します。 元々は <span class="ascii">TravisCI</span> でこんな感じでした<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb5-1" title="1"><span class="fu">jobs:</span></a>
-<a class="sourceLine" id="cb5-2" title="2">  <span class="fu">include:</span></a>
-<a class="sourceLine" id="cb5-3" title="3">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> install anttena</span></a>
-<a class="sourceLine" id="cb5-4" title="4">      <span class="fu">script:</span><span class="at"> stack --no-terminal install</span></a>
-<a class="sourceLine" id="cb5-5" title="5">    <span class="kw">-</span> <span class="fu">stage:</span><span class="at"> exec antenna</span></a>
-<a class="sourceLine" id="cb5-6" title="6">      <span class="fu">script:</span><span class="at"> git clone -b gh-pages &quot;https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git&quot; temp</span></a>
-<a class="sourceLine" id="cb5-7" title="7">      <span class="fu">if:</span><span class="at"> branch = master AND type IN (push, cron)</span></a>
-<a class="sourceLine" id="cb5-8" title="8">      <span class="fu">after_success:</span></a>
-<a class="sourceLine" id="cb5-9" title="9">        <span class="kw">-</span> cp sites.yaml temp/sites.yaml</a>
-<a class="sourceLine" id="cb5-10" title="10">        <span class="kw">-</span> cp -r image/* temp/image</a>
-<a class="sourceLine" id="cb5-11" title="11">        <span class="kw">-</span> cd temp</a>
-<a class="sourceLine" id="cb5-12" title="12">        <span class="kw">-</span> stack exec -- antenna sites.yaml</a>
-<a class="sourceLine" id="cb5-13" title="13">        <span class="kw">-</span> git config user.name <span class="st">&quot;${GIT_NAME}&quot;</span></a>
-<a class="sourceLine" id="cb5-14" title="14">        <span class="kw">-</span> git status</a>
-<a class="sourceLine" id="cb5-15" title="15">        <span class="kw">-</span> git add -A</a>
-<a class="sourceLine" id="cb5-16" title="16">        <span class="kw">-</span> git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am <span class="st">&quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></a>
-<a class="sourceLine" id="cb5-17" title="17">        <span class="kw">-</span> git push origin gh-pages</a></code></pre></div>
-<p><code>stack install</code> で <code>antenna</code> コマンドの実行ファイルを生成し<span class="ascii">(</span>これはキャッシュされるので早い<span class="ascii">)</span>、<code>gh-pages</code> ブランチへページの更新をプッシュするために<span class="ascii">GitHub</span>の<span class="ascii">Personal Token</span>を使って再度クローンしていました。 更新の有無は <code>git diff</code> を使って確認しています。</p>
+<p>いよいよ<span class="ascii">Drone</span>による <code>antenna</code> コマンドの実行を設定します。
+元々は <span class="ascii">TravisCI</span> でこんな感じでした<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">include</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> install anttena</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">script</span><span class="kw">:</span><span class="at"> stack --no-terminal install</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">stage</span><span class="kw">:</span><span class="at"> exec antenna</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">script</span><span class="kw">:</span><span class="at"> git clone -b gh-pages &quot;https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git&quot; temp</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">if</span><span class="kw">:</span><span class="at"> branch = master AND type IN (push, cron)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">after_success</span><span class="kw">:</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> cp sites.yaml temp/sites.yaml</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> cp -r image/* temp/image</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> cd temp</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> stack exec -- antenna sites.yaml</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> git config user.name &quot;${GIT_NAME}&quot;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> git status</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> git add -A</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am &quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> git push origin gh-pages</span></span></code></pre></div>
+<p><code>stack install</code> で <code>antenna</code> コマンドの実行ファイルを生成し<span class="ascii">(</span>これはキャッシュされるので早い<span class="ascii">)</span>、<code>gh-pages</code> ブランチへページの更新をプッシュするために<span class="ascii">GitHub</span>の<span class="ascii">Personal Token</span>を使って再度クローンしていました。
+更新の有無は <code>git diff</code> を使って確認しています。</p>
 <p>まずはこれをこのまま<span class="ascii">Drone</span>に移植します<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># .drone.yml</span></a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="fu">kind:</span><span class="at"> pipeline</span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="fu">name:</span><span class="at"> default</span></a>
-<a class="sourceLine" id="cb6-5" title="5"></a>
-<a class="sourceLine" id="cb6-6" title="6"><span class="fu">steps:</span></a>
-<a class="sourceLine" id="cb6-7" title="7"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> exec antenna</span></a>
-<a class="sourceLine" id="cb6-8" title="8">  <span class="fu">image:</span><span class="at"> matsubara0507/antenna</span></a>
-<a class="sourceLine" id="cb6-9" title="9">  <span class="fu">environment:</span></a>
-<a class="sourceLine" id="cb6-10" title="10">    <span class="fu">GH_TOKEN:</span></a>
-<a class="sourceLine" id="cb6-11" title="11">      <span class="fu">from_secret:</span><span class="at"> github_api_token</span></a>
-<a class="sourceLine" id="cb6-12" title="12">    <span class="fu">GIT_NAME:</span><span class="at"> BOT</span></a>
-<a class="sourceLine" id="cb6-13" title="13">  <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb6-14" title="14">  <span class="kw">-</span> git clone -b gh-pages <span class="st">&quot;https://${GH_TOKEN}@github.com/haskell-jp/antenna.git&quot;</span> temp</a>
-<a class="sourceLine" id="cb6-15" title="15">  <span class="kw">-</span> cp sites.yaml temp/sites.yaml</a>
-<a class="sourceLine" id="cb6-16" title="16">  <span class="kw">-</span> cp -r image/* temp/image</a>
-<a class="sourceLine" id="cb6-17" title="17">  <span class="kw">-</span> cd temp</a>
-<a class="sourceLine" id="cb6-18" title="18">  <span class="kw">-</span> antenna sites.yaml</a>
-<a class="sourceLine" id="cb6-19" title="19">  <span class="kw">-</span> git config user.name <span class="st">&quot;${GIT_NAME}&quot;</span></a>
-<a class="sourceLine" id="cb6-20" title="20">  <span class="kw">-</span> git status</a>
-<a class="sourceLine" id="cb6-21" title="21">  <span class="kw">-</span> git add -A</a>
-<a class="sourceLine" id="cb6-22" title="22">  <span class="kw">-</span> git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am <span class="st">&quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></a>
-<a class="sourceLine" id="cb6-23" title="23">  <span class="kw">-</span> git push origin gh-pages</a>
-<a class="sourceLine" id="cb6-24" title="24">  <span class="fu">when:</span></a>
-<a class="sourceLine" id="cb6-25" title="25">    <span class="fu">branch:</span></a>
-<a class="sourceLine" id="cb6-26" title="26">    <span class="kw">-</span> master</a>
-<a class="sourceLine" id="cb6-27" title="27">    <span class="fu">event:</span></a>
-<a class="sourceLine" id="cb6-28" title="28">      <span class="fu">exclude:</span></a>
-<a class="sourceLine" id="cb6-29" title="29">      <span class="kw">-</span> pull_request</a></code></pre></div>
-<p>記法は違うもののそのまま移植ができました。 条件<span class="ascii">(</span><code>if</code>や<code>when</code><span class="ascii">)</span>のところですが、<span class="ascii">Drone</span>で<code>cron</code>のイベントを指定する方法がわからなかったので、動作しては困る<code>pull_request</code>だけ弾くようにしました。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .drone.yml</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> pipeline</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> default</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> exec antenna</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> matsubara0507/antenna</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">GH_TOKEN</span><span class="kw">:</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">from_secret</span><span class="kw">:</span><span class="at"> github_api_token</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">GIT_NAME</span><span class="kw">:</span><span class="at"> BOT</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">commands</span><span class="kw">:</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> git clone -b gh-pages &quot;https://${GH_TOKEN}@github.com/haskell-jp/antenna.git&quot; temp</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cp sites.yaml temp/sites.yaml</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cp -r image/* temp/image</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cd temp</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> antenna sites.yaml</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> git config user.name &quot;${GIT_NAME}&quot;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> git status</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> git add -A</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am &quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> git push origin gh-pages</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">when</span><span class="kw">:</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> master</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">event</span><span class="kw">:</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">exclude</span><span class="kw">:</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> pull_request</span></span></code></pre></div>
+<p>記法は違うもののそのまま移植ができました。
+条件<span class="ascii">(</span><code>if</code>や<code>when</code><span class="ascii">)</span>のところですが、<span class="ascii">Drone</span>で<code>cron</code>のイベントを指定する方法がわからなかったので、動作しては困る<code>pull_request</code>だけ弾くようにしました。</p>
 <p><span class="ascii">Cron</span>の設定は<span class="ascii">Web UI</span>上で行います<span class="ascii">:</span></p>
 <p><img src="../../img/2019/hourly-antenna/drone-cron-setting.jpg" style="width: 100%;"></p>
 <p>これで毎時間<code>master</code>ブランチのビルドが実行されます。</p>
 <h2 id="personal-tokenからdeploy-keyに移行"><span class="link-to-here-outer"><a href="#personal-tokenからdeploy-keyに移行" title="personal-tokenからdeploy-keyに移行"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Personal Token</span>から<span class="ascii">Deploy Key</span>に移行</h2>
-<p><span class="ascii">Personal Token</span>は他の個人のリポジトリも操作できてしまうので、兼ねてからできれば使いたくないなと思っていました<span class="ascii">(</span>特に個人プロジェクトじゃない<span class="ascii">Haskell-jp</span>のプロジェクトでは<span class="ascii">)</span>。 なので、これを機にリポジトリ固有の<span class="ascii">Deploy Key</span>に移行しました。</p>
-<p><span class="ascii">CircleCI</span>のような書き込み用の<span class="ascii">SSH Key</span>を登録する機能は<span class="ascii">Drone</span>にはありません。 代わりに次のように書くと良いです<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">steps:</span></a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> clone gh-pages</span></a>
-<a class="sourceLine" id="cb7-3" title="3">  <span class="fu">image:</span><span class="at"> docker:git</span></a>
-<a class="sourceLine" id="cb7-4" title="4">  <span class="fu">environment:</span></a>
-<a class="sourceLine" id="cb7-5" title="5">    <span class="fu">SSH_KEY:</span></a>
-<a class="sourceLine" id="cb7-6" title="6">      <span class="fu">from_secret:</span><span class="at"> deploy_key</span></a>
-<a class="sourceLine" id="cb7-7" title="7">  <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb7-8" title="8">  <span class="kw">-</span> mkdir /root/.ssh &amp;&amp; echo <span class="st">&quot;$SSH_KEY&quot;</span> &gt; /root/.ssh/id_rsa &amp;&amp; chmod 0600 /root/.ssh/id_rsa</a>
-<a class="sourceLine" id="cb7-9" title="9">  <span class="kw">-</span> echo -e <span class="st">&quot;Host github.com</span><span class="sc">\n\t</span><span class="st">StrictHostKeyChecking no</span><span class="sc">\n</span><span class="st">&quot;</span> &gt; /root/.ssh/config</a>
-<a class="sourceLine" id="cb7-10" title="10">  <span class="kw">-</span> git clone -b gh-pages git@github.com:haskell-jp/antenna.git temp</a></code></pre></div>
-<p><span class="ascii">Secret</span>というのは<span class="ascii">Drone</span>側で保持・秘匿できる環境変数のような機能です<span class="ascii">(</span>名前が違うだけでだいたいどの<span class="ascii">CI</span>プラットフォームにもありますね<span class="ascii">)</span>。 今回はせっかくなので、これを<span class="ascii">Drone Plugin</span>として自作した<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>、<a href="https://github.com/matsubara0507/drone-git-with-ssh"><code>matsubara0507/git-with-ssh</code></a> というのを使います<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># .drone.yml</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="fu">kind:</span><span class="at"> pipeline</span></a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="fu">name:</span><span class="at"> default</span></a>
-<a class="sourceLine" id="cb8-4" title="4"></a>
-<a class="sourceLine" id="cb8-5" title="5"><span class="fu">steps:</span></a>
-<a class="sourceLine" id="cb8-6" title="6"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> clone gh-pages</span></a>
-<a class="sourceLine" id="cb8-7" title="7">  <span class="fu">image:</span><span class="at"> matsubara0507/git-with-ssh</span></a>
-<a class="sourceLine" id="cb8-8" title="8">  <span class="fu">settings:</span></a>
-<a class="sourceLine" id="cb8-9" title="9">    <span class="fu">ssh_private_key:</span></a>
-<a class="sourceLine" id="cb8-10" title="10">      <span class="fu">from_secret:</span><span class="at"> deploy_key</span></a>
-<a class="sourceLine" id="cb8-11" title="11">    <span class="fu">ssh_hosts:</span></a>
-<a class="sourceLine" id="cb8-12" title="12">    <span class="kw">-</span> github.com</a>
-<a class="sourceLine" id="cb8-13" title="13">    <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb8-14" title="14">    <span class="kw">-</span> git clone -b gh-pages git@github.com:haskell-jp/antenna.git temp</a>
-<a class="sourceLine" id="cb8-15" title="15">  <span class="fu">when:</span></a>
-<a class="sourceLine" id="cb8-16" title="16">    <span class="fu">branch:</span></a>
-<a class="sourceLine" id="cb8-17" title="17">    <span class="kw">-</span> master</a>
-<a class="sourceLine" id="cb8-18" title="18">    <span class="fu">event:</span></a>
-<a class="sourceLine" id="cb8-19" title="19">      <span class="fu">exclude:</span></a>
-<a class="sourceLine" id="cb8-20" title="20">      <span class="kw">-</span> pull_request</a>
-<a class="sourceLine" id="cb8-21" title="21"></a>
-<a class="sourceLine" id="cb8-22" title="22"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> exec antenna</span></a>
-<a class="sourceLine" id="cb8-23" title="23">  <span class="fu">image:</span><span class="at"> haskelljp/antenna</span></a>
-<a class="sourceLine" id="cb8-24" title="24">  <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb8-25" title="25">  <span class="kw">-</span> mkdir -p temp</a>
-<a class="sourceLine" id="cb8-26" title="26">  <span class="kw">-</span> cp sites.yaml temp/sites.yaml</a>
-<a class="sourceLine" id="cb8-27" title="27">  <span class="kw">-</span> cp -r image/* temp/image</a>
-<a class="sourceLine" id="cb8-28" title="28">  <span class="kw">-</span> cd temp</a>
-<a class="sourceLine" id="cb8-29" title="29">  <span class="kw">-</span> antenna sites.yaml</a>
-<a class="sourceLine" id="cb8-30" title="30"></a>
-<a class="sourceLine" id="cb8-31" title="31"><span class="kw">-</span> <span class="fu">name:</span><span class="at"> push gh-pages</span></a>
-<a class="sourceLine" id="cb8-32" title="32">  <span class="fu">image:</span><span class="at"> matsubara0507/git-with-ssh</span></a>
-<a class="sourceLine" id="cb8-33" title="33">  <span class="fu">settings:</span></a>
-<a class="sourceLine" id="cb8-34" title="34">    <span class="fu">ssh_private_key:</span></a>
-<a class="sourceLine" id="cb8-35" title="35">      <span class="fu">from_secret:</span><span class="at"> deploy_key</span></a>
-<a class="sourceLine" id="cb8-36" title="36">    <span class="fu">ssh_hosts:</span></a>
-<a class="sourceLine" id="cb8-37" title="37">    <span class="kw">-</span> github.com</a>
-<a class="sourceLine" id="cb8-38" title="38">    <span class="fu">commands:</span></a>
-<a class="sourceLine" id="cb8-39" title="39">    <span class="kw">-</span> cd temp &amp;&amp; git config user.name  BOT</a>
-<a class="sourceLine" id="cb8-40" title="40">    <span class="kw">-</span> cd temp &amp;&amp; git config user.email bot@example.com</a>
-<a class="sourceLine" id="cb8-41" title="41">    <span class="kw">-</span> cd temp &amp;&amp; git status</a>
-<a class="sourceLine" id="cb8-42" title="42">    <span class="kw">-</span> cd temp &amp;&amp; git add -A</a>
-<a class="sourceLine" id="cb8-43" title="43">    <span class="kw">-</span> cd temp &amp;&amp; git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am <span class="st">&quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></a>
-<a class="sourceLine" id="cb8-44" title="44">    <span class="kw">-</span> cd temp &amp;&amp; git push origin gh-pages</a>
-<a class="sourceLine" id="cb8-45" title="45">  <span class="fu">when:</span></a>
-<a class="sourceLine" id="cb8-46" title="46">    <span class="fu">branch:</span></a>
-<a class="sourceLine" id="cb8-47" title="47">    <span class="kw">-</span> master</a>
-<a class="sourceLine" id="cb8-48" title="48">    <span class="fu">event:</span></a>
-<a class="sourceLine" id="cb8-49" title="49">      <span class="fu">exclude:</span></a>
-<a class="sourceLine" id="cb8-50" title="50">      <span class="kw">-</span> pull_request</a></code></pre></div>
+<p><span class="ascii">Personal Token</span>は他の個人のリポジトリも操作できてしまうので、兼ねてからできれば使いたくないなと思っていました<span class="ascii">(</span>特に個人プロジェクトじゃない<span class="ascii">Haskell-jp</span>のプロジェクトでは<span class="ascii">)</span>。
+なので、これを機にリポジトリ固有の<span class="ascii">Deploy Key</span>に移行しました。</p>
+<p><span class="ascii">CircleCI</span>のような書き込み用の<span class="ascii">SSH Key</span>を登録する機能は<span class="ascii">Drone</span>にはありません。
+代わりに次のように書くと良いです<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> clone gh-pages</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> docker:git</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">SSH_KEY</span><span class="kw">:</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">from_secret</span><span class="kw">:</span><span class="at"> deploy_key</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">commands</span><span class="kw">:</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> mkdir /root/.ssh &amp;&amp; echo &quot;$SSH_KEY&quot; &gt; /root/.ssh/id_rsa &amp;&amp; chmod 0600 /root/.ssh/id_rsa</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> echo -e &quot;Host github.com\n\tStrictHostKeyChecking no\n&quot; &gt; /root/.ssh/config</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> git clone -b gh-pages git@github.com:haskell-jp/antenna.git temp</span></span></code></pre></div>
+<p><span class="ascii">Secret</span>というのは<span class="ascii">Drone</span>側で保持・秘匿できる環境変数のような機能です<span class="ascii">(</span>名前が違うだけでだいたいどの<span class="ascii">CI</span>プラットフォームにもありますね<span class="ascii">)</span>。
+今回はせっかくなので、これを<span class="ascii">Drone Plugin</span>として自作した<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>、<a href="https://github.com/matsubara0507/drone-git-with-ssh"><code>matsubara0507/git-with-ssh</code></a> というのを使います<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .drone.yml</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> pipeline</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> default</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> clone gh-pages</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> matsubara0507/git-with-ssh</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">settings</span><span class="kw">:</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ssh_private_key</span><span class="kw">:</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">from_secret</span><span class="kw">:</span><span class="at"> deploy_key</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ssh_hosts</span><span class="kw">:</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> github.com</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">commands</span><span class="kw">:</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> git clone -b gh-pages git@github.com:haskell-jp/antenna.git temp</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">when</span><span class="kw">:</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> master</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">event</span><span class="kw">:</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">exclude</span><span class="kw">:</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> pull_request</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> exec antenna</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> haskelljp/antenna</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">commands</span><span class="kw">:</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> mkdir -p temp</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cp sites.yaml temp/sites.yaml</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cp -r image/* temp/image</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cd temp</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> antenna sites.yaml</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> push gh-pages</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> matsubara0507/git-with-ssh</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">settings</span><span class="kw">:</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ssh_private_key</span><span class="kw">:</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">from_secret</span><span class="kw">:</span><span class="at"> deploy_key</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ssh_hosts</span><span class="kw">:</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> github.com</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">commands</span><span class="kw">:</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cd temp &amp;&amp; git config user.name  BOT</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cd temp &amp;&amp; git config user.email bot@example.com</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cd temp &amp;&amp; git status</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cd temp &amp;&amp; git add -A</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cd temp &amp;&amp; git diff --quiet &amp;&amp; git diff --staged --quiet || git commit -am &quot;[skip ci] Update planet haskell. See https://haskell.jp/antenna/ for new entries!&quot;</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> cd temp &amp;&amp; git push origin gh-pages</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">when</span><span class="kw">:</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branch</span><span class="kw">:</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> master</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">event</span><span class="kw">:</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">exclude</span><span class="kw">:</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> pull_request</span></span></code></pre></div>
 <p><code>cd temp &amp;&amp;</code> というのがダサいですが、そこはおいおい直します<span class="ascii">(</span><code>git-with-ssh</code> の方を<span class="ascii">)</span>。</p>
 <h2 id="slackの通知回りを整理"><span class="link-to-here-outer"><a href="#slackの通知回りを整理" title="slackの通知回りを整理"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Slack</span>の通知回りを整理</h2>
-<p>元々は<span class="ascii">Haskell-jp</span>の <code>#antenna</code> チャンネルに<span class="ascii">GitHub</span>の通知設定をしているだけでした。 今回の開発中、ずっとコミットの通知などが来てうるさかったので次のように分けました<span class="ascii">:</span></p>
+<p>元々は<span class="ascii">Haskell-jp</span>の <code>#antenna</code> チャンネルに<span class="ascii">GitHub</span>の通知設定をしているだけでした。
+今回の開発中、ずっとコミットの通知などが来てうるさかったので次のように分けました<span class="ascii">:</span></p>
 <ul>
 <li><code>#antenna</code> チャンネルは <code>gh-pages</code> ブランチのコミットだけ通知
 <ul>
@@ -369,7 +386,8 @@ here</span></a></span><span class="ascii">Slack</span>の通知回りを整理</
 <li><code>#antenna-dev</code> チャンネルを新しく作り<span class="ascii">GitHub</span>の全ての更新はこっちに設定</li>
 <li><code>#dockerhub</code> チャンネルもついでに作って <code>haskelljp</code> の更新を通知する</li>
 </ul>
-<p>最近、<span class="ascii">Docker Hub</span>の大リニューアルがあって、いつのまにか<span class="ascii">Docker Hub</span>と<span class="ascii">Slack</span>を連携できるようになっていました。 なので試しに連携して更新の通知が飛ぶようにしてみました<span class="ascii">:</span></p>
+<p>最近、<span class="ascii">Docker Hub</span>の大リニューアルがあって、いつのまにか<span class="ascii">Docker Hub</span>と<span class="ascii">Slack</span>を連携できるようになっていました。
+なので試しに連携して更新の通知が飛ぶようにしてみました<span class="ascii">:</span></p>
 <p><img src="../../img/2019/hourly-antenna/dockerhub-slack.jpg" style="width: 100%;"></p>
 <h1 id="今後やりたいこと"><span class="link-to-here-outer"><a href="#今後やりたいこと" title="今後やりたいこと"><span class="link-to-here">Link to<br />
 here</span></a></span>今後やりたいこと</h1>
@@ -385,14 +403,14 @@ here</span></a></span>今後やりたいこと</h1>
 <li><span class="ascii">Haskell-jp Slack</span>の<span class="ascii">App</span>が満杯なので厳しいかも</li>
 </ul></li>
 </ul>
-<p>あと、<span class="ascii">Qiita</span>の<span class="ascii">Feed</span>がコメントや追記などでも更新され、その通知が <code>#antenna</code> チャンネルに飛んで来てうるさいので修正したいです<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>。</p>
-<section class="footnotes">
+<p>あと、<span class="ascii">Qiita</span>の<span class="ascii">Feed</span>がコメントや追記などでも更新され、その通知が <code>#antenna</code> チャンネルに飛んで来てうるさいので修正したいです<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>。</p>
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>キャッシュの導入の仕方は記事にしたので興味のある方は是非「<a href="https://matsubara0507.github.io/posts/2019-01-06-use-drone-cache-with-gcs.html"><span class="ascii">GCS</span> で <span class="ascii">Drone 1.0</span> をキャッシュする <span class="ascii">-</span> ひげメモ</a>」<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>もし<span class="ascii">Docker Hub</span>の<span class="ascii">haskelljp</span>組織アカウントのメンバーになりたい場合は<span class="ascii">Haskell-jp Slack</span>で声をかけてください<span class="ascii">(</span>チャンネルはどこでも良いですよ<span class="ascii">)</span>。<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>この話も記事にしておきました「<a href="https://matsubara0507.github.io/posts/2019-01-20-create-drone-git-with-ssh.html"><span class="ascii">Drone Plugin</span> を作ってみた<span class="ascii">: git-with-ssh -</span> ひげメモ</a>」<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>この修正は <code>haskell-jp/antenna</code> ではなく、<a href="https://github.com/matsubara0507/scrapbook"><code>matsubara0507/scrapbook</code></a> からやる必要があります。<a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>キャッシュの導入の仕方は記事にしたので興味のある方は是非「<a href="https://matsubara0507.github.io/posts/2019-01-06-use-drone-cache-with-gcs.html"><span class="ascii">GCS</span> で <span class="ascii">Drone 1.0</span> をキャッシュする <span class="ascii">-</span> ひげメモ</a>」<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>もし<span class="ascii">Docker Hub</span>の<span class="ascii">haskelljp</span>組織アカウントのメンバーになりたい場合は<span class="ascii">Haskell-jp Slack</span>で声をかけてください<span class="ascii">(</span>チャンネルはどこでも良いですよ<span class="ascii">)</span>。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>この話も記事にしておきました「<a href="https://matsubara0507.github.io/posts/2019-01-20-create-drone-git-with-ssh.html"><span class="ascii">Drone Plugin</span> を作ってみた<span class="ascii">: git-with-ssh -</span> ひげメモ</a>」<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>この修正は <code>haskell-jp/antenna</code> ではなく、<a href="https://github.com/matsubara0507/scrapbook"><code>matsubara0507/scrapbook</code></a> からやる必要があります。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

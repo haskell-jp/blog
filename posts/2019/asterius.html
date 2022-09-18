@@ -207,7 +207,7 @@ here</span></a></span>👍<span class="ascii">Asterius</span>のいいところ<
 これでは状況によってはかなり使いづらいでしょう。<br />
 今回私が試したように、コアとなる処理だけを<span class="ascii">Haskell</span>の関数として書いて、それを<span class="ascii">JavaScript</span>から呼び出すということができないのです。</p>
 <p>一方<span class="ascii">Asterius</span>では、例えば👇のように書くことで、<span class="ascii">WASM</span>がエクスポートする関数として、<code>func</code>を<span class="ascii">JavaScript</span>から呼べるようにすることができます！</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1">foreign export javascript <span class="st">&quot;func&quot;</span><span class="ot"> func ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode hs"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>foreign export javascript <span class="st">&quot;func&quot;</span><span class="ot"> func ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span></code></pre></div>
 <p>ただし、実際に今回試してみたところ、<span class="ascii">Asterius</span>ではまだバグがあったので、この用途では依然使いにくいという状況ではありますが…（詳細は後で触れます）。</p>
 <h1 id="asteriusのイマイチなところ"><span class="link-to-here-outer"><a href="#asteriusのイマイチなところ" title="asteriusのイマイチなところ"><span class="link-to-here">Link to<br />
 here</span></a></span>👎<span class="ascii">Asterius</span>のイマイチなところ</h1>
@@ -221,7 +221,7 @@ here</span></a></span>👎<span class="ascii">Asterius</span>のイマイチな�
 <p><span class="ascii">Template Haskell</span>に関しては、現在<a href="https://github.com/tweag/asterius/pull/81">こちらのブランチ</a>で開発中です。…と、思ったらこの<span class="ascii">Pull request</span>、<span class="ascii">Close</span>されてますね…。<br />
 これに関して詳しい事情はわかりません。いずれにしても、<span class="ascii">Template Haskell</span>を実装するには、コンパイル時にその場で<span class="ascii">Haskell</span>を評価するためのインタープリターが別途必要だったりして、結構ハードルが高いのです。</p>
 <p>加えて、<span class="ascii">RTS</span><small>（この場合、コンパイルした<span class="ascii">Haskell</span>を動かすのに必要な<span class="ascii">WASM</span>や<span class="ascii">JavaScript</span>ファイル）</small>が<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/BigInt"><code>BigInt</code></a>に依存している関係で、<span class="ascii">V8</span>や<span class="ascii">SpiderMonkey</span>でないと動かない点もまだまだ、という感じです。<br />
-ブラウザーで言うと、<span class="ascii">2019</span>年<span class="ascii">5</span>月<span class="ascii">3</span>日時点で<span class="ascii">Chrome</span>か、<span class="ascii">Firefox</span>の<span class="ascii">Beta</span>版以降でないと使用できません<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。</p>
+ブラウザーで言うと、<span class="ascii">2019</span>年<span class="ascii">5</span>月<span class="ascii">3</span>日時点で<span class="ascii">Chrome</span>か、<span class="ascii">Firefox</span>の<span class="ascii">Beta</span>版以降でないと使用できません<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>。</p>
 <h1 id="asteriusの仕組み"><span class="link-to-here-outer"><a href="#asteriusの仕組み" title="asteriusの仕組み"><span class="link-to-here">Link to<br />
 here</span></a></span>⚙️<span class="ascii">Asterius</span>の仕組み</h1>
 <p><span class="ascii">Asterius</span>のドキュメント「<a href="https://tweag.github.io/asterius/ir/"><span class="ascii">IR types and transformation passes</span></a>」をざっくり要約してみると、<span class="ascii">Asterius</span>は以下のような流れで動くそうです。<br />
@@ -258,7 +258,8 @@ here</span></a></span><span class="ascii">Asterius</span>で<span class="ascii">
 <h2 id="結果"><span class="link-to-here-outer"><a href="#結果" title="結果"><span class="link-to-here">Link to<br />
 here</span></a></span>結果</h2>
 <p>ここまで頑張った結果、目的の関数を<code>foreign export javascript</code>してコンパイルを通すことはできました🎉<br />
-しかし、実際にブラウザー上で動かしてみたところ、<a href="https://github.com/tweag/asterius/issues/105"><span class="ascii">Asterius</span>の<span class="ascii">FFI</span>のバグ</a>にハマってしまいました…😢 肝心の<code>foreign export javascript</code>した関数が、返すべき値を返してくれないのです！<br />
+しかし、実際にブラウザー上で動かしてみたところ、<a href="https://github.com/tweag/asterius/issues/105"><span class="ascii">Asterius</span>の<span class="ascii">FFI</span>のバグ</a>にハマってしまいました…😢
+肝心の<code>foreign export javascript</code>した関数が、返すべき値を返してくれないのです！<br />
 恐らく<code>foreign export javascript</code>を使わずに、<span class="ascii">Haskell</span>側から<span class="ascii">JavaScript</span>の関数を呼ぶようにしていれば、今回の問題は回避できたのではないかと思います。<br />
 しかし、それは今回のゴールではありませんし、あまり便利ではないのでひとまず移植は見送ることにしました。残念！</p>
 <h1 id="おわりに"><span class="link-to-here-outer"><a href="#おわりに" title="おわりに"><span class="link-to-here">Link to<br />
@@ -267,11 +268,11 @@ here</span></a></span>✅おわりに</h1>
 とは言え、バグが多かったり依存関係から<span class="ascii">IO</span>や<span class="ascii">Template Haskell</span>を抜き出さなければならなかったりで、まだまだ実用的とは言い難いでしょう。<br />
 しかし、今回報告したバグが直れば、ブラウザーによる処理のコアに当たる部分を<span class="ascii">Haskell</span>で書く、という応用が利きそうです。<br />
 例えば<span class="ascii">Pandoc</span>など<span class="ascii">Haskell</span>製アプリケーションをブラウザーから操作する、なんてアプリケーション作りが捗りそうですね！</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a href="https://caniuse.com/#feat=bigint"><span class="ascii">Can I use</span></a>曰く安定版でも<code>about:config</code>を書き換えればすでに使えるとのことなんですが、なぜか手元の<span class="ascii">Firefox</span> 安定版ではうまくいきませんでした。確かに<code>about:config</code>にそれらしき設定はあるものの、<code>true</code>にしても何も変わらず…😰。<br />
-ついでに細かいことを言うと、<span class="ascii">Firefox Nightly</span>は<code>about:config</code>を書き換えなくても使え、<span class="ascii">Beta</span>版では<code>about:config</code>を書き換えると使えました。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p><a href="https://caniuse.com/#feat=bigint"><span class="ascii">Can I use</span></a>曰く安定版でも<code>about:config</code>を書き換えればすでに使えるとのことなんですが、なぜか手元の<span class="ascii">Firefox</span> 安定版ではうまくいきませんでした。確かに<code>about:config</code>にそれらしき設定はあるものの、<code>true</code>にしても何も変わらず…😰。<br />
+ついでに細かいことを言うと、<span class="ascii">Firefox Nightly</span>は<code>about:config</code>を書き換えなくても使え、<span class="ascii">Beta</span>版では<code>about:config</code>を書き換えると使えました。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

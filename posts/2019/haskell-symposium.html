@@ -185,19 +185,19 @@ here</span></a></span><span class="ascii">Bidirectional Type Class Instances</sp
 </ul>
 <p><span class="ascii">GADT</span>と型クラスはそれぞれ便利だが混ぜると問題が起きる場合がある。</p>
 <p>次のような<code>Term</code>があるとき、その<code>Show</code>インスタンスを考える。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">data</span> <span class="dt">Term</span><span class="ot"> ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">Con</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">Term</span> a</a>
-<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">Tup</span><span class="ot"> ::</span> <span class="dt">Term</span> b <span class="ot">-&gt;</span> <span class="dt">Term</span> c <span class="ot">-&gt;</span> <span class="dt">Term</span> (b, c)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Term</span><span class="ot"> ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span> <span class="kw">where</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Con</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">Term</span> a</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Tup</span><span class="ot"> ::</span> <span class="dt">Term</span> b <span class="ot">-&gt;</span> <span class="dt">Term</span> c <span class="ot">-&gt;</span> <span class="dt">Term</span> (b, c)</span></code></pre></div>
 <p>次のように<code>Show</code>インスタンスを定義すると型エラーになる。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">instance</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Term</span> a) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb2-2" title="2">  <span class="fu">show</span> (<span class="dt">Con</span> a) <span class="ot">=</span> <span class="fu">show</span> a</a>
-<a class="sourceLine" id="cb2-3" title="3">  <span class="fu">show</span> (<span class="dt">Tup</span> x y) <span class="ot">=</span> <span class="fu">unwords</span> [<span class="st">&quot;(&quot;</span>, <span class="fu">show</span> x, <span class="st">&quot;,&quot;</span>, <span class="fu">show</span> y, <span class="st">&quot;)&quot;</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Term</span> a) <span class="kw">where</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show</span> (<span class="dt">Con</span> a) <span class="ot">=</span> <span class="fu">show</span> a</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show</span> (<span class="dt">Tup</span> x y) <span class="ot">=</span> <span class="fu">unwords</span> [<span class="st">&quot;(&quot;</span>, <span class="fu">show</span> x, <span class="st">&quot;,&quot;</span>, <span class="fu">show</span> y, <span class="st">&quot;)&quot;</span>]</span></code></pre></div>
 <pre><code>Could not deduce (Show b) arising from a use of `show'
 from the context (Show a) or from (a ~ (b, c))</code></pre>
 <p>これは<code>Show (b, c)</code>ならば<code>Show b</code>という関係がないために起こる。</p>
 <p>一方タプルについての<code>Show</code>は、<code>Show a</code>かつ<code>Show b</code>ならば<code>Show (a, b)</code>という関係である。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Show</span> b) <span class="ot">=&gt;</span> <span class="dt">Show</span> (a, b) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb4-2" title="2">  …</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Show</span> b) <span class="ot">=&gt;</span> <span class="dt">Show</span> (a, b) <span class="kw">where</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  …</span></code></pre></div>
 <p>この「ならば」を両方向にすれば問題は解決できるのではないかというのが、この論文の主張である。</p>
 <h1 id="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here-outer"><a href="#generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances" title="generic-and-flexible-defaults-for-verified-law-abiding-type-class-instances"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Generic and Flexible Defaults for Verified, Law-Abiding Type-Class Instances</span></h1>
@@ -234,15 +234,15 @@ here</span></a></span><span class="ascii">Solving Haskell equality constraints u
 <p><span class="ascii">data kinds</span>や<span class="ascii">type families</span>といった<span class="ascii">GHC</span>拡張によって厳格なデータ型を定義できるが、それに対する操作を定義すると<span class="ascii">GHC</span>には解けない型レベルの等式が生成されることがある。</p>
 <p>制約カインドの型に対する型クラスとして<code>Proven</code>を提供し、この制約がある箇所を<span class="ascii">GHC</span>型検査プラグインが検出して対応する<span class="ascii">Coq</span>コードのテンプレートを生成する。</p>
 <p>その<span class="ascii">Coq</span>コードに証明がなければ警告を表示する。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">type</span> <span class="dt">ProofName</span> <span class="ot">=</span> <span class="dt">Symbol</span></a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">class</span> c <span class="ot">=&gt;</span> <span class="dt">Proven</span> (<span class="ot">prf ::</span> <span class="dt">ProofName</span>) (<span class="ot">c ::</span> <span class="dt">Constraint</span>)</a>
-<a class="sourceLine" id="cb5-4" title="4">  <span class="kw">where</span> {}</a>
-<a class="sourceLine" id="cb5-5" title="5"></a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="ot">applyProof ::</span> <span class="kw">forall</span> prf c a<span class="op">.</span> <span class="dt">Proven</span> prf c <span class="ot">=&gt;</span> (c <span class="ot">=&gt;</span> a) <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb5-7" title="7">applyProof x <span class="ot">=</span> x</a>
-<a class="sourceLine" id="cb5-8" title="8"></a>
-<a class="sourceLine" id="cb5-9" title="9">lemma3 <span class="ot">=</span> applyProof <span class="op">@</span><span class="st">&quot;nonzero_pop&quot;</span> <span class="op">@</span>(<span class="dt">NNonZero</span> (<span class="dt">Popcount</span> b) <span class="op">~</span> <span class="dt">True</span>) <span class="dt">Refl</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">ProofName</span> <span class="ot">=</span> <span class="dt">Symbol</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> c <span class="ot">=&gt;</span> <span class="dt">Proven</span> (<span class="ot">prf ::</span> <span class="dt">ProofName</span>) (<span class="ot">c ::</span> <span class="dt">Constraint</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> {}</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ot">applyProof ::</span> <span class="kw">forall</span> prf c a<span class="op">.</span> <span class="dt">Proven</span> prf c <span class="ot">=&gt;</span> (c <span class="ot">=&gt;</span> a) <span class="ot">-&gt;</span> a</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>applyProof x <span class="ot">=</span> x</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>lemma3 <span class="ot">=</span> applyProof <span class="op">@</span><span class="st">&quot;nonzero_pop&quot;</span> <span class="op">@</span>(<span class="dt">NNonZero</span> (<span class="dt">Popcount</span> b) <span class="op">~</span> <span class="dt">True</span>) <span class="dt">Refl</span></span></code></pre></div>
 <p>いくつか制約があるが<span class="ascii">Haskell</span>の型を<span class="ascii">Coq</span>に自動的に変換している。</p>
 <h1 id="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here-outer"><a href="#formal-verification-of-spacecraft-control-programs-an-experience-report" title="formal-verification-of-spacecraft-control-programs-an-experience-report"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Formal Verification of Spacecraft Control Programs: An Experience Report</span></h1>
@@ -270,8 +270,8 @@ here</span></a></span><span class="ascii">Making a Faster Curry with Extensional
 </ul>
 <p>パフォーマンスのためにη変換してほしいところを明示したいことがある。</p>
 <p>例えば、次のような意味論上は等価な関数<code>f1</code>と<code>f2</code>があるとする。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1">f1 <span class="ot">=</span> \x <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> \y <span class="ot">-&gt;</span> e y z</a>
-<a class="sourceLine" id="cb6-2" title="2">f2 <span class="ot">=</span> \x <span class="ot">-&gt;</span> \y <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> e y z</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>f1 <span class="ot">=</span> \x <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> \y <span class="ot">-&gt;</span> e y z</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>f2 <span class="ot">=</span> \x <span class="ot">-&gt;</span> \y <span class="ot">-&gt;</span> <span class="kw">let</span> z <span class="ot">=</span> h x x <span class="kw">in</span> e y z</span></code></pre></div>
 <p>実際は<code>f1</code>は引数<code>x</code>を取った後クロージャー生成のためにヒープ確保するのに対して、<code>f2</code>はアリティが<span class="ascii">2</span>の関数と解釈されて中間のクロージャーが必要なくなる。</p>
 <p><code>~&gt;</code>というアリティの情報を持った関数型を新たに導入して<code>-&gt;</code>の代わりに使えるようにする。</p>
 <p><code>TYPE (a :: RuntimeRep (FunRep 2))</code>というような新たなポリモーフィズムを導入する。ここでの<code>2</code>がアリティ。</p>
@@ -284,14 +284,14 @@ here</span></a></span><span class="ascii">Multi-Stage Programs in Context</span>
 <li>論文：<a href="https://dl.acm.org/citation.cfm?id=3342597" class="uri"><span class="ascii">https://dl.acm.org/citation.cfm?id=3342597</span></a></li>
 </ul>
 <p>次のような準引用があったときに、組み合わせると元々あったはずの情報が欠落する場合がある。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">qshow ::</span> <span class="dt">Code</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
-<a class="sourceLine" id="cb7-2" title="2">qshow <span class="ot">=</span> [q| show |]</a>
-<a class="sourceLine" id="cb7-3" title="3"></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="ot">qread ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>)</a>
-<a class="sourceLine" id="cb7-5" title="5">qread <span class="ot">=</span> [q| read |]</a>
-<a class="sourceLine" id="cb7-6" title="6"></a>
-<a class="sourceLine" id="cb7-7" title="7"><span class="ot">trim ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</a>
-<a class="sourceLine" id="cb7-8" title="8">trim <span class="ot">=</span> [q| $(qshow) . $(qread) |]</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">qshow ::</span> <span class="dt">Code</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>qshow <span class="ot">=</span> [q| show |]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ot">qread ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>qread <span class="ot">=</span> [q| read |]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="ot">trim ::</span> <span class="dt">Code</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>trim <span class="ot">=</span> [q| $(qshow) . $(qread) |]</span></code></pre></div>
 <p><code>qshow</code>と<code>qread</code>にあった<code>Int</code>という情報が、組み合わせて<code>trim</code>とすると欠落してコンパイルエラーになってしまう。</p>
 <p><span class="ascii">splice</span>するときに<span class="ascii">Haskell</span>ソースコードの構文木ではなく<span class="ascii">Core</span>に対するものを出力すればそれは型が明示されているし問題がない。</p>
 <p>しかも、<span class="ascii">splice</span>後の型検査を省略できるのでコンパイルの高速化にも寄与する。</p>
@@ -348,26 +348,26 @@ here</span></a></span><span class="ascii">Scoping Monadic Relational Database Qu
 <p>このとき<span class="ascii">SQL</span>の結合を表現すると、<span class="ascii">SQL</span>としてはスコープ外にもかかわらず<span class="ascii">EDSL</span>としてはスコープ内となって使える変数ができてしまう。</p>
 <p>これを<span class="ascii">EDSL</span>としてもエラーとしたい。</p>
 <p>例えば、次のような例で実行時エラーとなってしまう。ここで<code>a0</code>は<code>tableA</code>の列とする。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">SELECT</span> a0, b0</a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="kw">FROM</span></a>
-<a class="sourceLine" id="cb8-3" title="3">  tableA</a>
-<a class="sourceLine" id="cb8-4" title="4">    <span class="kw">LEFT</span> <span class="kw">JOIN</span></a>
-<a class="sourceLine" id="cb8-5" title="5">      (<span class="kw">SELECT</span> b0 <span class="kw">FROM</span> tableB <span class="kw">WHERE</span> a0 <span class="op">==</span> b1)</a>
-<a class="sourceLine" id="cb8-6" title="6">  <span class="kw">ON</span> tableA.a2 <span class="op">==</span> tableb.b2</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> a0, b0</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  tableA</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">LEFT</span> <span class="kw">JOIN</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      (<span class="kw">SELECT</span> b0 <span class="kw">FROM</span> tableB <span class="kw">WHERE</span> a0 <span class="op">==</span> b1)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">ON</span> tableA.a2 <span class="op">==</span> tableb.b2</span></code></pre></div>
 <p><code>SELECT b0 FROM tableB WHERE a0 == b1</code>の部分でスコープ外の<code>a0</code>を参照しているためエラーとなる。</p>
 <p>単純なモナド<span class="ascii">EDSL</span>だと次のようになりコンパイルが通る。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">do</span></a>
-<a class="sourceLine" id="cb9-2" title="2">  a0 <span class="op">:*:</span> a1 <span class="op">:*:</span> a2 <span class="ot">&lt;-</span> from table0</a>
-<a class="sourceLine" id="cb9-3" title="3">  leftJoin <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb9-4" title="4">    b0 <span class="op">:*:</span> b1 <span class="op">:*:</span> b2 <span class="ot">&lt;-</span> from table1</a>
-<a class="sourceLine" id="cb9-5" title="5">    ristrict <span class="op">$</span> a0 <span class="op">.==</span> b1</a>
-<a class="sourceLine" id="cb9-6" title="6">  on <span class="op">$</span> a2 <span class="op">.==</span> b2</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">do</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  a0 <span class="op">:*:</span> a1 <span class="op">:*:</span> a2 <span class="ot">&lt;-</span> from table0</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  leftJoin <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">:*:</span> b1 <span class="op">:*:</span> b2 <span class="ot">&lt;-</span> from table1</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    ristrict <span class="op">$</span> a0 <span class="op">.==</span> b1</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  on <span class="op">$</span> a2 <span class="op">.==</span> b2</span></code></pre></div>
 <p><code>ristrict $ a0 .== b1</code>の部分において<code>a0</code>は<span class="ascii">Haskell</span>としてはスコープ内にある。</p>
 <p>この問題を次のような型レベル関数を駆使することで<span class="ascii">EDSL</span>においてもコンパイル時エラーとすることができた。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Cols</span> a</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Outer</span> a</a>
-<a class="sourceLine" id="cb10-3" title="3"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">UnAggr</span> a</a>
-<a class="sourceLine" id="cb10-4" title="4"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">FromRow</span> a</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Cols</span> a</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Outer</span> a</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">family</span> <span class="dt">UnAggr</span> a</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">family</span> <span class="dt">FromRow</span> a</span></code></pre></div>
             </div>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">

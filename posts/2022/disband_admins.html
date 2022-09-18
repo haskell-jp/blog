@@ -6,27 +6,27 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="GHCのTyped Holes機能で、式中の部分の型を推論させる">
+    <meta name="description" content="一般社団法人としてのHaskell-jp Admins解散のお知らせ">
     
-      <meta name="author" content="takenbu.hs">
+      <meta name="author" content="Haskell-jp Admins">
     
     <link rel="alternate" type="application/atom+xml" title="Haskell-jp Blog" href="https://haskell.jp/blog/feed.xml" />
     <link rel="icon" href="https://haskell.jp/img/favicon.png" />
 
     <!-- OGP Settings -->
-    <meta property="og:title" content="GHCのTyped Holes機能で、式中の部分の型を推論させる - Haskell-jp" />
+    <meta property="og:title" content="一般社団法人としてのHaskell-jp Admins解散のお知らせ - Haskell-jp" />
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="/posts/2017/07-TypedHoles.html" />
+    <meta property="og:url" content="/posts/2022/disband_admins.html" />
     <meta property="og:image" content="https://haskell.jp/blog/img/logo-square.png" />
     <meta property="og:site_name" content="Haskell-jp Blog" />
-    <meta property="og:description" content="---最近はあまり話題になってないかもしれませんが、 `Typed holes` 機能についての紹介です。ghc7.8くらいの頃に導入された機能で、ソースコードの式の中に `_` か `_` で始まる識別名を書くと、その部分の型を推論してくれます。### 使い方例えば、```Haskellmain = print $ 1.0 + _```のようなコードを書いて、 `runghc`や`ghci`や`" />
+    <meta property="og:description" content="---誠に残念ながら、一般社団法人としての日本Haskellユーザーグループ管理委員会（通称Haskell-jp Admins）は、去る2022年4月16日を以て解散しました。先日、解散後に必要な処理のほぼすべてが完了しましたので、遅くなってしまいましたが、改めてこちらで報告致します。# 背景解散の背景を一言で申しますと、「お金がかかりすぎる上に、士気も下がってしまったから」です。設立前に調査した" />
 
     <!-- Twitter Card Settings -->
     <meta name="twitter:card" content="summary" />
 
     
 
-    <title>GHCのTyped Holes機能で、式中の部分の型を推論させる - Haskell-jp</title>
+    <title>一般社団法人としてのHaskell-jp Admins解散のお知らせ - Haskell-jp</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../../css/bootstrap.css" rel="stylesheet">
@@ -96,7 +96,7 @@
     </nav>
     
     <!-- Page Header -->
-    <header class="intro-header" style="background-image: url('../../img/background.png'); background-color: #F3DFBC;">
+    <header class="intro-header" style="background-image: url('../img/background.png'); background-color: #F3DFBC;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -104,8 +104,8 @@
                     <div lang="ja" class="post-heading">
                     
                         <div class="jumbotron page-header-jumbotron">
-                            <h1>GHCのTyped Holes機能で、式中の部分の型を推論させる</h1>
-                            <h2 class="subheading"></h2><span class="meta">Posted by takenbu.hs on August 8, 2017</span>
+                            <h1>一般社団法人としてのHaskell-jp Admins解散のお知らせ</h1>
+                            <h2 class="subheading"></h2><span class="meta">Posted by Haskell-jp Admins on September 18, 2022</span><span class="meta">Tags: Haskell-jp Admins</span>
                             <div class="text-right" style="margin-top: 2em;">
                                 <a class="btn btn-primary" href="https://github.com/haskell-jp/blog#%E8%A8%98%E4%BA%8B%E3%82%92%E6%8A%95%E7%A8%BF%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88" role="button">
                                     投稿したい方はこちら
@@ -147,57 +147,47 @@
         <div class="row">
             <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<p>最近はあまり話題になってないかもしれませんが、 <code>Typed holes</code> 機能についての紹介です。</p>
-<p><span class="ascii">ghc7.8</span>くらいの頃に導入された機能で、ソースコードの式の中に <code>_</code> か <code>_</code> で始まる識別名を書くと、その部分の型を推論してくれます。</p>
+<p>誠に残念ながら、一般社団法人としての日本<span class="ascii">Haskell</span>ユーザーグループ管理委員会（通称<span class="ascii">Haskell-jp Admins</span>）は、去る<span class="ascii">2022</span>年<span class="ascii">4</span>月<span class="ascii">16</span>日を以て解散しました。先日、解散後に必要な処理のほぼすべてが完了しましたので、遅くなってしまいましたが、改めてこちらで報告致します。</p>
 <div id="table-of-contents-outer">
 <div id="table-of-contents">
 <div class="table-of-contents-title">
 Contents
 </div>
 <ul>
-<li><a href="#使い方" title="使い方">使い方</a></li>
-<li><a href="#エラーメッセージの表示例" title="エラーメッセージの表示例">エラーメッセージの表示例</a></li>
-<li><a href="#補足1" title="補足1">補足<span class="ascii">1</span></a></li>
-<li><a href="#補足2" title="補足2">補足<span class="ascii">2</span></a></li>
+<li><a href="#背景" title="背景">背景</a></li>
+<li><a href="#今後の活動" title="今後の活動">今後の活動</a></li>
+<li><a href="#今後の連絡先" title="今後の連絡先">今後の連絡先</a></li>
 </ul>
 </div>
 </div>
-<h3 id="使い方"><span class="link-to-here-outer"><a href="#使い方" title="使い方"><span class="link-to-here">Link to<br />
-here</span></a></span>使い方</h3>
-<p>例えば、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="fu">print</span> <span class="op">$</span> <span class="fl">1.0</span> <span class="op">+</span> _</span></code></pre></div>
-<p>のようなコードを書いて、 <code>runghc</code>や<code>ghci</code>や<code>ghc</code>で実行すると、 <code>_</code> 部の型をエラーメッセージで教えてくれます。</p>
-<h3 id="エラーメッセージの表示例"><span class="link-to-here-outer"><a href="#エラーメッセージの表示例" title="エラーメッセージの表示例"><span class="link-to-here">Link to<br />
-here</span></a></span>エラーメッセージの表示例</h3>
-<p>例えば、以下のようにエラーメッセージが表示されます。 以下の例では、<code>_</code>部が、<code>Double</code>型であることを示しています。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">$</span> runghc test1<span class="op">.</span>hs </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>test1<span class="op">.</span>hs<span class="op">:</span><span class="dv">3</span><span class="op">:</span><span class="dv">22</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    • <span class="dt">Found</span> hole<span class="op">:</span><span class="ot"> _ ::</span> <span class="dt">Double</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    • <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="op">+</span>)’, namely ‘_’</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">In</span> the second argument <span class="kw">of</span> ‘(<span class="op">$</span>)’, namely ‘<span class="fl">1.0</span> <span class="op">+</span> _’</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">In</span> the expression<span class="op">:</span> <span class="fu">print</span> <span class="op">$</span> <span class="fl">1.0</span> <span class="op">+</span> _</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    • <span class="dt">Relevant</span> bindings include<span class="ot"> main ::</span> <span class="dt">IO</span> () (bound at test1<span class="op">.</span>hs<span class="op">:</span><span class="dv">3</span><span class="op">:</span><span class="dv">1</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="op">|</span> main <span class="ot">=</span> <span class="fu">print</span> <span class="op">$</span> <span class="fl">1.0</span> <span class="op">+</span> _</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span>                      <span class="op">^</span></span></code></pre></div>
-<h3 id="補足1"><span class="link-to-here-outer"><a href="#補足1" title="補足1"><span class="link-to-here">Link to<br />
-here</span></a></span>補足<span class="ascii">1</span></h3>
-<p><code>_</code> の替りに、 <code>_hoge</code> のように名前付けしても構いません。</p>
-<p><span class="ascii">ghci</span> で、 <code>:t</code> で型を調べるのと同じように気軽に使えます。　（最近は<span class="ascii">IDE</span>がサポートしていて、明示的には使わなかったりするかもしれません。）</p>
-<h3 id="補足2"><span class="link-to-here-outer"><a href="#補足2" title="補足2"><span class="link-to-here">Link to<br />
-here</span></a></span>補足<span class="ascii">2</span></h3>
-<p>詳細情報は以下にあります。</p>
+<h1 id="背景"><span class="link-to-here-outer"><a href="#背景" title="背景"><span class="link-to-here">Link to<br />
+here</span></a></span>背景</h1>
+<p>解散の背景を一言で申しますと、「お金がかかりすぎる上に、士気も下がってしまったから」です。設立前に調査した際、法人住民税のルールを誤解してしまったことで想定より費用がかさんだことや、当初活動の一環として掲げていた大規模なオフラインイベントが、現状のコロナ禍において難しく、その上、代表を含む社員自身の開催するモチベーションが下がってしまっていることを鑑みて、先般行われた第<span class="ascii">1</span>期の社員総会で解散する事を合意しました。</p>
+<h1 id="今後の活動"><span class="link-to-here-outer"><a href="#今後の活動" title="今後の活動"><span class="link-to-here">Link to<br />
+here</span></a></span>今後の活動</h1>
+<p>「一般社団法人」という法人格を失ってしまったので、法律上必要な場面において「日本<span class="ascii">Haskell</span>ユーザーグループ管理委員会」という名前を使用することはできなくなってしまいました。それでもできる範囲内で、任意団体として今までどおりの活動を継続したいと思います。</p>
+<p>具体的には、</p>
 <ul>
-<li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes" class="uri"><span class="ascii">https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#typed-holes</span></a></li>
+<li>プログラミング言語<span class="ascii">Haskell</span>に関するイベントの企画・開催・運営
+<ul>
+<li>任意団体として適宜実施します</li>
+</ul></li>
+<li><span class="ascii">haskell.jp</span> ドメインの維持・管理
+<ul>
+<li>ひとまず、代表であった山本悠滋が個人として引き継ぐことにします</li>
+</ul></li>
+<li><a href="https://haskell.jp/signin-slack.html"><span class="ascii">Haskell-jp</span>の<span class="ascii">Slack Workspace</span></a>を始めとする、交流や情報共有を行う場の提供・管理・運営
+<ul>
+<li>こちらは引き続き行います</li>
+</ul></li>
 </ul>
+<h1 id="今後の連絡先"><span class="link-to-here-outer"><a href="#今後の連絡先" title="今後の連絡先"><span class="link-to-here">Link to<br />
+here</span></a></span>今後の連絡先</h1>
+<p>こちらは<a href="../about_admins.html">設立時の記事</a>から特に変更はありません。<a href="../about_admins.html#今後の活動と連絡先">該当するセクション</a>をご覧ください。</p>
             </div>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="../../posts/2017/08-ghc-4way-execution.html" lang="ja">GHCの４つの実行方法</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -205,7 +195,7 @@ here</span></a></span>補足<span class="ascii">2</span></h3>
             </div>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
-                <a href="../../posts/2017/06-ghc-install.html" style="margin-left: auto;" lang="ja">素のGHCをローカルディレクトリにインストールする方法</a>
+                <a href="../../posts/2021/text-mono-traversable.html" style="margin-left: auto;" lang="ja">文字列型を抽象化するのにはmono-traversableパッケージがいいかも</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>
@@ -232,7 +222,7 @@ here</span></a></span>補足<span class="ascii">2</span></h3>
                             </a>
                         </li>
                     </ul>
-                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; takenbu.hs 2017</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
+                    <div class="text-muted notice text-center"> <br /><span class="author">&copy; Haskell-jp Admins 2022</span> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></div>
                     <div class="text-muted notice text-center">この作品は<a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.ja">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>の下に提供されています。</div>
                 </div>
             </div>

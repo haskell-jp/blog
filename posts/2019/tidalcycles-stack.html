@@ -244,19 +244,19 @@ here</span></a></span><span class="ascii">TidalCycles</span>公式の<span class
 <h3 id="stackでのtidalcyclesのビルド"><span class="link-to-here-outer"><a href="#stackでのtidalcyclesのビルド" title="stackでのtidalcyclesのビルド"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">stack</span>での<span class="ascii">TidalCycles</span>のビルド</h3>
 <p><span class="ascii">stack</span>で<span class="ascii">TidalCycles</span>のビルドをするには、<code>C:\sr\global-project\stack.yaml</code>というファイルを、下記でコメントしたように書き換えてください。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># ... 省略 ...</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="fu">packages:</span><span class="at"> </span><span class="kw">[]</span></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="fu">resolver:</span><span class="at"> lts-12.26 </span><span class="co"># &lt;= ここを編集</span></a>
-<a class="sourceLine" id="cb1-4" title="4"></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="fu">extra-deps:</span><span class="at">         </span><span class="co"># &lt;= この行と、</span></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="kw">-</span> hosc-0.17         <span class="co"># &lt;= この行を追記</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ... 省略 ...</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packages</span><span class="kw">:</span><span class="at"> </span><span class="kw">[]</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">resolver</span><span class="kw">:</span><span class="at"> lts-12.26</span><span class="co"> # &lt;= ここを編集</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">extra-deps</span><span class="kw">:</span><span class="co">         # &lt;= この行と、</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> hosc-0.17</span><span class="co">         # &lt;= この行を追記</span></span></code></pre></div>
 <p>簡単に編集した内容について解説させてください。</p>
 <p>まず、<code>resolver:</code>で始まる行ですが、これは「<span class="ascii">LTS Haskell</span>」という、パッケージの一覧のバージョンを指定するものです。<br />
 「<span class="ascii">LTS Haskell</span>」は、「確実にビルドできるバージョンのパッケージをまとめた一覧」です。<br />
 <span class="ascii">LTS Haskell</span>のメンテナーの方々は、毎日登録された大量のパッケージをまとめてビルド・テストしてみることで、実際に登録されたバージョンのパッケージのビルドとテストが成功することを確認しています。<br />
 なので、この<span class="ascii">LTS Haskell</span>に登録されているバージョンのパッケージを使う限りは、私たちは安心してビルドができると言うことです。</p>
 <p>なぜ<span class="ascii">LTS Haskell</span>のバージョンを書き換えたのかというと、それは、<span class="ascii">LTS Haskell</span>には実際にはパッケージの一覧だけでなく、それらをビルドできる<span class="ascii">GHC</span>のバージョンも含まれているからです。<br />
-したがって、<span class="ascii">LTS Haskell</span>のバージョンを指定する、ということは、そのままインストールする<span class="ascii">GHC</span>のバージョンも指定することになります<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>。<br />
+したがって、<span class="ascii">LTS Haskell</span>のバージョンを指定する、ということは、そのままインストールする<span class="ascii">GHC</span>のバージョンも指定することになります<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>。<br />
 実は特に今回の場合、インストールする<span class="ascii">GHC</span>のバージョンを指定しなければ、ビルドできない可能性が高かったのです。<br />
 現在の最新の<span class="ascii">LTS Haskell</span>に登録されている<span class="ascii">GHC</span>のバージョンは「<span class="ascii">8.6.3</span>」ですが、残念ながらこのバージョンの<span class="ascii">GHC</span>には、<a href="https://ghc.haskell.org/trac/ghc/ticket/16057"><span class="ascii">Windows</span>版のみにおいて深刻なバグ</a>があります。<br />
 実際に<span class="ascii">TidalCycles</span>をビルドする際にこのバグに遭遇するかは確かめてませんが、内容からして遭遇する確率が高そうであるという点と、遭遇するとビルドができないという点を考慮して、念のため確実にビルドできるバージョンの<span class="ascii">GHC</span>を指定しておきました。</p>
@@ -264,7 +264,7 @@ here</span></a></span><span class="ascii">stack</span>での<span class="ascii">
 <a href="http://hackage.haskell.org/package/tidal-1.0.6"><span class="ascii">tidal</span>パッケージ <span class="ascii">ver. 1.0.6</span>のパッケージ情報</a>を確認すると、確かに<span class="ascii">hosc</span>というパッケージに依存していると書かれていますね！<br />
 残念ながらこの<span class="ascii">hosc</span>パッケージは今回指定した、<span class="ascii">LTS Haskell</span>の<span class="ascii">ver. 12.26</span>には登録されていないので、上記のとおり<code>extra-deps</code>に明記しておいてください。</p>
 <p><code>C:\sr\global-project\stack.yaml</code>の編集が終わったら、</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">stack</span> build tidal</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">stack</span> build tidal</span></code></pre></div>
 <p>と実行しましょう。<br />
 初回は<span class="ascii">GHC</span>のインストールも含めて行われるので、結構時間がかかると思います。</p>
 <p>ちなみに、<code>stack install tidal</code>と実行してもいいですが、<span class="ascii">stack</span>の仕様上、特に結果は変わりません。<br />
@@ -351,20 +351,20 @@ here</span></a></span>おわりに<span class="ascii">: Haskell</span>開発者�
 <p>なぜ<span class="ascii">TidalCycles</span>はこんな仕様になっているかというと、それにはある意味<span class="ascii">Haskell</span>らしい制約が絡んでいると推測されます。<br />
 <span class="ascii">Atom</span>上で<span class="ascii">TidalCycles</span>を起動する、というのは、実際には<span class="ascii">GHCi</span>を起動して、<a href="https://github.com/tidalcycles/Tidal/blob/master/BootTidal.hs"><span class="ascii">BootTidal.hs</span></a>というファイルを読み込ませる、ということなのでした<small>（事実、<span class="ascii">Atom</span>などのエディターを介さなくとも、お使いのターミナルエミュレーターから<code>ghci</code>コマンドを起動して<span class="ascii">BootTidal.hs</span>ファイルの中身をコピペするだけで、<span class="ascii">TidalCycles</span>は利用できます）</small>。<br />
 その<span class="ascii">BootTidal.hs</span>の中身を見てみると、サンプルで実行した<code>d1</code>という関数が、下記のように定義されていることがわかります。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="co">-- ... 省略 ...</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw">import</span> <span class="dt">Sound.Tidal.Context</span></a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="co">-- total latency = oLatency + cFrameTimespan</span></a>
-<a class="sourceLine" id="cb3-5" title="5">tidal <span class="ot">&lt;-</span> startTidal (superdirtTarget {oLatency <span class="ot">=</span> <span class="fl">0.1</span>, oAddress <span class="ot">=</span> <span class="st">&quot;127.0.0.1&quot;</span>, oPort <span class="ot">=</span> <span class="dv">57120</span>}) (defaultConfig {cFrameTimespan <span class="ot">=</span> <span class="dv">1</span><span class="op">/</span><span class="dv">20</span>})</a>
-<a class="sourceLine" id="cb3-6" title="6"></a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="kw">let</span> p <span class="ot">=</span> streamReplace tidal</a>
-<a class="sourceLine" id="cb3-8" title="8"></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="co">-- ... 省略 ...</span></a>
-<a class="sourceLine" id="cb3-10" title="10"></a>
-<a class="sourceLine" id="cb3-11" title="11"><span class="kw">let</span> d1 <span class="ot">=</span> p <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="kw">let</span> d2 <span class="ot">=</span> p <span class="dv">2</span></a>
-<a class="sourceLine" id="cb3-13" title="13"><span class="kw">let</span> d3 <span class="ot">=</span> p <span class="dv">3</span></a>
-<a class="sourceLine" id="cb3-14" title="14"><span class="co">-- ...</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- ... 省略 ...</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Sound.Tidal.Context</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- total latency = oLatency + cFrameTimespan</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>tidal <span class="ot">&lt;-</span> startTidal (superdirtTarget {oLatency <span class="ot">=</span> <span class="fl">0.1</span>, oAddress <span class="ot">=</span> <span class="st">&quot;127.0.0.1&quot;</span>, oPort <span class="ot">=</span> <span class="dv">57120</span>}) (defaultConfig {cFrameTimespan <span class="ot">=</span> <span class="dv">1</span><span class="op">/</span><span class="dv">20</span>})</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> p <span class="ot">=</span> streamReplace tidal</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- ... 省略 ...</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> d1 <span class="ot">=</span> p <span class="dv">1</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> d2 <span class="ot">=</span> p <span class="dv">2</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> d3 <span class="ot">=</span> p <span class="dv">3</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">-- ...</span></span></code></pre></div>
 <p><code>tidal &lt;- startTidal</code>で始まる行で、<span class="ascii">TidalCycles</span>の初期化を行っていると思われます。<br />
 初期化の際には、サーバーとして起動している<span class="ascii">SuperDirt</span>への接続設定<small>（この場合<code>127.0.0.1</code>の<code>57120</code>番ポートへ接続している）</small>を渡しているようです。<br />
 恐らくこの<code>startTidal</code>関数が、<span class="ascii">SuperDirt</span>へ接続し、代入した<code>tidal</code>という変数に、<span class="ascii">SuperDirt</span>への接続を含んでいるんでしょう。<br />
@@ -372,7 +372,7 @@ here</span></a></span>おわりに<span class="ascii">: Haskell</span>開発者�
 さらに、<code>let d1 = p 1</code>などの行で、前の行で定義した<code>p</code>に整数<small>（シンセサイザーの番号だそうです）</small>を部分適用することで、結果、<code>d1</code>、<code>d2</code>などの関数へ、間接的に<code>tidal</code>を渡すことになります。</p>
 <p>つまり<code>d1</code>や<code>d2</code>などの関数は、何らかの形で、<span class="ascii">SuperDirt</span>への接続情報を持っているのです。<br />
 <span class="ascii">DSL</span>として、<code>d1</code>や<code>d2</code>などの関数に毎回接続情報を渡すのは煩雑だと考えたためでしょう。<br />
-残念ながら、通常の<span class="ascii">Haskell</span>がそうであるように、外部のサーバーに接続した結果取得されるものを、関数が暗黙に参照できるようにしたい場合、 — つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 — 少なくともパッケージを<code>import</code>するだけではうまくいきません<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>。<br />
+残念ながら、通常の<span class="ascii">Haskell</span>がそうであるように、外部のサーバーに接続した結果取得されるものを、関数が暗黙に参照できるようにしたい場合、 — つまり、今回のようにユーザーが接続情報を明示的に渡すことなく使えるようにしたい場合 — 少なくともパッケージを<code>import</code>するだけではうまくいきません<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>。<br />
 <span class="ascii">BootTidal.hs</span>のように、<span class="ascii">SuperDirt</span>のような外部に接続する処理を、<span class="ascii">GHCi</span>の実行時に書かなければならないのです。</p>
 <p>しかし、<code>tidal &lt;- startTidal</code>の行で作られる<span class="ascii">SuperDirt</span>への接続情報を<code>d1</code>などの関数が暗黙に利用できるようにすることは、実際には<span class="ascii">BootTidal.hs</span>で行っているような方法を使わなくともできます。<br />
 そうすることで、<span class="ascii">BootTidal.hs</span>を変なファイルに切り替えてしまって、<code>d1</code>などの関数の定義が間違ったものになってしまう<small>（あるいはそもそも定義されなくなってしまう）</small>リスクを回避できます。<br />
@@ -405,11 +405,11 @@ here</span></a></span>おわりに<span class="ascii">: Haskell</span>開発者�
 それから、何か困ったことがあれば<a href="https://haskell-jp.slack.com/messages/C5666B6BB/convo/C4M4TT8JJ-1547294914.091800/"><span class="ascii">Haskell-jp</span>の<span class="ascii">Slack Workspace</span>にある、<span class="ascii">#questions</span>チャンネル</a>で質問してみてください。<br />
 <a href="https://haskell.jp/signin-slack.html">登録はこちら</a>からどうぞ！</p>
 <p>それでは<span class="ascii">2019</span>年も<span class="ascii">Haskell</span>と<span class="ascii">TidalCycles</span>で<span class="ascii">Happy Hacking!!</span> 🎶🎶🎶</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>どのバージョンの<span class="ascii">LTS Haskell</span>でどのバージョンの<span class="ascii">GHC</span>がインストールされるかは、<span class="ascii">LTS Haskell</span>を管理している<a href="https://www.stackage.org/">「<span class="ascii">Stackage</span>」というウェブサイトのトップページ</a>にある、「<span class="ascii">Latest LTS per GHC version</span>」というセクションをご覧ください。<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>後で軽く触れる、<span class="ascii">Template Haskell</span>という邪悪なテクニックを使わない限りは。<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>どのバージョンの<span class="ascii">LTS Haskell</span>でどのバージョンの<span class="ascii">GHC</span>がインストールされるかは、<span class="ascii">LTS Haskell</span>を管理している<a href="https://www.stackage.org/">「<span class="ascii">Stackage</span>」というウェブサイトのトップページ</a>にある、「<span class="ascii">Latest LTS per GHC version</span>」というセクションをご覧ください。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>後で軽く触れる、<span class="ascii">Template Haskell</span>という邪悪なテクニックを使わない限りは。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

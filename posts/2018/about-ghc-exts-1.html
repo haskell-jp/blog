@@ -147,7 +147,7 @@
         <div class="row">
             <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <hr />
-<p><span class="ascii">Haskell</span><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>では各処理系で言語拡張を提供し，<code>LANGUAGE</code>プラグマというものを利用することで，言語拡張を利用することが許容されています．<span class="ascii">Haskell</span>のデファクト標準的な処理系<span class="ascii">GHC</span>も多くの言語拡張を提供しており，その拡張は<strong><span class="ascii">GHC</span>拡張</strong>と呼ばれています．</p>
+<p><span class="ascii">Haskell</span><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>では各処理系で言語拡張を提供し，<code>LANGUAGE</code>プラグマというものを利用することで，言語拡張を利用することが許容されています．<span class="ascii">Haskell</span>のデファクト標準的な処理系<span class="ascii">GHC</span>も多くの言語拡張を提供しており，その拡張は<strong><span class="ascii">GHC</span>拡張</strong>と呼ばれています．</p>
 <p>今回は，この<span class="ascii">GHC</span>拡張の簡単な紹介と，個人的に良く使う拡張についての簡単な紹介を，全<span class="ascii">3</span>回に分けて行いたいと思います．対象としては，<span class="ascii">GHC</span>で<span class="ascii">Haskell</span>プログラミングをしたことがあり，通常の<span class="ascii">Haskell</span>の構文や動作方法が分かっている人を考えています．また，この記事はあくまで簡単な紹介に留めるもので，付随する留意点や詳細な機能説明は，大事な箇所は漏らさないよう注意するつもりですが，全てを網羅するつもりはありませんのでその点は注意してください．もし，実際に<span class="ascii">GHC</span>拡張を使用する際は，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/"><span class="ascii">GHC</span>のユーザーガイド</a>をよく読んでから使用するのが良いでしょう．</p>
 <div id="table-of-contents-outer">
 <div id="table-of-contents">
@@ -189,22 +189,22 @@ here</span></a></span><span class="ascii">GHC</span>拡張について</h1>
 here</span></a></span><span class="ascii">Haskell</span>の言語拡張</h2>
 <p><span class="ascii">Haskell</span>には，言語拡張を取り込む方法が標準で提供されています．<span class="ascii">Haskell</span>標準では，コンパイラプラグマというものが策定されており，これを通してコンパイラに追加情報を提供することができます．コンパイラプラグマは<code>{-#</code>と<code>#-}</code>で囲まれ，字句的にはコメントとして扱われます．標準では，インラインプラグマや特殊化プラグマの他に，<code>LANGUAGE</code>プラグマというものが策定されており，このプラグマを通して言語拡張を指定することができます．</p>
 <p>例えば，実装によって<code>CPP</code>と<code>ScopedTypeVariables</code>という名前の言語拡張が提供されており，それを使いたい場合，次のような文をモジュールの開始前に指定することで，言語拡張が有効になります．</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">{-# LANGUAGE CPP, ScopedTypeVariables #-}</span></a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE CPP, ScopedTypeVariables #-}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></span></code></pre></div>
 <p>また，<code>LANGUAGE</code>プラグマを複数指定することもできます．</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">{-# LANGUAGE CPP                 #-}</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="ot">{-# LANGUAGE ScopedTypeVariables #-}</span></a>
-<a class="sourceLine" id="cb2-3" title="3"></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE CPP                 #-}</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE ScopedTypeVariables #-}</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></span></code></pre></div>
 <p>この機能を通して，多くの<span class="ascii">Haskell</span>処理系では言語拡張を提供しています．</p>
 <h2 id="ghc拡張"><span class="link-to-here-outer"><a href="#ghc拡張" title="ghc拡張"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">GHC</span>拡張</h2>
-<p><span class="ascii">Haskell</span>のデファクト標準な処理系<span class="ascii">GHC</span>も，多数の拡張を提供しており，この拡張が<span class="ascii">GHC</span>拡張と呼ばれるものです．<span class="ascii">GHC</span>拡張は，バージョン<span class="ascii">8.4.2</span>現在，以下の数が提供されています<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>．</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1">$ <span class="ex">ghc</span> --supported-extensions <span class="kw">|</span> <span class="fu">wc</span> -l</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="ex">235</span></a></code></pre></div>
-<p><code>--supported-extensions</code>オプションは，現在の<span class="ascii">GHC</span>で使用できる<span class="ascii">GHC</span>拡張を表示してくれるオプションです．ただ，<span class="ascii">GHC</span>拡張は全てが独立した拡張ではなく，互いに依存しあった拡張が多く存在します．また，先頭に<code>No</code>がついている拡張は，その<span class="ascii">GHC</span>拡張を無効にするような拡張になっています <a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>（例えば，<code>NoImplicitPrelude</code>拡張は<code>ImplicitPrelude</code>拡張を無効にする拡張です<span class="ascii">)</span>．</p>
-<p>また，デフォルトで有効になっている拡張などもあります．例えば，<code>ImplicitPrelude</code>という拡張はデフォルトで有効になります．現在デフォルトの<span class="ascii">Haskell 2010</span>をベースにしたモードで<span class="ascii">GHC 8.4.2</span>を使用する場合，以下の拡張が<a href="https://github.com/ghc/ghc/blob/ghc-8.4.2-release/compiler/main/DynFlags.hs#L2022">デフォルトで有効になります</a> <a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> <a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> <a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>．</p>
+<p><span class="ascii">Haskell</span>のデファクト標準な処理系<span class="ascii">GHC</span>も，多数の拡張を提供しており，この拡張が<span class="ascii">GHC</span>拡張と呼ばれるものです．<span class="ascii">GHC</span>拡張は，バージョン<span class="ascii">8.4.2</span>現在，以下の数が提供されています<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>．</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ghc <span class="at">--supported-extensions</span> <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">235</span></span></code></pre></div>
+<p><code>--supported-extensions</code>オプションは，現在の<span class="ascii">GHC</span>で使用できる<span class="ascii">GHC</span>拡張を表示してくれるオプションです．ただ，<span class="ascii">GHC</span>拡張は全てが独立した拡張ではなく，互いに依存しあった拡張が多く存在します．また，先頭に<code>No</code>がついている拡張は，その<span class="ascii">GHC</span>拡張を無効にするような拡張になっています <a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>（例えば，<code>NoImplicitPrelude</code>拡張は<code>ImplicitPrelude</code>拡張を無効にする拡張です<span class="ascii">)</span>．</p>
+<p>また，デフォルトで有効になっている拡張などもあります．例えば，<code>ImplicitPrelude</code>という拡張はデフォルトで有効になります．現在デフォルトの<span class="ascii">Haskell 2010</span>をベースにしたモードで<span class="ascii">GHC 8.4.2</span>を使用する場合，以下の拡張が<a href="https://github.com/ghc/ghc/blob/ghc-8.4.2-release/compiler/main/DynFlags.hs#L2022">デフォルトで有効になります</a> <a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> <a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> <a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>．</p>
 <ul>
 <li><a href="https://prime.haskell.org/wiki/NondecreasingIndentation"><code>NondecreasingIndentation</code></a><span class="ascii">: Haskell</span>のレイアウトルールを変更する拡張です．この拡張を有効にすると，ネストされた<code>do</code>式の場合，インデントをしなくていいようになります．</li>
 <li><a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#rebindable-syntax-and-the-implicit-prelude-import"><code>ImplicitPrelude</code></a><span class="ascii">:</span> 暗黙的に<code>Prelude</code>モジュールがインポートされるようになる拡張です．</li>
@@ -219,9 +219,9 @@ here</span></a></span><span class="ascii">GHC</span>拡張</h2>
 <h2 id="ghc拡張の使い方"><span class="link-to-here-outer"><a href="#ghc拡張の使い方" title="ghc拡張の使い方"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">GHC</span>拡張の使い方</h2>
 <p><span class="ascii">GHC</span>で<span class="ascii">GHC</span>拡張を使用する方法は，<span class="ascii">Haskell</span>標準の<code>LANGUAGE</code>プラグマを使用する他に，幾つかあります．まず，<span class="ascii">GHC</span>にオプションを渡して有効にする方法です．例えば，<code>NoImplicitPrelude</code>拡張と<code>Strict</code>拡張を有効にした状態で<code>Main.hs</code>をコンパイルしたい場合，次のように書けます．</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="ex">ghc</span> -XNoImplicitPrelude -XStrict --make Main.hs</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ghc</span> <span class="at">-XNoImplicitPrelude</span> <span class="at">-XStrict</span> <span class="at">--make</span> Main.hs</span></code></pre></div>
 <p><span class="ascii">GHC</span>では<code>-X</code>の後に拡張名を続けることで，言語拡張を有効にしてコンパイルすることができます．通常は，<code>LANGUAGE</code>プラグマを使用するのが良いですが，何らかの事情で<code>LANGUAGE</code>プラグマを使用できない場合や，デフォルトで有効にしたい言語拡張がある場合などに便利でしょう．特に<span class="ascii">GHCi</span>で言語拡張を有効にしたくなった場合，このオプションを<code>set</code>コマンドで指定すると良いでしょう．</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XNoImplicitPrelude</span> <span class="op">-</span><span class="dt">XStrict</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XNoImplicitPrelude</span> <span class="op">-</span><span class="dt">XStrict</span></span></code></pre></div>
 <p>他に<span class="ascii">GHC</span>拡張を有効にする方法として，<code>Cabal</code>の機能を活用する方法があります．<code>cabal</code>ファイルのビルド情報欄には，<a href="https://www.haskell.org/cabal/users-guide/developing-packages.html#pkg-field-default-extensions"><code>default-extensions</code>というフィールド</a>を指定することができ，そこにデフォルトで有効にしたい言語拡張のリストを書くことで，その拡張を有効にした状態で<code>Cabal</code>がビルドを行ってくれます．例えば，<code>NoImplicitPrelude</code>拡張と<code>Strict</code>拡張をデフォルトで有効にしてビルドしたい場合，次のように書きます．</p>
 <pre class="cabal"><code>name:           TestPackage
 version:        0.0
@@ -245,7 +245,7 @@ here</span></a></span><span class="ascii">Prelude</span>の暗黙的な使用を
 <li><code>NoImplicitPrelude</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NoImplicitPrelude">ユーザーガイド <span class="ascii">- NoImplicitPrelude</span>拡張</a></li>
 </ul>
 <p><span class="ascii">Haskell</span>では，<a href="https://www.stackage.org/haddock/lts-10.8/base-4.10.1.0/Prelude.html"><span class="ascii">Prelude</span>モジュール</a>が暗黙的に<span class="ascii">import</span>されます．つまり，<span class="ascii">Haskell</span>プログラムは暗黙に</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">import</span> <span class="dt">Prelude</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prelude</span></span></code></pre></div>
 <p>と書いてあると，解釈されるということです．<a href="https://www.stackage.org/haddock/lts-10.8/base-4.10.1.0/Prelude.html"><span class="ascii">Prelude</span>モジュール</a>には，<code>Int</code><span class="ascii">/</span><code>IO</code>といった基本的なデータ型や，<code>Eq</code><span class="ascii">/</span><code>Functor</code>といった基本的な型クラス，<code>zip</code><span class="ascii">/</span><code>putStrLn</code>といった基本的な関数が含まれています．</p>
 <p><a href="https://www.stackage.org/haddock/lts-10.8/base-4.10.1.0/Prelude.html"><span class="ascii">Prelude</span>モジュール</a>の暗黙的な<span class="ascii">import</span>は，<span class="ascii">Haskell</span>プログラムを簡潔に書く上では便利ですが，これを無効にしたい場合もあります．</p>
 <ol type="1">
@@ -259,15 +259,15 @@ here</span></a></span><span class="ascii">Prelude</span>の暗黙的な使用を
 <li><span class="ascii">universum:</span> <a href="https://hackage.haskell.org/package/universum"><span class="ascii">Hackage</span>リンク</a></li>
 <li><span class="ascii">basic-prelude:</span> <a href="https://hackage.haskell.org/package/basic-prelude"><span class="ascii">Hackage</span>リンク</a></li>
 </ul>
-<p>などがあります<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a>．これらのパッケージを探すには<a href="https://hackage.haskell.org/packages/#cat:Prelude"><span class="ascii">Hackage</span>の<span class="ascii">Prelude</span>カテゴリ</a>を参照するといいでしょう．</p>
+<p>などがあります<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>．これらのパッケージを探すには<a href="https://hackage.haskell.org/packages/#cat:Prelude"><span class="ascii">Hackage</span>の<span class="ascii">Prelude</span>カテゴリ</a>を参照するといいでしょう．</p>
 <p>私の場合，<span class="ascii">classy-prelude</span>を使っていますが，それも生で使用しているわけではなく，パッケージごとに<span class="ascii">prelude</span>モジュールを作って使用しています．<span class="ascii">Prelude</span>は，最もよく使うものが提供されているモジュールですから，<span class="ascii">API</span>の変更の影響を最も強く受けます．それを外部パッケージに依存させると，パッケージ保守が結構大変です．もし，パッケージごとに<span class="ascii">prelude</span>モジュールを作っておけば，パッケージ側や<span class="ascii">GHC</span>のバージョン変更の影響などで<span class="ascii">API</span>が変更されても，そのモジュール内でフォールバックを設定することで他のモジュールに変更を持ち越す必要がなくなります．これを<code>NoImplicitPrelude</code>拡張と組み合わせ，</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="ot">{-# LANGUAGE NoImplicitPrelude #-}</span></a>
-<a class="sourceLine" id="cb8-2" title="2"></a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb8-4" title="4"></a>
-<a class="sourceLine" id="cb8-5" title="5"><span class="kw">import</span> <span class="dt">MyPrelude</span></a>
-<a class="sourceLine" id="cb8-6" title="6"></a>
-<a class="sourceLine" id="cb8-7" title="7"><span class="op">...</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE NoImplicitPrelude #-}</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">A</span> <span class="kw">where</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">MyPrelude</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span></code></pre></div>
 <p>と書くことで，保守がかなりしやすくなります．</p>
 <h2 id="便利な構文の導入"><span class="link-to-here-outer"><a href="#便利な構文の導入" title="便利な構文の導入"><span class="link-to-here">Link to<br />
 here</span></a></span>便利な構文の導入</h2>
@@ -283,19 +283,19 @@ here</span></a></span>新たなリテラル表記を可能にする</h3>
 <p>数値型に対するリテラルは，既存のものでも数種類存在します．通常の数値表現<code>20</code>，オクテット<span class="ascii">(8</span>進数<span class="ascii">)</span>表現<code>0o24</code>，ヘックス<span class="ascii">(16</span>進数<span class="ascii">)</span>表現<code>0x14</code>の<span class="ascii">3</span>つです．<code>BinaryLiterals</code>拡張は，これに加え<code>0b</code>を接頭辞に付けることでバイナリ<span class="ascii">(2</span>進数<span class="ascii">)</span>表現<code>0b10100</code>を可能にする拡張です．</p>
 <p>これらのオクテット表現やヘックス，バイナリ表現は浮動小数点数の表現はできません．しかし，浮動小数点数は実際には<span class="ascii">IEEE</span>の規格に則ったデータ表現になりますから，<span class="ascii">10</span>進数表現よりも<span class="ascii">16</span>進数表現の方が実態として分かりやすい場合があります．このため<code>HexFloatLiterals</code>拡張では，接頭に<code>0x</code>の付くヘックス表現でも浮動小数点数のリテラルを記述できるようにしています．この拡張によって，<code>0.25</code>は<code>0x0.4</code>と表記できるようになります．また，指数表記も<span class="ascii">10</span>進方式のものではなく，ビット方式のものになります．指数表記には<code>e</code>ではなく<code>p</code>を使い，何ビット移動させるか<span class="ascii">(</span>つまり，<span class="ascii">2</span>の何乗を掛けるか<span class="ascii">)</span>を書くようにします．例えば，<code>1.0</code>は<code>0x0.4p2</code>と表記できます．また，<code>0.125</code>は<code>0x0.4p-1</code>と表記できます．</p>
 <p>さて，<span class="ascii">Haskell</span>には唯一の単項演算子<code>-</code>があります．この演算子を使用することで<code>negate 1</code>の代わりに<code>-1</code>という表記が可能になります．しかし，この演算子の結合度は非常に弱く，また二項演算子の<code>-</code>も存在することから<code>f -1</code>という表記は<code>(f) - (1)</code>というように解釈されてしまうなどの問題があり，非常に使い勝手が悪い演算子となっていました．また，<span class="ascii">Haskell</span>の仕様上，<code>-128</code>という表現は最終的に<code>negate (fromInteger 128)</code>という式に<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch3.html#x8-280003.4">脱糖されます</a>が，例えば<code>Int8</code>などの，負数は<code>-128</code>まで扱えるが正数は<code>+127</code>までしか扱えないといったデータ型の場合に，この式は<code>fromInteger</code>で一度<code>+128</code>の値になってしまいオーバーフローを起こしてしまうという問題がありました．これを解決するため導入されたのが<code>NagativeLiterals</code>拡張です．この拡張を導入することで空白を挟まない<code>-1.0</code>などは<span class="ascii">1</span>つのリテラルと解釈されるようになります．この拡張を導入後は，次のようになります．</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;&gt;&gt;</span> <span class="fu">max</span> <span class="op">-</span><span class="dv">1</span> <span class="dv">2</span> <span class="op">==</span> <span class="fu">max</span> (<span class="op">-</span><span class="dv">1</span>) <span class="dv">2</span> <span class="co">-- before: max -1 2 == max - (1 2)</span></a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="dt">True</span></a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="op">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">SamplePZ</span> <span class="ot">=</span> <span class="dt">SamplePZ</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="op">&gt;&gt;&gt;</span> <span class="kw">instance</span> <span class="dt">Num</span> <span class="dt">SamplePZ</span> <span class="kw">where</span> { <span class="fu">fromInteger</span> i <span class="op">|</span> i <span class="op">&lt;=</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">SamplePZ</span> }</a>
-<a class="sourceLine" id="cb9-5" title="5"><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span><span class="dv">100</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span> <span class="co">-- before: raise error</span></a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="dt">SamplePZ</span></a>
-<a class="sourceLine" id="cb9-7" title="7"><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span> <span class="dv">100</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> <span class="op">...</span></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="op">&gt;&gt;&gt;</span> <span class="kw">instance</span> <span class="dt">Fractional</span> <span class="dt">SamplePZ</span> <span class="kw">where</span> { <span class="fu">fromRational</span> r <span class="op">|</span> r <span class="op">&lt;=</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">SamplePZ</span> }</a>
-<a class="sourceLine" id="cb9-10" title="10"><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span><span class="fl">100.10</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span> <span class="co">-- before: raise error</span></a>
-<a class="sourceLine" id="cb9-11" title="11"><span class="dt">SamplePZ</span></a>
-<a class="sourceLine" id="cb9-12" title="12"><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span> <span class="fl">100.10</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span></a>
-<a class="sourceLine" id="cb9-13" title="13"><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> <span class="op">...</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="fu">max</span> <span class="op">-</span><span class="dv">1</span> <span class="dv">2</span> <span class="op">==</span> <span class="fu">max</span> (<span class="op">-</span><span class="dv">1</span>) <span class="dv">2</span> <span class="co">-- before: max -1 2 == max - (1 2)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">True</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">data</span> <span class="dt">SamplePZ</span> <span class="ot">=</span> <span class="dt">SamplePZ</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">instance</span> <span class="dt">Num</span> <span class="dt">SamplePZ</span> <span class="kw">where</span> { <span class="fu">fromInteger</span> i <span class="op">|</span> i <span class="op">&lt;=</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">SamplePZ</span> }</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span><span class="dv">100</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span> <span class="co">-- before: raise error</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="dt">SamplePZ</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span> <span class="dv">100</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> <span class="op">...</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">instance</span> <span class="dt">Fractional</span> <span class="dt">SamplePZ</span> <span class="kw">where</span> { <span class="fu">fromRational</span> r <span class="op">|</span> r <span class="op">&lt;=</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">SamplePZ</span> }</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span><span class="fl">100.10</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span> <span class="co">-- before: raise error</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="dt">SamplePZ</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="op">-</span> <span class="fl">100.10</span><span class="ot"> ::</span> <span class="dt">SamplePZ</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> <span class="op">...</span></span></code></pre></div>
 <h3 id="空のデータ型に対するより強力なサポートを導入する"><span class="link-to-here-outer"><a href="#空のデータ型に対するより強力なサポートを導入する" title="空のデータ型に対するより強力なサポートを導入する"><span class="link-to-here">Link to<br />
 here</span></a></span>空のデータ型に対するより強力なサポートを導入する</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
@@ -304,29 +304,29 @@ here</span></a></span>空のデータ型に対するより強力なサポート�
 <li><code>EmptyDataDeriving</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#ghc-flag--XEmptyDataDeriving">ユーザーガイド <span class="ascii">- EmptyDataDeriving</span>拡張</a></li>
 </ul>
 <p><span class="ascii">Haskell</span>では，コンストラクタを一切持たない型を定義できます．これは空のデータ型と呼ばれ，次のように書けます．</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">data</span> <span class="dt">Empty</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Empty</span></span></code></pre></div>
 <p>このような型は<code>base</code>パッケージの<code>Data.Void</code>モジュールでも提供されており，有用な場合があります．しかし，<span class="ascii">Haskell</span>標準ではこのようなデータ型に対するサポートが薄く，使用する上で不便な場面があります．このサポートを強化する拡張が，<code>EmptyCase</code>拡張と<code>EmptyDataDeriving</code>拡張です．</p>
 <p><code>EmptyCase</code>拡張は，空のパターンマッチを書けるようにする拡張です．<span class="ascii">Haskell</span>標準では，空のパターンマッチは書けません．つまり，<code>case x of {}</code>というような式が書けないということです．通常はデータ型は何らかのコンストラクタを持っていますから，このようなパターンマッチを書きたいと思う場面はないでしょう．しかし，空のデータ型においてこのようなパターンマッチを書きたいと思うことがあります．</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="ot">f ::</span> <span class="dt">Empty</span> <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb11-2" title="2">f x <span class="ot">=</span> <span class="kw">case</span> x <span class="kw">of</span> {}</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Empty</span> <span class="ot">-&gt;</span> a</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>f x <span class="ot">=</span> <span class="kw">case</span> x <span class="kw">of</span> {}</span></code></pre></div>
 <p>このような表記を可能にするのが<code>EmptyCase</code>拡張です．なお，このケース式は次のように書くのと同値になります．</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="ot">f ::</span> <span class="dt">Empty</span> <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb12-2" title="2">f x <span class="ot">=</span> x <span class="ot">`seq`</span> <span class="fu">error</span> <span class="st">&quot;Non-exhaustive patterns in case&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Empty</span> <span class="ot">-&gt;</span> a</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>f x <span class="ot">=</span> x <span class="ot">`seq`</span> <span class="fu">error</span> <span class="st">&quot;Non-exhaustive patterns in case&quot;</span></span></code></pre></div>
 <p>もう<span class="ascii">1</span>つの<code>EmptyDataDeriving</code>拡張は，空のデータ型に対して<code>deriving</code>構文を使用できるようにする拡張です．空のデータ型は，通常のデータ型と違い<code>Eq</code>や<code>Show</code>などの型クラスインスタンスを<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch11.html#x18-182014x6"><code>deriving</code>することができません</a>．つまり以下のようなことができません．</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">data</span> <span class="dt">Empty</span></a>
-<a class="sourceLine" id="cb13-2" title="2">  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Empty</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span></code></pre></div>
 <p>しかし，これでは不便な場合があります．それを可能にするのが<code>EmptyDataDeriving</code>拡張です．この拡張では，<code>Eq</code><span class="ascii">/</span><code>Ord</code><span class="ascii">/</span><code>Show</code><span class="ascii">/</span><code>Read</code>の<span class="ascii">4</span>つが<code>deriving</code>可能になり，それぞれは次のようなインスタンスを生成します．</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">Empty</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb14-2" title="2">  _ <span class="op">==</span> _ <span class="ot">=</span> <span class="dt">True</span></a>
-<a class="sourceLine" id="cb14-3" title="3"></a>
-<a class="sourceLine" id="cb14-4" title="4"><span class="kw">instance</span> <span class="dt">Ord</span> <span class="dt">Empty</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb14-5" title="5">  <span class="fu">compare</span> _ _ <span class="ot">=</span> <span class="dt">EQ</span></a>
-<a class="sourceLine" id="cb14-6" title="6"></a>
-<a class="sourceLine" id="cb14-7" title="7"><span class="kw">instance</span> <span class="dt">Read</span> <span class="dt">Empty</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb14-8" title="8">  readPrec <span class="ot">=</span> pfail</a>
-<a class="sourceLine" id="cb14-9" title="9"></a>
-<a class="sourceLine" id="cb14-10" title="10"><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Empty</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb14-11" title="11">  <span class="fu">showsPrec</span> _ x <span class="ot">=</span> <span class="kw">case</span> x <span class="kw">of</span> {}</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">Empty</span> <span class="kw">where</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  _ <span class="op">==</span> _ <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Ord</span> <span class="dt">Empty</span> <span class="kw">where</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compare</span> _ _ <span class="ot">=</span> <span class="dt">EQ</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Read</span> <span class="dt">Empty</span> <span class="kw">where</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  readPrec <span class="ot">=</span> pfail</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Empty</span> <span class="kw">where</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">showsPrec</span> _ x <span class="ot">=</span> <span class="kw">case</span> x <span class="kw">of</span> {}</span></code></pre></div>
 <h3 id="新たな基本構文を導入する"><span class="link-to-here-outer"><a href="#新たな基本構文を導入する" title="新たな基本構文を導入する"><span class="link-to-here">Link to<br />
 here</span></a></span>新たな基本構文を導入する</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
@@ -338,30 +338,30 @@ here</span></a></span>新たな基本構文を導入する</h3>
 <p><span class="ascii">Haskell</span>では，タプルやラムダ抽象，セクション，<code>if</code>式や<code>case</code>式といった構文が導入されていますが，これらを組み合わせて多用する場合，幾つか冗長な表現が生まれる場合があります．その中でも頻出する表現に対して，新たな構文を提供する<span class="ascii">GHC</span>拡張があります．それが，<code>TupleSections</code>，<code>MultiWayIf</code>，<code>LambdaCase</code>の<span class="ascii">3</span>つの拡張です．</p>
 <p><span class="ascii">Haskell</span>には，セクションと呼ばれる二項演算子の部分適用を表す構文があります．また，<span class="ascii">Haskell</span>ではタプルにも独自の構文が充てがわれています．このタプルを使用する際，セクションのように部分適用を簡潔に書きたい場合があります．例えば，<code>\x -&gt; (1, x)</code>という表現をもっと簡潔に書きたい場合があります．この場合は<code>(,) 1</code>というな表記が可能ですが，<span class="ascii">2</span>番目に部分適用したい場合や，<span class="ascii">3</span>つ組のタプルに部分適用したい場合などは非常に面倒です．このため，<code>TupleSections</code>拡張は<code>(1, )</code>という表記でタプルの部分適用を書ける構文を提供します．<span class="ascii">2</span>つ以上空きがある場合は，左から引数を受け取っていくようになります．例えば，<code>(True, , "str", )</code>は<code>\x y -&gt; (True, x, "str", y)</code>と同等です．</p>
 <p><code>MultiWayIf</code>は名前の通り複数の条件をガード構文のように指定できる<code>if</code>式を提供する拡張です．つまり，以下のようなことがかけます．</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="ot">f ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb15-2" title="2">f xs <span class="ot">=</span> <span class="fu">sequence_</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb15-3" title="3">  x <span class="ot">&lt;-</span> xs</a>
-<a class="sourceLine" id="cb15-4" title="4">  <span class="fu">pure</span> <span class="op">$</span> <span class="kw">if</span></a>
-<a class="sourceLine" id="cb15-5" title="5">    <span class="op">|</span> x <span class="op">&lt;=</span> <span class="dv">0</span>          <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="st">&quot;non-positive number&quot;</span></a>
-<a class="sourceLine" id="cb15-6" title="6">    <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">15</span> <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;FizzBuzz&quot;</span></a>
-<a class="sourceLine" id="cb15-7" title="7">    <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">3</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Fizz&quot;</span></a>
-<a class="sourceLine" id="cb15-8" title="8">    <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">5</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Buzz&quot;</span></a>
-<a class="sourceLine" id="cb15-9" title="9">    <span class="op">|</span> <span class="fu">otherwise</span>       <span class="ot">-&gt;</span> <span class="fu">print</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>f xs <span class="ot">=</span> <span class="fu">sequence_</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> xs</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> <span class="kw">if</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> x <span class="op">&lt;=</span> <span class="dv">0</span>          <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="st">&quot;non-positive number&quot;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">15</span> <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;FizzBuzz&quot;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">3</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Fizz&quot;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">5</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Buzz&quot;</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="fu">otherwise</span>       <span class="ot">-&gt;</span> <span class="fu">print</span> x</span></code></pre></div>
 <p>この<code>MultiWayIf</code>は次のように<code>case</code>式で書き換えることが可能です．</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">f ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb16-2" title="2">f xs <span class="ot">=</span> <span class="fu">sequence_</span> <span class="op">$</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb16-3" title="3">  x <span class="ot">&lt;-</span> xs</a>
-<a class="sourceLine" id="cb16-4" title="4">  <span class="fu">pure</span> <span class="op">$</span> <span class="kw">case</span> () <span class="kw">of</span></a>
-<a class="sourceLine" id="cb16-5" title="5">    _ <span class="op">|</span> x <span class="op">&lt;=</span> <span class="dv">0</span>          <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="st">&quot;non-positive number&quot;</span></a>
-<a class="sourceLine" id="cb16-6" title="6">    _ <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">15</span> <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;FizzBuzz&quot;</span></a>
-<a class="sourceLine" id="cb16-7" title="7">    _ <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">3</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Fizz&quot;</span></a>
-<a class="sourceLine" id="cb16-8" title="8">    _ <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">5</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Buzz&quot;</span></a>
-<a class="sourceLine" id="cb16-9" title="9">    _ <span class="op">|</span> <span class="fu">otherwise</span>       <span class="ot">-&gt;</span> <span class="fu">print</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>f xs <span class="ot">=</span> <span class="fu">sequence_</span> <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> xs</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> <span class="kw">case</span> () <span class="kw">of</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">|</span> x <span class="op">&lt;=</span> <span class="dv">0</span>          <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="st">&quot;non-positive number&quot;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">15</span> <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;FizzBuzz&quot;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">3</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Fizz&quot;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">|</span> x <span class="ot">`mod`</span> <span class="dv">5</span>  <span class="op">==</span> <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Buzz&quot;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">|</span> <span class="fu">otherwise</span>       <span class="ot">-&gt;</span> <span class="fu">print</span> x</span></code></pre></div>
 <p><span class="ascii">3</span>つ目の<code>LambdaCase</code>拡張は，ラムダ抽象と<code>case</code>式を組み合わせた際に良く使う表現をより簡潔に書けるようにする拡張です．この拡張を使うと，<code>\x -&gt; case x of (a, b) -&gt; a + b</code>というようなラムダ抽象を，<code>\case (a, b) -&gt; a + b</code>と書けるようになります．もちろんレイアウトルールも<code>case-of</code>式と同じように作用するため，改行を含んだ式も書けます．</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="ot">f ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb17-2" title="2">f <span class="ot">=</span> <span class="fu">negate</span> <span class="op">.</span> \<span class="kw">case</span></a>
-<a class="sourceLine" id="cb17-3" title="3">  <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb17-4" title="4">  <span class="dt">Just</span> x  <span class="ot">-&gt;</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>f <span class="ot">=</span> <span class="fu">negate</span> <span class="op">.</span> \<span class="kw">case</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dv">0</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Just</span> x  <span class="ot">-&gt;</span> x</span></code></pre></div>
 <h3 id="正格化に対するサポートを導入する"><span class="link-to-here-outer"><a href="#正格化に対するサポートを導入する" title="正格化に対するサポートを導入する"><span class="link-to-here">Link to<br />
 here</span></a></span>正格化に対するサポートを導入する</h3>
 <p>この節では，以下の<span class="ascii">3</span>つの拡張を紹介します．</p>
@@ -372,28 +372,28 @@ here</span></a></span>正格化に対するサポートを導入する</h3>
 </ul>
 <p><span class="ascii">Haskell</span>はデフォルトの評価戦略として，グラフ簡約の遅延評価を採用しています．これはリストや再帰に関する表現を非常に豊かにする反面，パフォーマンスを悪化させたりデバッグを困難にさせる場面が多いなどの負の面もあります．このため<span class="ascii">Haskell</span>標準では，<code>seq</code>関数や正格フラグといった正格評価へのサポートも提供しています．しかし，このサポートは表現が冗長な場合が多く，使い勝手が悪い側面があります．この面を解決するための拡張が，<code>BangPatterns</code>，<code>StrictData</code>，<code>Strict</code>の<span class="ascii">3</span>つの拡張です．</p>
 <p>再帰関数において，累積引数は多くの場合正格に計算した方が効率が良いですが，<span class="ascii">Haskell</span>標準では以下のように書く必要がありました．</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="fu">sum</span><span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb18-2" title="2"><span class="fu">sum</span> xs y <span class="ot">=</span> y <span class="ot">`seq`</span> <span class="kw">case</span> xs <span class="kw">of</span></a>
-<a class="sourceLine" id="cb18-3" title="3">  x<span class="op">:</span>xs' <span class="ot">-&gt;</span> <span class="fu">sum</span> xs' (x <span class="op">+</span> y)</a>
-<a class="sourceLine" id="cb18-4" title="4">  []    <span class="ot">-&gt;</span> y</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span><span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span> xs y <span class="ot">=</span> y <span class="ot">`seq`</span> <span class="kw">case</span> xs <span class="kw">of</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  x<span class="op">:</span>xs' <span class="ot">-&gt;</span> <span class="fu">sum</span> xs' (x <span class="op">+</span> y)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  []    <span class="ot">-&gt;</span> y</span></code></pre></div>
 <p>このような<code>seq</code>による評価をより簡潔に書けるよう，<code>BangPatterns</code>拡張というものが提供されています．これはパターンを拡張し，バンパターンというものを導入します．このバンパターンは，通常のパターンに<code>!</code>を付けることで書けます．例えば，上の例はバンパターンを使うと以下のように書けます．</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="fu">sum</span><span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb19-2" title="2"><span class="fu">sum</span> xs <span class="op">!</span>y <span class="ot">=</span> <span class="kw">case</span> xs <span class="kw">of</span></a>
-<a class="sourceLine" id="cb19-3" title="3">  x<span class="op">:</span>xs' <span class="ot">-&gt;</span> <span class="fu">sum</span> xs' (x <span class="op">+</span> y)</a>
-<a class="sourceLine" id="cb19-4" title="4">  []    <span class="ot">-&gt;</span> y</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span><span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span> xs <span class="op">!</span>y <span class="ot">=</span> <span class="kw">case</span> xs <span class="kw">of</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  x<span class="op">:</span>xs' <span class="ot">-&gt;</span> <span class="fu">sum</span> xs' (x <span class="op">+</span> y)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  []    <span class="ot">-&gt;</span> y</span></code></pre></div>
 <p>バンパターンはパターンの<span class="ascii">1</span>つですから，もちろん<code>let</code>式や<code>case</code>式でも<code>let !y = f x in y</code>や<code>case f x of !y -&gt; y</code>というように使えます．また，<code>case x of (!y, z) -&gt; y + z</code>というように部分パターンとしても有効です．バンパターンは<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch3.html#x8-610003.17.3"><span class="ascii">Haskell</span>の<code>case</code>式の翻訳ルール</a>に次の規則を加えることで実現されます．</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">case</span> v <span class="kw">of</span> { <span class="op">!</span>pat <span class="ot">-&gt;</span> e; _ <span class="ot">-&gt;</span> e' }</a>
-<a class="sourceLine" id="cb20-2" title="2">≡ v <span class="ot">`seq`</span> <span class="kw">case</span> v <span class="kw">of</span> { pat <span class="ot">-&gt;</span> e; _ <span class="ot">-&gt;</span> e' }</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">case</span> v <span class="kw">of</span> { <span class="op">!</span>pat <span class="ot">-&gt;</span> e; _ <span class="ot">-&gt;</span> e' }</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>≡ v <span class="ot">`seq`</span> <span class="kw">case</span> v <span class="kw">of</span> { pat <span class="ot">-&gt;</span> e; _ <span class="ot">-&gt;</span> e' }</span></code></pre></div>
 <p><span class="ascii">Haskell</span>標準では，データ型の宣言において，コンストラクタの引数に正格フラグというものを付けることが許容されています．このフラグをつけた引数は，正格に評価された後コンストラクタに渡されます．ただ，一般にデータ型の引数は正格な方が効率が良いため，データ型宣言時に正格フラグを付けるという慣習がありました．この慣習を打破するために導入されたのが，<code>StrictData</code>拡張です．<code>StrictData</code>拡張下のモジュールでは，データ型宣言時，コンストラクタの引数は全て正格フラグをつけているものとして扱われます．また，<code>~</code>というフラグが新たに導入され，このフラグをつけた引数の場合は<span class="ascii">Haskell</span>標準化のデフォルトの動作，つまり引数は正格に評価されず遅延されるようになります．<code>StrictData</code>下で宣言された</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">data</span> <span class="dt">T</span> <span class="ot">=</span> <span class="dt">Normal</span> <span class="dt">Int</span> <span class="op">|</span> <span class="dt">Strict</span> <span class="op">!</span><span class="dt">Int</span> <span class="op">|</span> <span class="dt">Lazy</span> <span class="op">~</span><span class="dt">Int</span></a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">T</span> <span class="ot">=</span> <span class="dt">Normal</span> <span class="dt">Int</span> <span class="op">|</span> <span class="dt">Strict</span> <span class="op">!</span><span class="dt">Int</span> <span class="op">|</span> <span class="dt">Lazy</span> <span class="op">~</span><span class="dt">Int</span></span></code></pre></div>
 <p>というデータ型は，通常の<span class="ascii">Haskell</span>の以下のデータ型と同等になります．</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">data</span> <span class="dt">T</span> <span class="ot">=</span> <span class="dt">Normal</span> <span class="op">!</span><span class="dt">Int</span> <span class="op">|</span> <span class="dt">Strict</span> <span class="op">!</span><span class="dt">Int</span> <span class="op">|</span> <span class="dt">Lazy</span> <span class="dt">Int</span></a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">T</span> <span class="ot">=</span> <span class="dt">Normal</span> <span class="op">!</span><span class="dt">Int</span> <span class="op">|</span> <span class="dt">Strict</span> <span class="op">!</span><span class="dt">Int</span> <span class="op">|</span> <span class="dt">Lazy</span> <span class="dt">Int</span></span></code></pre></div>
 <p><code>Strict</code>拡張は，<code>StrictData</code>拡張に加え，ほとんどのパターンを暗黙的にバンパターンにする拡張です．つまり，殆どの評価を正格にする拡張です．バンパターンに変わる箇所は，関数の引数，<code>let</code><span class="ascii">/</span><code>where</code>句の束縛変数，<code>case</code>式のパターンマッチなどです．これらのパターンには，最外の場所に<code>!</code>が暗黙的に付与されます．例えば，<code>Strict</code>拡張下で定義された</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="ot">f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb23-2" title="2">f x (z, y) <span class="ot">=</span> <span class="kw">let</span> zy <span class="ot">=</span> z <span class="op">*</span> y <span class="kw">in</span> <span class="kw">case</span> x <span class="op">-</span> z <span class="kw">of</span> z' <span class="ot">-&gt;</span> z' <span class="op">^</span> z</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>f x (z, y) <span class="ot">=</span> <span class="kw">let</span> zy <span class="ot">=</span> z <span class="op">*</span> y <span class="kw">in</span> <span class="kw">case</span> x <span class="op">-</span> z <span class="kw">of</span> z' <span class="ot">-&gt;</span> z' <span class="op">^</span> z</span></code></pre></div>
 <p>という関数は，<code>BangPatterns</code>拡張下の<span class="ascii">Haskell</span>の以下の関数と同等になります．</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1"><span class="ot">f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb24-2" title="2">f <span class="op">!</span>x <span class="op">!</span>(z, y) <span class="ot">=</span> <span class="kw">let</span> <span class="op">!</span>zy <span class="ot">=</span> z <span class="op">*</span> y <span class="kw">in</span> <span class="kw">case</span> x <span class="op">-</span> z <span class="kw">of</span> <span class="op">!</span>z' <span class="ot">-&gt;</span> z' <span class="op">^</span> z</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">!</span>x <span class="op">!</span>(z, y) <span class="ot">=</span> <span class="kw">let</span> <span class="op">!</span>zy <span class="ot">=</span> z <span class="op">*</span> y <span class="kw">in</span> <span class="kw">case</span> x <span class="op">-</span> z <span class="kw">of</span> <span class="op">!</span>z' <span class="ot">-&gt;</span> z' <span class="op">^</span> z</span></code></pre></div>
 <p>注意して欲しいのは，このバンパターンは<code>seq</code>に置き換わるため，<span class="ascii">WHNF</span>までしか評価されないということです．つまり，<code>!(z, y)</code>というパターンは単なる<code>(z, y)</code>と完全に同じです．またトップレベルの束縛にバンパターンを付与することは許されておらず，遅延されるということにも注意が必要です．</p>
 <h3 id="パターンマッチをより柔軟に扱えるようにする"><span class="link-to-here-outer"><a href="#パターンマッチをより柔軟に扱えるようにする" title="パターンマッチをより柔軟に扱えるようにする"><span class="link-to-here">Link to<br />
 here</span></a></span>パターンマッチをより柔軟に扱えるようにする</h3>
@@ -404,56 +404,56 @@ here</span></a></span>パターンマッチをより柔軟に扱えるように�
 </ul>
 <p><span class="ascii">GHC</span>拡張では，<span class="ascii">Haskell</span>標準のパターンをさらに強力なものにする拡張があります．<code>ViewPatterns</code>はビューパターンという新たなパターンを導入します．また，<code>PatternSynonyms</code>はパターンの別名を付けることができるようにする拡張です．</p>
 <p><span class="ascii">Haskell</span>標準にあるパターンガードは，非常に強力ですが，表現が非常に冗長になる場合があります．これを短縮して書けるように，<code>ViewPatterns</code>拡張はビューパターンというものを導入します．ビューパターンは，<code>-&gt;</code>の左側に式を，右側にパターンを書くことで，左の式に対象を適用して結果が右側のパターンにマッチした時，マッチするようなパターンです．例えば，</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" title="1">f ((<span class="ot">`mod`</span> <span class="dv">2</span>) <span class="ot">-&gt;</span> <span class="dv">0</span>) <span class="ot">=</span> <span class="dt">Nothing</span></a>
-<a class="sourceLine" id="cb25-2" title="2">f x                <span class="ot">=</span> <span class="dt">Just</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>f ((<span class="ot">`mod`</span> <span class="dv">2</span>) <span class="ot">-&gt;</span> <span class="dv">0</span>) <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>f x                <span class="ot">=</span> <span class="dt">Just</span> x</span></code></pre></div>
 <p>というように使用でき，<code>f 0</code>は<code>Nothing</code>を，<code>f 3</code>は<code>Just 3</code>をそれぞれ返すようになります．この関数宣言は，以下のパターンガードを用いて書いた関数と一致します．</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1">f x <span class="op">|</span> <span class="dv">0</span> <span class="ot">&lt;-</span> x <span class="ot">`mod`</span> <span class="dv">2</span> <span class="ot">=</span> <span class="dt">Nothing</span></a>
-<a class="sourceLine" id="cb26-2" title="2">f x                  <span class="ot">=</span> <span class="dt">Just</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>f x <span class="op">|</span> <span class="dv">0</span> <span class="ot">&lt;-</span> x <span class="ot">`mod`</span> <span class="dv">2</span> <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>f x                  <span class="ot">=</span> <span class="dt">Just</span> x</span></code></pre></div>
 <p>ビューパターンは<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch3.html#x8-610003.17.3"><span class="ascii">Haskell</span>の<code>case</code>式の翻訳ルール</a>に次の規則を加えることで実現されます．</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">case</span> v <span class="kw">of</span> { (e <span class="ot">-&gt;</span> p) <span class="ot">-&gt;</span> e1; _ <span class="ot">-&gt;</span> e2 }</a>
-<a class="sourceLine" id="cb27-2" title="2">≡ <span class="kw">case</span> (e v) <span class="kw">of</span> { p <span class="ot">-&gt;</span> e1; _ <span class="ot">-&gt;</span> e2 }</a></code></pre></div>
-<p><code>PatternSynonyms</code>拡張は，非常に強力で大きな拡張です<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a>．<code>PatternSynonyms</code>拡張は名前の通り，パターンに別名を与えるパターンシノニム機能を提供します．パターンシノニムは通常の関数と同じように，次のように定義できます．</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">pattern</span> <span class="dt">Nil</span><span class="ot"> ::</span> [a]</a>
-<a class="sourceLine" id="cb28-2" title="2"><span class="kw">pattern</span> <span class="dt">Nil</span> <span class="ot">=</span> []</a>
-<a class="sourceLine" id="cb28-3" title="3"></a>
-<a class="sourceLine" id="cb28-4" title="4"><span class="kw">pattern</span> <span class="dt">Cons</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]</a>
-<a class="sourceLine" id="cb28-5" title="5"><span class="kw">pattern</span> <span class="dt">Cons</span> x xs <span class="ot">=</span> x <span class="op">:</span> xs</a>
-<a class="sourceLine" id="cb28-6" title="6"></a>
-<a class="sourceLine" id="cb28-7" title="7"><span class="ot">{-# COMPLETE Nil, Cons #-}</span></a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">case</span> v <span class="kw">of</span> { (e <span class="ot">-&gt;</span> p) <span class="ot">-&gt;</span> e1; _ <span class="ot">-&gt;</span> e2 }</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>≡ <span class="kw">case</span> (e v) <span class="kw">of</span> { p <span class="ot">-&gt;</span> e1; _ <span class="ot">-&gt;</span> e2 }</span></code></pre></div>
+<p><code>PatternSynonyms</code>拡張は，非常に強力で大きな拡張です<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>．<code>PatternSynonyms</code>拡張は名前の通り，パターンに別名を与えるパターンシノニム機能を提供します．パターンシノニムは通常の関数と同じように，次のように定義できます．</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">Nil</span><span class="ot"> ::</span> [a]</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">Nil</span> <span class="ot">=</span> []</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">Cons</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">Cons</span> x xs <span class="ot">=</span> x <span class="op">:</span> xs</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# COMPLETE Nil, Cons #-}</span></span></code></pre></div>
 <p>このように定義したパターンは，以下のように使用できます．</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" title="1"><span class="ot">len ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb29-2" title="2">len (<span class="dt">Cons</span> _ xs) <span class="ot">=</span> <span class="dv">1</span> <span class="op">+</span> len xs</a>
-<a class="sourceLine" id="cb29-3" title="3">len <span class="dt">Nil</span>         <span class="ot">=</span> <span class="dv">0</span></a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ot">len ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>len (<span class="dt">Cons</span> _ xs) <span class="ot">=</span> <span class="dv">1</span> <span class="op">+</span> len xs</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>len <span class="dt">Nil</span>         <span class="ot">=</span> <span class="dv">0</span></span></code></pre></div>
 <p>パターンシノニムは非常に便利な機能ですが，一方で注意する事項も幾つかあります．</p>
 <p>まず，パターンシノニムの定義は関数定義と非常に似ていますが，パターンの別名であることに注意してください．パターンシノニムの定義において変数が出現する場合，関数の引数のように錯覚してしまいがちですが，この変数にはパターンにマッチした時そのマッチした部分が当てがわれます．つまり，右の式でマッチしたものが左の変数に束縛されるため，左の変数に束縛された後右の式を実行する関数と，流れが逆になるということです．このため，パターンシノニムの引数の変数は必ず右に出現する必要があります．また，パターンシノニムの右側には変数を含むパターンしかかけません．そのため，式を書きたい場合，<code>ViewPatterns</code>拡張などを用いなければなりません．さらにパターンシノニムは，デフォルトではパターンの網羅性検査が非常に難しいため，網羅性検査を行わないようになっています．ただし，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#complete-pragma"><code>COMPLETE</code>プラグマ</a>を用いてパターンシノニムの網羅条件を与えることで，その範囲で網羅性検査を行うようになります．</p>
 <p>パターンシノニムはパターンの種類に応じて<span class="ascii">3</span>種類の書き方が存在します．上の単純なパターンシノニムは，双方向<span class="ascii">(bidirectional)</span>パターンシノニムと呼ばれ，暗黙的にパターンの名前と等しい関数が作られます．この関数を用いることで，<code>[0, 1, 2]</code>の代わりに<code>Cons 0 (Cons 1 (Cons 2 Nil))</code>といった式も書くことができるようになります．ただし，このような関数が単純には作れないパターンも存在します．例えば，<code>(x, _)</code>というパターンに，<code>First x</code>というパターンシノニムを与えたい場合，この<code>First</code>に対する関数は<code>_</code>の部分に入れるべき値が分からないため，作りようがありません．このような関数が単純に作れないパターンシノニムは単方向<span class="ascii">(unidirectional)</span>パターンシノニムと呼ばれ，双方向パターンシノニムが<code>=</code>を使って定義されるのに対し，次のように<code>&lt;-</code>を使って書きます．</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">pattern</span> <span class="dt">First</span><span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Bool</span>)</a>
-<a class="sourceLine" id="cb30-2" title="2"><span class="kw">pattern</span> <span class="dt">First</span> x <span class="ot">&lt;-</span> (x, _)</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">First</span><span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Bool</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">First</span> x <span class="ot">&lt;-</span> (x, _)</span></code></pre></div>
 <p>このパターンシノニムは<code>First</code>という関数は作らず，単純にパターンの別名だけを提供します．ただし，<code>First</code>関数の定義を次のように与えることが可能になっています．</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">pattern</span> <span class="dt">First</span><span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Bool</span>)</a>
-<a class="sourceLine" id="cb31-2" title="2"><span class="kw">pattern</span> <span class="dt">First</span> x <span class="ot">&lt;-</span> (x, _)</a>
-<a class="sourceLine" id="cb31-3" title="3">  <span class="kw">where</span></a>
-<a class="sourceLine" id="cb31-4" title="4">    <span class="dt">First</span> x <span class="op">|</span> x <span class="op">&lt;</span> <span class="dv">0</span> <span class="ot">=</span> (x, <span class="dt">False</span>)</a>
-<a class="sourceLine" id="cb31-5" title="5">    <span class="dt">First</span> x         <span class="ot">=</span> (x, <span class="dt">True</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">First</span><span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Bool</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">First</span> x <span class="ot">&lt;-</span> (x, _)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">First</span> x <span class="op">|</span> x <span class="op">&lt;</span> <span class="dv">0</span> <span class="ot">=</span> (x, <span class="dt">False</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">First</span> x         <span class="ot">=</span> (x, <span class="dt">True</span>)</span></code></pre></div>
 <p>また，パターンシノニムはパターンの評価順序にも注意する必要があります．例えば，次の例をみてください．</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" title="1"><span class="kw">data</span> <span class="dt">Pair</span> a b <span class="ot">=</span> <span class="dt">Pair</span> a b</a>
-<a class="sourceLine" id="cb32-2" title="2"></a>
-<a class="sourceLine" id="cb32-3" title="3"><span class="kw">type</span> <span class="dt">Pair3</span> a b c <span class="ot">=</span> <span class="dt">Pair</span> a (<span class="dt">Pair</span> b c)</a>
-<a class="sourceLine" id="cb32-4" title="4"></a>
-<a class="sourceLine" id="cb32-5" title="5"><span class="kw">pattern</span> <span class="dt">Pair3</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c <span class="ot">-&gt;</span> <span class="dt">Pair3</span> a b c</a>
-<a class="sourceLine" id="cb32-6" title="6"><span class="kw">pattern</span> <span class="dt">Pair3</span> x y z <span class="ot">=</span> <span class="dt">Pair</span> x (<span class="dt">Pair</span> y z)</a>
-<a class="sourceLine" id="cb32-7" title="7"></a>
-<a class="sourceLine" id="cb32-8" title="8"><span class="ot">f ::</span> <span class="dt">Pair3</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb32-9" title="9">f (<span class="dt">Pair3</span> <span class="dt">True</span> <span class="dt">True</span> <span class="dt">True</span>) <span class="ot">=</span> <span class="dt">True</span></a>
-<a class="sourceLine" id="cb32-10" title="10">f _                      <span class="ot">=</span> <span class="dt">False</span></a>
-<a class="sourceLine" id="cb32-11" title="11"></a>
-<a class="sourceLine" id="cb32-12" title="12"><span class="ot">f' ::</span> <span class="dt">Pair3</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb32-13" title="13">f' (<span class="dt">Pair</span> <span class="dt">True</span> (<span class="dt">Pair</span> <span class="dt">True</span> <span class="dt">True</span>)) <span class="ot">=</span> <span class="dt">True</span></a>
-<a class="sourceLine" id="cb32-14" title="14">f' _                            <span class="ot">=</span> <span class="dt">False</span></a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Pair</span> a b <span class="ot">=</span> <span class="dt">Pair</span> a b</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Pair3</span> a b c <span class="ot">=</span> <span class="dt">Pair</span> a (<span class="dt">Pair</span> b c)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">Pair3</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c <span class="ot">-&gt;</span> <span class="dt">Pair3</span> a b c</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="kw">pattern</span> <span class="dt">Pair3</span> x y z <span class="ot">=</span> <span class="dt">Pair</span> x (<span class="dt">Pair</span> y z)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Pair3</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>f (<span class="dt">Pair3</span> <span class="dt">True</span> <span class="dt">True</span> <span class="dt">True</span>) <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>f _                      <span class="ot">=</span> <span class="dt">False</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="ot">f' ::</span> <span class="dt">Pair3</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>f' (<span class="dt">Pair</span> <span class="dt">True</span> (<span class="dt">Pair</span> <span class="dt">True</span> <span class="dt">True</span>)) <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>f' _                            <span class="ot">=</span> <span class="dt">False</span></span></code></pre></div>
 <p>この<code>f</code>と<code>f'</code>は評価順が異なり，<code>f (Pair False undefined)</code>が例外を投げるのに対し，<code>f' (Pair False undefined)</code>は<code>False</code>を返します．これは，パターンシノニムを使ったパターンマッチでは，自身のパターンを先に調べ，次に引数のパターンマッチを行うからです．つまり，<code>f</code>は以下と同等になります．</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" title="1"><span class="ot">f ::</span> <span class="dt">Pair3</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb33-2" title="2">f (<span class="dt">Pair</span> x (<span class="dt">Pair</span> y z)) <span class="op">|</span> <span class="dt">True</span> <span class="ot">&lt;-</span> x, <span class="dt">True</span> <span class="ot">&lt;-</span> y, <span class="dt">True</span> <span class="ot">&lt;-</span> z <span class="ot">=</span> <span class="dt">True</span></a>
-<a class="sourceLine" id="cb33-3" title="3">f _                                                     <span class="ot">=</span> <span class="dt">False</span></a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Pair3</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>f (<span class="dt">Pair</span> x (<span class="dt">Pair</span> y z)) <span class="op">|</span> <span class="dt">True</span> <span class="ot">&lt;-</span> x, <span class="dt">True</span> <span class="ot">&lt;-</span> y, <span class="dt">True</span> <span class="ot">&lt;-</span> z <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>f _                                                     <span class="ot">=</span> <span class="dt">False</span></span></code></pre></div>
 <p>パターンシノニムは，モジュールエクスポートを書く際にも注意が必要で，<code>module A (pattern Cons, pattern Nil) where ...</code>というように接頭に<code>pattern</code>をつける必要があります．</p>
 <h3 id="レコードに対するサポートを強化する"><span class="link-to-here-outer"><a href="#レコードに対するサポートを強化する" title="レコードに対するサポートを強化する"><span class="link-to-here">Link to<br />
 here</span></a></span>レコードに対するサポートを強化する</h3>
@@ -464,60 +464,60 @@ here</span></a></span>レコードに対するサポートを強化する</h3>
 <li><code>NamedFieldPuns</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NamedFieldPuns">ユーザーガイド <span class="ascii">- NamedFieldPuns</span>拡張</a></li>
 <li><code>RecordWildCards</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-RecordWildCards">ユーザーガイド <span class="ascii">- RecordWildCards</span>拡張</a></li>
 </ul>
-<p><span class="ascii">Haskell</span>のレコード構文は，便利な反面幾つか機能が劣る場面もあります．このため，<span class="ascii">GHC</span>では，レコードをより扱いやすくするための拡張を幾つか提供しています．それが，<code>DuplicateRecordFields</code>，<code>OverloadedLabels</code>，<code>NamedFieldPuns</code>，<code>RecordWildCards</code>の<span class="ascii">4</span>つの拡張です<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a>．</p>
+<p><span class="ascii">Haskell</span>のレコード構文は，便利な反面幾つか機能が劣る場面もあります．このため，<span class="ascii">GHC</span>では，レコードをより扱いやすくするための拡張を幾つか提供しています．それが，<code>DuplicateRecordFields</code>，<code>OverloadedLabels</code>，<code>NamedFieldPuns</code>，<code>RecordWildCards</code>の<span class="ascii">4</span>つの拡張です<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>．</p>
 <p><span class="ascii">Haskell</span>標準では，同じモジュール内で同じフィールド名を持つ複数のレコード構文を使用したデータ型の定義を行うことができません．これはどのデータ型のフィールドかが曖昧であるようなプログラムを書けてしまうからですが，そういう状況に遭遇するとこの制約は非常に不便です．これを解決するのが，<code>DuplicateRecordFields</code>拡張です．<code>DuplicateRecordFields</code>拡張は，曖昧になるような式を書けなくする代わりに，同一モジュールの複数のデータ型が同じフィールド名を持つことを許容する拡張です．つまり，以下のようなことが可能になります．</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span> {<span class="ot"> d ::</span> <span class="dt">Int</span> }</a>
-<a class="sourceLine" id="cb34-2" title="2"><span class="kw">data</span> <span class="dt">B</span> <span class="ot">=</span> <span class="dt">B</span> {<span class="ot"> d ::</span> <span class="dt">Bool</span> }</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span> {<span class="ot"> d ::</span> <span class="dt">Int</span> }</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">B</span> <span class="ot">=</span> <span class="dt">B</span> {<span class="ot"> d ::</span> <span class="dt">Bool</span> }</span></code></pre></div>
 <p>ただし，この拡張下では，曖昧なフィールドを用いたレコードのアップデート構文やフィールドの選択関数の使用の際は型を明記する必要があったり，モジュールのエクスポートリストで選択関数をエクスポートすることが出来なくなったりします．</p>
-<p><code>OverloadedLabels</code>拡張は，<code>#foo</code>というような<code>#</code>から始まる新たな構文を導入します．<code>#foo</code>は<code>GHC.OverloadedLabels</code>モジュールの<code>fromLabel</code>メソッドにおいて<code>IsLabel "foo" a =&gt; a</code>というような型を持つ場合と同等になります．これを用いることで，同じフィールドを持つデータ型に対する選択関数を次のように書けます<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a>．</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" title="1"><span class="ot">{-# LANGUAGE OverloadedLabels       #-}</span> <span class="co">-- the main extension</span></a>
-<a class="sourceLine" id="cb35-2" title="2"><span class="ot">{-# LANGUAGE DataKinds              #-}</span> <span class="co">-- for Symbol kind</span></a>
-<a class="sourceLine" id="cb35-3" title="3"><span class="ot">{-# LANGUAGE KindSignatures         #-}</span> <span class="co">-- for HasField's `l` parameter</span></a>
-<a class="sourceLine" id="cb35-4" title="4"><span class="ot">{-# LANGUAGE MultiParamTypeClasses  #-}</span> <span class="co">-- for HasField and IsLabel classes</span></a>
-<a class="sourceLine" id="cb35-5" title="5"><span class="ot">{-# LANGUAGE FunctionalDependencies #-}</span> <span class="co">-- for HasField class</span></a>
-<a class="sourceLine" id="cb35-6" title="6"><span class="ot">{-# LANGUAGE FlexibleInstances      #-}</span> <span class="co">-- for HasField instances</span></a>
-<a class="sourceLine" id="cb35-7" title="7"><span class="ot">{-# LANGUAGE ScopedTypeVariables    #-}</span> <span class="co">-- for the IsLabel instance</span></a>
-<a class="sourceLine" id="cb35-8" title="8"><span class="ot">{-# LANGUAGE DuplicateRecordFields  #-}</span> <span class="co">-- for A and B data types</span></a>
-<a class="sourceLine" id="cb35-9" title="9"></a>
-<a class="sourceLine" id="cb35-10" title="10"><span class="kw">import</span> <span class="dt">GHC.OverloadedLabels</span> (<span class="dt">IsLabel</span>(..))</a>
-<a class="sourceLine" id="cb35-11" title="11"><span class="kw">import</span> <span class="dt">GHC.TypeLits</span> (<span class="dt">Symbol</span>)</a>
-<a class="sourceLine" id="cb35-12" title="12"><span class="kw">import</span> <span class="dt">Data.Proxy</span> (<span class="dt">Proxy</span>(..))</a>
-<a class="sourceLine" id="cb35-13" title="13"></a>
-<a class="sourceLine" id="cb35-14" title="14"><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span> {<span class="ot"> d ::</span> <span class="dt">Int</span> }</a>
-<a class="sourceLine" id="cb35-15" title="15"><span class="kw">data</span> <span class="dt">B</span> <span class="ot">=</span> <span class="dt">B</span> {<span class="ot"> d ::</span> <span class="dt">Bool</span> }</a>
-<a class="sourceLine" id="cb35-16" title="16"></a>
-<a class="sourceLine" id="cb35-17" title="17"><span class="kw">class</span> <span class="dt">HasField</span> a (<span class="ot">l ::</span> <span class="dt">Symbol</span>) b <span class="op">|</span> a l <span class="ot">-&gt;</span> b <span class="kw">where</span></a>
-<a class="sourceLine" id="cb35-18" title="18"><span class="ot">  selectField ::</span> <span class="dt">Proxy</span> l <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b</a>
-<a class="sourceLine" id="cb35-19" title="19"></a>
-<a class="sourceLine" id="cb35-20" title="20"><span class="kw">instance</span> <span class="dt">HasField</span> <span class="dt">A</span> <span class="st">&quot;d&quot;</span> <span class="dt">Int</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb35-21" title="21">  selectField _ (<span class="dt">A</span> x) <span class="ot">=</span> x</a>
-<a class="sourceLine" id="cb35-22" title="22"></a>
-<a class="sourceLine" id="cb35-23" title="23"><span class="kw">instance</span> <span class="dt">HasField</span> <span class="dt">B</span> <span class="st">&quot;d&quot;</span> <span class="dt">Bool</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb35-24" title="24">  selectField _ (<span class="dt">B</span> x) <span class="ot">=</span> x</a>
-<a class="sourceLine" id="cb35-25" title="25"></a>
-<a class="sourceLine" id="cb35-26" title="26"><span class="kw">instance</span> <span class="dt">HasField</span> a l b <span class="ot">=&gt;</span> <span class="dt">IsLabel</span> l (a <span class="ot">-&gt;</span> b) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb35-27" title="27">  fromLabel <span class="ot">=</span> selectField (<span class="dt">Proxy</span><span class="ot"> ::</span> <span class="dt">Proxy</span> l)</a></code></pre></div>
+<p><code>OverloadedLabels</code>拡張は，<code>#foo</code>というような<code>#</code>から始まる新たな構文を導入します．<code>#foo</code>は<code>GHC.OverloadedLabels</code>モジュールの<code>fromLabel</code>メソッドにおいて<code>IsLabel "foo" a =&gt; a</code>というような型を持つ場合と同等になります．これを用いることで，同じフィールドを持つデータ型に対する選択関数を次のように書けます<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a>．</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE OverloadedLabels       #-}</span> <span class="co">-- the main extension</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE DataKinds              #-}</span> <span class="co">-- for Symbol kind</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE KindSignatures         #-}</span> <span class="co">-- for HasField's `l` parameter</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE MultiParamTypeClasses  #-}</span> <span class="co">-- for HasField and IsLabel classes</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE FunctionalDependencies #-}</span> <span class="co">-- for HasField class</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE FlexibleInstances      #-}</span> <span class="co">-- for HasField instances</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE ScopedTypeVariables    #-}</span> <span class="co">-- for the IsLabel instance</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE DuplicateRecordFields  #-}</span> <span class="co">-- for A and B data types</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">GHC.OverloadedLabels</span> (<span class="dt">IsLabel</span>(..))</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">GHC.TypeLits</span> (<span class="dt">Symbol</span>)</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Proxy</span> (<span class="dt">Proxy</span>(..))</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span> {<span class="ot"> d ::</span> <span class="dt">Int</span> }</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">B</span> <span class="ot">=</span> <span class="dt">B</span> {<span class="ot"> d ::</span> <span class="dt">Bool</span> }</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">HasField</span> a (<span class="ot">l ::</span> <span class="dt">Symbol</span>) b <span class="op">|</span> a l <span class="ot">-&gt;</span> b <span class="kw">where</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="ot">  selectField ::</span> <span class="dt">Proxy</span> l <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">HasField</span> <span class="dt">A</span> <span class="st">&quot;d&quot;</span> <span class="dt">Int</span> <span class="kw">where</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>  selectField _ (<span class="dt">A</span> x) <span class="ot">=</span> x</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">HasField</span> <span class="dt">B</span> <span class="st">&quot;d&quot;</span> <span class="dt">Bool</span> <span class="kw">where</span></span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>  selectField _ (<span class="dt">B</span> x) <span class="ot">=</span> x</span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">HasField</span> a l b <span class="ot">=&gt;</span> <span class="dt">IsLabel</span> l (a <span class="ot">-&gt;</span> b) <span class="kw">where</span></span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>  fromLabel <span class="ot">=</span> selectField (<span class="dt">Proxy</span><span class="ot"> ::</span> <span class="dt">Proxy</span> l)</span></code></pre></div>
 <p>これを使うことで，<code>#d A { d = 0 }</code>は<code>0</code>を，<code>#d B { d = True }</code>は<code>True</code>を返してくるようになります．また，<code>#d</code>には型を明記しなくても型推論が働くようになります．</p>
 <p>さて他にレコードのパターンマッチやコンストラクトを非常に便利にしてくれる拡張として，<code>NamedFieldPuns</code>拡張と<code>RecordWildCards</code>拡張があります．レコードのパターンマッチは多くの場合冗長になりがちで，次のようなボイラープレートを書きがちです．</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span> {<span class="ot"> x ::</span> <span class="dt">Int</span>,<span class="ot"> y ::</span> <span class="dt">Bool</span> }</a>
-<a class="sourceLine" id="cb36-2" title="2"></a>
-<a class="sourceLine" id="cb36-3" title="3"><span class="ot">f ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb36-4" title="4">f <span class="dt">A</span>{ x <span class="ot">=</span> x } <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span> {<span class="ot"> x ::</span> <span class="dt">Int</span>,<span class="ot"> y ::</span> <span class="dt">Bool</span> }</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>f <span class="dt">A</span>{ x <span class="ot">=</span> x } <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></span></code></pre></div>
 <p><code>NamedFieldPuns</code>拡張は，同等のことを次のように書けるようにする拡張です．</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" title="1"><span class="ot">f ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb37-2" title="2">f <span class="dt">A</span>{ x } <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>f <span class="dt">A</span>{ x } <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></span></code></pre></div>
 <p>また，このパターンは旧来の書き方と合わせて書くこともできます．</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" title="1"><span class="ot">g ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb38-2" title="2">g <span class="dt">A</span>{ x, y <span class="ot">=</span> <span class="dt">False</span> } <span class="ot">=</span> <span class="op">-</span> x</a>
-<a class="sourceLine" id="cb38-3" title="3">g <span class="dt">A</span>{ x }            <span class="ot">=</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ot">g ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>g <span class="dt">A</span>{ x, y <span class="ot">=</span> <span class="dt">False</span> } <span class="ot">=</span> <span class="op">-</span> x</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>g <span class="dt">A</span>{ x }            <span class="ot">=</span> x</span></code></pre></div>
 <p>さらにこの拡張は，コンストラクトの際も役に立ちます．<code>let x = 1 in A { x, y = True }</code>と書くとこの式は，<code>A { x = 1, y = True }</code>と書くのと同等になります．</p>
 <p><code>NamedFieldPuns</code>拡張ではフィールド名を明記する必要がありましたが，<code>RecordWildCards</code>拡張はさらにフィールド名を明記する必要がなくなります．以下のように<code>{..}</code>と書くことで，全てのフィールドを展開してくれるようになります．</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb39-1" title="1"><span class="ot">f ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb39-2" title="2">f <span class="dt">A</span>{<span class="op">..</span>} <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>f <span class="dt">A</span>{<span class="op">..</span>} <span class="ot">=</span> x <span class="op">+</span> <span class="dv">1</span></span></code></pre></div>
 <p>また，部分的に明記することも可能で，その場合以下のように書きます．</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb40-1" title="1"><span class="ot">g ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb40-2" title="2">g <span class="dt">A</span>{ y <span class="ot">=</span> <span class="dt">False</span>, <span class="op">..</span>} <span class="ot">=</span> <span class="op">-</span>x</a>
-<a class="sourceLine" id="cb40-3" title="3">g <span class="dt">A</span>{<span class="op">..</span>}             <span class="ot">=</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ot">g ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>g <span class="dt">A</span>{ y <span class="ot">=</span> <span class="dt">False</span>, <span class="op">..</span>} <span class="ot">=</span> <span class="op">-</span>x</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>g <span class="dt">A</span>{<span class="op">..</span>}             <span class="ot">=</span> x</span></code></pre></div>
 <p>コンストラクトの際も，この拡張は有効です．<code>let x = 1 in A { y = True, ..}</code>と書いた場合，<code>A { x = 1, y = True }</code>と書くのと同等になります．</p>
 <h3 id="型演算子を導入する"><span class="link-to-here-outer"><a href="#型演算子を導入する" title="型演算子を導入する"><span class="link-to-here">Link to<br />
 here</span></a></span>型演算子を導入する</h3>
@@ -526,23 +526,23 @@ here</span></a></span>型演算子を導入する</h3>
 <li><code>TypeOperators</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeOperators">ユーザーガイド <span class="ascii">- TypeOperators</span>拡張</a></li>
 </ul>
 <p><span class="ascii">Haskell</span>ではユーザー定義の関数やデータ型のコンストラクタにおいて，演算子表記のものも定義できるようになっています．例えば，以下のようにです．</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">data</span> <span class="dt">Pair</span> a b <span class="ot">=</span> a <span class="op">:*:</span> b</a>
-<a class="sourceLine" id="cb41-2" title="2"><span class="kw">infixl</span> <span class="dv">7</span> <span class="op">:*:</span></a>
-<a class="sourceLine" id="cb41-3" title="3"></a>
-<a class="sourceLine" id="cb41-4" title="4"><span class="ot">(&amp;) ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b</a>
-<a class="sourceLine" id="cb41-5" title="5">x <span class="op">&amp;</span> f <span class="ot">=</span> f x</a>
-<a class="sourceLine" id="cb41-6" title="6"><span class="kw">infixl</span> <span class="dv">1</span> <span class="op">&amp;</span></a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Pair</span> a b <span class="ot">=</span> a <span class="op">:*:</span> b</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="kw">infixl</span> <span class="dv">7</span> <span class="op">:*:</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="ot">(&amp;) ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">&amp;</span> f <span class="ot">=</span> f x</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="kw">infixl</span> <span class="dv">1</span> <span class="op">&amp;</span></span></code></pre></div>
 <p>しかし<span class="ascii">Haskell</span>標準では，型を定義する場合そのようなことはできません．これを可能にするのが，<code>TypeOperators</code>拡張です．この拡張の有効下では，</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">type</span> a <span class="op">+</span> b <span class="ot">=</span> <span class="dt">Either</span> a b</a>
-<a class="sourceLine" id="cb42-2" title="2"><span class="kw">infixr</span> <span class="dv">5</span> <span class="op">+</span></a></code></pre></div>
-<p>ということが可能になります．ただし，このように定義した型演算子は，同じ名前の値としての演算子があった場合区別ができません．このため，モジュールのエクスポートリストを書く際，型演算子か値レベルの演算子かの区別が付かなくなった場合，値レベルの方が優先されます．この時，型演算子を明示したい場合，<code>type</code>を付けます<a href="#fn12" class="footnote-ref" id="fnref12"><sup>12</sup></a>．</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb43-1" title="1"><span class="ot">{-# LANGUAGE TypeOperators #-}</span></a>
-<a class="sourceLine" id="cb43-2" title="2"></a>
-<a class="sourceLine" id="cb43-3" title="3"><span class="kw">module</span> <span class="dt">A</span></a>
-<a class="sourceLine" id="cb43-4" title="4">  ( <span class="kw">type</span> (<span class="op">+</span>)</a>
-<a class="sourceLine" id="cb43-5" title="5">  ) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb43-6" title="6"></a>
-<a class="sourceLine" id="cb43-7" title="7"><span class="kw">type</span> a <span class="op">+</span> b <span class="ot">=</span> <span class="dt">Either</span> a b</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> a <span class="op">+</span> b <span class="ot">=</span> <span class="dt">Either</span> a b</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="kw">infixr</span> <span class="dv">5</span> <span class="op">+</span></span></code></pre></div>
+<p>ということが可能になります．ただし，このように定義した型演算子は，同じ名前の値としての演算子があった場合区別ができません．このため，モジュールのエクスポートリストを書く際，型演算子か値レベルの演算子かの区別が付かなくなった場合，値レベルの方が優先されます．この時，型演算子を明示したい場合，<code>type</code>を付けます<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a>．</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE TypeOperators #-}</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">A</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  ( <span class="kw">type</span> (<span class="op">+</span>)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="kw">where</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> a <span class="op">+</span> b <span class="ot">=</span> <span class="dt">Either</span> a b</span></code></pre></div>
 <h3 id="型クラスを拡張する"><span class="link-to-here-outer"><a href="#型クラスを拡張する" title="型クラスを拡張する"><span class="link-to-here">Link to<br />
 here</span></a></span>型クラスを拡張する</h3>
 <p>この節では，以下の<span class="ascii">4</span>つの拡張を紹介します．</p>
@@ -554,58 +554,58 @@ here</span></a></span>型クラスを拡張する</h3>
 </ul>
 <p><span class="ascii">Haskell</span>の型クラスは非常に強力な機構です．しかしながら，<span class="ascii">Haskell</span>標準の型クラスの構文は非常に制約がきつく，これらを緩和したいと思うことがよくあります．このため，<span class="ascii">GHC</span>では制約を緩和する拡張をいくつか提供しています．それが，<code>MultiParamTypeClasses</code>，<code>FlexibleContexts</code>，<code>FlexibleInstances</code>，<code>InstanceSigs</code>の<span class="ascii">4</span>つの拡張です．</p>
 <p><span class="ascii">Haskell</span>標準では，クラスは<span class="ascii">1</span>つの変数しか持てません．なので，次のような型クラスは作れません．</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">class</span> <span class="dt">C</span> a b</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">C</span> a b</span></code></pre></div>
 <p>これは非常に不便な制約なため，複数のパラメータを使うような型クラスを許容する拡張が<code>MultiParamTypeClasses</code>拡張です．この拡張により，上のコードが許容されるようになる他，以下のように変数が全くない型クラスも宣言することができるようになります．</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">class</span> <span class="dt">Nullary</span></a></code></pre></div>
-<p>また，<span class="ascii">Haskell</span>標準では，メソッドにおいてクラスの型変数に型制約をかけるということも許容されていませんが，<code>MultiParamTypeClasses</code>拡張ではこれも可能にします<a href="#fn13" class="footnote-ref" id="fnref13"><sup>13</sup></a>．これによって以下のようなクラス定義も書けるようになります．</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb46-1" title="1"><span class="kw">class</span> <span class="dt">Setable</span> s a <span class="kw">where</span></a>
-<a class="sourceLine" id="cb46-2" title="2"><span class="ot">  elem ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> s a <span class="ot">-&gt;</span> <span class="dt">Bool</span></a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Nullary</span></span></code></pre></div>
+<p>また，<span class="ascii">Haskell</span>標準では，メソッドにおいてクラスの型変数に型制約をかけるということも許容されていませんが，<code>MultiParamTypeClasses</code>拡張ではこれも可能にします<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a>．これによって以下のようなクラス定義も書けるようになります．</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Setable</span> s a <span class="kw">where</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  elem ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> s a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span></code></pre></div>
 <p><span class="ascii">Haskell</span>標準では，型制約の解決を安全に，しかも単純にするために，<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-660004.1.3">型注釈における制約の書き方</a>や<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-760004.3.1">クラス定義，インスタンス定義の際の制約の書き方</a>を大きく制限しています．しかし，より複雑な型制約を書きたい時が往々にしてあります．そこで，この制限を緩め，クラス階層が非循環である場合には許容するようにする拡張が，<code>FlexibleContexts</code>拡張です．この拡張下では，</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb47-1" title="1"><span class="co">-- valid</span></a>
-<a class="sourceLine" id="cb47-2" title="2"><span class="kw">class</span> (<span class="dt">Monad</span> m, <span class="dt">Monad</span> (t m)) <span class="ot">=&gt;</span> <span class="dt">Transform</span> t m <span class="kw">where</span></a>
-<a class="sourceLine" id="cb47-3" title="3"><span class="ot">  lift ::</span> m a <span class="ot">-&gt;</span> (t m) a</a>
-<a class="sourceLine" id="cb47-4" title="4"></a>
-<a class="sourceLine" id="cb47-5" title="5"><span class="co">-- valid</span></a>
-<a class="sourceLine" id="cb47-6" title="6"><span class="ot">f ::</span> <span class="dt">Functor</span> <span class="dt">Maybe</span> <span class="ot">=&gt;</span> ()</a>
-<a class="sourceLine" id="cb47-7" title="7">f <span class="ot">=</span> ()</a>
-<a class="sourceLine" id="cb47-8" title="8"></a>
-<a class="sourceLine" id="cb47-9" title="9"><span class="co">-- invalid</span></a>
-<a class="sourceLine" id="cb47-10" title="10"><span class="kw">class</span> <span class="dt">A</span> a <span class="ot">=&gt;</span> <span class="dt">B</span> a</a>
-<a class="sourceLine" id="cb47-11" title="11"><span class="kw">class</span> <span class="dt">B</span> a <span class="ot">=&gt;</span> <span class="dt">A</span> a</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- valid</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> (<span class="dt">Monad</span> m, <span class="dt">Monad</span> (t m)) <span class="ot">=&gt;</span> <span class="dt">Transform</span> t m <span class="kw">where</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  lift ::</span> m a <span class="ot">-&gt;</span> (t m) a</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- valid</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Functor</span> <span class="dt">Maybe</span> <span class="ot">=&gt;</span> ()</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>f <span class="ot">=</span> ()</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- invalid</span></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">A</span> a <span class="ot">=&gt;</span> <span class="dt">B</span> a</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">B</span> a <span class="ot">=&gt;</span> <span class="dt">A</span> a</span></code></pre></div>
 <p>となります．</p>
-<p><code>FlexibleInstances</code>拡張も<code>FlexibleContexts</code>拡張と同じく，<span class="ascii">Haskell</span>標準での<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-770004.3.2">型クラスインスタンスの書き方</a>の制限を，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#instance-termination">停止制限</a>を守る場合に許容するというように緩和する拡張です．停止制限は簡単に言ってしまえば，インスタンス宣言において，型制約がインスタンスより小さく<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a>，型関数を使っていないというものです<a href="#fn15" class="footnote-ref" id="fnref15"><sup>15</sup></a>．この拡張下では，</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb48-1" title="1"><span class="co">-- valid</span></a>
-<a class="sourceLine" id="cb48-2" title="2"><span class="kw">instance</span> <span class="dt">C1</span> (<span class="dt">Maybe</span> [a])</a>
-<a class="sourceLine" id="cb48-3" title="3"></a>
-<a class="sourceLine" id="cb48-4" title="4"><span class="co">-- valid</span></a>
-<a class="sourceLine" id="cb48-5" title="5"><span class="kw">instance</span> <span class="dt">C2</span> a a <span class="ot">=&gt;</span> <span class="dt">C2</span> [a] [a]</a>
-<a class="sourceLine" id="cb48-6" title="6"></a>
-<a class="sourceLine" id="cb48-7" title="7"><span class="co">-- valid</span></a>
-<a class="sourceLine" id="cb48-8" title="8"><span class="kw">instance</span> (<span class="dt">Eq</span> a, <span class="dt">Show</span> b) <span class="ot">=&gt;</span> <span class="dt">C3</span> a b</a>
-<a class="sourceLine" id="cb48-9" title="9"></a>
-<a class="sourceLine" id="cb48-10" title="10"><span class="co">-- valid</span></a>
-<a class="sourceLine" id="cb48-11" title="11"><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Show</span> (s a)) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">S</span> s a)</a>
-<a class="sourceLine" id="cb48-12" title="12"></a>
-<a class="sourceLine" id="cb48-13" title="13"><span class="co">-- invalid</span></a>
-<a class="sourceLine" id="cb48-14" title="14"><span class="kw">instance</span> <span class="dt">C4</span> a <span class="ot">=&gt;</span> <span class="dt">C4</span> a</a>
-<a class="sourceLine" id="cb48-15" title="15"></a>
-<a class="sourceLine" id="cb48-16" title="16"><span class="co">-- invalid</span></a>
-<a class="sourceLine" id="cb48-17" title="17"><span class="kw">instance</span> <span class="dt">C2</span> a a <span class="ot">=&gt;</span> <span class="dt">C1</span> [a]</a>
-<a class="sourceLine" id="cb48-18" title="18"></a>
-<a class="sourceLine" id="cb48-19" title="19"><span class="co">-- invalid</span></a>
-<a class="sourceLine" id="cb48-20" title="20"><span class="kw">instance</span> <span class="dt">Functor</span> [] <span class="ot">=&gt;</span> <span class="dt">C1</span> a</a></code></pre></div>
-<p>となります．また，この拡張下では，型シノニムをインスタンスにすることもできます<a href="#fn16" class="footnote-ref" id="fnref16"><sup>16</sup></a>．</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">type</span> <span class="dt">List</span> a <span class="ot">=</span> [a]</a>
-<a class="sourceLine" id="cb49-2" title="2"></a>
-<a class="sourceLine" id="cb49-3" title="3"><span class="co">-- Instead of `instance C [a]`</span></a>
-<a class="sourceLine" id="cb49-4" title="4"><span class="kw">instance</span> <span class="dt">C</span> (<span class="dt">List</span> a)</a></code></pre></div>
+<p><code>FlexibleInstances</code>拡張も<code>FlexibleContexts</code>拡張と同じく，<span class="ascii">Haskell</span>標準での<a href="https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-770004.3.2">型クラスインスタンスの書き方</a>の制限を，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#instance-termination">停止制限</a>を守る場合に許容するというように緩和する拡張です．停止制限は簡単に言ってしまえば，インスタンス宣言において，型制約がインスタンスより小さく<a href="#fn14" class="footnote-ref" id="fnref14" role="doc-noteref"><sup>14</sup></a>，型関数を使っていないというものです<a href="#fn15" class="footnote-ref" id="fnref15" role="doc-noteref"><sup>15</sup></a>．この拡張下では，</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- valid</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">C1</span> (<span class="dt">Maybe</span> [a])</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- valid</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">C2</span> a a <span class="ot">=&gt;</span> <span class="dt">C2</span> [a] [a]</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- valid</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Eq</span> a, <span class="dt">Show</span> b) <span class="ot">=&gt;</span> <span class="dt">C3</span> a b</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- valid</span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Show</span> (s a)) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">S</span> s a)</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a><span class="co">-- invalid</span></span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">C4</span> a <span class="ot">=&gt;</span> <span class="dt">C4</span> a</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a><span class="co">-- invalid</span></span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">C2</span> a a <span class="ot">=&gt;</span> <span class="dt">C1</span> [a]</span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a><span class="co">-- invalid</span></span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> [] <span class="ot">=&gt;</span> <span class="dt">C1</span> a</span></code></pre></div>
+<p>となります．また，この拡張下では，型シノニムをインスタンスにすることもできます<a href="#fn16" class="footnote-ref" id="fnref16" role="doc-noteref"><sup>16</sup></a>．</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">List</span> a <span class="ot">=</span> [a]</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- Instead of `instance C [a]`</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">C</span> (<span class="dt">List</span> a)</span></code></pre></div>
 <p>ただし，型シノニムを使う場合そのシノニムの引数は全て適用しなければならないことに注意が必要です．</p>
-<p><span class="ascii">Haskell</span>標準では，型クラスインスタンスの定義時，そのメソッドの型注釈は書けないようになっています．しかし，複雑な型クラスインスタンスを書く際，メソッドの型注釈を書きたい場合があります<a href="#fn17" class="footnote-ref" id="fnref17"><sup>17</sup></a>．これを可能にするのが<code>InstanceSigs</code>拡張です．<code>InstanceSigs</code>拡張の元では，以下のようなインスタンス宣言が書けます．</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb50-1" title="1"><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span></a>
-<a class="sourceLine" id="cb50-2" title="2"></a>
-<a class="sourceLine" id="cb50-3" title="3"><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">A</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb50-4" title="4"><span class="ot">  (==) ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb50-5" title="5">  <span class="dt">A</span> <span class="op">==</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">True</span></a></code></pre></div>
+<p><span class="ascii">Haskell</span>標準では，型クラスインスタンスの定義時，そのメソッドの型注釈は書けないようになっています．しかし，複雑な型クラスインスタンスを書く際，メソッドの型注釈を書きたい場合があります<a href="#fn17" class="footnote-ref" id="fnref17" role="doc-noteref"><sup>17</sup></a>．これを可能にするのが<code>InstanceSigs</code>拡張です．<code>InstanceSigs</code>拡張の元では，以下のようなインスタンス宣言が書けます．</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">A</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">A</span> <span class="kw">where</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  (==) ::</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">A</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">A</span> <span class="op">==</span> <span class="dt">A</span> <span class="ot">=</span> <span class="dt">True</span></span></code></pre></div>
 <h3 id="型ワイルドカードをより柔軟に扱う"><span class="link-to-here-outer"><a href="#型ワイルドカードをより柔軟に扱う" title="型ワイルドカードをより柔軟に扱う"><span class="link-to-here">Link to<br />
 here</span></a></span>型ワイルドカードをより柔軟に扱う</h3>
 <p>この節では，以下の拡張を紹介します．</p>
@@ -613,13 +613,13 @@ here</span></a></span>型ワイルドカードをより柔軟に扱う</h3>
 <li><code>NamedWildCards</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NamedWildCards">ユーザーガイド <span class="ascii">- NamedWildCards</span>拡張</a></li>
 </ul>
 <p><span class="ascii">GHC</span>には型ワイルドカードという機能があります．この機能は，<code>_</code>と型シグネチャ上で書いておくと，そこの部分の型を推論してエラーメッセージとして表示してくれる機能です．この機能は，以下のように部分的に記述したり複数指定したりすることも可能です．</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb51-1" title="1"><span class="co">-- Inferred type: (a, b) -&gt; (a, Maybe a1)</span></a>
-<a class="sourceLine" id="cb51-2" title="2"><span class="ot">ignoreSecond ::</span> _ <span class="ot">-&gt;</span> _</a>
-<a class="sourceLine" id="cb51-3" title="3">ignoreSecond (x, _) <span class="ot">=</span> (x, <span class="dt">Nothing</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Inferred type: (a, b) -&gt; (a, Maybe a1)</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="ot">ignoreSecond ::</span> _ <span class="ot">-&gt;</span> _</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>ignoreSecond (x, _) <span class="ot">=</span> (x, <span class="dt">Nothing</span>)</span></code></pre></div>
 <p>これを活用すれば，複雑な型をある程度ヒントを与えた状態で推論してもらい，型を追記するプログラミングスタイルや，<span class="ascii">GHC</span>が実際に型をどう推論するかを見るための補助に応用できます．しかし，例えば<code>ignoreSecond</code>が引数と返り値で型が同じであるという情報が分かっていた場合に，これをヒントとして伝えたい場合がありますが，型ワイルドカードでそれを伝える方法はありません．これを解決するのが<code>NamedWildCards</code>拡張です．この拡張を使うと，以下のようなプログラムに対しても，接頭に<code>_</code>が付いている型をワイルドカードとみなして，エラーメッセージで型の推論結果を表示してくれるようになります．</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb52-1" title="1"><span class="co">-- Inferred type: (a, Maybe a1) -&gt; (a, Maybe a1)</span></a>
-<a class="sourceLine" id="cb52-2" title="2"><span class="ot">ignoreSecond ::</span> _a <span class="ot">-&gt;</span> _a</a>
-<a class="sourceLine" id="cb52-3" title="3">ignoreSecond (x, _) <span class="ot">=</span> (x, <span class="dt">Nothing</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Inferred type: (a, Maybe a1) -&gt; (a, Maybe a1)</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="ot">ignoreSecond ::</span> _a <span class="ot">-&gt;</span> _a</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>ignoreSecond (x, _) <span class="ot">=</span> (x, <span class="dt">Nothing</span>)</span></code></pre></div>
 <h3 id="新たな表記法の導入"><span class="link-to-here-outer"><a href="#新たな表記法の導入" title="新たな表記法の導入"><span class="link-to-here">Link to<br />
 here</span></a></span>新たな表記法の導入</h3>
 <p>この節では，以下の<span class="ascii">2</span>つの拡張を紹介します．</p>
@@ -628,73 +628,73 @@ here</span></a></span>新たな表記法の導入</h3>
 <li><code>RecursiveDo</code><span class="ascii">:</span> <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-RecursiveDo">ユーザーガイド <span class="ascii">- RecursiveDo</span>拡張</a></li>
 </ul>
 <p><span class="ascii">Haskell</span>では，モナドを扱いやすくするための，<span class="ascii">do</span>構文という専用の構文が用意されています．この構文は<span class="ascii">Haskell</span>プログラミングにおいて広く利用されています．<span class="ascii">GHC</span>では，これに加え<code>Arrow</code>と<code>MonadFix</code>というクラスに対しての専用の構文も提供しています．これは<span class="ascii">GHC</span>拡張で実装されており，それぞれ<code>Arrows</code>拡張，<code>RecursiveDo</code>拡張を有効にすることで使用可能です．</p>
-<p><code>Arrow</code>クラスは，モナドの一般化として導入されました<a href="#fn18" class="footnote-ref" id="fnref18"><sup>18</sup></a>．このクラスには，モナドの<code>do</code>構文と同様に，クラスメソッドだけの式に脱糖できる構文が考案され，<span class="ascii">GHC</span>拡張として実装されています．それが<code>Arrows</code>拡張で利用できる<code>proc</code>構文です．</p>
+<p><code>Arrow</code>クラスは，モナドの一般化として導入されました<a href="#fn18" class="footnote-ref" id="fnref18" role="doc-noteref"><sup>18</sup></a>．このクラスには，モナドの<code>do</code>構文と同様に，クラスメソッドだけの式に脱糖できる構文が考案され，<span class="ascii">GHC</span>拡張として実装されています．それが<code>Arrows</code>拡張で利用できる<code>proc</code>構文です．</p>
 <p>例えば，<code>Arrow</code>クラスのメソッドを使った次のような関数は，</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb53-1" title="1"><span class="ot">doSomething ::</span> <span class="dt">Arrow</span> a <span class="ot">=&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb53-2" title="2">doSomething f g h</a>
-<a class="sourceLine" id="cb53-3" title="3">  <span class="ot">=</span>   arr (\x <span class="ot">-&gt;</span> (x <span class="op">+</span> <span class="dv">1</span>, x))</a>
-<a class="sourceLine" id="cb53-4" title="4">  <span class="op">&gt;&gt;&gt;</span> first (f <span class="op">&gt;&gt;&gt;</span> (arr (\y <span class="ot">-&gt;</span> <span class="dv">2</span> <span class="op">*</span> y) <span class="op">&gt;&gt;&gt;</span> g) <span class="op">&amp;&amp;&amp;</span> returnA <span class="op">&gt;&gt;&gt;</span> arr <span class="fu">snd</span>)</a>
-<a class="sourceLine" id="cb53-5" title="5">  <span class="op">&gt;&gt;&gt;</span> arr (\(y, x) <span class="ot">-&gt;</span> (x, x <span class="op">+</span> y))</a>
-<a class="sourceLine" id="cb53-6" title="6">  <span class="op">&gt;&gt;&gt;</span> arr (\(x, z) <span class="ot">-&gt;</span> (z, x <span class="op">*</span> z))</a>
-<a class="sourceLine" id="cb53-7" title="7">  <span class="op">&gt;&gt;&gt;</span> second h</a>
-<a class="sourceLine" id="cb53-8" title="8">  <span class="op">&gt;&gt;&gt;</span> arr (\(z, t) <span class="ot">-&gt;</span> t <span class="op">+</span> z)</a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doSomething ::</span> <span class="dt">Arrow</span> a <span class="ot">=&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>doSomething f g h</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span>   arr (\x <span class="ot">-&gt;</span> (x <span class="op">+</span> <span class="dv">1</span>, x))</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;&gt;</span> first (f <span class="op">&gt;&gt;&gt;</span> (arr (\y <span class="ot">-&gt;</span> <span class="dv">2</span> <span class="op">*</span> y) <span class="op">&gt;&gt;&gt;</span> g) <span class="op">&amp;&amp;&amp;</span> returnA <span class="op">&gt;&gt;&gt;</span> arr <span class="fu">snd</span>)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;&gt;</span> arr (\(y, x) <span class="ot">-&gt;</span> (x, x <span class="op">+</span> y))</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;&gt;</span> arr (\(x, z) <span class="ot">-&gt;</span> (z, x <span class="op">*</span> z))</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;&gt;</span> second h</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;&gt;</span> arr (\(z, t) <span class="ot">-&gt;</span> t <span class="op">+</span> z)</span></code></pre></div>
 <p><code>proc</code>構文を使うと，</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb54-1" title="1"><span class="ot">doSomething ::</span> <span class="dt">Arrow</span> a <span class="ot">=&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb54-2" title="2">doSomething f g h <span class="ot">=</span> proc x <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb54-3" title="3">  y <span class="ot">&lt;-</span> f <span class="op">-&lt;</span> x <span class="op">+</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb54-4" title="4">  g <span class="op">-&lt;</span> <span class="dv">2</span> <span class="op">*</span> y</a>
-<a class="sourceLine" id="cb54-5" title="5">  <span class="kw">let</span> z <span class="ot">=</span> x <span class="op">+</span> y</a>
-<a class="sourceLine" id="cb54-6" title="6">  t <span class="ot">&lt;-</span> h <span class="op">-&lt;</span> x <span class="op">*</span> z</a>
-<a class="sourceLine" id="cb54-7" title="7">  returnA <span class="op">-&lt;</span> t <span class="op">+</span> z</a></code></pre></div>
-<p>というように書けます<a href="#fn19" class="footnote-ref" id="fnref19"><sup>19</sup></a>．また，<code>ArrowLoop</code>クラスの<code>loop</code>メソッドに変換される，<code>rec</code>構文も搭載されており次のようなフィードバック制御を相互再帰で行うプログラムを書くことができます．</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb55-1" title="1"><span class="ot">counter ::</span> <span class="dt">ArrowLoop</span> a <span class="ot">=&gt;</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span> a <span class="dt">Bool</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb55-2" title="2">counter delay <span class="ot">=</span> proc reset <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb55-3" title="3">  rec output <span class="ot">&lt;-</span> returnA <span class="op">-&lt;</span> <span class="kw">if</span> reset <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> next</a>
-<a class="sourceLine" id="cb55-4" title="4">      next <span class="ot">&lt;-</span> delay <span class="dv">0</span> <span class="op">-&lt;</span> output <span class="op">+</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb55-5" title="5">  returnA <span class="op">-&lt;</span> output</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doSomething ::</span> <span class="dt">Arrow</span> a <span class="ot">=&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>doSomething f g h <span class="ot">=</span> proc x <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> f <span class="op">-&lt;</span> x <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  g <span class="op">-&lt;</span> <span class="dv">2</span> <span class="op">*</span> y</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> z <span class="ot">=</span> x <span class="op">+</span> y</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">&lt;-</span> h <span class="op">-&lt;</span> x <span class="op">*</span> z</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>  returnA <span class="op">-&lt;</span> t <span class="op">+</span> z</span></code></pre></div>
+<p>というように書けます<a href="#fn19" class="footnote-ref" id="fnref19" role="doc-noteref"><sup>19</sup></a>．また，<code>ArrowLoop</code>クラスの<code>loop</code>メソッドに変換される，<code>rec</code>構文も搭載されており次のようなフィードバック制御を相互再帰で行うプログラムを書くことができます．</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="ot">counter ::</span> <span class="dt">ArrowLoop</span> a <span class="ot">=&gt;</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="dt">Int</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span> a <span class="dt">Bool</span> <span class="dt">Int</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>counter delay <span class="ot">=</span> proc reset <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  rec output <span class="ot">&lt;-</span> returnA <span class="op">-&lt;</span> <span class="kw">if</span> reset <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> next</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>      next <span class="ot">&lt;-</span> delay <span class="dv">0</span> <span class="op">-&lt;</span> output <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  returnA <span class="op">-&lt;</span> output</span></code></pre></div>
 <p><code>proc</code>構文については<a href="https://www.haskell.org/arrows/syntax.html"><span class="ascii">Arrow syntax</span></a>のページにまとめられている他，<a href="http://www.staff.city.ac.uk/~ross/papers/notation.html">提案論文</a>にて変換規則を確認することが可能です．</p>
 <p>さて，もう<span class="ascii">1</span>つの<code>MonadFix</code>クラスは，モナドを拡張し，再帰的なバインディングを許すようなものです．このクラスを元に，<code>RecursiveDo</code>拡張は<span class="ascii">do</span>構文をさらに拡張します．具体的には，次のように使用できる<code>rec</code>という構文を新たに導入します．</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb56-1" title="1"><span class="ot">doSomething ::</span> [<span class="dt">Int</span>]</a>
-<a class="sourceLine" id="cb56-2" title="2">doSomething <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb56-3" title="3">  rec x <span class="ot">&lt;-</span> [y, y <span class="op">*</span> <span class="dv">10</span>]</a>
-<a class="sourceLine" id="cb56-4" title="4">      y <span class="ot">&lt;-</span> [<span class="dv">1</span>, <span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb56-5" title="5">  <span class="fu">pure</span> <span class="op">$</span> x <span class="op">+</span> y</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doSomething ::</span> [<span class="dt">Int</span>]</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>doSomething <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  rec x <span class="ot">&lt;-</span> [y, y <span class="op">*</span> <span class="dv">10</span>]</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>      y <span class="ot">&lt;-</span> [<span class="dv">1</span>, <span class="dv">2</span>]</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> x <span class="op">+</span> y</span></code></pre></div>
 <p>この関数は，次のように<code>MonadFix</code>クラスのメソッド<code>mfix</code>を使った関数と同等です．</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb57-1" title="1"><span class="ot">doSomething ::</span> [<span class="dt">Int</span>]</a>
-<a class="sourceLine" id="cb57-2" title="2">doSomething <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb57-3" title="3">  (x, y) <span class="ot">&lt;-</span> mfix <span class="op">$</span> \<span class="op">~</span>(x, y) <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb57-4" title="4">    x <span class="ot">&lt;-</span> [y, y <span class="op">*</span> <span class="dv">10</span>]</a>
-<a class="sourceLine" id="cb57-5" title="5">    y <span class="ot">&lt;-</span> [<span class="dv">1</span>, <span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb57-6" title="6">    <span class="fu">pure</span> (x, y)</a>
-<a class="sourceLine" id="cb57-7" title="7">  <span class="fu">pure</span> <span class="op">$</span> x <span class="op">+</span> y</a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doSomething ::</span> [<span class="dt">Int</span>]</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>doSomething <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  (x, y) <span class="ot">&lt;-</span> mfix <span class="op">$</span> \<span class="op">~</span>(x, y) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> [y, y <span class="op">*</span> <span class="dv">10</span>]</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> [<span class="dv">1</span>, <span class="dv">2</span>]</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> (x, y)</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> x <span class="op">+</span> y</span></code></pre></div>
 <p>また，<code>rec</code>を省略して書ける<code>mdo</code>という構文も提供されます．</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb58-1" title="1"><span class="ot">doSomething ::</span> [<span class="dt">Int</span>]</a>
-<a class="sourceLine" id="cb58-2" title="2">doSomething <span class="ot">=</span> mdo</a>
-<a class="sourceLine" id="cb58-3" title="3">  x <span class="ot">&lt;-</span> [y, y <span class="op">*</span> <span class="dv">10</span>]</a>
-<a class="sourceLine" id="cb58-4" title="4">  y <span class="ot">&lt;-</span> [<span class="dv">1</span>, <span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb58-5" title="5">  <span class="fu">pure</span> <span class="op">$</span> x <span class="op">+</span> y</a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doSomething ::</span> [<span class="dt">Int</span>]</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>doSomething <span class="ot">=</span> mdo</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> [y, y <span class="op">*</span> <span class="dv">10</span>]</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> [<span class="dv">1</span>, <span class="dv">2</span>]</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> x <span class="op">+</span> y</span></code></pre></div>
 <p><code>mdo</code>構文は，それぞれの文と変数の依存関係を解析し，自動的に<code>rec</code>ブロックに分けてくれます．後は，その分けられた<code>rec</code>文を<code>mfix</code>に翻訳することで，通常の<code>do</code>構文に翻訳することができます．例えば，</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb59-1" title="1">mdo</a>
-<a class="sourceLine" id="cb59-2" title="2">  a <span class="ot">&lt;-</span> m</a>
-<a class="sourceLine" id="cb59-3" title="3">  b <span class="ot">&lt;-</span> f a c</a>
-<a class="sourceLine" id="cb59-4" title="4">  c <span class="ot">&lt;-</span> f b a</a>
-<a class="sourceLine" id="cb59-5" title="5">  z <span class="ot">&lt;-</span> h a b</a>
-<a class="sourceLine" id="cb59-6" title="6">  d <span class="ot">&lt;-</span> g d e</a>
-<a class="sourceLine" id="cb59-7" title="7">  e <span class="ot">&lt;-</span> g a z</a>
-<a class="sourceLine" id="cb59-8" title="8">  <span class="fu">pure</span> c</a></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>mdo</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> m</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> f a c</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  c <span class="ot">&lt;-</span> f b a</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> h a b</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> g d e</span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> g a z</span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> c</span></code></pre></div>
 <p>という式は，</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb60-1" title="1"><span class="kw">do</span></a>
-<a class="sourceLine" id="cb60-2" title="2">  a <span class="ot">&lt;-</span> m</a>
-<a class="sourceLine" id="cb60-3" title="3">  (b, c) <span class="ot">&lt;-</span> mfix <span class="op">$</span> \<span class="op">~</span>(b, c) <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb60-4" title="4">    b <span class="ot">&lt;-</span> f a c</a>
-<a class="sourceLine" id="cb60-5" title="5">    c <span class="ot">&lt;-</span> f b a</a>
-<a class="sourceLine" id="cb60-6" title="6">    <span class="fu">pure</span> (b, c)</a>
-<a class="sourceLine" id="cb60-7" title="7">  z <span class="ot">&lt;-</span> h a b</a>
-<a class="sourceLine" id="cb60-8" title="8">  (d, e) <span class="ot">&lt;-</span> mfix <span class="op">$</span> \<span class="op">~</span>(d, e) <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb60-9" title="9">    d <span class="ot">&lt;-</span> g d e</a>
-<a class="sourceLine" id="cb60-10" title="10">    e <span class="ot">&lt;-</span> g a z</a>
-<a class="sourceLine" id="cb60-11" title="11">    <span class="fu">pure</span> (d, e)</a>
-<a class="sourceLine" id="cb60-12" title="12">  <span class="fu">pure</span> c</a></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="kw">do</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> m</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  (b, c) <span class="ot">&lt;-</span> mfix <span class="op">$</span> \<span class="op">~</span>(b, c) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> f a c</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>    c <span class="ot">&lt;-</span> f b a</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> (b, c)</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> h a b</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>  (d, e) <span class="ot">&lt;-</span> mfix <span class="op">$</span> \<span class="op">~</span>(d, e) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> g d e</span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>    e <span class="ot">&lt;-</span> g a z</span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> (d, e)</span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> c</span></code></pre></div>
 <p>という式に翻訳されます．<code>mdo</code>と<code>rec</code>の変換規則は，<a href="https://dl.acm.org/citation.cfm?doid=581690.581693">提案論文</a>にて確認が可能です．</p>
 <h1 id="次回予告"><span class="link-to-here-outer"><a href="#次回予告" title="次回予告"><span class="link-to-here">Link to<br />
 here</span></a></span>次回予告</h1>
@@ -713,28 +713,28 @@ here</span></a></span>参考文献</h1>
 <li><a href="https://www.haskell.org/onlinereport/haskell2010/"><span class="ascii">Haskell 2010 Language Report</span></a></li>
 <li><a href="https://www.haskell.org/cabal/users-guide/cabal-projectindex.html"><span class="ascii">Cabal reference</span></a></li>
 </ul>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>この記事では特に断らない限り，<a href="https://www.haskell.org/onlinereport/haskell2010/"><span class="ascii">Haskell2010</span></a>を「<span class="ascii">Haskell</span>標準」または「<span class="ascii">Haskell</span>」と呼称します．<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>このオプションは，拡張を無効にする<span class="ascii">GHC</span>拡張<span class="ascii">(</span>例えば，<code>NoImplicitPrelude</code>拡張など<span class="ascii">)</span>も含めて表示します．実際には<code>No</code>が付いている拡張を抜くと，提供されている数は<span class="ascii">120</span>個になります．<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p><span class="ascii">Haskell</span>標準では，ある拡張を無効にするといった機能は提供されていません．このため，<span class="ascii">GHC</span>では無効にする機能を<span class="ascii">1</span>つの拡張として，<span class="ascii">Haskell</span>標準に則った形で提供しています．<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>有効にする拡張と無効にする拡張を両方指定した場合，<span class="ascii">GHC</span>は指定された順番に沿って最後に指定された方を拡張として採用します．<a href="#fnref4" class="footnote-back">↩</a></p></li>
-<li id="fn5"><p><span class="ascii">Haskell2010</span>標準では，<code>Haskell2010</code>というプラグマをサポートすること，また<span class="ascii">Haskell98</span>から新たに<span class="ascii">Haskell2010</span>までに取り込まれた機能を切り離した<code>PatternGuards</code><span class="ascii">/</span><code>NoNPlusKPatterns</code><span class="ascii">/</span><code>RelaxedPolyRec</code><span class="ascii">/</span><code>EmptyDataDecls</code><span class="ascii">/</span><code>EmptyDataDecls</code>という拡張をそれぞれサポートすることが望ましいと規定されています．<span class="ascii">GHC</span>も<code>Haskell2010</code>という拡張を指定できるようになっており，ここにあるほとんどはこの拡張を有効にした場合にも有効になります．<a href="#fnref5" class="footnote-back">↩</a></p></li>
-<li id="fn6"><p>デフォルトで有効になる拡張のほとんどは，<span class="ascii">Haskell 2010</span>を元にしたものです．ただし全てがそうというわけではありません．<code>NondecreasingIndentation</code>は<span class="ascii">Haskell</span>標準にはない機能です．また<span class="ascii">GHC</span>は<span class="ascii">Haskell 2010</span>で規定されている仕様を全てデフォルトで取り込んでいる訳でもありません．特に<span class="ascii">Haskell</span>標準ではデータ型の宣言に型制約を書くことができますが，<span class="ascii">GHC</span>ではデフォルトではできません．これを有効にする場合，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DatatypeContexts"><code>DatatypeContexts</code>拡張</a>を有効にする必要があります．<a href="#fnref6" class="footnote-back">↩</a></p></li>
-<li id="fn7"><p><span class="ascii">GHC</span>の内部では<code>RelaxedPolyRec</code>という拡張も一緒に有効になります．しかし，現在この拡張は実装上の問題で<span class="ascii">GHC</span>上で無効にすることができないため，ドキュメント上からも削除されています．この記事でも<span class="ascii">GHC</span>の方針に従って，この拡張は特に扱いませんのでご留意ください．<a href="#fnref7" class="footnote-back">↩</a></p></li>
-<li id="fn8"><p>現在，<span class="ascii">Prelude</span>の代替を目指す，<a href="https://hackage.haskell.org/package/rio"><span class="ascii">rio</span></a>というパッケージが作成されています．このパッケージは現在まだ<span class="ascii">prerelease</span>の段階で，<a href="https://github.com/commercialhaskell/stack"><span class="ascii">stack</span></a>において実験的に使用されています．様々な最新の<span class="ascii">Haskell</span>プログラミングの知見を取り入れており，標準の<span class="ascii">Prelude</span>に大きく拡張を施しているため，<span class="ascii">Haskell</span>で大規模な開発を行う場合注目する価値があるかもしれません．<a href="#fnref8" class="footnote-back">↩</a></p></li>
-<li id="fn9"><p><span class="ascii">GHC 8.2.2</span>の段階では，パターンシノニムはコンパイラがクラッシュするなどの非常に多くのバグを抱えていました．私は<span class="ascii">8.4.2</span>をまだあまり試していませんが，パターンシノニムの仕様が非常に複雑なため，<span class="ascii">8.4.2</span>でもまだバグを多く抱えている可能性があります．パターンシノニムをプロダクトで多用する場合，その点に注意した方が良いでしょう．<a href="#fnref9" class="footnote-back">↩</a></p></li>
-<li id="fn10"><p><span class="ascii">GHC</span>のレコードシステムの拡張は非常に強力ですが，その反面システムが非常に複雑になっています．このため，<span class="ascii">8.2.2</span>の段階でコンパイラがクラッシュするなど非常に多くのバグを抱えていました．レコードシステムの仕様の改良は現在も進んでいますが，<span class="ascii">8.4.2</span>でもまだバグを多く抱えている可能性があります．これらの拡張をプロダクトで多用する場合，その点に注意した方が良いでしょう．特に，<span class="ascii">GHC 8.0</span>以降に導入された拡張には注意が必要です．<a href="#fnref10" class="footnote-back">↩</a></p></li>
-<li id="fn11"><p><code>OverloadedLabels</code>拡張はかなり最近入った拡張で，多数の<span class="ascii">GHC</span>拡張，特に強力な型システムを前提にして書かれています．このため，選択関数の実装にもかなり多くの<span class="ascii">GHC</span>拡張を使用しています．ここでは，特に解説しないのでそういうものだと思っておいてください．なお，このプログラムはプロダクションで使うことを前提にしていませんので，そこはご注意ください．<a href="#fnref11" class="footnote-back">↩</a></p></li>
-<li id="fn12"><p>この機能は型演算子を定義しないで再エクスポートなどをする場合にも使用されるため，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ExplicitNamespaces"><code>ExplicitNamespaces</code>拡張</a>として切り離されています．<a href="#fnref12" class="footnote-back">↩</a></p></li>
-<li id="fn13"><p>この機能は<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ConstrainedClassMethods"><code>ConstrainedClassMethods</code>拡張</a>として切り離されており，<code>MultiParamTypeClasses</code>拡張を有効にすると一緒に有効になります．<a href="#fnref13" class="footnote-back">↩</a></p></li>
-<li id="fn14"><p>型制約が小さいとは，型変数とコンストラクタと変数の組の出現が少ないということです．<a href="#fnref14" class="footnote-back">↩</a></p></li>
-<li id="fn15"><p>より正確には，<code>FunctionalDependencies</code>に対する制限もありますが，ここでは割愛します．<a href="#fnref15" class="footnote-back">↩</a></p></li>
-<li id="fn16"><p>この拡張は，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeSynonymInstances"><code>TypeSynonymInstances</code>拡張</a>として切り離されており，<code>FlexibleInstances</code>拡張を有効にすると一緒に有効になります．<a href="#fnref16" class="footnote-back">↩</a></p></li>
-<li id="fn17"><p>特に<code>ScopedTypeVariables</code>拡張を指定する場合，型注釈は必要です．<a href="#fnref17" class="footnote-back">↩</a></p></li>
-<li id="fn18"><p><a href="https://dl.acm.org/citation.cfm?id=347246">“<span class="ascii">Generalising Monads to Arrows</span>”</a><span class="ascii">, John Hughes, in Science of Computer Programming 37, pp. 67</span>–<span class="ascii">111, May 2000</span><a href="#fnref18" class="footnote-back">↩</a></p></li>
-<li id="fn19"><p>一見，この構文は単純な脱糖を行うと脱糖後のプログラムが非常に冗長になるように思えます．しかし，<code>Arrow</code>クラスのメソッドに設けられている書き換え規則によって，最終的に妥当な大きさまで脱糖後のプログラムが小さくなってくれます．<a href="#fnref19" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>この記事では特に断らない限り，<a href="https://www.haskell.org/onlinereport/haskell2010/"><span class="ascii">Haskell2010</span></a>を「<span class="ascii">Haskell</span>標準」または「<span class="ascii">Haskell</span>」と呼称します．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>このオプションは，拡張を無効にする<span class="ascii">GHC</span>拡張<span class="ascii">(</span>例えば，<code>NoImplicitPrelude</code>拡張など<span class="ascii">)</span>も含めて表示します．実際には<code>No</code>が付いている拡張を抜くと，提供されている数は<span class="ascii">120</span>個になります．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><span class="ascii">Haskell</span>標準では，ある拡張を無効にするといった機能は提供されていません．このため，<span class="ascii">GHC</span>では無効にする機能を<span class="ascii">1</span>つの拡張として，<span class="ascii">Haskell</span>標準に則った形で提供しています．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>有効にする拡張と無効にする拡張を両方指定した場合，<span class="ascii">GHC</span>は指定された順番に沿って最後に指定された方を拡張として採用します．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p><span class="ascii">Haskell2010</span>標準では，<code>Haskell2010</code>というプラグマをサポートすること，また<span class="ascii">Haskell98</span>から新たに<span class="ascii">Haskell2010</span>までに取り込まれた機能を切り離した<code>PatternGuards</code><span class="ascii">/</span><code>NoNPlusKPatterns</code><span class="ascii">/</span><code>RelaxedPolyRec</code><span class="ascii">/</span><code>EmptyDataDecls</code><span class="ascii">/</span><code>EmptyDataDecls</code>という拡張をそれぞれサポートすることが望ましいと規定されています．<span class="ascii">GHC</span>も<code>Haskell2010</code>という拡張を指定できるようになっており，ここにあるほとんどはこの拡張を有効にした場合にも有効になります．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p>デフォルトで有効になる拡張のほとんどは，<span class="ascii">Haskell 2010</span>を元にしたものです．ただし全てがそうというわけではありません．<code>NondecreasingIndentation</code>は<span class="ascii">Haskell</span>標準にはない機能です．また<span class="ascii">GHC</span>は<span class="ascii">Haskell 2010</span>で規定されている仕様を全てデフォルトで取り込んでいる訳でもありません．特に<span class="ascii">Haskell</span>標準ではデータ型の宣言に型制約を書くことができますが，<span class="ascii">GHC</span>ではデフォルトではできません．これを有効にする場合，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DatatypeContexts"><code>DatatypeContexts</code>拡張</a>を有効にする必要があります．<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7" role="doc-endnote"><p><span class="ascii">GHC</span>の内部では<code>RelaxedPolyRec</code>という拡張も一緒に有効になります．しかし，現在この拡張は実装上の問題で<span class="ascii">GHC</span>上で無効にすることができないため，ドキュメント上からも削除されています．この記事でも<span class="ascii">GHC</span>の方針に従って，この拡張は特に扱いませんのでご留意ください．<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8" role="doc-endnote"><p>現在，<span class="ascii">Prelude</span>の代替を目指す，<a href="https://hackage.haskell.org/package/rio"><span class="ascii">rio</span></a>というパッケージが作成されています．このパッケージは現在まだ<span class="ascii">prerelease</span>の段階で，<a href="https://github.com/commercialhaskell/stack"><span class="ascii">stack</span></a>において実験的に使用されています．様々な最新の<span class="ascii">Haskell</span>プログラミングの知見を取り入れており，標準の<span class="ascii">Prelude</span>に大きく拡張を施しているため，<span class="ascii">Haskell</span>で大規模な開発を行う場合注目する価値があるかもしれません．<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9" role="doc-endnote"><p><span class="ascii">GHC 8.2.2</span>の段階では，パターンシノニムはコンパイラがクラッシュするなどの非常に多くのバグを抱えていました．私は<span class="ascii">8.4.2</span>をまだあまり試していませんが，パターンシノニムの仕様が非常に複雑なため，<span class="ascii">8.4.2</span>でもまだバグを多く抱えている可能性があります．パターンシノニムをプロダクトで多用する場合，その点に注意した方が良いでしょう．<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10" role="doc-endnote"><p><span class="ascii">GHC</span>のレコードシステムの拡張は非常に強力ですが，その反面システムが非常に複雑になっています．このため，<span class="ascii">8.2.2</span>の段階でコンパイラがクラッシュするなど非常に多くのバグを抱えていました．レコードシステムの仕様の改良は現在も進んでいますが，<span class="ascii">8.4.2</span>でもまだバグを多く抱えている可能性があります．これらの拡張をプロダクトで多用する場合，その点に注意した方が良いでしょう．特に，<span class="ascii">GHC 8.0</span>以降に導入された拡張には注意が必要です．<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn11" role="doc-endnote"><p><code>OverloadedLabels</code>拡張はかなり最近入った拡張で，多数の<span class="ascii">GHC</span>拡張，特に強力な型システムを前提にして書かれています．このため，選択関数の実装にもかなり多くの<span class="ascii">GHC</span>拡張を使用しています．ここでは，特に解説しないのでそういうものだと思っておいてください．なお，このプログラムはプロダクションで使うことを前提にしていませんので，そこはご注意ください．<a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn12" role="doc-endnote"><p>この機能は型演算子を定義しないで再エクスポートなどをする場合にも使用されるため，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ExplicitNamespaces"><code>ExplicitNamespaces</code>拡張</a>として切り離されています．<a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn13" role="doc-endnote"><p>この機能は<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ConstrainedClassMethods"><code>ConstrainedClassMethods</code>拡張</a>として切り離されており，<code>MultiParamTypeClasses</code>拡張を有効にすると一緒に有効になります．<a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn14" role="doc-endnote"><p>型制約が小さいとは，型変数とコンストラクタと変数の組の出現が少ないということです．<a href="#fnref14" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn15" role="doc-endnote"><p>より正確には，<code>FunctionalDependencies</code>に対する制限もありますが，ここでは割愛します．<a href="#fnref15" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn16" role="doc-endnote"><p>この拡張は，<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeSynonymInstances"><code>TypeSynonymInstances</code>拡張</a>として切り離されており，<code>FlexibleInstances</code>拡張を有効にすると一緒に有効になります．<a href="#fnref16" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn17" role="doc-endnote"><p>特に<code>ScopedTypeVariables</code>拡張を指定する場合，型注釈は必要です．<a href="#fnref17" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn18" role="doc-endnote"><p><a href="https://dl.acm.org/citation.cfm?id=347246">“<span class="ascii">Generalising Monads to Arrows</span>”</a><span class="ascii">, John Hughes, in Science of Computer Programming 37, pp. 67</span>–<span class="ascii">111, May 2000</span><a href="#fnref18" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn19" role="doc-endnote"><p>一見，この構文は単純な脱糖を行うと脱糖後のプログラムが非常に冗長になるように思えます．しかし，<code>Arrow</code>クラスのメソッドに設けられている書き換え規則によって，最終的に妥当な大きさまで脱糖後のプログラムが小さくなってくれます．<a href="#fnref19" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

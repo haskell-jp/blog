@@ -174,26 +174,26 @@ Contents
 <h1 id="mono-traversableパッケージの紹介"><span class="link-to-here-outer"><a href="#mono-traversableパッケージの紹介" title="mono-traversableパッケージの紹介"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">mono-traversable</span>パッケージの紹介</h1>
 <p><span class="ascii">mono-traversable</span>パッケージは、名前のとおり<code>MonoTraversable</code>や<code>MonoFoldable</code>、<code>MonoFunctor</code>といったおなじみの型クラスの名前に<code>Mono</code>という接頭辞を付けた型クラスによって、多様なコンテナ型を抽象化してくれます。これらの型クラスはすべて、<code>ByteString</code>や<code>Text</code>のような、「要素として持てる値の型が<span class="ascii">1</span>種類だけ」の型も対象にしているのが特徴です。<span class="ascii">Type Family</span>を応用し、次のように型毎に要素の型を固定することで、そうした特徴を実現しています<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Element</span> mono</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">ByteString</span> <span class="ot">=</span> <span class="dt">Word8</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">Text</span> <span class="ot">=</span> <span class="dt">Char</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> [a] <span class="ot">=</span> a</a>
-<a class="sourceLine" id="cb1-6" title="6"></a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="co">-- ...</span></a>
-<a class="sourceLine" id="cb1-8" title="8"></a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="kw">class</span> <span class="dt">MonoFunctor</span> mono <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-10" title="10">  <span class="co">-- ...</span></a>
-<a class="sourceLine" id="cb1-11" title="11"><span class="ot">  omap ::</span> (<span class="dt">Element</span> mono <span class="ot">-&gt;</span> <span class="dt">Element</span> mono) <span class="ot">-&gt;</span> mono <span class="ot">-&gt;</span> mono</a>
-<a class="sourceLine" id="cb1-12" title="12"></a>
-<a class="sourceLine" id="cb1-13" title="13"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">ByteString</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-14" title="14">  omap <span class="ot">=</span> <span class="dt">ByteString</span><span class="op">.</span><span class="fu">map</span></a>
-<a class="sourceLine" id="cb1-15" title="15"></a>
-<a class="sourceLine" id="cb1-16" title="16"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">Text</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-17" title="17">  omap <span class="ot">=</span> Text.map</a>
-<a class="sourceLine" id="cb1-18" title="18"></a>
-<a class="sourceLine" id="cb1-19" title="19"><span class="kw">instance</span> <span class="dt">MonoFunctor</span> [a] <span class="kw">where</span></a>
-<a class="sourceLine" id="cb1-20" title="20">  omap <span class="ot">=</span> <span class="fu">map</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">family</span> <span class="dt">Element</span> mono</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">ByteString</span> <span class="ot">=</span> <span class="dt">Word8</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> <span class="dt">Text</span> <span class="ot">=</span> <span class="dt">Char</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">instance</span> <span class="dt">Element</span> [a] <span class="ot">=</span> a</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- ...</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">MonoFunctor</span> mono <span class="kw">where</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ...</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ot">  omap ::</span> (<span class="dt">Element</span> mono <span class="ot">-&gt;</span> <span class="dt">Element</span> mono) <span class="ot">-&gt;</span> mono <span class="ot">-&gt;</span> mono</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">ByteString</span> <span class="kw">where</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  omap <span class="ot">=</span> <span class="dt">ByteString</span><span class="op">.</span><span class="fu">map</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">MonoFunctor</span> <span class="dt">Text</span> <span class="kw">where</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  omap <span class="ot">=</span> Text.map</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">MonoFunctor</span> [a] <span class="kw">where</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  omap <span class="ot">=</span> <span class="fu">map</span></span></code></pre></div>
 <p>※<span class="ascii">mono-traversable</span>パッケージのソースから引用して少し改変しました。</p>
 <p>さらに、これまで紹介した<code>MonoTraversable</code>や<code>MonoFoldable</code>、<code>MonoFunctor</code>に加えて、<code>SemiSequence</code>や<code>IsSequence</code>という型クラスで分解や構築に関わる操作<small>（例えば<code>cons</code>や<code>break</code>）</small>などの他、<small>（今回は取り上げませんが）</small><code>SetContainer</code>などの型クラスで<code>Map</code>や<code>Set</code>、<code>IntMap</code>などの型まで抽象化してくれます。</p>
 <p>そこで次の節では、この<span class="ascii">mono-traversable</span>パッケージにおける型クラスを中心に、<code>Data.Text</code>モジュールや<code>Data.ByteString</code>モジュールにおける各関数が、どの型クラスに対するどの関数に対応するのか、まとめた表を作ってみました。</p>
@@ -213,6 +213,12 @@ here</span></a></span><span class="ascii">mono-traversable</span>パッケージ
 </ul></li>
 </ul>
 <table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 19%" />
+<col style="width: 23%" />
+<col style="width: 37%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th><code>Text</code></th>
@@ -1170,11 +1176,11 @@ here</span></a></span>⚠️パフォーマンスに関わる注意事項</h1>
 <h1 id="事例-stringから相互変換できる型を抽象化する"><span class="link-to-here-outer"><a href="#事例-stringから相互変換できる型を抽象化する" title="事例-stringから相互変換できる型を抽象化する"><span class="link-to-here">Link to<br />
 here</span></a></span>事例<span class="ascii">:</span> <code>String</code>から相互変換できる型を抽象化する</h1>
 <p>最後に、最近私が作った（まだリリースしてない）ライブラリーにおいて、<code>MonoFoldable</code>と<code>IsString</code>を使うことで、<code>Text</code>と<code>String</code>両方をサポートした関数を紹介しておきます。ただ、時間とやる気パワーが残り少なくなってしまったので、該当の箇所だけ<a href="https://github.com/igrep/envparse-applicative/blob/0fb7b23e45a09b4f53406b46bd563312ed27f2a4/src/EnvParse/Applicative.hs#L156">こちら</a>からコピペして、説明は簡単にしておきます<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">stringVal ::</span> (<span class="dt">IsString</span> a, <span class="dt">MT.MonoFoldable</span> a, <span class="dt">MT.Element</span> a <span class="op">~</span> <span class="dt">Char</span>) <span class="ot">=&gt;</span> <span class="dt">CodecEnvVal</span> a</a>
-<a class="sourceLine" id="cb2-2" title="2">stringVal <span class="ot">=</span> valByFunction <span class="dt">CodecEnvValByFunction</span></a>
-<a class="sourceLine" id="cb2-3" title="3">  { encode <span class="ot">=</span> MT.otoList</a>
-<a class="sourceLine" id="cb2-4" title="4">  , decode <span class="ot">=</span> <span class="dt">Right</span> <span class="op">.</span> fromString</a>
-<a class="sourceLine" id="cb2-5" title="5">  }</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">stringVal ::</span> (<span class="dt">IsString</span> a, <span class="dt">MT.MonoFoldable</span> a, <span class="dt">MT.Element</span> a <span class="op">~</span> <span class="dt">Char</span>) <span class="ot">=&gt;</span> <span class="dt">CodecEnvVal</span> a</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>stringVal <span class="ot">=</span> valByFunction <span class="dt">CodecEnvValByFunction</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  { encode <span class="ot">=</span> MT.otoList</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  , decode <span class="ot">=</span> <span class="dt">Right</span> <span class="op">.</span> fromString</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 <p><code>CodecEnvVal a</code>型は、<code>a</code>型を<code>String</code>型と相互変換するための情報を含んだ型です。<code>stringVal</code>の場合、名前のとおり文字列っぽい型と<code>String</code>との相互変換ができなければなりません。もちろん単純に<code>String</code>型だけをサポートして<code>Text</code>用には別途<code>CodecEnvVal Text</code>を作ってもいいのですが、一つの<code>CodecEnvVal a</code>だけで扱えた方が楽でしょうし、今回は<code>MonoFoldable</code>の<code>otoList</code>と<code>IsString</code>の<code>fromString</code>を使って両方をサポートすることにしました。なお、これでは<code>ByteString</code>がサポートできませんが、ここで相互変換する<code>String</code>は、要件上人間が読み書きするファイルにおける文字列を想定しているので、<code>ByteString</code>はバイナリーデータにだけ使うべきだ、という立場から敢えてサポートしていません。</p>
 <h1 id="まとめ"><span class="link-to-here-outer"><a href="#まとめ" title="まとめ"><span class="link-to-here">Link to<br />
 here</span></a></span>まとめ</h1>
@@ -1184,6 +1190,9 @@ here</span></a></span>まとめ</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="../../posts/2022/disband_admins.html" lang="ja">一般社団法人としてのHaskell-jp Admins解散のお知らせ</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">

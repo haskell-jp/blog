@@ -180,72 +180,72 @@ here</span></a></span><span class="ascii">Copilot</span>を試してみる</h1>
 <p>せっかくなんで<span class="ascii">Copilot</span>を試してみましょう。<br />
 公式サイトにあったサンプルコードそのまんまですが、生成される<span class="ascii">C</span>のコードを眺めてみます。</p>
 <p>👇のコマンドでサンプルコードが入ったリポジトリーを<span class="ascii">git clone</span>した後、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">git</span> clone https://github.com/haskell-jp/blog</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="bu">cd</span> blog/examples/2019/hiw-copilot</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/haskell-jp/blog</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> blog/examples/2019/hiw-copilot</span></code></pre></div>
 <p>👇のコマンドでビルド・<span class="ascii">C</span>言語によるコードの生成できるはずです。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">stack</span> build copilot</a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="ex">stack</span> exec runghc heater.hs</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">stack</span> build copilot</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">stack</span> exec runghc heater.hs</span></code></pre></div>
 <p>こちらが生成元の<span class="ascii">Haskell</span>のコードです。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell:heater.hs"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">import</span> <span class="dt">Language.Copilot</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw">import</span> <span class="dt">Copilot.Compile.C99</span></a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="kw">import</span> <span class="dt">Prelude</span> <span class="kw">hiding</span> ((&gt;), (&lt;), div)</a>
-<a class="sourceLine" id="cb3-5" title="5"></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="ot">temp ::</span> <span class="dt">Stream</span> <span class="dt">Word8</span></a>
-<a class="sourceLine" id="cb3-7" title="7">temp <span class="ot">=</span> extern <span class="st">&quot;temperature&quot;</span> <span class="dt">Nothing</span></a>
-<a class="sourceLine" id="cb3-8" title="8"></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="ot">ctemp ::</span> <span class="dt">Stream</span> <span class="dt">Float</span></a>
-<a class="sourceLine" id="cb3-10" title="10">ctemp <span class="ot">=</span> (unsafeCast temp) <span class="op">*</span> (<span class="fl">150.0</span> <span class="op">/</span> <span class="fl">255.0</span>) <span class="op">-</span> <span class="fl">50.0</span></a>
-<a class="sourceLine" id="cb3-11" title="11"></a>
-<a class="sourceLine" id="cb3-12" title="12">spec <span class="ot">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb3-13" title="13">  trigger <span class="st">&quot;heaton&quot;</span>  (ctemp <span class="op">&lt;</span> <span class="fl">18.0</span>) [arg ctemp]</a>
-<a class="sourceLine" id="cb3-14" title="14">  trigger <span class="st">&quot;heatoff&quot;</span> (ctemp <span class="op">&gt;</span> <span class="fl">21.0</span>) [arg ctemp]</a>
-<a class="sourceLine" id="cb3-15" title="15"></a>
-<a class="sourceLine" id="cb3-16" title="16">main <span class="ot">=</span> reify spec <span class="op">&gt;&gt;=</span> compile <span class="st">&quot;heater&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell:heater.hs"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Language.Copilot</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Copilot.Compile.C99</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prelude</span> <span class="kw">hiding</span> ((&gt;), (&lt;), div)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ot">temp ::</span> <span class="dt">Stream</span> <span class="dt">Word8</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">=</span> extern <span class="st">&quot;temperature&quot;</span> <span class="dt">Nothing</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ot">ctemp ::</span> <span class="dt">Stream</span> <span class="dt">Float</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>ctemp <span class="ot">=</span> (unsafeCast temp) <span class="op">*</span> (<span class="fl">150.0</span> <span class="op">/</span> <span class="fl">255.0</span>) <span class="op">-</span> <span class="fl">50.0</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>spec <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  trigger <span class="st">&quot;heaton&quot;</span>  (ctemp <span class="op">&lt;</span> <span class="fl">18.0</span>) [arg ctemp]</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  trigger <span class="st">&quot;heatoff&quot;</span> (ctemp <span class="op">&gt;</span> <span class="fl">21.0</span>) [arg ctemp]</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> reify spec <span class="op">&gt;&gt;=</span> compile <span class="st">&quot;heater&quot;</span></span></code></pre></div>
 <p>まず、<code>temp</code>と<code>ctemp</code>という識別子に定義した式が、センサーが発信する、連続的に変化する値を表しています。<br />
 <span class="ascii">Copilot</span>の言葉はこれを<code>Stream</code>と呼んでいます。</p>
 <p><code>spec</code>という識別子で定義している式が、「どのセンサーから信号を受け取って、どんな条件を満たした場合にどの処理を実行するか」規定しているようです。<br />
 👆の場合、<code>ctemp</code>という<code>Stream</code>が<code>18.0</code>を下回ったら<code>heaton</code>というイベントを発火し、<code>21.0</code>を超えたら<code>heatoff</code>というイベントを発火する、と定めているわけですね。<br />
 そして<code>main</code>関数で実行している<code>reify spec &gt;&gt;= compile "heater"</code>という箇所で、<code>.h</code>ファイルと<code>.c</code>ファイルを書き込んでいます。</p>
 <p>そして、生成されたヘッダーファイル<code>heater.h</code>がこう👇</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c:heater.h"><code class="sourceCode c"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">extern</span> <span class="dt">uint8_t</span> temperature;</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="dt">void</span> heatoff(<span class="dt">float</span> heatoff_arg0);</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="dt">void</span> heaton(<span class="dt">float</span> heaton_arg0);</a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="dt">void</span> step(<span class="dt">void</span>);</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c:heater.h"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">extern</span> <span class="dt">uint8_t</span> temperature<span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> heatoff<span class="op">(</span><span class="dt">float</span> heatoff_arg0<span class="op">);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> heaton<span class="op">(</span><span class="dt">float</span> heaton_arg0<span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> step<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <p>で、肝心の<span class="ascii">C</span>のコード本体<code>heater.c</code>がこちらです。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c:heater.c"><code class="sourceCode c"><a class="sourceLine" id="cb5-1" title="1"><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="pp">#include </span><span class="im">&lt;stdbool.h&gt;</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></a>
-<a class="sourceLine" id="cb5-4" title="4"></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="pp">#include </span><span class="im">&quot;heater.h&quot;</span></a>
-<a class="sourceLine" id="cb5-6" title="6"></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="dt">static</span> <span class="dt">uint8_t</span> temperature_cpy;</a>
-<a class="sourceLine" id="cb5-8" title="8"></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="dt">bool</span> heatoff_guard(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-10" title="10">  <span class="cf">return</span> ((((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>)) &gt; (<span class="fl">21.0</span>);</a>
-<a class="sourceLine" id="cb5-11" title="11">}</a>
-<a class="sourceLine" id="cb5-12" title="12"></a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="dt">float</span> heatoff_arg0(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-14" title="14">  <span class="cf">return</span> (((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>);</a>
-<a class="sourceLine" id="cb5-15" title="15">}</a>
-<a class="sourceLine" id="cb5-16" title="16"></a>
-<a class="sourceLine" id="cb5-17" title="17"><span class="dt">bool</span> heaton_guard(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-18" title="18">  <span class="cf">return</span> ((((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>)) &lt; (<span class="fl">18.0</span>);</a>
-<a class="sourceLine" id="cb5-19" title="19">}</a>
-<a class="sourceLine" id="cb5-20" title="20"></a>
-<a class="sourceLine" id="cb5-21" title="21"><span class="dt">float</span> heaton_arg0(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-22" title="22">  <span class="cf">return</span> (((<span class="dt">float</span>)(temperature_cpy)) * ((<span class="fl">150.0</span>) / (<span class="fl">255.0</span>))) - (<span class="fl">50.0</span>);</a>
-<a class="sourceLine" id="cb5-23" title="23">}</a>
-<a class="sourceLine" id="cb5-24" title="24"></a>
-<a class="sourceLine" id="cb5-25" title="25"><span class="dt">void</span> step(<span class="dt">void</span>) {</a>
-<a class="sourceLine" id="cb5-26" title="26">  (temperature_cpy) = (temperature);</a>
-<a class="sourceLine" id="cb5-27" title="27">  <span class="cf">if</span> ((heatoff_guard)()) {</a>
-<a class="sourceLine" id="cb5-28" title="28">    (heatoff)(((heatoff_arg0)()));</a>
-<a class="sourceLine" id="cb5-29" title="29">  };</a>
-<a class="sourceLine" id="cb5-30" title="30">  <span class="cf">if</span> ((heaton_guard)()) {</a>
-<a class="sourceLine" id="cb5-31" title="31">    (heaton)(((heaton_arg0)()));</a>
-<a class="sourceLine" id="cb5-32" title="32">  };</a>
-<a class="sourceLine" id="cb5-33" title="33">}</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c:heater.c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdbool.h&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;heater.h&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">uint8_t</span> temperature_cpy<span class="op">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> heatoff_guard<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">((((</span><span class="dt">float</span><span class="op">)(</span>temperature_cpy<span class="op">))</span> <span class="op">*</span> <span class="op">((</span><span class="fl">150.0</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">255.0</span><span class="op">)))</span> <span class="op">-</span> <span class="op">(</span><span class="fl">50.0</span><span class="op">))</span> <span class="op">&gt;</span> <span class="op">(</span><span class="fl">21.0</span><span class="op">);</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> heatoff_arg0<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(((</span><span class="dt">float</span><span class="op">)(</span>temperature_cpy<span class="op">))</span> <span class="op">*</span> <span class="op">((</span><span class="fl">150.0</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">255.0</span><span class="op">)))</span> <span class="op">-</span> <span class="op">(</span><span class="fl">50.0</span><span class="op">);</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> heaton_guard<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">((((</span><span class="dt">float</span><span class="op">)(</span>temperature_cpy<span class="op">))</span> <span class="op">*</span> <span class="op">((</span><span class="fl">150.0</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">255.0</span><span class="op">)))</span> <span class="op">-</span> <span class="op">(</span><span class="fl">50.0</span><span class="op">))</span> <span class="op">&lt;</span> <span class="op">(</span><span class="fl">18.0</span><span class="op">);</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> heaton_arg0<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(((</span><span class="dt">float</span><span class="op">)(</span>temperature_cpy<span class="op">))</span> <span class="op">*</span> <span class="op">((</span><span class="fl">150.0</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">255.0</span><span class="op">)))</span> <span class="op">-</span> <span class="op">(</span><span class="fl">50.0</span><span class="op">);</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> step<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span>temperature_cpy<span class="op">)</span> <span class="op">=</span> <span class="op">(</span>temperature<span class="op">);</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>heatoff_guard<span class="op">)())</span> <span class="op">{</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>heatoff<span class="op">)(((</span>heatoff_arg0<span class="op">)()));</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>heaton_guard<span class="op">)())</span> <span class="op">{</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>heaton<span class="op">)(((</span>heaton_arg0<span class="op">)()));</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>先ほど<code>Stream</code>として定義した値のうち、<code>temp</code>は、<code>temperature</code>というグローバル変数と、それを一時的に保存する<code>temperature_cpy</code>という二つの変数に翻訳されました。<br />
 <code>spec</code>において<code>trigger</code>という関数で列挙した「どのセンサーから信号を受け取って、どんな条件を満たした場合にどの処理を実行するか」というルールは、<code>step</code>という関数に現れたようです。<br />
 この関数を利用する側では、<code>heaton</code>関数と<code>heatoff</code>関数を別途定義した上で、<code>temperature</code>にセンサーから受け取った値を代入して<code>step</code>を呼ぶことによって、<code>temperature</code>の値が条件に一致したとき、<code>heaton</code>関数と<code>heatoff</code>関数を実行してハードウェアの制御ができるのでしょう。<br />

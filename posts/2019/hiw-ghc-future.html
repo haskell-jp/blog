@@ -172,30 +172,30 @@ here</span></a></span><span class="ascii">HoleFitPlugins and the future of inter
 <p>まず、「<span class="ascii">Valid Hole Fits</span>」という機能について軽く紹介します<small>（詳しくは<a href="https://wataru86.github.io/slides/vhs/">こちらのスライド</a>が参考になるかと思います）</small>。<br />
 「<span class="ascii">Valid Hole Fits</span>」はアンダースコア <code>_</code>で始まる識別子を書いたとき、<span class="ascii">GHC</span>が推論した型にマッチする関数をエラーメッセージに付記することで、ユーザーがどんな式を書けばよいか、ヒントを与えてくれるものです。</p>
 <p>例えば、</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">map</span> (<span class="fu">length</span> <span class="op">.</span> _someFunc) [<span class="dt">True</span>, <span class="dt">False</span>, <span class="dt">True</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span> (<span class="fu">length</span> <span class="op">.</span> _someFunc) [<span class="dt">True</span>, <span class="dt">False</span>, <span class="dt">True</span>]</span></code></pre></div>
 <p>上記のように、アンダースコア <code>_</code>で始まる識別子を書いたとき、</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">1</span><span class="op">:</span><span class="dv">16</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></a>
-<a class="sourceLine" id="cb2-2" title="2">    <span class="op">...</span></a>
-<a class="sourceLine" id="cb2-3" title="3">      <span class="dt">Valid</span> hole fits include</a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="ot">        enumFrom ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Enum</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a]</a>
-<a class="sourceLine" id="cb2-5" title="5">          with <span class="fu">enumFrom</span> <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-6" title="6">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Enum</span>’))</a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="ot">        show ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></a>
-<a class="sourceLine" id="cb2-8" title="8">          with <span class="fu">show</span> <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-9" title="9">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Show</span>’))</a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="ot">        repeat ::</span> <span class="kw">forall</span> a<span class="op">.</span> a <span class="ot">-&gt;</span> [a]</a>
-<a class="sourceLine" id="cb2-11" title="11">          with <span class="fu">repeat</span> <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-12" title="12">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.List</span>’))</a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="ot">        return ::</span> <span class="kw">forall</span> (<span class="ot">m ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> m a</a>
-<a class="sourceLine" id="cb2-14" title="14">          with <span class="fu">return</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-15" title="15">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
-<a class="sourceLine" id="cb2-16" title="16"><span class="ot">        pure ::</span> <span class="kw">forall</span> (<span class="ot">f ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> f a</a>
-<a class="sourceLine" id="cb2-17" title="17">          with <span class="fu">pure</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></a>
-<a class="sourceLine" id="cb2-18" title="18">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a>
-<a class="sourceLine" id="cb2-19" title="19"><span class="ot">        mempty ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span> a</a>
-<a class="sourceLine" id="cb2-20" title="20">          with <span class="fu">mempty</span> <span class="op">@</span>(<span class="dt">Bool</span> <span class="ot">-&gt;</span> [a0])</a>
-<a class="sourceLine" id="cb2-21" title="21">          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</a></code></pre></div>
-<p>といった具合に、アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>、実際にその型に該当する関数を、当該のスコープにおいてアクセスできる関数の中から探して教えてくれる、それが「<span class="ascii">Valid Hole Fits</span>」という機能です。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">1</span><span class="op">:</span><span class="dv">16</span><span class="op">:</span> <span class="fu">error</span><span class="op">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Valid</span> hole fits include</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ot">        enumFrom ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Enum</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>          with <span class="fu">enumFrom</span> <span class="op">@</span><span class="dt">Bool</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Enum</span>’))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ot">        show ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>          with <span class="fu">show</span> <span class="op">@</span><span class="dt">Bool</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Show</span>’))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ot">        repeat ::</span> <span class="kw">forall</span> a<span class="op">.</span> a <span class="ot">-&gt;</span> [a]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>          with <span class="fu">repeat</span> <span class="op">@</span><span class="dt">Bool</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.List</span>’))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ot">        return ::</span> <span class="kw">forall</span> (<span class="ot">m ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> m a</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>          with <span class="fu">return</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="ot">        pure ::</span> <span class="kw">forall</span> (<span class="ot">f ::</span> <span class="op">*</span> <span class="ot">-&gt;</span> <span class="op">*</span>) a<span class="op">.</span> <span class="dt">Applicative</span> f <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> f a</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>          with <span class="fu">pure</span> <span class="op">@</span>[] <span class="op">@</span><span class="dt">Bool</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="ot">        mempty ::</span> <span class="kw">forall</span> a<span class="op">.</span> <span class="dt">Monoid</span> a <span class="ot">=&gt;</span> a</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>          with <span class="fu">mempty</span> <span class="op">@</span>(<span class="dt">Bool</span> <span class="ot">-&gt;</span> [a0])</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>          (imported from ‘<span class="dt">Prelude</span>’ (<span class="fu">and</span> originally defined <span class="kw">in</span> ‘<span class="dt">GHC.Base</span>’))</span></code></pre></div>
+<p>といった具合に、アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>、実際にその型に該当する関数を、当該のスコープにおいてアクセスできる関数の中から探して教えてくれる、それが「<span class="ascii">Valid Hole Fits</span>」という機能です。</p>
 <p>今回発表された「<span class="ascii">HoleFitPlugins</span>」という機能は、名前のとおりこの「<span class="ascii">Valid Hole Fits</span>」に対するプラグイン機構です。<br />
 「<span class="ascii">Valid Hole Fits</span>」が表示する「型にマッチした関数」を探す処理を、<span class="ascii">Haskell</span>のコードで書き換えられるようにしてくれます！</p>
 <p>「そこまでする必要あるの？」という気もしてきますが、発表者曰く</p>
@@ -207,8 +207,8 @@ here</span></a></span><span class="ascii">HoleFitPlugins and the future of inter
 <p>最新安定版の<span class="ascii">GHC</span>では利用できませんが、<a href="https://ghc.gitlab.haskell.org/ghc/doc/users_guide/extending_ghc.html#hole-fit-plugins">ドキュメントがこちら</a>にあるので、<span class="ascii">GHC</span>の<span class="ascii">HEAD</span><small>（<span class="ascii">master</span>ブランチで開発中のバージョン）</small>をコンパイルすれば使用できるようです。</p>
 <p>加えて発表では、<code>_</code>で始まる識別子を書く際の構文を拡張することで、どのように<span class="ascii">candidate</span>を探すか指定できるようにする、なんて機能も紹介されました<small>（ドキュメントを読む限りこの機能はまだ<span class="ascii">HEAD</span>に入ってない？）</small>。<br />
 例えば、<span class="ascii">Hoogle</span>を使って<span class="ascii">Valid Hole Fits</span>を探したいとき、次のように書くことで検索対象を<code>Control.Applicative</code>に限定する、といったことをできるようしてくれます。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="ot">g ::</span> [a] <span class="ot">-&gt;</span> [[a]]</a>
-<a class="sourceLine" id="cb3-2" title="2">g <span class="ot">=</span> _{hoogleLookup <span class="st">&quot;+Control.Applicative&quot;</span>}</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">g ::</span> [a] <span class="ot">-&gt;</span> [[a]]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">=</span> _{hoogleLookup <span class="st">&quot;+Control.Applicative&quot;</span>}</span></code></pre></div>
 <p><span class="ascii">Valid Hole Fits</span>の検索方法をその場で微調整したい、というときに使うものですね。</p>
 <h2 id="visible-dependent-quantification"><span class="link-to-here-outer"><a href="#visible-dependent-quantification" title="visible-dependent-quantification"><span class="link-to-here">Link to<br />
 here</span></a></span><span class="ascii">Visible dependent quantification</span></h2>
@@ -220,22 +220,23 @@ here</span></a></span><span class="ascii">Visible dependent quantification</span
 <p>タイトルのとおり、「<span class="ascii">Visible dependent quantification</span>」という機能の紹介です。</p>
 <p>最近のバージョンの<span class="ascii">GHCi</span>における<code>:kind</code>コマンドは、次のような、<span class="ascii">GHC</span>がサポートしていない構文の型注釈を出力することがあります。<br />
 例えば</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XKindSignatures</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XPolyKinds</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">SomeType</span> k (<span class="ot">a ::</span> k)</a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="op">&gt;</span> <span class="op">:</span>kind <span class="dt">SomeType</span></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XKindSignatures</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XPolyKinds</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">SomeType</span> k (<span class="ot">a ::</span> k)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="op">:</span>kind <span class="dt">SomeType</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k <span class="ot">-&gt;</span> k <span class="ot">-&gt;</span> <span class="op">*</span></span></code></pre></div>
 <p>における、<code>SomeType :: forall k -&gt; k -&gt; *</code>の<code>forall k -&gt;</code>という部分です。<br />
 現在の<span class="ascii">Haskell</span>で<code>forall k</code>などと書くときは、必ず</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k<span class="op">.</span> k <span class="ot">-&gt;</span> <span class="op">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">SomeType</span><span class="ot"> ::</span> <span class="kw">forall</span> k<span class="op">.</span> k <span class="ot">-&gt;</span> <span class="op">*</span></span></code></pre></div>
 <p>といった具合に、ピリオドで区切った構文になります。<br />
 ところが先ほどの<code>:kind</code>の出力では、<code>forall k -&gt;</code>とあるとおり、<code>forall k</code>に<small>（型ではなく、カインドとしての）</small>関数を表す<code>-&gt;</code>が使われています。<br />
-「<span class="ascii">Visible dependent quantification</span>」はまさにこれを、<code>:kind</code>コマンドによって出力される構文だけではなく、ユーザーが直接書ける構文にしよう、というものです。 <span class="ascii">GHC</span>に「依存型」という機能を加える「<span class="ascii">Dependent Haskell</span>」にも必要な機能だそうです。<br />
+「<span class="ascii">Visible dependent quantification</span>」はまさにこれを、<code>:kind</code>コマンドによって出力される構文だけではなく、ユーザーが直接書ける構文にしよう、というものです。
+<span class="ascii">GHC</span>に「依存型」という機能を加える「<span class="ascii">Dependent Haskell</span>」にも必要な機能だそうです。<br />
 私自身はこの機能を使う機会がちょっと思い浮かばなかったので省略しますが、より詳しい解説は発表者である<a href="https://ryanglscott.github.io/2019/03/15/visible-dependent-quantification-in-haskell/"><span class="ascii">Ryan</span>自身による記事（英語）</a>をご覧ください。何が「<span class="ascii">Visible</span>」でどう「<span class="ascii">Dependent</span>」なのかわかるはずです。</p>
-<section class="footnotes">
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>復習<span class="ascii">:</span> この、「アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で」エラーメッセージにおいて<code>Found hole: _someFunc :: Bool -&gt; [a0]</code>と教えてくれるのが「<span class="ascii">Type Hole</span>」という機能なのでした。<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn1" role="doc-endnote"><p>復習<span class="ascii">:</span> この、「アンダースコアで始まる識別子<code>_someFunc</code>の型を<code>Bool -&gt; [a0]</code>と推論した上で」エラーメッセージにおいて<code>Found hole: _someFunc :: Bool -&gt; [a0]</code>と教えてくれるのが「<span class="ascii">Type Hole</span>」という機能なのでした。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>
