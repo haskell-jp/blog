@@ -211,8 +211,8 @@ here</span></a></span>回避方法</h1>
 <span class="ascii">containers</span>パッケージにある<code>Map</code>や<code>Set</code>はハッシュ関数を一切使っていないので、ハッシュ値の衝突も起こらず、内部で逐次探索が必要なデータ構造を使ってもいません。<br />
 なので<span class="ascii">hashdos</span>攻撃に遭うことはないのです。</p>
 <p>ただし、実際のところ、<a href="https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0"><span class="ascii">Stackage</span>の<span class="ascii">LTS Haskell 10.3</span>で<span class="ascii">970</span>ものパッケージに依存されている</a><span class="ascii">unordered-containers</span>です。<br />
-<span class="ascii">~~</span> その中には<span class="ascii">JSON</span>のパーサーである<span class="ascii">aeson</span>も含まれているので、もしかしたら現状回避するのは非常に困難なのかもしれません。😱 <span class="ascii">~~</span><br />
-<span class="ascii">~~</span> 次回は、この問題について試しに攻撃用のコードを書いて速度の低下をチェックして報告する話を書くかもしれません…。😰 <span class="ascii">~~</span></p>
+<del>その中には<span class="ascii">JSON</span>のパーサーである<span class="ascii">aeson</span>も含まれているので、もしかしたら現状回避するのは非常に困難なのかもしれません。😱</del><br />
+<del>次回は、この問題について試しに攻撃用のコードを書いて速度の低下をチェックして報告する話を書くかもしれません…。😰</del></p>
 <p><strong><span class="ascii">2022/10/23</span> 追記</strong><span class="ascii">: aeson</span>パッケージが<span class="ascii">HashDoS</span>脆弱性を孕んでいるという問題は、<a href="https://cs-syd.eu/posts/2021-09-11-json-vulnerability"><span class="ascii">2021</span>年<span class="ascii">9</span>月に発表され</a>、同脆弱性は<span class="ascii">aeson</span>パッケージの<span class="ascii">v2.0.1.0</span>で修正されました。現在は、コンパイル時のフラグを編集しない限り、内部で<span class="ascii">containers</span>パッケージの<code>Map</code>を使うようになりました。ただし、<a href="https://github.com/haskell/aeson/issues/864#issuecomment-939363297">フラグのデフォルト値は将来変更するかも知れない、と開発者が明言している</a>ので、心配な方は<span class="ascii">cabal.project</span>や<span class="ascii">stack.yaml</span>でフラグの値を指定しましょう（<a href="https://frasertweedale.github.io/blog-fp/posts/2021-10-12-aeson-hash-flooding-protection.html#compiling-a-safe-version-of-aeson">参考</a>）。この記事を書いた時点で当然私もこの問題には気づいていたのですが、再現ケースの作成に失敗したこともあり、報告に至らなかったことを反省します。本件を発表した記事と同じ、<a href="https://github.com/Storyyeller/fnv-collider"><span class="ascii">fnv-collider</span></a>を使ったはずなのになぁ😞。</p>
             </div>
         </div>
