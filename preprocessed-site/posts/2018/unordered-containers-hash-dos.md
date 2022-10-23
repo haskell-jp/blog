@@ -68,7 +68,7 @@ containersパッケージにある`Map`や`Set`はハッシュ関数を一切使
 なのでhashdos攻撃に遭うことはないのです。
 
 ただし、実際のところ、[StackageのLTS Haskell 10.3で970ものパッケージに依存されている](https://www.stackage.org/lts-10.3/package/unordered-containers-0.2.8.0)unordered-containersです。  
-~~ その中にはJSONのパーサーであるaesonも含まれているので、もしかしたら現状回避するのは非常に困難なのかもしれません。😱 ~~  
-~~ 次回は、この問題について試しに攻撃用のコードを書いて速度の低下をチェックして報告する話を書くかもしれません...。😰 ~~
+~~その中にはJSONのパーサーであるaesonも含まれているので、もしかしたら現状回避するのは非常に困難なのかもしれません。😱~~  
+~~次回は、この問題について試しに攻撃用のコードを書いて速度の低下をチェックして報告する話を書くかもしれません...。😰~~
 
 **2022/10/23 追記**: aesonパッケージがHashDoS脆弱性を孕んでいるという問題は、[2021年9月に発表され](https://cs-syd.eu/posts/2021-09-11-json-vulnerability)、同脆弱性はaesonパッケージのv2.0.1.0で修正されました。現在は、コンパイル時のフラグを編集しない限り、内部でcontainersパッケージの`Map`を使うようになりました。ただし、[フラグのデフォルト値は将来変更するかも知れない、と開発者が明言している](https://github.com/haskell/aeson/issues/864#issuecomment-939363297)ので、心配な方はcabal.projectやstack.yamlでフラグの値を指定しましょう（[参考](https://frasertweedale.github.io/blog-fp/posts/2021-10-12-aeson-hash-flooding-protection.html#compiling-a-safe-version-of-aeson)）。この記事を書いた時点で当然私もこの問題には気づいていたのですが、再現ケースの作成に失敗したこともあり、報告に至らなかったことを反省します。本件を発表した記事と同じ、[fnv-collider](https://github.com/Storyyeller/fnv-collider)を使ったはずなのになぁ😞。
