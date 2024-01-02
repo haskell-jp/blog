@@ -60,16 +60,16 @@ $ ghc --supported-extensions | wc -l
 また，デフォルトで有効になっている拡張などもあります．例えば，`ImplicitPrelude`という拡張はデフォルトで有効になります．現在デフォルトのHaskell 2010をベースにしたモードでGHC 8.4.2を使用する場合，以下の拡張が[デフォルトで有効になります](https://github.com/ghc/ghc/blob/ghc-8.4.2-release/compiler/main/DynFlags.hs#L2022) [^notice-haskell2010-standard-exts] [^notice-default-extensions-by-ghc] [^notice-relaxed-polyrec]．
 
 * [`NondecreasingIndentation`](https://prime.haskell.org/wiki/NondecreasingIndentation): Haskellのレイアウトルールを変更する拡張です．この拡張を有効にすると，ネストされた`do`式の場合，インデントをしなくていいようになります．
-* [`ImplicitPrelude`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#rebindable-syntax-and-the-implicit-prelude-import): 暗黙的に`Prelude`モジュールがインポートされるようになる拡張です．
-* [`MonomorphismRestriction`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#switching-off-the-dreaded-monomorphism-restriction): [単相性制限](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-930004.5.5)を課すようにする拡張です．この制限により，関数束縛でなく型注釈もない束縛変数の型は，デフォルティングルールによって単相化されます．
-* [`TraditionalRecordSyntax`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#traditional-record-syntax): レコード構文を有効にする拡張です．この拡張では，名前付きのフィールドを持つデータ型を定義し，それを使用することが可能になります．
-* [`EmptyDataDecls`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-EmptyDataDecls): コンストラクタを持たないデータ型の定義を許容する拡張です．
-* [`ForeignFunctionInterface`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ffi-chap.html#extension-ForeignFunctionInterface): FFIが使えるようになる拡張です．この拡張により，`foreign import`構文を使用することで，HaskellからCの関数を読み込むことができるようになります．
-* [`PatternGuards`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#pattern-guards): `case`式において，通常のパターンに加えて，`<-`を使用してガードの中でさらにマッチした条件下でパターンマッチができるようになる拡張です．例えば，`case (x, y) of { (True, y) | False <- y -> True; _ -> False }`というような式が書けるようになります．
+* [`ImplicitPrelude`](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#rebindable-syntax-and-the-implicit-prelude-import): 暗黙的に`Prelude`モジュールがインポートされるようになる拡張です．
+* [`MonomorphismRestriction`](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#switching-off-the-dreaded-monomorphism-restriction): [単相性制限](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-930004.5.5)を課すようにする拡張です．この制限により，関数束縛でなく型注釈もない束縛変数の型は，デフォルティングルールによって単相化されます．
+* [`TraditionalRecordSyntax`](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#traditional-record-syntax): レコード構文を有効にする拡張です．この拡張では，名前付きのフィールドを持つデータ型を定義し，それを使用することが可能になります．
+* [`EmptyDataDecls`](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-EmptyDataDecls): コンストラクタを持たないデータ型の定義を許容する拡張です．
+* [`ForeignFunctionInterface`](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/ffi-chap.html#extension-ForeignFunctionInterface): FFIが使えるようになる拡張です．この拡張により，`foreign import`構文を使用することで，HaskellからCの関数を読み込むことができるようになります．
+* [`PatternGuards`](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#pattern-guards): `case`式において，通常のパターンに加えて，`<-`を使用してガードの中でさらにマッチした条件下でパターンマッチができるようになる拡張です．例えば，`case (x, y) of { (True, y) | False <- y -> True; _ -> False }`というような式が書けるようになります．
 * [`DoAndIfThenElse`](https://prime.haskell.org/wiki/DoAndIfThenElse): `if`式の構文を，`then`と`else`の前に`;`を許容するよう変更する拡張です．これにより，`do`式において`then`や`else`をインデントする必要がなくなります．
 
 [^notice-haskell2010-standard-exts]: Haskell2010標準では，`Haskell2010`というプラグマをサポートすること，またHaskell98から新たにHaskell2010までに取り込まれた機能を切り離した`PatternGuards`/`NoNPlusKPatterns`/`RelaxedPolyRec`/`EmptyDataDecls`/`EmptyDataDecls`という拡張をそれぞれサポートすることが望ましいと規定されています．GHCも`Haskell2010`という拡張を指定できるようになっており，ここにあるほとんどはこの拡張を有効にした場合にも有効になります．
-[^notice-default-extensions-by-ghc]: デフォルトで有効になる拡張のほとんどは，Haskell 2010を元にしたものです．ただし全てがそうというわけではありません．`NondecreasingIndentation`はHaskell標準にはない機能です．またGHCはHaskell 2010で規定されている仕様を全てデフォルトで取り込んでいる訳でもありません．特にHaskell標準ではデータ型の宣言に型制約を書くことができますが，GHCではデフォルトではできません．これを有効にする場合，[`DatatypeContexts`拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DatatypeContexts)を有効にする必要があります．
+[^notice-default-extensions-by-ghc]: デフォルトで有効になる拡張のほとんどは，Haskell 2010を元にしたものです．ただし全てがそうというわけではありません．`NondecreasingIndentation`はHaskell標準にはない機能です．またGHCはHaskell 2010で規定されている仕様を全てデフォルトで取り込んでいる訳でもありません．特にHaskell標準ではデータ型の宣言に型制約を書くことができますが，GHCではデフォルトではできません．これを有効にする場合，[`DatatypeContexts`拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-DatatypeContexts)を有効にする必要があります．
 [^notice-relaxed-polyrec]: GHCの内部では`RelaxedPolyRec`という拡張も一緒に有効になります．しかし，現在この拡張は実装上の問題でGHC上で無効にすることができないため，ドキュメント上からも削除されています．この記事でもGHCの方針に従って，この拡張は特に扱いませんのでご留意ください．
 
 歴史的経緯で生まれ，互換性のために残されているものの，現状使用が推奨されていない拡張もあります．他に実験的な拡張やかなり大胆な拡張も存在するため，GHC拡張を使用する際は[GHCのユーザーガイド][ghc-user-guide-url]をよく読んでから使用するのが良いでしょう．
@@ -113,7 +113,7 @@ executable program1
 
 この節では，以下の拡張を紹介します．
 
-* `NoImplicitPrelude`: [ユーザーガイド - NoImplicitPrelude拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NoImplicitPrelude)
+* `NoImplicitPrelude`: [ユーザーガイド - NoImplicitPrelude拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-NoImplicitPrelude)
 
 Haskellでは，[Preludeモジュール][prelude-url]が暗黙的にimportされます．つまり，Haskellプログラムは暗黙に
 
@@ -159,9 +159,9 @@ import MyPrelude
 
 この節では，以下の3つの拡張を紹介します．
 
-* `BinaryLiterals`: [ユーザーガイド - BinaryLiterals拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-BinaryLiterals)
-* `NagativeLiterals`: [ユーザーガイド - NagativeLiterals拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NegativeLiterals)
-* `HexFloatLiterals`: [ユーザーガイド - HexFloatLiterals拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#ghc-flag--XHexFloatLiterals)
+* `BinaryLiterals`: [ユーザーガイド - BinaryLiterals拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-BinaryLiterals)
+* `NagativeLiterals`: [ユーザーガイド - NagativeLiterals拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-NegativeLiterals)
+* `HexFloatLiterals`: [ユーザーガイド - HexFloatLiterals拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#ghc-flag--XHexFloatLiterals)
 
 Haskellには幾つかのリテラルが存在します．例えば，`'c'`は文字cを表すChar型のリテラルです．`100`は整数100を表す`Num a => a`型のリテラルで，`100.1`は浮動小数点数100.1を表す`Fractional a => a`型のリテラルになります．Haskell標準には他にも幾つかリテラルが存在しますが，特に数値は非常に多様な使われ方がなされるため，他の多くの言語はより強力なリテラル表現を持つことがあります．GHC拡張ではこの背景を元に，リテラルに対する幾つかの拡張を提供しています．`BinaryLiterals`は`Num a => a`型のリテラルに対して，`HexFloatLiterals`は`Fractional a => a`型のリテラルに対して，`NegativeLiterals`はどちらに対してもの拡張を，それぞれ提供します．
 
@@ -191,8 +191,8 @@ SamplePZ
 
 この節では，以下の2つの拡張を紹介します．
 
-* `EmptyCase`: [ユーザーガイド - EmptyCase拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-EmptyCase)
-* `EmptyDataDeriving`: [ユーザーガイド - EmptyDataDeriving拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#ghc-flag--XEmptyDataDeriving)
+* `EmptyCase`: [ユーザーガイド - EmptyCase拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-EmptyCase)
+* `EmptyDataDeriving`: [ユーザーガイド - EmptyDataDeriving拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#ghc-flag--XEmptyDataDeriving)
 
 Haskellでは，コンストラクタを一切持たない型を定義できます．これは空のデータ型と呼ばれ，次のように書けます．
 
@@ -243,9 +243,9 @@ instance Show Empty where
 
 この節では，以下の3つの拡張を紹介します．
 
-* `TupleSections`: [ユーザーガイド - TupleSections拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TupleSections)
-* `MultiWayIf`: [ユーザーガイド - MultiWayIf拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-MultiWayIf)
-* `LambdaCase`: [ユーザーガイド - LambdaCase拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-LambdaCase)
+* `TupleSections`: [ユーザーガイド - TupleSections拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-TupleSections)
+* `MultiWayIf`: [ユーザーガイド - MultiWayIf拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-MultiWayIf)
+* `LambdaCase`: [ユーザーガイド - LambdaCase拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-LambdaCase)
 
 Haskellでは，タプルやラムダ抽象，セクション，`if`式や`case`式といった構文が導入されていますが，これらを組み合わせて多用する場合，幾つか冗長な表現が生まれる場合があります．その中でも頻出する表現に対して，新たな構文を提供するGHC拡張があります．それが，`TupleSections`，`MultiWayIf`，`LambdaCase`の3つの拡張です．
 
@@ -292,9 +292,9 @@ f = negate . \case
 
 この節では，以下の3つの拡張を紹介します．
 
-* `BangPatterns`: [ユーザーガイド - BangPatterns拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-BangPatterns)
-* `StrictData`: [ユーザーガイド - StrictData拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-StrictData)
-* `Strict`: [ユーザーガイド - Strict拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-Strict)
+* `BangPatterns`: [ユーザーガイド - BangPatterns拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-BangPatterns)
+* `StrictData`: [ユーザーガイド - StrictData拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-StrictData)
+* `Strict`: [ユーザーガイド - Strict拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-Strict)
 
 Haskellはデフォルトの評価戦略として，グラフ簡約の遅延評価を採用しています．これはリストや再帰に関する表現を非常に豊かにする反面，パフォーマンスを悪化させたりデバッグを困難にさせる場面が多いなどの負の面もあります．このためHaskell標準では，`seq`関数や正格フラグといった正格評価へのサポートも提供しています．しかし，このサポートは表現が冗長な場合が多く，使い勝手が悪い側面があります．この面を解決するための拡張が，`BangPatterns`，`StrictData`，`Strict`の3つの拡張です．
 
@@ -355,8 +355,8 @@ f !x !(z, y) = let !zy = z * y in case x - z of !z' -> z' ^ z
 
 この節では，以下の2つの拡張を紹介します．
 
-* `ViewPatterns`: [ユーザーガイド - ViewPatterns拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ViewPatterns)
-* `PatternSynonyms`: [ユーザーガイド - PatternSynonyms拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-PatternSynonyms)
+* `ViewPatterns`: [ユーザーガイド - ViewPatterns拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-ViewPatterns)
+* `PatternSynonyms`: [ユーザーガイド - PatternSynonyms拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-PatternSynonyms)
 
 GHC拡張では，Haskell標準のパターンをさらに強力なものにする拡張があります．`ViewPatterns`はビューパターンという新たなパターンを導入します．また，`PatternSynonyms`はパターンの別名を付けることができるようにする拡張です．
 
@@ -405,7 +405,7 @@ len Nil         = 0
 
 パターンシノニムは非常に便利な機能ですが，一方で注意する事項も幾つかあります．
 
-まず，パターンシノニムの定義は関数定義と非常に似ていますが，パターンの別名であることに注意してください．パターンシノニムの定義において変数が出現する場合，関数の引数のように錯覚してしまいがちですが，この変数にはパターンにマッチした時そのマッチした部分が当てがわれます．つまり，右の式でマッチしたものが左の変数に束縛されるため，左の変数に束縛された後右の式を実行する関数と，流れが逆になるということです．このため，パターンシノニムの引数の変数は必ず右に出現する必要があります．また，パターンシノニムの右側には変数を含むパターンしかかけません．そのため，式を書きたい場合，`ViewPatterns`拡張などを用いなければなりません．さらにパターンシノニムは，デフォルトではパターンの網羅性検査が非常に難しいため，網羅性検査を行わないようになっています．ただし，[`COMPLETE`プラグマ](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#complete-pragma)を用いてパターンシノニムの網羅条件を与えることで，その範囲で網羅性検査を行うようになります．
+まず，パターンシノニムの定義は関数定義と非常に似ていますが，パターンの別名であることに注意してください．パターンシノニムの定義において変数が出現する場合，関数の引数のように錯覚してしまいがちですが，この変数にはパターンにマッチした時そのマッチした部分が当てがわれます．つまり，右の式でマッチしたものが左の変数に束縛されるため，左の変数に束縛された後右の式を実行する関数と，流れが逆になるということです．このため，パターンシノニムの引数の変数は必ず右に出現する必要があります．また，パターンシノニムの右側には変数を含むパターンしかかけません．そのため，式を書きたい場合，`ViewPatterns`拡張などを用いなければなりません．さらにパターンシノニムは，デフォルトではパターンの網羅性検査が非常に難しいため，網羅性検査を行わないようになっています．ただし，[`COMPLETE`プラグマ](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#complete-pragma)を用いてパターンシノニムの網羅条件を与えることで，その範囲で網羅性検査を行うようになります．
 
 パターンシノニムはパターンの種類に応じて3種類の書き方が存在します．上の単純なパターンシノニムは，双方向(bidirectional)パターンシノニムと呼ばれ，暗黙的にパターンの名前と等しい関数が作られます．この関数を用いることで，`[0, 1, 2]`の代わりに`Cons 0 (Cons 1 (Cons 2 Nil))`といった式も書くことができるようになります．ただし，このような関数が単純には作れないパターンも存在します．例えば，`(x, _)`というパターンに，`First x`というパターンシノニムを与えたい場合，この`First`に対する関数は`_`の部分に入れるべき値が分からないため，作りようがありません．このような関数が単純に作れないパターンシノニムは単方向(unidirectional)パターンシノニムと呼ばれ，双方向パターンシノニムが`=`を使って定義されるのに対し，次のように`<-`を使って書きます．
 
@@ -457,10 +457,10 @@ f _                                                     = False
 
 この節では，以下の4つの拡張を紹介します．
 
-* `DuplicateRecordFields`: [ユーザーガイド - DuplicateRecordFields拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DuplicateRecordFields)
-* `OverloadedLabels`: [ユーザーガイド - OverloadedLabels拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-OverloadedLabels)
-* `NamedFieldPuns`: [ユーザーガイド - NamedFieldPuns拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NamedFieldPuns)
-* `RecordWildCards`: [ユーザーガイド - RecordWildCards拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-RecordWildCards)
+* `DuplicateRecordFields`: [ユーザーガイド - DuplicateRecordFields拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-DuplicateRecordFields)
+* `OverloadedLabels`: [ユーザーガイド - OverloadedLabels拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-OverloadedLabels)
+* `NamedFieldPuns`: [ユーザーガイド - NamedFieldPuns拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-NamedFieldPuns)
+* `RecordWildCards`: [ユーザーガイド - RecordWildCards拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-RecordWildCards)
 
 Haskellのレコード構文は，便利な反面幾つか機能が劣る場面もあります．このため，GHCでは，レコードをより扱いやすくするための拡張を幾つか提供しています．それが，`DuplicateRecordFields`，`OverloadedLabels`，`NamedFieldPuns`，`RecordWildCards`の4つの拡張です[^notice-record-systems-bugs]．
 
@@ -558,7 +558,7 @@ g A{..}             = x
 
 この節では，以下の拡張を紹介します．
 
-* `TypeOperators`: [ユーザーガイド - TypeOperators拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeOperators)
+* `TypeOperators`: [ユーザーガイド - TypeOperators拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-TypeOperators)
 
 Haskellではユーザー定義の関数やデータ型のコンストラクタにおいて，演算子表記のものも定義できるようになっています．例えば，以下のようにです．
 
@@ -580,7 +580,7 @@ infixr 5 +
 
 ということが可能になります．ただし，このように定義した型演算子は，同じ名前の値としての演算子があった場合区別ができません．このため，モジュールのエクスポートリストを書く際，型演算子か値レベルの演算子かの区別が付かなくなった場合，値レベルの方が優先されます．この時，型演算子を明示したい場合，`type`を付けます[^notice-explicit-namespaces]．
 
-[^notice-explicit-namespaces]: この機能は型演算子を定義しないで再エクスポートなどをする場合にも使用されるため，[`ExplicitNamespaces`拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ExplicitNamespaces)として切り離されています．
+[^notice-explicit-namespaces]: この機能は型演算子を定義しないで再エクスポートなどをする場合にも使用されるため，[`ExplicitNamespaces`拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-ExplicitNamespaces)として切り離されています．
 
 ```haskell
 {-# LANGUAGE TypeOperators #-}
@@ -596,10 +596,10 @@ type a + b = Either a b
 
 この節では，以下の4つの拡張を紹介します．
 
-* `MultiParamTypeClasses`: [ユーザーガイド - MultiParamTypeClasses拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-MultiParamTypeClasses)
-* `FlexibleContexts`: [ユーザーガイド - FlexibleContexts拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-FlexibleContexts)
-* `FlexibleInstances`: [ユーザーガイド - FlexibleInstances拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-FlexibleInstances)
-* `InstanceSigs`: [ユーザーガイド - InstanceSigs拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-InstanceSigs)
+* `MultiParamTypeClasses`: [ユーザーガイド - MultiParamTypeClasses拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-MultiParamTypeClasses)
+* `FlexibleContexts`: [ユーザーガイド - FlexibleContexts拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-FlexibleContexts)
+* `FlexibleInstances`: [ユーザーガイド - FlexibleInstances拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-FlexibleInstances)
+* `InstanceSigs`: [ユーザーガイド - InstanceSigs拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-InstanceSigs)
 
 Haskellの型クラスは非常に強力な機構です．しかしながら，Haskell標準の型クラスの構文は非常に制約がきつく，これらを緩和したいと思うことがよくあります．このため，GHCでは制約を緩和する拡張をいくつか提供しています．それが，`MultiParamTypeClasses`，`FlexibleContexts`，`FlexibleInstances`，`InstanceSigs`の4つの拡張です．
 
@@ -617,7 +617,7 @@ class Nullary
 
 また，Haskell標準では，メソッドにおいてクラスの型変数に型制約をかけるということも許容されていませんが，`MultiParamTypeClasses`拡張ではこれも可能にします[^notice-constrained-class-methods]．これによって以下のようなクラス定義も書けるようになります．
 
-[^notice-constrained-class-methods]: この機能は[`ConstrainedClassMethods`拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ConstrainedClassMethods)として切り離されており，`MultiParamTypeClasses`拡張を有効にすると一緒に有効になります．
+[^notice-constrained-class-methods]: この機能は[`ConstrainedClassMethods`拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-ConstrainedClassMethods)として切り離されており，`MultiParamTypeClasses`拡張を有効にすると一緒に有効になります．
 
 ```haskell
 class Setable s a where
@@ -642,7 +642,7 @@ class B a => A a
 
 となります．
 
-`FlexibleInstances`拡張も`FlexibleContexts`拡張と同じく，Haskell標準での[型クラスインスタンスの書き方](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-770004.3.2)の制限を，[停止制限](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#instance-termination)を守る場合に許容するというように緩和する拡張です．停止制限は簡単に言ってしまえば，インスタンス宣言において，型制約がインスタンスより小さく[^notice-smaller-constraint]，型関数を使っていないというものです[^notice-instance-termination-rule]．この拡張下では，
+`FlexibleInstances`拡張も`FlexibleContexts`拡張と同じく，Haskell標準での[型クラスインスタンスの書き方](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-770004.3.2)の制限を，[停止制限](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#instance-termination)を守る場合に許容するというように緩和する拡張です．停止制限は簡単に言ってしまえば，インスタンス宣言において，型制約がインスタンスより小さく[^notice-smaller-constraint]，型関数を使っていないというものです[^notice-instance-termination-rule]．この拡張下では，
 
 [^notice-smaller-constraint]: 型制約が小さいとは，型変数とコンストラクタと変数の組の出現が少ないということです．
 [^notice-instance-termination-rule]: より正確には，`FunctionalDependencies`に対する制限もありますが，ここでは割愛します．
@@ -672,7 +672,7 @@ instance Functor [] => C1 a
 
 となります．また，この拡張下では，型シノニムをインスタンスにすることもできます[^notice-type-synonym-instances]．
 
-[^notice-type-synonym-instances]: この拡張は，[`TypeSynonymInstances`拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TypeSynonymInstances)として切り離されており，`FlexibleInstances`拡張を有効にすると一緒に有効になります．
+[^notice-type-synonym-instances]: この拡張は，[`TypeSynonymInstances`拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-TypeSynonymInstances)として切り離されており，`FlexibleInstances`拡張を有効にすると一緒に有効になります．
 
 ```haskell
 type List a = [a]
@@ -699,7 +699,7 @@ instance Eq A where
 
 この節では，以下の拡張を紹介します．
 
-* `NamedWildCards`: [ユーザーガイド - NamedWildCards拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NamedWildCards)
+* `NamedWildCards`: [ユーザーガイド - NamedWildCards拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-NamedWildCards)
 
 GHCには型ワイルドカードという機能があります．この機能は，`_`と型シグネチャ上で書いておくと，そこの部分の型を推論してエラーメッセージとして表示してくれる機能です．この機能は，以下のように部分的に記述したり複数指定したりすることも可能です．
 
@@ -721,8 +721,8 @@ ignoreSecond (x, _) = (x, Nothing)
 
 この節では，以下の2つの拡張を紹介します．
 
-* `Arrows`: [ユーザーガイド - Arrows拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-Arrows)
-* `RecursiveDo`: [ユーザーガイド - RecursiveDo拡張](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-RecursiveDo)
+* `Arrows`: [ユーザーガイド - Arrows拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-Arrows)
+* `RecursiveDo`: [ユーザーガイド - RecursiveDo拡張](https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/glasgow_exts.html#extension-RecursiveDo)
 
 Haskellでは，モナドを扱いやすくするための，do構文という専用の構文が用意されています．この構文はHaskellプログラミングにおいて広く利用されています．GHCでは，これに加え`Arrow`と`MonadFix`というクラスに対しての専用の構文も提供しています．これはGHC拡張で実装されており，それぞれ`Arrows`拡張，`RecursiveDo`拡張を有効にすることで使用可能です．
 
@@ -850,6 +850,6 @@ do
 * [Cabal reference](https://www.haskell.org/cabal/users-guide/cabal-projectindex.html)
 
 [prelude-url]: https://www.stackage.org/haddock/lts-10.8/base-4.10.1.0/Prelude.html
-[ghc-user-guide-url]: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/
+[ghc-user-guide-url]: https://downloads.haskell.org/~ghc/8.4.2/docs/html/users_guide/
 [haskell-lang-report-url]: https://www.haskell.org/onlinereport/haskell2010/
 [formal-semantics-of-pattern-matching]: https://www.haskell.org/onlinereport/haskell2010/haskellch3.html#x8-610003.17.3
