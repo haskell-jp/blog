@@ -1,0 +1,232 @@
+---
+title: 単純なHaskellのみでServant並に高機能なライブラリーを作ろうとした振り返り
+subHeading:
+headingBackgroundImage: ../img/background.png
+headingDivClass: post-heading
+author: YAMAMOTO Yuji
+postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a>
+date: November 27, 2024
+tags:
+...
+---
+
+この記事では、「[Haskell製ウェブアプリケーションフレームワークを作る配信](https://www.youtube.com/playlist?list=PLRVf2pXOpAzJMFN810EWwGrH_qii7DKyn)」で配信していた、Haskell製ウェブアプリケーションフレームワークを作るプロジェクトについて振り返ります。Servantのような型安全なAPI定義を、<small>（Servantのような）</small>高度な型レベルプログラミングも、<small>（Yesodのような）</small>TemplateHaskellもなしに可能にするライブラリーを目指していましたが、開発を途中で止めることにしました。その振り返り --- とりわけ、そのゴールに基づいて実装するのが原理上不可能だと分かった機能などを中心にまとめます。
+
+# 動機
+
+そもそも、Haskellには既にServantやYesod、Scottyといった人気のフレームワークがあるにもかかわらず、なぜ新しいフレームワークを作ろうと思ったのでしょうか。第一に、かつて私が[「Haskellの歩き方」という記事の「Webアプリケーション」の節](https://wiki.haskell.jp/Hikers%20Guide%20to%20Haskell.html#web%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3)で述べた、次の問題を解決したかったから、という理由があります:
+
+> ただしServant, Yesod, 共通した困った特徴があります。
+> それぞれがHaskellの高度な機能を利用した独特なDSLを提供しているため、仕組みがわかりづらい、という点です。
+> Servantは、「型レベルプログラミング」と呼ばれる、GHCの言語拡張を使った仕組みを駆使して、型宣言だけでREST APIの仕様を記述できるようにしています。
+> YesodもGHCの言語拡張をたくさん使っているのに加え、特に変わった特徴として、TemplateHaskellやQuasiQuoteという仕組みを利用して、独自のDSLを提供しています。
+> それぞれ、見慣れたHaskellと多かれ少なかれ異なる構文で書かなければいけない部分があるのです。
+> つまり、これらのうちどちらかを使う以上、どちらかの魔法を覚えなければならないのです。
+
+この「どちらかの魔法を覚えなければならない」という問題は、初心者がHaskellでウェブアプリケーションを作る上で大きな壁になりえます。入門書に書いてあるHaskellの機能だけでは、ServantやYesodなどのフレームワークで書くコードを理解できず、サンプルコードから雰囲気で書かなければならないのです。これが、新しいフレームワークを作ろうとした一番の動機です。
+
+その他、このフレームワークを開発し始めるより更に前から開発・執筆している、[「失敗しながら学ぶHaskell入門」](https://github.com/haskell-jp/makeMistakesToLearnHaskell/)をウェブアプリケーションとして公開する際のフレームワークとしても使おうという考えもありました。「失敗しながら学ぶHaskell入門」はタイトルの通りHaskell入門者のためのコンテンツです。そのため、Haskellを学習したばかりの人でも簡単に修正できるフレームワークにしたかったのです。
+
+# できたもの
+
+ソースコードはこちらにあります:
+
+[igrep/wai-sample: Prototype of a new web application framework based on WAI.](https://github.com/igrep/wai-sample)
+
+YouTubeで配信する前から行っていた<small>（私の前職である）</small>IIJの社内勉強会中の開発と、全128回のYouTubeでのライブコーディングを経て<small>（一部配信終了後に手を入れたこともありましたが）</small>、次のような構文でウェブアプリケーションを記述できるようにしました:
+
+```haskell
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications  #-}
+
+import WaiSample
+
+sampleRoutes :: [Handler]
+sampleRoutes =
+  [ -- ... 中略 ...
+
+    -- (1) 最も単純な例
+  , get @(PlainText, T.Text) "aboutUs" (path "about/us") (\_ -> return "About IIJ")
+
+    -- (2) ステータスコードを指定した例
+  , get @(WithStatus Status503 PlainText, T.Text) "maintenance" (path "maintenance")
+      (\_ -> return "Sorry, we are under maintenance")
+
+  -- ... 中略 ...
+
+    -- (3) パスをパースして含まれる整数を取得する例
+  , get @(PlainText, T.Text)
+      "customerTransaction"
+      ( (,) <$> (path "customer/" *> decimalPiece)
+            <*> (path "/transaction/" *> paramPiece)
+        )
+      (\(cId, transactionName) ->
+        return $ "Customer " <> T.pack (show cId) <> " Transaction " <> transactionName
+        )
+
+  -- ... 中略 ...
+  ]
+```
+
+※完全なサンプルコードは[WaiSample/Sample.hs](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs)をご覧ください。上記はその一部に説明用のコメントを加えています。
+
+上記のサンプルコードにおける`sampleRoutes`が、Web APIの仕様を定めている部分です:
+
+```haskell
+sampleRoutes :: [Handler]
+```
+
+`Handler`という型の値のリストで、それぞれの`Handler`には、Web APIのエンドポイントを表すのに必要な情報が全て含まれています。wai-sampleでは、この`Handler`のリストを解釈してWAIベースのサーバーアプリケーションを実行したり、Template Haskellを通じてクライアントコードを生成したり、はたまたサーバーアプリケーションのドキュメントを生成したりすることができるようになっています。
+
+## (1) 最も単純な例
+
+```haskell
+get @(PlainText, T.Text) "aboutUs" (path "about/us") (\_ -> return "About IIJ")
+```
+
+先程のサンプルコードから抜粋した最も単純な例↑では、`get`関数を使ってエンドポイントを定義しています。`get`関数は名前のとおりHTTPのGETメソッドに対応するエンドポイントを定義します。`TypeApplications`言語拡張を使って指定している`(PlainText, T.Text)`という型が、このエンドポイントが返すレスポンスの型を表しています。ここでは、`get`に渡す最後の引数に当たる関数（[`Responder`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L104)と呼びます。詳細は後ほど）がレスポンスボディーとして返す型をお馴染みの`Text`型として指定しつつ、サーバーやクライアントが処理する際はMIMEタイプを`text/plain`として扱うように指定しています。
+
+`get`関数の（値の）第1引数では、エンドポイントの名前を指定しています。この名前は、後述するクライアントコードを生成する機能において、関数名の一部として使われます。
+
+`get`関数の第2引数は、エンドポイントのパスの仕様を表す[`Route`型](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L56-L65)の値です。この例では、`path`関数を使って`"about/us"`という単純な文字列を指定しています。結果、このエンドポイントのパスは`/about/us`となります[^leading-slash]）。
+
+[^leading-slash]: 先頭のスラッシュにご注意ください。wai-sampleが`Route`型の値を処理する際は、先頭のスラッシュは付けない前提としています。
+
+`get`関数の最後の引数が、このエンドポイントがHTTPリクエストを受け取った際に実行する関数、[`Responder`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L104)です。ここでは、単純にレスポンスボディーとして文字列を返すだけの関数を指定しています。
+
+## (2) ステータスコードを指定した例
+
+```haskell
+get @(WithStatus Status503 PlainText, T.Text) "maintenance" (path "maintenance")
+  (\_ -> return "Sorry, we are under maintenance")
+```
+
+デフォルトでは、`get`関数で定義したエンドポイントはやっぱりステータスコード200（OK）を返します。この挙動を変えるには、先程指定したレスポンスの型のうち、MIMEタイプを指定していた箇所を`WithStatus`型でラップしましょう。型引数で指定しているタプルの1つ目の要素は、このようにHTTPのレスポンスに関する仕様をHaskellの型で指定するパラメーターとなっています。
+
+この例では、`Status503`という型を指定しているため、HTTPステータスコード503（Service Unavailable）を返すエンドポイントを定義しています。
+
+## (3) パスの中に含まれる整数を処理する例
+
+よくあるWebアプリケーションフレームワークでは、パスの一部に含まれる整数など文字列以外の型の値を取得するための仕組みが用意されています。
+
+Haskellにおいて、文字列から特定の型の値を取り出す...といえばそう、パーサーコンビネーターですね。wai-sampleでは、サーバーが受け取ったパスをパーサーコンビネーターでパースするようになっています。従って下記の例では、`/customer/123/transaction/abc`というパスを受け取った場合、`123`と`"abc"`をタプルに詰め込んで`Responder`に渡すパスのパーサーを定義しています:
+
+```haskell
+get @(PlainText, T.Text)
+  "customerTransaction"
+  ( (,) <$> (path "customer/" *> decimalPiece)
+        <*> (path "/transaction/" *> paramPiece)
+    )
+  (\(cId, transactionName) ->
+    return $ "Customer " <> T.pack (show cId) <> " Transaction " <> transactionName
+    )
+```
+
+実際のところここまでの話は`Route`型の値をサーバーアプリケーションが解釈した場合の挙動です。`Route`型はパスの仕様を定義する`Applicative`な内部DSLとなっています。これによって、サーバーアプリケーションだけでなくクライアントのコード生成機能やドキュメントの生成など、様々な応用ができるようになっています。詳しくは後述しますが、例えばクライアントのコード生成機能が`Route`型の値を解釈すると、`decimalPiece`や`paramPiece`などの値は生成した関数の引数を一つずつ追加します。
+
+## Content-Typeを複数指定する
+
+Ruby on Railsの`respond_to`メソッドなどで実現できるように、一つのエンドポイントで一つの種類のレスポンスボディーを、複数のContent-Typeで返す、といった機能は昨今のWebアプリケーションフレームワークではごく一般的な機能でしょう。wai-sampleの場合、例えば次のようにして、`Customer`という型の値をJSONや`application/x-www-form-urlencoded`な文字列として返すエンドポイントを定義できます:
+
+```haskell
+sampleRoutes =
+  [ -- ... 中略 ...
+  , get @(ContentTypes '[Json, FormUrlEncoded], Customer)
+  -- ... 中略 ...
+  ]
+```
+
+これまでの例では`get`の型引数においてMIMEタイプを表す箇所に一つの型のみ（`PlainText`型）を指定していましたが、ここでは代わりに`ContentTypes`という型を使用しています。`ContentTypes`型コンストラクターに、MIMEタイプを表す型の型レベルリストを渡せば、レスポンスボディーを表す一つの型に対して、複数のMIMEタイプを指定できるようになります。
+
+なお、`Json`や`FormUrlEncoded`と一緒に指定した`Customer`型は、当然[`ToJSON`](https://hackage.haskell.org/package/aeson/docs/Data-Aeson-Types.html#t:ToJSON)・[`FromJSON`](https://hackage.haskell.org/package/aeson/docs/Data-Aeson-Types.html#t:FromJSON)や[`ToForm`](https://hackage.haskell.org/package/http-api-data/docs/Web-FormUrlEncoded.html#t:ToForm)・[`FromForm`](https://hackage.haskell.org/package/http-api-data/docs/Web-FormUrlEncoded.html#t:FromForm)といった型クラスのインスタンスである必要があります[^http-api-data]。レスポンスボディーとして指定した型が、同時に指定したMIMEタイプに対応する形式に変換できることを、保証できるようになっているのです。
+
+[^http-api-data]: 諸般の事情で、wai-sampleでは[`http-api-data`パッケージをフォーク](https://github.com/igrep/http-api-data/tree/151de32409960354de3a3f786f20bc4a496d2b65)して使っています。そのため、`ToForm`型クラスなどの仕様がHackageにあるものと異なっています。最終的にwai-sampleを公開する際、フォークしたhttp-api-dataを新しいパッケージとして同時に公開する予定でした。
+
+## サーバーアプリケーションとしての使い方
+
+ここまでで定義した`Handler`型の値、すなわちWeb APIのエンドポイントの仕様に基づいてサーバーアプリケーションを実行するには、次のように書きます:
+
+```haskell
+import Network.Wai              (Application)
+import Network.Wai.Handler.Warp (runEnv)
+
+import WaiSample.Sample         (sampleRoutes)
+import WaiSample.Server         (handles)
+
+
+sampleApp :: Application
+sampleApp = handles sampleRoutes
+
+
+runSampleApp :: IO ()
+runSampleApp = runEnv 8020 sampleApp
+```
+
+ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Server/Sample.hs)にあるコードと同じ内容です。
+
+`get`関数などで作った`Handler`型のリストを`handles`関数に渡すと、WAIの[`Application`](https://hackage.haskell.org/package/wai-3.2.4/docs/Network-Wai.html#t:Application)型の値が出来上がります。`Application`型はWAIにおけるサーバーアプリケーションを表す型で、ServantやYesodなど他の多くのHaskell製フレームワークでも、最終的にこの`Application`型の値を作るよう設計されています。上記の例は`Application`型の値をWarpというウェブサーバーで動かす場合のコードです。`Application`型の値をWarpの`runEnv`関数に渡すことで、指定したポート番号でアプリケーションを起動できます。
+
+ここで起動したサーバーアプリケーションが、実際にエンドポイントへのリクエストを受け取った際実行する関数は、`get`関数などの最後の引数にあたる関数です。その関数は`SimpleResponder`という型シノニム[^simple]が設定されており、次のような定義となっています:
+
+[^simple]: 名前から察せられるとおり`Simple`じゃない普通の`Responder`型もありますが、ここでは割愛します。`Responder`型はクエリーパラメーターやリクエストヘッダーなど、パスに含めるパラメーター以外の情報を受け取るためのものです。`SimpleResponder`型のすぐ近くで定義されているので、興味があったらご覧ください。
+
+```haskell
+type SimpleResponder p resObj = p -> IO resObj
+```
+
+ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L106)より
+
+型パラメーター`p`は、エンドポイントのパスに含まれるパラメーターを表す型です。
+
+hoge
+
+## Template Haskellによる、クライアントの生成
+
+https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs
+
+```haskell
+{-# LANGUAGE DataKinds        #-}
+{-# LANGUAGE TemplateHaskell  #-}
+{-# LANGUAGE TypeApplications #-}
+
+import WaiSample.Client
+import WaiSample.Sample
+
+
+$(declareClient "sample" sampleRoutes)
+```
+
+## ドキュメントの生成
+
+詳しくは割愛
+
+# 何故開発を止めるのか
+
+# 想定通りにできなかったもの
+
+## レスポンスの型
+
+「できたもの」の節では割愛しましたが、
+
+返しうるレスポンスに複数の種類があるとき
+
+間違い探しみたいな型
+
+https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types/Response.hs#L51-L57
+
+https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs#L175-L182
+
+# 実装し切れなかったもの
+
+## よりよいドキュメント生成機能
+
+## よりよいリクエストヘッダー・クエリーパラメーター
+
+# 類似のライブラリー・解決策
+
+
+
+開発している途中で見つけた類似のライブラリー
+
+# 終わりに
