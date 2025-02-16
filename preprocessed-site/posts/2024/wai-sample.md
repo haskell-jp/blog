@@ -177,7 +177,11 @@ type SimpleResponder p resObj = p -> IO resObj
 
 ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L106)より
 
-型パラメーター`p`は、エンドポイントのパスに含まれるパラメーターを表す型です。
+型パラメーター`p`は、エンドポイントのパスに含まれるパラメーターを表す型です。これまでの例で`get`関数に渡した`(path "about/us")`や`((,) <$> (path "customer/" *> decimalPiece) <*> (path "/transaction/" *> paramPiece))`という式で作られる、`Route`型の値を解釈した結果の型`p`です。
+
+そして`resObj`は、エンドポイントが返すレスポンスボディーの型です。これまでの例でいうと、`get`関数の型引数で指定した`(PlainText, T.Text)`における`T.Text`型、`(ContentTypes '[Json, FormUrlEncoded], Customer)`における`Customer`型が該当します。
+
+`runSampleApp`は各`Handler`型の値を解釈することで、
 
 hoge
 
