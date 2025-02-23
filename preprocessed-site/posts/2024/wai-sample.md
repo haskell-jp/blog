@@ -181,11 +181,13 @@ type SimpleResponder p resObj = p -> IO resObj
 
 そして`resObj`は、エンドポイントが返すレスポンスボディーの型です。これまでの例でいうと、`get`関数の型引数で指定した`(PlainText, T.Text)`における`T.Text`型、`(ContentTypes '[Json, FormUrlEncoded], Customer)`における`Customer`型が該当します。
 
-`runSampleApp`は各`Handler`型の値を解釈することで、
+`runSampleApp`は各`Handler`型の値を解釈し、サーバーアプリケーションとして実行します。エンドポイントのパスの仕様（`(path "about/us")`など）をパーサーコンビネーターとして解釈し[^parser]、パースが成功した`Handler`が持つ`SimpleResponder`（`p -> IO resObj`）を呼び出します。そして`SimpleResponder`が返した`resObj`を、クライアントが要求したMIMEタイプに応じたレスポンスボディーに変換し、クライアントに返す、という流れで動くようになっています。
 
-hoge
+[^parser]: パーサーコンビネーター以外のアプローチ、例えば基数木を使ってより多くのエンドポイントを高速に処理できるようにするのも可能でしょう。
 
 ## Template Haskellによる、クライアントの生成
+
+hoge
 
 https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs
 
