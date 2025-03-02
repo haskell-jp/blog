@@ -187,9 +187,7 @@ type SimpleResponder p resObj = p -> IO resObj
 
 ## Template Haskellによる、クライアントの生成
 
-hoge
-
-https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs
+サーバーアプリケーションの定義だけであれば、Haskell以外のものも含め、従来の多くのウェブアプリケーションフレームワークでも可能でしょう。しかしServantを始め、昨今におけるREST APIの開発を想定したWebアプリケーションフレームワークは、クライアントコードを生成する機能まで備えていることが多いです。wai-sampleはそうしたフレームワークを目指しているため、当然クライアントコードの生成もできるようになっています:
 
 ```haskell
 {-# LANGUAGE DataKinds        #-}
@@ -202,6 +200,10 @@ import WaiSample.Sample
 
 $(declareClient "sample" sampleRoutes)
 ```
+
+ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs)からほぼそのままコピペしたコードです。
+
+hoge
 
 ## ドキュメントの生成
 
