@@ -203,6 +203,8 @@ $(declareClient "sample" sampleRoutes)
 
 ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs)からほぼそのままコピペしたコードです。
 
+上記の通り、クライアントコードの生成は`TemplateHaskell`を使って行います。`declareClient`という関数に、生成する関数の名前の接頭辞（prefix）とこれまで定義した`Handler`型のリスト（`sampleRoutes`）を渡すと、次のような型の関数の定義を生成します:
+
 hoge
 
 ## ドキュメントの生成
