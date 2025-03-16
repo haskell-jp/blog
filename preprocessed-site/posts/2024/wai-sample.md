@@ -203,7 +203,45 @@ $(declareClient "sample" sampleRoutes)
 
 ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs)からほぼそのままコピペしたコードです。
 
-上記の通り、クライアントコードの生成は`TemplateHaskell`を使って行います。`declareClient`という関数に、生成する関数の名前の接頭辞（prefix）とこれまで定義した`Handler`型のリスト（`sampleRoutes`）を渡すと、次のような型の関数の定義を生成します:
+上記の通り、クライアントコードの生成は`TemplateHaskell`を使って行います。`declareClient`という関数に、生成する関数の名前の接頭辞（prefix）とこれまで定義した`Handler`型のリスト（`sampleRoutes`）を渡すと、次のような型の関数の定義を生成します[^ddump-splices]:
+
+```haskell
+sampleAboutUs :: Backend -> IO Text
+sampleMaintenance :: Backend -> IO Text
+sampleCustomerTransaction :: Backend -> Integer -> Text -> IO Text
+```
+
+[^ddump-splices]: `ghc`コマンドの`-ddump-splices`オプションを使って、`declareClient`関数が生成したコードを貼り付けました。みなさんの手元で試す場合は`stack build --ghc-options=-ddump-splices`などと実行するのが簡単でしょう。
+
+生成された関数は、`get`関数などの第1引数として渡した関数の名前に、`declareClient`の第1引数として渡した接頭辞が付いた名前で定義されます。
+
+生成された関数の第1引数、`Backend`型は、クライアントがサーバーアプリケーションに実際にHTTPリクエストを送るための関数です。次のように定義されています:
+
+```haskell
+import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Network.HTTP.Client        as HC
+
+type Backend = Method -> Url -> RequestHeaders -> IO (HC.Response BL.ByteString)
+```
+
+このバックエンドを、例えば`http-client`パッケージの関数を使って実装することで、生成された関数がサーバーアプリケーションにリクエストを送ることができます。以下は実際に`http-client`パッケージを使って実装したバックエンドの例です:
+
+```haskell
+import qualified Network.HTTP.Client        as HC
+import qualified Data.ByteString.UTF8       as BS
+
+httpClientBackend :: String -> Manager -> Backend
+httpClientBackend rootUrl manager method pathPieces rawReqHds = do
+  req0 <- parseUrlThrow . BS.toString $ method <> B.pack " " <> BS.fromString rootUrl <> pathPieces
+  let req = req0 { HC.requestHeaders = rawReqHds }
+  httpLbs (setRequestIgnoreStatus req) manager
+```
+
+ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client.hs#L225-L230)からほぼそのままコピペしたコードです。
+
+他の引数
+
+レスポンス
 
 hoge
 
