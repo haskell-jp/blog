@@ -239,9 +239,9 @@ httpClientBackend rootUrl manager method pathPieces rawReqHds = do
 
 ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client.hs#L225-L230)からほぼそのままコピペしたコードです。
 
-他の引数
+`Backend`型以外の引数は、パスパラメーターを始めとする、HTTPリクエストを組み立てるのに必要な情報です。`get`関数などで`Handler`型の値を定義する際に指定した`decimalPiece`や`paramPiece`を`declareClient`関数が回収して、生成した関数の引数に追加します。実際に生成した関数が受け取った引数は、もちろんパスの一部として当てはめるのに用います。
 
-レスポンス
+生成した関数の戻り値は、サーバーからのレスポンスを表す型です。`get`関数の型引数として渡した`(PlainText, T.Text)`や`(ContentTypes '[Json, FormUrlEncoded], Customer)`などにおける`T.Text`や`Customer`がそれに当たります。クライアントの関数はサーバーからのレスポンスを、MIMEタイプを表す型などに従って、この型に変換してから返すよう実装されています。
 
 hoge
 
