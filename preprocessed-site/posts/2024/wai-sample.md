@@ -241,11 +241,11 @@ httpClientBackend rootUrl manager method pathPieces rawReqHds = do
 
 `Backend`型以外の引数は、パスパラメーターを始めとする、HTTPリクエストを組み立てるのに必要な情報です。`get`関数などで`Handler`型の値を定義する際に指定した`decimalPiece`や`paramPiece`を`declareClient`関数が回収して、生成した関数の引数に追加します。実際に生成した関数が受け取った引数は、もちろんパスの一部として当てはめるのに用います。
 
-生成した関数の戻り値は、サーバーからのレスポンスを表す型です。`get`関数の型引数として渡した`(PlainText, T.Text)`や`(ContentTypes '[Json, FormUrlEncoded], Customer)`などにおける`T.Text`や`Customer`がそれに当たります。クライアントの関数はサーバーからのレスポンスを、MIMEタイプを表す型などに従って、この型に変換してから返すよう実装されています。
-
-hoge
+生成した関数の戻り値は、サーバーからのレスポンスを表す型です。`get`関数の型引数として渡した`(PlainText, T.Text)`や`(ContentTypes '[Json, FormUrlEncoded], Customer)`などにおける`T.Text`や`Customer`がそれに当たります。クライアントの関数はサーバーからのレスポンスを、MIMEタイプを表す型などに従って、この型に変換してから返すよう実装されているのです。
 
 ## ドキュメントの生成
+
+[ServantではOpenAPIに則ったドキュメントを生成するパッケージがある](https://hackage.haskell.org/package/servant-openapi3)ように、Haskellの構文で定義したREST APIの仕様から、APIのドキュメントを生成する機能があると便利でしょう。wai-sampleでも、`Handler`型のリストからAPIのドキュメントを生成する機能を
 
 詳しくは割愛
 
