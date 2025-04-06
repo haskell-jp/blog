@@ -245,7 +245,115 @@ httpClientBackend rootUrl manager method pathPieces rawReqHds = do
 
 ## ドキュメントの生成
 
-[ServantではOpenAPIに則ったドキュメントを生成するパッケージがある](https://hackage.haskell.org/package/servant-openapi3)ように、Haskellの構文で定義したREST APIの仕様から、APIのドキュメントを生成する機能があると便利でしょう。wai-sampleでも、`Handler`型のリストからAPIのドキュメントを生成する機能を
+[ServantではOpenAPIに則ったドキュメントを生成するパッケージがある](https://hackage.haskell.org/package/servant-openapi3)ように、Haskellの構文で定義したREST APIの仕様から、APIのドキュメントを生成する機能があると便利でしょう。wai-sampleでも、`Handler`型のリストからAPIのドキュメントを生成する機能を実装しました --- 完成度が低く、とても実用に耐えるものではありませんが。
+
+ともあれ、試しに使ってみましょう。これまで例として紹介した[`sampleRoutes`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs#L147)の各`Handler`に[`showHandlerSpec`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample.hs#L47)という関数を適用すると、次のようにhoge
+
+```haskell
+> mapM_ (TIO.putStrLn . showHandlerSpec) sampleRoutes 
+index "GET" /
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (PlainText,Text)
+
+maintenance "GET" /maintenance
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: ((WithStatus Status503 PlainText),Text)
+
+aboutUs "GET" /about/us
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (PlainText,Text)
+
+aboutUsFinance "GET" /about/us/finance
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (PlainText,Text)
+
+aboutFinance "GET" /about/finance
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (PlainText,Text)
+
+aboutFinanceImpossible "GET" //about/finance/impossible
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (PlainText,Text)
+
+customerId "GET" /customer/:param
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: ((ContentTypes (': * Json (': * FormUrlEncoded ('[] *)))),Customer)
+
+customerIdJson "GET" /customer/:param.json
+  Request:
+    Query Params: (none)
+    Headers: (optional (X-API-VERSION: Integer | X-API-REVISION: Integer))
+  Response: Sum (': * (Json,Customer) (': * ((WithStatus Status503 Json),SampleError) ('[] *)))
+
+customerIdTxt "GET" /customer/:param.txt
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: Sum (': * (PlainText,Text) (': * (Response (WithStatus Status503 PlainText) Text) ('[] *)))
+
+customerTransaction "GET" /customer/:param/transaction/:param
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (PlainText,Text)
+
+createProduct "POST" /products
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (PlainText,Text)
+
+customerHeadered "GET" /customerHeadered
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: (Json,(Headered (': * (Header "X-RateLimit-Limit" Int) (': * (Header "X-RateLimit-Reset" UTCTime) ('[] *))) Customer))
+
+customerIdTxtHeadered "GET" /customer/:param.txt-or-json
+  Request:
+    Query Params: (none)
+    Headers: (none)
+  Response: Sum (': * ((ContentTypes (': * PlainText (': * Json ('[] *)))),(Headered (': * (Header "X-RateLimit-Limit" Int) (': * (Header "X-RateLimit-Reset" UTCTime) ('[] *))) Text)) (': * (Response (Wit
+hStatus Status503 (ContentTypes (': * Json (': * PlainText ('[] *))))) (Headered (': * (Header "X-ErrorId" Text) ('[] *)) Text)) ('[] *)))
+
+echoApiVersion "POST" /echoApiVersion/
+  Request:
+    Query Params: (none)
+    Headers: (X-API-VERSION: Integer | X-API-REVISION: Integer)
+  Response: (Json,ApiVersion)
+
+getExampleRequestHeaders "GET" /exampleRequestHeaders/
+  Request:
+    Query Params: (none)
+    Headers: (X-API-VERSION: Integer | X-API-REVISION: Integer) & X-API-KEY: Text
+  Response: (Json,ExampleRequestHeaders)
+
+echoApiVersionQ "POST" /echoApiVersionQ/
+  Request:
+    Query Params: (apiVersion: Integer | apiRevision: Integer)
+    Headers: (none)
+  Response: (Json,QueryParamsApiVersion)
+
+getExampleQueryParams "GET" /exampleQueryParams/
+  Request:
+    Query Params: (apiVersion: Integer | apiRevision: Integer) & apiKey: Text
+    Headers: (none)
+  Response: (Json,ExampleQueryParams)
+```
 
 詳しくは割愛
 
