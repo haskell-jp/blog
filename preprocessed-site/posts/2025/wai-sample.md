@@ -5,12 +5,12 @@ headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 author: YAMAMOTO Yuji
 postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a>
-date: November 27, 2024
+date: July 27, 2025
 tags:
 ...
 ---
 
-この記事では、「[Haskell製ウェブアプリケーションフレームワークを作る配信](https://www.youtube.com/playlist?list=PLRVf2pXOpAzJMFN810EWwGrH_qii7DKyn)」で配信していた、Haskell製ウェブアプリケーションフレームワークを作るプロジェクトについて振り返ります。Servantのような型安全なAPI定義を、<small>（Servantのような）</small>高度な型レベルプログラミングも、<small>（Yesodのような）</small>TemplateHaskellもなしに可能にするライブラリーを目指していましたが、開発を途中で止めることにしました。その振り返り --- とりわけ、そのゴールに基づいて実装するのが原理上不可能だと分かった機能などを中心にまとめます。
+この記事では、「[Haskell製ウェブアプリケーションフレームワークを作る配信](https://www.youtube.com/playlist?list=PLRVf2pXOpAzJMFN810EWwGrH_qii7DKyn)」で配信していた、Haskell製ウェブアプリケーションフレームワークを作るプロジェクトについて振り返ります。Servantのような型安全なAPI定義を、<small>（Servantのような）</small>高度な型レベルプログラミングも、<small>（Yesodのような）</small>TemplateHaskellもなしに可能にするライブラリーを目指していましたが、開発を途中で止めることにしました。その振り返り --- とりわけ、そのゴールに基づいて実装するのが困難だと分かった機能などを中心にまとめます。
 
 # 動機
 
@@ -29,7 +29,7 @@ tags:
 
 # できたもの
 
-ソースコードはこちらにあります:
+ソースコードはこちら👇️にあります。名前は仮に「wai-sample」としました。
 
 [igrep/wai-sample: Prototype of a new web application framework based on WAI.](https://github.com/igrep/wai-sample)
 
@@ -290,6 +290,10 @@ createProduct "POST" /products
 
 # 何故開発を止めるのか
 
+開発をやめる最も大きな理由は、冒頭でも触れたとおり、当初考えていたゴールを達成するのが難しいと判断したからです[^motive]。wai-sampleのゴールは、「Servantのような型安全なAPI定義を、<small>（Servantのような）</small>高度な型レベルプログラミングも、<small>（Yesodのような）</small>TemplateHaskellもなしに可能にするライブラリー」にすることでした。hoge
+
+[^motive]: もう1つは、大変申し訳ないですが、私自身のHaskellに対する情熱が落ち込んでしまった、という理由もあります😞。
+
 # 想定通りにできなかったもの
 
 ## レスポンスの型
@@ -303,6 +307,8 @@ createProduct "POST" /products
 https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types/Response.hs#L51-L57
 
 https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs#L175-L182
+
+## パスのパーサー: 実は`<$>`がすでに危ない
 
 # 実装し切れなかったもの
 
