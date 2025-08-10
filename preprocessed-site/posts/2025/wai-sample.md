@@ -333,15 +333,23 @@ get [(plainText, text), ((withStatus status503 plainText), text)]
 
 [^launch-time]: と、ここまで書いて気付いたのですが、`Typeable`型クラスを利用して、サーバーアプリケーション起動時に各`Responder`が返す型が正しいかチェックする、という手法もありだったかもしれません<small>（あるいはそれだけのためにTemplate Haskellをどこかに挟む？）</small>。まあ、型チェックである以上コンパイル時にチェックする方が望ましいでしょうし、私自身のやる気ももう失われてしまったので特に取り組みはしませんが...。
 
+それから、型レベルリストを使ったこと以外においても、複雑で分かりづらい要因があります。先程から少し触れているとおり、Content-Typeやステータスコードとレスポンスボディーの型を組み合わせを表すのに、タプル以外にも`Response`という型を用いています。`Response`型とタプル型はいずれも[`ResponseSpec`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types/Response.hs#L47-L49)（下記に転載）という型クラスのインスタンスとなることで、「Content-Typeやステータスコード」を表す型（`ResponseType`）と`Responder`がレスポンスボディーとして返す型（`ResponseObject`）を宣言することが出来ます:
 
-それから、型レベルリストを使ったこと以外においても、複雑で分かりづらい要因があります。
-タプル以外にも`Response`という型を
+```hs
+class ResponseSpec resSpec where
+  type ResponseType resSpec
+  type ResponseObject resSpec
 
-間違い探しみたいな型
+instance ResponseSpec (resTyp, resObj) where
+  type ResponseType (resTyp, resObj) = resTyp
+  type ResponseObject (resTyp, resObj) = resObj
 
-https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types/Response.hs#L51-L57
+instance ResponseSpec (Response resTyp resObj) where
+  type ResponseType (Response resTyp resObj) = resTyp
+  type ResponseObject (Response resTyp resObj) = Response resTyp resObj
+```
 
-https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs#L175-L182
+`ResponseSpec (resTyp, resObj)`と`ResponseSpec (Response resTyp resObj)`の2つのインスタンスの違い、分かるでしょうか？まるで間違い探しですよね...😥。タプル型も`Response`型も`get`などに渡す型レベルリストでの役割はほぼ同じで、最初はタプルだけをとることにしていたのですが、やむを得ない理由があって`Response`を別途設けることにしました<small>（詳しい理由は面倒なので解説しません！これまでに出てきたコードだけで推測できるはずですし考えてみてください！）</small>。こうした分かりづらい部分が出来てしまったのも、失敗の1つです。
 
 ## パスのパーサー: 実は`<$>`がすでに危ない
 
