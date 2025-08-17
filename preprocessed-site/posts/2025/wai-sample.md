@@ -349,9 +349,21 @@ instance ResponseSpec (Response resTyp resObj) where
   type ResponseObject (Response resTyp resObj) = Response resTyp resObj
 ```
 
-`ResponseSpec (resTyp, resObj)`と`ResponseSpec (Response resTyp resObj)`の2つのインスタンスの違い、分かるでしょうか？まるで間違い探しですよね...😥。タプル型も`Response`型も`get`などに渡す型レベルリストでの役割はほぼ同じで、最初はタプルだけをとることにしていたのですが、やむを得ない理由があって`Response`を別途設けることにしました<small>（詳しい理由は面倒なので解説しません！これまでに出てきたコードだけで推測できるはずですし考えてみてください！）</small>。こうした分かりづらい部分が出来てしまったのも、失敗の1つです。
+`ResponseSpec (resTyp, resObj)`と`ResponseSpec (Response resTyp resObj)`の2つのインスタンスの違い、分かるでしょうか？まるで間違い探しですよね...😥。タプル型も`Response`型も`get`などに渡す型レベルリストでの役割はほぼ同じで、最初はタプルだけをとることにしていたのですが、やむを得ない理由があって`Response`を別途設けることにしました[^reason]。こうした分かりづらい部分が出来てしまったのも、失敗の1つです。
+
+[^reason]: 詳しい理由は面倒なので解説しません！これまでに出てきたコードだけで推測できるはずですし考えてみてください！
 
 ## パスのパーサー: 実は`<$>`がすでに危ない
+
+パスのパーサーを値レベルの、`Applicative`な内部DSLとして実装した結果、Servantと比べて型安全性を損なってしまうという問題があることも、作ってから気付きました。例えば、次のように`<$>`に渡す関数としてコンストラクターでない、普通の関数を渡した場合です:
+
+```haskell
+hoge
+```
+
+hoge
+
+まあ、実は同じ問題が同じように`Applicative`ベースの内部DSLを使った他のライブラリーにもあるでしょうから、敢えて気にしない、という手もあるのかも知れませんが。ちなみに、似たような問題を解決するため[relational-record](https://hackage.haskell.org/package/relational-record)というパッケージでは`Functor`や`Applicative`は使わず、[product-isomorphic](https://hackage.haskell.org/package/product-isomorphic)というパッケージにおいて、言わば「コンストラクターだけが適用できる`Functor`・`Applicative`」とも言うべき専用の型クラスを作ることで解決していました。wai-sampleもこれを使えないかと企みましたが、どうもうまく適用できなかったため諦めました。
 
 # 実装し切れなかったもの
 
