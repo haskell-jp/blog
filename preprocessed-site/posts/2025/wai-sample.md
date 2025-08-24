@@ -358,10 +358,10 @@ instance ResponseSpec (Response resTyp resObj) where
 パスのパーサーを値レベルの、`Applicative`な内部DSLとして実装した結果、Servantと比べて型安全性を損なってしまうという問題があることも、作ってから気付きました。例えば、次のように`<$>`に渡す関数としてコンストラクターでない、普通の関数を渡した場合です:
 
 ```haskell
-hoge
+path "integers/" *> (show <$> decimalPiece)
 ```
 
-hoge
+[`decimalPiece`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Routes.hs#L22)は`Route Integer`という型で、それに`show <$>`を適用した結果は`Route String`となります。`Route String`は、パスの一部として文字列を受け取ることを表す型ですから、上記の式は`integers/<任意の文字列>`というパスを表すことになります。ところが！実際にサーバーアプリケーションがパスをパースするのに使っているのは`decimalPiece`なので、整数でなければなりません。このように`<$>`を使うだけで、`Route String`という型が表すパスのパーサーと、実際にパースできるパスの仕様が食い違ってしまうことがあります。`Applicative`（厳密に言えば`Functor`の機能ですが）を使ったDSLである以上、こうしたことが防げないのです。
 
 まあ、実は同じ問題が同じように`Applicative`ベースの内部DSLを使った他のライブラリーにもあるでしょうから、敢えて気にしない、という手もあるのかも知れませんが。ちなみに、似たような問題を解決するため[relational-record](https://hackage.haskell.org/package/relational-record)というパッケージでは`Functor`や`Applicative`は使わず、[product-isomorphic](https://hackage.haskell.org/package/product-isomorphic)というパッケージにおいて、言わば「コンストラクターだけが適用できる`Functor`・`Applicative`」とも言うべき専用の型クラスを作ることで解決していました。wai-sampleもこれを使えないかと企みましたが、どうもうまく適用できなかったため諦めました。
 
