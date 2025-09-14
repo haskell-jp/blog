@@ -385,8 +385,30 @@ path "integers/" *> (show <$> decimalPiece)
 
 # 類似のライブラリー・解決策
 
+手が遅いもので、私が最初にwai-sampleのリポジトリーに対して行った[最初のコミット](https://github.com/igrep/wai-sample/commit/37f49dfe86af7482b09ab82b2282c5b9bf1cd73d)から、既に約5年の歳月が過ぎました[^last-commit]。当時は私の前職、IIJにおける社内勉強会のネタとして始めたのが懐かしいです。私が知る限り、当時はwai-sampleのように「値レベルのプログラミングで」「Servantのように1つの定義からクライアントやドキュメントの生成も出来る」ことを目指したライブラリーはなかったように思います。しかし実際のところ、執筆時点で次のライブラリーが類似の機能を実装しています。これらのライブラリーがいつ開発を始めたのかは分かりませんが、やはり私がwai-sampleを作り始めた時点で同じような問題意識を持った人はいたのでしょう。
 
+[^last-commit]: [実装に対する最後の修正](https://github.com/igrep/wai-sample/commit/b2647de2a1a4c7ec8c799ec07972c3d9df6fcb55)からも既に約1年が過ぎました。記録を作るのも遅い...😥
 
-開発している途中で見つけた類似のライブラリー
+## [Okapi](https://okapi.wiki/)
+
+[Okapi](https://okapi.wiki/)にある[Endpoint](https://okapi.wiki/#endpoint)という機能は「An Endpoint is an executable specification representing a single Operation that can be taken against your API.」と謳っているとおり、APIの仕様を表現する内部DSLを提供します。下記の`Endpoint`という型 --- wai-sampleでいう`Handler`に相当するようです --- に、「Script」と呼ばれる値レベルDSLを設定して使うようです:
+
+```haskell
+data Endpoint p q h b r = Endpoint
+  { method :: StdMethod
+  , path :: Path.Script p
+  , query :: Query.Script q
+  , body :: Body.Script b
+  , headers :: Headers.Script h
+  , responder :: Responder.Script r
+  }
+```
+
+詳細は公式ドキュメントに委ねます。wai-sampleがうまく実装できなかった、レスポンスに複数のパターンがある場合の処理を、case analysisを表す型で実装しているのが興味深いですね。前述した「原理的な問題」に対する解決策なのでしょう。
+
+## [IHP](https://ihp.digitallyinduced.com/)
+
+https://ihp.digitallyinduced.com/Guide/routing.html
+
 
 # 終わりに
