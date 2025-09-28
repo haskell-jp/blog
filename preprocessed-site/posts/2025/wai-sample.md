@@ -385,7 +385,7 @@ path "integers/" *> (show <$> decimalPiece)
 
 # 類似のライブラリー・解決策
 
-手が遅いもので、私が最初にwai-sampleのリポジトリーに対して行った[最初のコミット](https://github.com/igrep/wai-sample/commit/37f49dfe86af7482b09ab82b2282c5b9bf1cd73d)から、既に約5年の歳月が過ぎました[^last-commit]。当時は私の前職、IIJにおける社内勉強会のネタとして始めたのが懐かしいです。私が知る限り、当時はwai-sampleのように「値レベルのプログラミングで」「Servantのように1つの定義からクライアントやドキュメントの生成も出来る」ことを目指したライブラリーはなかったように思います。しかし実際のところ、執筆時点で次のライブラリーが類似の機能を実装しています。これらのライブラリーがいつ開発を始めたのかは分かりませんが、やはり私がwai-sampleを作り始めた時点で同じような問題意識を持った人はいたのでしょう。
+手が遅いもので、私が最初にwai-sampleのリポジトリーに対して行った[最初のコミット](https://github.com/igrep/wai-sample/commit/37f49dfe86af7482b09ab82b2282c5b9bf1cd73d)から、既に約5年の歳月が過ぎました[^last-commit]。当時は私の前職、IIJにおける社内勉強会のネタとして始めたのが懐かしいです。私が知る限り、当時はwai-sampleのように「値レベルのプログラミングで」「Servantのように1つの定義からクライアントやドキュメントの生成も出来る」ことを目指したライブラリーはなかったように思います。しかし実際のところ、執筆時点で次のライブラリーが類似の機能を実装しているようです。これらのライブラリーがいつ開発を始めたのかは分かりませんが、やはり私がwai-sampleを作り始めた時点で同じような問題意識を持った人はいたのでしょう。
 
 [^last-commit]: [実装に対する最後の修正](https://github.com/igrep/wai-sample/commit/b2647de2a1a4c7ec8c799ec07972c3d9df6fcb55)からも既に約1年が過ぎました。記録を作るのも遅い...😥
 
@@ -408,7 +408,44 @@ data Endpoint p q h b r = Endpoint
 
 ## [IHP](https://ihp.digitallyinduced.com/)
 
-https://ihp.digitallyinduced.com/Guide/routing.html
+IHP (Integrated Haskell Platform)は、Haskellで書かれたフルスタックなWebアプリケーションフレームワークです。wai-sampleのような、与えられたパスに基づいて対応する関数を呼び出す機能（ルーティング機能）はもちろんのこと、PostgreSQLと接続するORMやメールの送信、バックグラウンド処理にGUIから管理する機能など、様々な機能を備えています。[Architecture](https://ihp.digitallyinduced.com/Guide/architecture.html)を読むと察せられるとおり、古き良きRuby on Railsのようなスタイルのフレームワークのようです。
 
+そんな[IHPのルーティング機能](https://ihp.digitallyinduced.com/Guide/routing.html)、とりわけ古き良きREST APIの慣習では表現しきれず、[カスタマイズしたパスを定義する際の機能](https://ihp.digitallyinduced.com/Guide/routing.html#custom-routing)は、まさにパスのパーサーコンビネーターを書くことで実装できるようになっています。以下はドキュメントにあった例をそのまま貼り付けています:
+
+```haskell
+-- /posts/an-example-blog-post というような記事の名前(slug)や
+-- /posts/f85dc0bc-fc11-4341-a4e3-e047074a7982 というような記事のIDから
+-- 記事を表示するアクションを呼び出すルーティング
+
+-- パスにあるパラメーターを表す型
+data PostsController
+    = ShowPostAction { postId :: !(Maybe (Id Post)), slug :: !(Maybe Text) }
+
+
+-- CanRoute 型クラスのインスタンスで、
+-- パスのパーサーコンビネーターを定義する
+instance CanRoute PostsController where
+    parseRoute' = do
+        string "/posts/"
+        let postById = do id <- parseId; endOfInput; pure ShowPostAction { postId = Just id, slug = Nothing }
+        let postBySlug = do slug <- remainingText; pure ShowPostAction { postId = Nothing, slug = Just slug }
+        postById <|> postBySlug
+
+
+-- HasPath 型クラスのインスタンスで、
+-- パスに含めるパラメーターからパスを生成する関数を定義する
+instance HasPath PostsController where
+    pathTo ShowPostAction { postId = Just id, slug = Nothing } = "/posts/" <> tshow id
+    pathTo ShowPostAction { postId = Nothing, slug = Just slug } = "/posts/" <> slug
+
+
+action ShowPostAction { postId, slug } = do
+    post <- case slug of
+            Just slug -> query @Post |> filterWhere (#slug, slug) |> fetchOne
+            Nothing   -> fetchOne postId
+    -- ...
+```
+
+wai-sampleやOkapiのようにパスの定義を1箇所で済ませられるわけではない（`CanRoute`と`HasPath`の2つの型クラスのインスタンスを定義する必要がある）ようですが、パーサーコンビネーターを使って自由にパスを定義できるところは似ていますね。
 
 # 終わりに
