@@ -410,7 +410,7 @@ data Endpoint p q h b r = Endpoint
 
 IHP (Integrated Haskell Platform)は、Haskellで書かれたフルスタックなWebアプリケーションフレームワークです。wai-sampleのような、与えられたパスに基づいて対応する関数を呼び出す機能（ルーティング機能）はもちろんのこと、PostgreSQLと接続するORMやメールの送信、バックグラウンド処理にGUIから管理する機能など、様々な機能を備えています。[Architecture](https://ihp.digitallyinduced.com/Guide/architecture.html)を読むと察せられるとおり、古き良きRuby on Railsのようなスタイルのフレームワークのようです。
 
-そんな[IHPのルーティング機能](https://ihp.digitallyinduced.com/Guide/routing.html)、とりわけ古き良きREST APIの慣習では表現しきれず、[カスタマイズしたパスを定義する際の機能](https://ihp.digitallyinduced.com/Guide/routing.html#custom-routing)は、まさにパスのパーサーコンビネーターを書くことで実装できるようになっています。以下はドキュメントにあった例をそのまま貼り付けています:
+そんな[IHPのルーティング機能](https://ihp.digitallyinduced.com/Guide/routing.html)、とりわけREST APIの慣習では表現しきれず、[カスタマイズしたパスを定義する際の機能](https://ihp.digitallyinduced.com/Guide/routing.html#custom-routing)は、まさにパスのパーサーコンビネーターを書くことで実装できるようになっています。以下はドキュメントにあった例をそのまま貼り付けています:
 
 ```haskell
 -- /posts/an-example-blog-post というような記事の名前(slug)や
@@ -449,3 +449,5 @@ action ShowPostAction { postId, slug } = do
 wai-sampleやOkapiのようにパスの定義を1箇所で済ませられるわけではない（`CanRoute`と`HasPath`の2つの型クラスのインスタンスを定義する必要がある）ようですが、パーサーコンビネーターを使って自由にパスを定義できるところは似ていますね。
 
 # 終わりに
+
+wai-sampleは、HaskellでWeb APIを実装するためのフレームワークとして、ServantやYesodのような既存のフレームワークとは異なるアプローチを試みました。残念ながら目標の達成が技術的に困難であることが分かり、開発を止めることにしましたが、HaskellでWeb APIを実装するため新しいアプローチとして、何かしら参考になれば幸いです。
