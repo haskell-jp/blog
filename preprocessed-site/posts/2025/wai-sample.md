@@ -14,7 +14,7 @@ tags:
 
 # 動機
 
-そもそも、Haskellには既にServantやYesod、Scottyといった人気のフレームワークがあるにもかかわらず、なぜ新しいフレームワークを作ろうと思ったのでしょうか。第一に、かつて私が[「Haskellの歩き方」という記事の「Webアプリケーション」の節](https://wiki.haskell.jp/Hikers%20Guide%20to%20Haskell.html#web%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3)で述べた、次の問題を解決したかったから、という理由があります:
+そもそも、Haskellには既にServantやYesod、Scottyといった人気のフレームワークがあるにもかかわらず、なぜ新しいフレームワークを作ろうと思ったのでしょうか。第1に、かつて私が[「Haskellの歩き方」という記事の「Webアプリケーション」の節](https://wiki.haskell.jp/Hikers%20Guide%20to%20Haskell.html#web%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3)で述べた、次の問題を解決したかったから、という理由があります:
 
 > ただしServant, Yesod, 共通した困った特徴があります。
 > それぞれがHaskellの高度な機能を利用した独特なDSLを提供しているため、仕組みがわかりづらい、という点です。
@@ -77,7 +77,7 @@ sampleRoutes =
 sampleRoutes :: [Handler]
 ```
 
-`Handler`という型の値のリストで、それぞれの`Handler`には、Web APIのエンドポイントを表すのに必要な情報が全て含まれています。wai-sampleでは、この`Handler`のリストを解釈してWAIベースのサーバーアプリケーションを実行したり、Template Haskellを通じてクライアントコードを生成したり、はたまたサーバーアプリケーションのドキュメントを生成したりすることができるようになっています。
+`Handler`という型のリストで、それぞれの`Handler`には、Web APIのエンドポイントを表すのに必要な情報が全て含まれています。wai-sampleでは、この`Handler`のリストを解釈してWAIベースのサーバーアプリケーションを実行したり、Template Haskellを通じてクライアントコードを生成したり、はたまたサーバーアプリケーションのドキュメントを生成したりすることができるようになっています。
 
 ## (1) 最も単純な例
 
@@ -108,7 +108,7 @@ get @(WithStatus Status503 PlainText, T.Text) "maintenance" (path "maintenance")
 
 ## (3) パスの中に含まれる整数を処理する例
 
-よくあるWebアプリケーションフレームワークでは、パスの一部に含まれる整数など文字列以外の型の値を取得するための仕組みが用意されています。
+よくあるWebアプリケーションフレームワークでは、パスの一部に含まれる整数など、文字列型以外の値を取得するための仕組みが用意されています。
 
 Haskellにおいて、文字列から特定の型の値を取り出す...といえばそう、パーサーコンビネーターですね。wai-sampleでは、サーバーが受け取ったパスをパーサーコンビネーターでパースするようになっています。従って下記の例では、`/customer/123/transaction/abc`というパスを受け取った場合、`123`と`"abc"`をタプルに詰め込んで`Responder`に渡すパスのパーサーを定義しています:
 
@@ -245,7 +245,7 @@ httpClientBackend rootUrl manager method pathPieces rawReqHds = do
 
 ## ドキュメントの生成
 
-[ServantではOpenAPIに則ったドキュメントを生成するパッケージがある](https://hackage.haskell.org/package/servant-openapi3)ように、Haskellの構文で定義したREST APIの仕様から、APIのドキュメントを生成する機能があると便利でしょう。wai-sampleでも、`Handler`型のリストからAPIのドキュメントを生成する機能を実装しました --- 完成度が低く、とても実用に耐えるものではありませんが。
+[ServantではOpenAPIに則ったドキュメントを生成するパッケージがある](https://hackage.haskell.org/package/servant-openapi3)ように、Haskellの構文で定義したREST APIの仕様から、APIのドキュメントを生成する機能があると便利でしょう。wai-sampleでも、`Handler`型のリストからAPIのドキュメントを生成する機能を実装しました --- 残念ながら完成度が低く、とても実用に耐えるものではありませんが。
 
 ともあれ、試しに使ってみましょう。これまで例として紹介した[`sampleRoutes`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs#L147)の各`Handler`に[`showHandlerSpec`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample.hs#L47)という関数を適用すると、次のように各エンドポイントへのパスやリクエスト・レスポンスの情報を取得することが出来ます:
 
@@ -286,7 +286,7 @@ createProduct "POST" /products
 -- ... 以下略 ...
 ```
 
-...が、あまりに完成度が低いので、詳しくは解説しません。実際に上記のコード実行すると、`Response`の型などがとても人間に読めるような出力になっていないことが分かります。今どきのWeb APIフレームワークであればOpenAPIに則ったドキュメントを生成する機能が欲しいでしょうが、それもありません。この方向で拡張すれば実装できるとは思いますが、次の節で述べるとおり開発を止めることにしたので、ここまでとしておきます。
+...が、前述の通りあまりに完成度が低いので、詳しくは解説しません。実際に上記のコード実行すると、`Response`の型などがとても人間に読めるような出力になっていないことが分かります。今どきのWeb APIフレームワークであればOpenAPIに則ったドキュメントを生成する機能が欲しいでしょうが、それもありません。この方向で拡張すれば実装できるとは思いますが、次の節で述べるとおり開発を止めることにしたので、ここまでとしておきます。
 
 # 何故開発を止めるのか
 
@@ -329,9 +329,7 @@ get [(plainText, text), ((withStatus status503 plainText), text)]
     -- ...
 ```
 
-型レベルプログラミングバージョンでは型引数に渡していた情報を、ほぼそのまま値レベルに落とし込んだものです。しかしこのように書いたとしても、サーバーアプリケーションを起動して、実際にクライアントからリクエストを受け取り、それに対して`get`に渡した関数（`Responder`）がレスポンスの元となる値を返すまで、レスポンスボディーの型が正しいかどうか、検証できないのです。「レスポンスの元となる値」の型はライブラリーのユーザー自身が`Responder`で返す値の型ですし、実行時以前にコンパイル時に保証できていて欲しいものです[^launch-time]。これが、値レベルのDSLを採用した場合の限界です。
-
-[^launch-time]: と、ここまで書いて気付いたのですが、`Typeable`型クラスを利用して、サーバーアプリケーション起動時に各`Responder`が返す型が正しいかチェックする、という手法もありだったかもしれません<small>（あるいはそれだけのためにTemplate Haskellをどこかに挟む？）</small>。まあ、型チェックである以上コンパイル時にチェックする方が望ましいでしょうし、私自身のやる気ももう失われてしまったので特に取り組みはしませんが...。
+型レベルプログラミングバージョンでは型引数に渡していた情報を、ほぼそのまま値レベルに落とし込んだものです。しかしこのように書いたとしても、サーバーアプリケーションを起動して、実際にクライアントからリクエストを受け取り、それに対して`get`に渡した関数（`Responder`）がレスポンスの元となる値を返すまで、レスポンスボディーの型が正しいかどうか、検証できないのです。「レスポンスの元となる値」の型はライブラリーのユーザー自身が`Responder`で返す値の型ですし、実行時以前にコンパイル時に保証できていて欲しいものです。これが、値レベルのDSLを採用した場合の限界です。
 
 それから、型レベルリストを使ったこと以外においても、複雑で分かりづらい要因があります。先程から少し触れているとおり、Content-Typeやステータスコードとレスポンスボディーの型を組み合わせを表すのに、タプル以外にも`Response`という型を用いています。`Response`型とタプル型はいずれも[`ResponseSpec`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types/Response.hs#L47-L49)（下記に転載）という型クラスのインスタンスとなることで、「Content-Typeやステータスコード」を表す型（`ResponseType`）と`Responder`がレスポンスボディーとして返す型（`ResponseObject`）を宣言することが出来ます:
 
@@ -376,7 +374,7 @@ path "integers/" *> (show <$> decimalPiece)
 - HTTPレスポンスに関わるもの:
     - 動的なHTMLの配信
     - ファイルシステムにあるファイルの配信
-    - （REST APIに特化したフレームワークであればこれは不要でしょうが）
+    - （REST APIに特化したフレームワークであればこれらは不要でしょうが、拡張として簡単に追加できるようにはしたいですね）
 - 両方に関わるもの:
     - Cookieの読み書き
 - ドキュメント生成に関わるもの:
@@ -404,11 +402,13 @@ data Endpoint p q h b r = Endpoint
   }
 ```
 
+TODO: もう少しサンプルを
+
 詳細は公式ドキュメントに委ねます。wai-sampleがうまく実装できなかった、レスポンスに複数のパターンがある場合の処理を、case analysisを表す型で実装しているのが興味深いですね。前述した「原理的な問題」に対する解決策なのでしょう。
 
 ## [IHP](https://ihp.digitallyinduced.com/)
 
-IHP (Integrated Haskell Platform)は、Haskellで書かれたフルスタックなWebアプリケーションフレームワークです。wai-sampleのような、与えられたパスに基づいて対応する関数を呼び出す機能（ルーティング機能）はもちろんのこと、PostgreSQLと接続するORMやメールの送信、バックグラウンド処理にGUIから管理する機能など、様々な機能を備えています。[Architecture](https://ihp.digitallyinduced.com/Guide/architecture.html)を読むと察せられるとおり、古き良きRuby on Railsのようなスタイルのフレームワークのようです。
+IHP (Integrated Haskell Platform)は、Haskellで書かれたフルスタックなWebアプリケーションフレームワークです。wai-sampleのような、与えられたパスに基づいて対応する関数を呼び出す機能（ルーティング機能）はもちろんのこと、PostgreSQLと接続するORMやメールの送信、バックグラウンド処理に加えてGUIから管理する機能など、様々な機能を備えています。[Architecture](https://ihp.digitallyinduced.com/Guide/architecture.html)を読むと察せられるとおり、古き良きRuby on Railsのようなスタイルのフレームワークのようです。
 
 そんな[IHPのルーティング機能](https://ihp.digitallyinduced.com/Guide/routing.html)、とりわけREST APIの慣習では表現しきれず、[カスタマイズしたパスを定義する際の機能](https://ihp.digitallyinduced.com/Guide/routing.html#custom-routing)は、まさにパスのパーサーコンビネーターを書くことで実装できるようになっています。以下はドキュメントにあった例をそのまま貼り付けています:
 
