@@ -389,7 +389,9 @@ path "integers/" *> (show <$> decimalPiece)
 
 ## [Okapi](https://okapi.wiki/)
 
-[Okapi](https://okapi.wiki/)にある[Endpoint](https://okapi.wiki/#endpoint)という機能は「An Endpoint is an executable specification representing a single Operation that can be taken against your API.」と謳っているとおり、APIの仕様を表現する内部DSLを提供します。下記の`Endpoint`という型 --- wai-sampleでいう`Handler`に相当するようです --- に、「Script」と呼ばれる値レベルDSLを設定して使うようです:
+[Okapi](https://okapi.wiki/)にある[Endpoint](https://okapi.wiki/#endpoint)という機能は「An Endpoint is an executable specification representing a single Operation that can be taken against your API.」と謳っているとおり、APIの仕様を表現する内部DSLを提供します。しかもこれから紹介するとおり、wai-sampleより幾分洗練されているように見えます。
+
+Okapiでは下記の`Endpoint`という型 --- wai-sampleでいう`Handler`に相当するようです --- に、「Script」と呼ばれる値レベルDSLを設定して使うようです:
 
 ```haskell
 data Endpoint p q h b r = Endpoint
@@ -402,9 +404,44 @@ data Endpoint p q h b r = Endpoint
   }
 ```
 
-TODO: もう少しサンプルを
+詳細はもちろん公式ドキュメントにも書かれていますが、読んでわかる範囲でこちらでも解説しましょう。`Endpoint`型の各フィールドは、HTTPリクエスト・レスポンスに関わる各要素の仕様を表しています。`method`フィールドを除くすべてのフィールドは、それぞれのフィールドのために作られた`Script`という型の`Applicative`[^alternaive]なDSLを使って仕様を表現します。`Path.Script p`はパスの仕様、`Query.Script q`はクエリーパラメーターの仕様、`Body.Script b`はリクエストボディーの仕様、`Headers.Script h`はリクエストヘッダーの仕様、`Responder.Script r`はレスポンスの仕様、といったところです。
 
-詳細は公式ドキュメントに委ねます。wai-sampleがうまく実装できなかった、レスポンスに複数のパターンがある場合の処理を、case analysisを表す型で実装しているのが興味深いですね。前述した「原理的な問題」に対する解決策なのでしょう。
+[^alternaive]: 個人的には、なぜ`Alternative`にしなかったのかが気になります。`Body.optional`や`Headers.optional`などは文字通り[`Alternative`の`optional`](https://hackage.haskell.org/package/base-4.21.0.0/docs/Control-Applicative.html#v:optional)で実現できそうに見えるからです。
+
+各`Script`型のうち、`Path.Script`型はwai-sampleの`Route`型とよく似てますし、と`Query.Script`型はよくある、key・valueのリストからレコード型を組み立てる際のDSL<small>（例えば、[`FromJSON`](https://hackage.haskell.org/package/aeson-2.2.3.0/docs/Data-Aeson-Types.html#t:FromJSON)のインスタンスを定義する際のDSL）</small>と似たようなもの、と説明すれば概ね通じそうなので割愛します。
+
+各`Script`型のうち、特筆すべきは`Responder.Script`でしょう。`Responder.Script`では、hoge
+
+```haskell
+data SecretHeaders = SecretHeaders
+  { firstSecret :: Int -> Response -> Response
+  , secondSecret :: Int -> Response -> Response
+  }
+
+data MyResponders = MyResponders
+  { allGood :: (SecretHeaders %1 -> Response -> Response) -> Text -> Response
+  , notGood :: (() %1 -> Response -> Response) -> Text -> Response
+  }
+
+myResponderScript = do
+  allGood <- Responder.json @Text status200 do
+    addSecret <- AddHeader.using @Int "IntSecret"
+    addAnotherSecret <- AddHeader.using @Int "X-Another-Secret"
+    pure SecretHeaders {..}
+  notGood <- Responder.json @Text status501 $ pure ()
+  pure MyResponders {..}
+
+myHandler someNumber _ _ _ _ (MyResponders allGood notGood) = do
+  if someNumber < 100
+    then return $ allGood
+      (\(SecretHeaders firstSecret secondSecret) response -> secondSecret 0 $ firstSecret 7 response)
+      "All Good!"
+    else return $ notGood
+      (\() response -> response)
+      "Not Good!"
+```
+
+wai-sampleがうまく実装できなかった、レスポンスに複数のパターンがある場合の処理を、case analysisを表す型で実装しているのが興味深いですね。前述した「原理的な問題」に対する解決策なのでしょう。
 
 ## [IHP](https://ihp.digitallyinduced.com/)
 
