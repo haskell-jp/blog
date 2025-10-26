@@ -408,8 +408,6 @@ data Endpoint p q h b r = Endpoint
 
 [^alternaive]: 個人的には、なぜ`Alternative`にしなかったのかが気になります。`Body.optional`や`Headers.optional`などは文字通り[`Alternative`の`optional`](https://hackage.haskell.org/package/base-4.21.0.0/docs/Control-Applicative.html#v:optional)で実現できそうに見えるからです。
 
-各`Script`型のうち、`Path.Script`型はwai-sampleの`Route`型とよく似てますし、と`Query.Script`型はよくある、key・valueのリストからレコード型を組み立てる際のDSL<small>（例えば、[`FromJSON`](https://hackage.haskell.org/package/aeson-2.2.3.0/docs/Data-Aeson-Types.html#t:FromJSON)のインスタンスを定義する際のDSL）</small>と似たようなもの、と説明すれば概ね通じそうなので割愛します。
-
 各`Script`型のうち、特筆すべきは`Responder.Script`でしょう。`Responder.Script`では、hoge
 
 ```haskell
