@@ -408,27 +408,43 @@ data Endpoint p q h b r = Endpoint
 
 [^alternaive]: 個人的には、なぜ`Alternative`にしなかったのかが気になります。`Body.optional`や`Headers.optional`などは文字通り[`Alternative`の`optional`](https://hackage.haskell.org/package/base-4.21.0.0/docs/Control-Applicative.html#v:optional)で実現できそうに見えるからです。
 
-各`Script`型のうち、特筆すべきは`Responder.Script`でしょう。`Responder.Script`では、hoge
+各`Script`型のうち、特筆すべきは`Responder.Script`でしょう。`Responder.Script`では、レスポンスの種類毎にレスポンスボディーの型やステータスコード、レスポンスヘッダーの型を、case analysisを表す型として定義できるようになっています。そして、`Handler`型は`Endpoint`型が各種`Script`を使って設定した値を使って、実際に`Response`型の値を組み立てます:
+
+（⚠️以下のコードは、[Okapiのドキュメントにあったサンプルコード](https://okapi.wiki/#cb10)を元に、私が推測してコメントを追加したものです。間違っていたらごめんなさい hask(\_ \_)eller）
 
 ```haskell
+-- | Responseにヘッダーを設定する関数群
 data SecretHeaders = SecretHeaders
   { firstSecret :: Int -> Response -> Response
   , secondSecret :: Int -> Response -> Response
   }
 
+-- | Responseにヘッダーとボディーを設定する関数群
+--   レスポンスの種類毎にフィールドラベルを1つ備えた、case analysisを表す型
 data MyResponders = MyResponders
   { allGood :: (SecretHeaders %1 -> Response -> Response) -> Text -> Response
   , notGood :: (() %1 -> Response -> Response) -> Text -> Response
   }
 
+-- | `Responder.Script`として定義する、レスポンスの仕様
 myResponderScript = do
+  -- allGood の場合はレスポンスボディーは`Text`型で、ステータスコードは200。
+  -- レスポンスヘッダーとしては、`IntSecret`と`X-Another-Secret`という
+  -- `Int`型の2つのヘッダーを追加する。
   allGood <- Responder.json @Text status200 do
     addSecret <- AddHeader.using @Int "IntSecret"
     addAnotherSecret <- AddHeader.using @Int "X-Another-Secret"
     pure SecretHeaders {..}
+
+  -- notGood の場合はレスポンスボディーは`Text`型で、ステータスコードは501。
+  -- レスポンスヘッダーはなし。
   notGood <- Responder.json @Text status501 $ pure ()
   pure MyResponders {..}
 
+-- | Responder.Scriptで定義したcase analysisを表す型、`MyResponders`を使って、
+--   レスポンスを組み立てる関数。
+--   `someNumber`が100未満なら`allGood`を、そうでなければ`notGood`を使う。
+--   この関数が利用していない引数は、`Endpoint`型の他のフィールドに対応するもの。
 myHandler someNumber _ _ _ _ (MyResponders allGood notGood) = do
   if someNumber < 100
     then return $ allGood
