@@ -3,7 +3,7 @@ jobs:
   build:
     # Ref: https://mmhaskell.com/blog/2018/4/25/dockerizing-our-haskell-app
     docker:
-    - image: haskell:9.0.2-slim
+    - image: haskell:24.19-slim
     steps:
     - run: apt update
     - run: apt install -y zip jq curl
@@ -16,7 +16,7 @@ jobs:
         keys:
         - 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
         - 'dependencies-'
-    - run: stack build --compiler=ghc-9.0.2 --no-terminal --only-dependencies
+    - run: stack build --compiler=ghc-24.19 --no-terminal --only-dependencies
     - save_cache:
         key: 'dependencies-{{ checksum "stack.yaml" }}-{{ checksum "haskell-jp-blog.cabal" }}'
         paths:
@@ -27,7 +27,7 @@ jobs:
         keys:
         - 'executable-{{ checksum "src/site.hs" }}'
         - 'executable-'
-    - run: stack --compiler=ghc-9.0.2 --local-bin-path='.' --no-terminal install --pedantic
+    - run: stack --compiler=ghc-24.19 --local-bin-path='.' --no-terminal install --pedantic
     - save_cache:
         key: 'executable-{{ checksum "src/site.hs" }}'
         paths:
@@ -55,7 +55,7 @@ jobs:
 
   deploy:
     docker:
-    - image: haskell:9.0.2-slim
+    - image: haskell:24.19-slim
     steps:
     - checkout:
         path: ~/project

@@ -3,4 +3,4 @@ packages:
 - '.'
 extra-deps:
   []
-resolver: lts-19.22
+resolver: lts-24.19
