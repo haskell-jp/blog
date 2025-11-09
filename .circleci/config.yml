@@ -3,7 +3,7 @@ jobs:
   build:
     # Ref: https://mmhaskell.com/blog/2018/4/25/dockerizing-our-haskell-app
     docker:
-    - image: haskell:9.10.2-slim
+    - image: haskell:9.10.2-slim-bullseye
     steps:
     - run: apt update
     - run: apt install -y zip jq curl
