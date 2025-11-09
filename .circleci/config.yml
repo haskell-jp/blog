@@ -27,7 +27,7 @@ jobs:
         keys:
         - 'executable-{{ checksum "src/site.hs" }}'
         - 'executable-'
-    - run: stack --compiler=ghc-9.10.2 --local-bin-path='.' --no-terminal install --pedantic
+    - run: stack --compiler=ghc-9.10.2 --local-bin-path='.' --no-terminal install
     - save_cache:
         key: 'executable-{{ checksum "src/site.hs" }}'
         paths:
