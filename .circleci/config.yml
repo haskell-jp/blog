@@ -6,7 +6,7 @@ jobs:
     - image: haskell:9.10.2-slim-bullseye
     steps:
     - run: apt update
-    - run: apt install -y zip jq curl git openssh-client
+    - run: apt install -y zip jq curl git openssh-client pkg-config
     - run: stack upgrade
     - run: "echo 'tcp     6       TCP' > /etc/protocols"
     - run: "stack config --system-ghc set system-ghc --global true"
