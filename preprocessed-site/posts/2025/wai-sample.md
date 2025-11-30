@@ -123,11 +123,11 @@ get @(PlainText, T.Text)
     )
 ```
 
-実際のところここまでの話は`Route`型の値をサーバーアプリケーションが解釈した場合の挙動です。`Route`型はパスの仕様を定義する`Applicative`な内部DSLとなっています。これによって、サーバーアプリケーションだけでなくクライアントのコード生成機能やドキュメントの生成など、様々な応用ができるようになっています。詳しくは後述しますが、例えばクライアントのコード生成機能が`Route`型の値を解釈すると、`decimalPiece`や`paramPiece`などの値は生成した関数の引数を一つずつ追加します。
+実際のところここまでの話は`Route`型の値をサーバーアプリケーションが解釈した場合の挙動です。`Route`型はパスの仕様を定義する`Applicative`な内部DSLとなっています。これによって、サーバーアプリケーションだけでなくクライアントのコード生成機能やドキュメントの生成など、様々な応用ができるようになっています。詳しくは後述しますが、例えばクライアントのコード生成機能が`Route`型の値を解釈すると、`decimalPiece`や`paramPiece`などの値は生成した関数の引数を1つずつ追加します。
 
 ## Content-Typeを複数指定する
 
-Ruby on Railsの`respond_to`メソッドなどで実現できるように、一つのエンドポイントで一つの種類のレスポンスボディーを、複数のContent-Typeで返す、といった機能は昨今のWebアプリケーションフレームワークではごく一般的な機能でしょう。wai-sampleの場合、例えば次のようにして、`Customer`という型の値をJSONや`application/x-www-form-urlencoded`な文字列として返すエンドポイントを定義できます:
+Ruby on Railsの`respond_to`メソッドなどで実現できるように、1つのエンドポイントで1つの種類のレスポンスボディーを、複数のContent-Typeで返す、といった機能は昨今のWebアプリケーションフレームワークではごく一般的な機能でしょう。wai-sampleの場合、例えば次のようにして、`Customer`という型の値をJSONや`application/x-www-form-urlencoded`な文字列として返すエンドポイントを定義できます:
 
 ```haskell
 sampleRoutes =
@@ -137,7 +137,7 @@ sampleRoutes =
   ]
 ```
 
-これまでの例では`get`の型引数においてMIMEタイプを表す箇所に一つの型のみ（`PlainText`型）を指定していましたが、ここでは代わりに`ContentTypes`という型を使用しています。`ContentTypes`型コンストラクターに、MIMEタイプを表す型の型レベルリストを渡せば、レスポンスボディーを表す一つの型に対して、複数のMIMEタイプを指定できるようになります。
+これまでの例では`get`の型引数においてMIMEタイプを表す箇所に1つの型のみ（`PlainText`型）を指定していましたが、ここでは代わりに`ContentTypes`という型を使用しています。`ContentTypes`型コンストラクターに、MIMEタイプを表す型の型レベルリストを渡せば、レスポンスボディーを表す1つの型に対して、複数のMIMEタイプを指定できるようになります。
 
 なお、`Json`や`FormUrlEncoded`と一緒に指定した`Customer`型は、当然[`ToJSON`](https://hackage.haskell.org/package/aeson/docs/Data-Aeson-Types.html#t:ToJSON)・[`FromJSON`](https://hackage.haskell.org/package/aeson/docs/Data-Aeson-Types.html#t:FromJSON)や[`ToForm`](https://hackage.haskell.org/package/http-api-data/docs/Web-FormUrlEncoded.html#t:ToForm)・[`FromForm`](https://hackage.haskell.org/package/http-api-data/docs/Web-FormUrlEncoded.html#t:FromForm)といった型クラスのインスタンスである必要があります[^http-api-data]。レスポンスボディーとして指定した型が、同時に指定したMIMEタイプに対応する形式に変換できることを、保証できるようになっているのです。
 
