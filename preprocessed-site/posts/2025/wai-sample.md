@@ -85,7 +85,7 @@ sampleRoutes :: [Handler]
 get @(PlainText, T.Text) "aboutUs" (path "about/us") (\_ -> return "About IIJ")
 ```
 
-先程のサンプルコードから抜粋した最も単純な例↑では、`get`関数を使ってエンドポイントを定義しています。`get`関数は名前のとおりHTTPのGETメソッドに対応するエンドポイントを定義します。`TypeApplications`言語拡張を使って指定している`(PlainText, T.Text)`という型が、このエンドポイントが返すレスポンスの型を表しています。ここでは、`get`に渡す最後の引数に当たる関数（[`Responder`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L104)と呼びます。詳細は後ほど）がレスポンスボディーとして返す型をお馴染みの`Text`型として指定しつつ、サーバーやクライアントが処理する際はMIMEタイプを`text/plain`として扱うように指定しています。
+先程のサンプルコードから抜粋した最も単純な例↑では、`get`関数を使ってエンドポイントを定義しています。`get`関数は名前のとおりHTTPのGETメソッドに対応するエンドポイントを定義します。`TypeApplications`言語拡張を使って指定している`(PlainText, T.Text)`という型が、このエンドポイントが返すレスポンスの型を表しています。ここでは、`get`に渡す最後の引数に当たる関数（[`Responder`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L104)と呼びます。後述します）がレスポンスボディーとして返す型をお馴染みの`Text`型として指定しつつ、サーバーやクライアントが処理する際はMIMEタイプを`text/plain`として扱うように指定しています。
 
 `get`関数の（値の）第1引数では、エンドポイントの名前を指定しています。この名前は、後述するクライアントコードを生成する機能において、関数名の一部として使われます。
 
@@ -361,7 +361,7 @@ path "integers/" *> (show <$> decimalPiece)
 
 [`decimalPiece`](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Routes.hs#L22)は`Route Integer`という型で、それに`show <$>`を適用した結果は`Route String`となります。`Route String`は、パスの一部として文字列を受け取ることを表す型ですから、上記の式は`integers/<任意の文字列>`というパスを表すことになります。ところが！実際にサーバーアプリケーションがパスをパースするのに使っているのは`decimalPiece`なので、整数でなければなりません。このように`<$>`を使うだけで、`Route String`という型が表すパスのパーサーと、実際にパースできるパスの仕様が食い違ってしまうことがあります。`Applicative`（厳密に言えば`Functor`の機能ですが）を使ったDSLである以上、こうしたことが防げないのです。
 
-まあ、実は同じ問題が同じように`Applicative`ベースの内部DSLを使った他のライブラリーにもあるでしょうから、敢えて気にしない、という手もあるのかも知れませんが。ちなみに、似たような問題を解決するため[relational-record](https://hackage.haskell.org/package/relational-record)というパッケージでは`Functor`や`Applicative`は使わず、[product-isomorphic](https://hackage.haskell.org/package/product-isomorphic)というパッケージにおいて、言わば「コンストラクターだけが適用できる`Functor`・`Applicative`」とも言うべき専用の型クラスを作ることで解決していました。wai-sampleもこれを使えないかと企みましたが、どうもうまく適用できなかったため諦めました。
+まあ、実は同じ問題が同じように`Applicative`ベースの内部DSLを使った他のライブラリーにもあるでしょうから、敢えて気にしない、という手もあるのかも知れませんが。ちなみに、似たような問題を解決するため[relational-record](https://hackage.haskell.org/package/relational-record)というパッケージでは`Functor`や`Applicative`は使わず、[product-isomorphic](https://hackage.haskell.org/package/product-isomorphic)というパッケージで、言わば「コンストラクターだけが適用できる`Functor`・`Applicative`」とも言うべき専用の型クラスを作ることで解決していました。wai-sampleもこれを使えないかと企みましたが、どうもうまく適用できなかったため諦めました。
 
 # 実装し切れなかったもの
 
@@ -385,7 +385,7 @@ path "integers/" *> (show <$> decimalPiece)
 
 手が遅いもので、私が最初にwai-sampleのリポジトリーに対して行った[最初のコミット](https://github.com/igrep/wai-sample/commit/37f49dfe86af7482b09ab82b2282c5b9bf1cd73d)から、既に約5年の歳月が過ぎました[^last-commit]。当時は私の前職、IIJにおける社内勉強会のネタとして始めたのが懐かしいです。私が知る限り、当時はwai-sampleのように「値レベルのプログラミングで」「Servantのように1つの定義からクライアントやドキュメントの生成も出来る」ことを目指したライブラリーはなかったように思います。しかし実際のところ、執筆時点で次のライブラリーが類似の機能を実装しているようです。これらのライブラリーがいつ開発を始めたのかは分かりませんが、やはり私がwai-sampleを作り始めた時点で同じような問題意識を持った人はいたのでしょう。
 
-[^last-commit]: [実装に対する最後の修正](https://github.com/igrep/wai-sample/commit/b2647de2a1a4c7ec8c799ec07972c3d9df6fcb55)からも既に約1年が過ぎました。記録を作るのも遅い...😥
+[^last-commit]: [実装に対する最後の修正](https://github.com/igrep/wai-sample/commit/b2647de2a1a4c7ec8c799ec07972c3d9df6fcb55)からも既に1年以上が過ぎました。記録を作るのも遅い...😥
 
 ## [Okapi](https://okapi.wiki/)
 
