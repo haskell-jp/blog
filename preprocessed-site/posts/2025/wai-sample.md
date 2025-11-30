@@ -5,7 +5,7 @@ headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
 author: YAMAMOTO Yuji
 postedBy: <a href="http://the.igreque.info/">YAMAMOTO Yuji(@igrep)</a>
-date: July 27, 2025
+date: December 7, 2025
 tags:
 ...
 ---
