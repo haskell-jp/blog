@@ -1,5 +1,5 @@
 ---
-title: 単純なHaskellのみでServant並に高機能なライブラリーを作ろうとした振り返り
+title: 簡単なHaskellのみでServant並に高機能なライブラリーを作ろうとした振り返り
 subHeading:
 headingBackgroundImage: ../img/background.png
 headingDivClass: post-heading
@@ -203,7 +203,9 @@ $(declareClient "sample" sampleRoutes)
 
 ℹ️[こちら](https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs)からほぼそのままコピペしたコードです。
 
-上記の通り、クライアントコードの生成は`TemplateHaskell`を使って行います。`declareClient`という関数に、生成する関数の名前の接頭辞（prefix）とこれまで定義した`Handler`型のリスト（`sampleRoutes`）を渡すと、次のような型の関数の定義を生成します[^ddump-splices]:
+上記の通り、クライアントコードの生成は`TemplateHaskell`を使って行います。「簡単なHaskellのみで作る」という目標からは早くも外れてしまいますが、生成されるコードが十分に予測しやすいものであろうことや、考え得る限り何らかの形で「難しいHaskell」を使わなければ実装できないだろうという推察から、`TemplateHaskell`を使うことにしました。
+
+`declareClient`という関数に、生成する関数の名前の接頭辞（prefix）とこれまで定義した`Handler`型のリスト（`sampleRoutes`）を渡すと、次のような型の関数の定義を生成します[^ddump-splices]:
 
 ```haskell
 sampleAboutUs :: Backend -> IO Text
