@@ -211,7 +211,7 @@ here</span></a></span>ほかの言語での例</h1>
 here</span></a></span><span class="ascii">Ruby</span>での場合</h2>
 <p>前職時代、私は実際にこの「定義を自動でまとめる問題」に出くわしたのですが、<span class="ascii">Ruby</span>を使っていたため、下記のように<a href="https://docs.ruby-lang.org/ja/2.4.0/method/Module/i/included.html"><span class="ascii">Module#included</span></a>という、対象のモジュールを<code>include</code><small>（モジュールが提供する機能の継承）</small>したときに呼ばれる、特別なメタプログラミング用のメソッドを使って解決しておりました。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">module</span> <span class="dt">ListedAsSubCommand</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@listed</span> <span class="kw">=</span> <span class="kw">[]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@listed</span> <span class="op">=</span> <span class="kw">[]</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># このモジュールを include するたびに呼ばれるメソッド。</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 引数として、include した Class オブジェクト（または Module オブジェクト）を受け取る</span></span>
@@ -220,7 +220,7 @@ here</span></a></span><span class="ascii">Ruby</span>での場合</h2>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@listed</span><span class="at">.push</span> klass</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">class</span> <span class="kw">&lt;&lt;</span> <span class="dv">self</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">class</span> <span class="op">&lt;&lt;</span> <span class="dv">self</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="ot">attr_reader</span> <span class="wa">:listed</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
@@ -248,7 +248,7 @@ here</span></a></span><span class="ascii">Ruby</span>での場合</h2>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Dir.glob メソッドで、指定したディレクトリーから</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 再帰的にファイルを取り出し、require で読み込む。</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="dt">Dir</span><span class="at">.glob</span>(<span class="vs">'path/to/commands/**/*.rb'</span>) <span class="cf">do</span><span class="kw">|</span>file<span class="kw">|</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="dt">Dir</span><span class="at">.glob</span>(<span class="vs">'path/to/commands/**/*.rb'</span>) <span class="cf">do</span><span class="op">|</span>file<span class="op">|</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span> file</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
@@ -282,7 +282,7 @@ here</span></a></span>解決に必要なもの</h1>
 まさかファイルシステムにあるすべてのソースコードから「まとめたい定義」を探すわけにも行きませんし、プロジェクトのディレクトリーすべてを処理するのも、柔軟性に欠けた解決方法でしょう。そこで通例「定義を自動でまとめる問題」に対応する際は、「まとめたい定義（モジュールや関数、型など）」が書かれているファイルがどのディレクトリー以下にあるか、を何らかの形で書くことになります。</p>
 <p>前述の<span class="ascii">Ruby</span>による例の場合、この情報は下記の<code>Dir.glob</code>メソッドに渡した引数に当たります。<br />
 <code>'path/to/commands/**/*.rb'</code> という文字列のうち、 <code>path/to/commands/</code> の部分ですね。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">Dir</span><span class="at">.glob</span>(<span class="vs">'path/to/commands/**/*.rb'</span>) <span class="cf">do</span><span class="kw">|</span>file<span class="kw">|</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">Dir</span><span class="at">.glob</span>(<span class="vs">'path/to/commands/**/*.rb'</span>) <span class="cf">do</span><span class="op">|</span>file<span class="op">|</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span> file</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p><span class="ascii">Java</span>における<span class="ascii">Spring</span>のコンポーネントスキャンの場合、<code>@ComponentScan</code>アノテーションに渡した引数が該当します。<br />
@@ -643,14 +643,14 @@ here</span></a></span>参考にしたページ</h1>
 <li><a href="https://docs.ruby-lang.org/ja/2.4.0/method/Module/i/included.html"><span class="ascii">instance method Module#included (Ruby 2.4.0)</span></a></li>
 <li><a href="https://downloads.haskell.org/~ghc/7.0.3/docs/html/users_guide/pragmas.html#annotation-pragmas"><span class="ascii">GHC User</span>’<span class="ascii">s Guide</span>の「<span class="ascii">7.13. Pragmas</span>」</a></li>
 </ul>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>実際には「タイプセーフプリキュアそのものを開発する上で見つかった問題」というよりタイプセーフプリキュアの開発をすることで問題解決の実験をしている、といった方が正しいのは内緒。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>もう少し正確に言うと、自動的に設定したいフィールド（あるいはコンストラクターの引数）に<code>@Autowired</code>というアノテーションが必要ですが、今回の話では本質的ではないので割愛しています。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>もちろん、数年前流行ったあのライトノベルのパロディーではありません。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>誰にも聞かれてはいませんが勝手にお話ししますと、<code>ACME.PreCure.Textbook</code>という名前は、<a href="https://dic.pixiv.net/a/%E3%83%97%E3%83%AA%E3%82%AD%E3%83%A5%E3%82%A2%E6%95%99%E7%A7%91%E6%9B%B8">プリキュアの教科書</a>から来ています。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>現在もそうですが、実際には<span class="ascii">Template Haskell</span>で定義されているので、<span class="ascii">typesafe-precure</span>のリポジトリーにはこれと全く同じコードはありません。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>実際には「タイプセーフプリキュアそのものを開発する上で見つかった問題」というよりタイプセーフプリキュアの開発をすることで問題解決の実験をしている、といった方が正しいのは内緒。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>もう少し正確に言うと、自動的に設定したいフィールド（あるいはコンストラクターの引数）に<code>@Autowired</code>というアノテーションが必要ですが、今回の話では本質的ではないので割愛しています。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>もちろん、数年前流行ったあのライトノベルのパロディーではありません。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>誰にも聞かれてはいませんが勝手にお話ししますと、<code>ACME.PreCure.Textbook</code>という名前は、<a href="https://dic.pixiv.net/a/%E3%83%97%E3%83%AA%E3%82%AD%E3%83%A5%E3%82%A2%E6%95%99%E7%A7%91%E6%9B%B8">プリキュアの教科書</a>から来ています。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>現在もそうですが、実際には<span class="ascii">Template Haskell</span>で定義されているので、<span class="ascii">typesafe-precure</span>のリポジトリーにはこれと全く同じコードはありません。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

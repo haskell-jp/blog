@@ -6,10 +6,471 @@
     <id>https://haskell.jp/blog/feed.xml</id>
     <author>
         <name>Haskell-jp</name>
-        <email></email>
+        
     </author>
-    <updated>2022-09-18T00:00:00Z</updated>
+    <updated>2025-12-07T00:00:00Z</updated>
     <entry>
+    <title>簡単なHaskellのみでServant並に高機能なライブラリーを作ろうとした振り返り</title>
+    <link href="https://haskell.jp/blog/posts/2025/wai-sample.html" />
+    <id>https://haskell.jp/blog/posts/2025/wai-sample.html</id>
+    <published>2025-12-07T00:00:00Z</published>
+    <updated>2025-12-07T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+<article lang="ja">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
+                <ul class="social-buttons">
+                    <li><div>
+                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                    </div></li>
+                    <li><div>
+                        <script type="text/javascript">
+                            reddit_target = "haskell_jp";
+                            reddit_title  = document.title;
+                        </script>
+                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
+                    </div></li>
+                    <li><div>
+                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+                    </div></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <hr />
+<p>この記事は<a href="https://qiita.com/advent-calendar/2025/haskell"><span class="ascii">Haskell Advent Calendar 2025</span></a>の<span class="ascii">7</span>日目の記事です。</p>
+<p>本日は、「<a href="https://www.youtube.com/playlist?list=PLRVf2pXOpAzJMFN810EWwGrH_qii7DKyn"><span class="ascii">Haskell</span>製ウェブアプリケーションフレームワークを作る配信</a>」で配信していた、<span class="ascii">Haskell</span>製ウェブアプリケーションフレームワークを作るプロジェクトについて振り返ります。<span class="ascii">Servant</span>のような型安全な<span class="ascii">API</span>定義を、<small>（<span class="ascii">Servant</span>のような）</small>高度な型レベルプログラミングも、<small>（<span class="ascii">Yesod</span>のような）</small><span class="ascii">TemplateHaskell</span>もなしに可能にするライブラリーを目指していましたが、開発を途中で止めることにしました。その振り返り — とりわけ、そのゴールに基づいて実装するのが困難だと分かった機能などを中心にまとめます。</p>
+<div id="table-of-contents-outer">
+<div id="table-of-contents">
+<div class="table-of-contents-title">
+Contents
+</div>
+<ul>
+<li><a href="#動機" title="動機">動機</a></li>
+<li><a href="#できたもの" title="できたもの">できたもの</a>
+<ul>
+<li><a href="#最も単純な例" title="最も単純な例"><span class="ascii">(1)</span> 最も単純な例</a></li>
+<li><a href="#ステータスコードを指定した例" title="ステータスコードを指定した例"><span class="ascii">(2)</span> ステータスコードを指定した例</a></li>
+<li><a href="#パスの中に含まれる整数を処理する例" title="パスの中に含まれる整数を処理する例"><span class="ascii">(3)</span> パスの中に含まれる整数を処理する例</a></li>
+<li><a href="#content-typeを複数指定する" title="content-typeを複数指定する"><span class="ascii">Content-Type</span>を複数指定する</a></li>
+<li><a href="#サーバーアプリケーションとしての使い方" title="サーバーアプリケーションとしての使い方">サーバーアプリケーションとしての使い方</a></li>
+<li><a href="#template-haskellによるクライアントの生成" title="template-haskellによるクライアントの生成"><span class="ascii">Template Haskell</span>による、クライアントの生成</a></li>
+<li><a href="#ドキュメントの生成" title="ドキュメントの生成">ドキュメントの生成</a></li>
+</ul></li>
+<li><a href="#何故開発を止めるのか" title="何故開発を止めるのか">何故開発を止めるのか</a>
+<ul>
+<li><a href="#想定通りにできなかったもの-レスポンスに複数のパターンがあるとき" title="想定通りにできなかったもの-レスポンスに複数のパターンがあるとき">想定通りにできなかったもの<span class="ascii">:</span> レスポンスに複数のパターンがあるとき</a></li>
+<li><a href="#パスのパーサー-実はがすでに危ない" title="パスのパーサー-実はがすでに危ない">パスのパーサー<span class="ascii">:</span> 実は<code>&lt;$&gt;</code>がすでに危ない</a></li>
+</ul></li>
+<li><a href="#実装し切れなかったもの" title="実装し切れなかったもの">実装し切れなかったもの</a></li>
+<li><a href="#類似のライブラリー解決策" title="類似のライブラリー解決策">類似のライブラリー・解決策</a>
+<ul>
+<li><a href="#okapi" title="okapi"><span class="ascii">Okapi</span></a></li>
+<li><a href="#ihp" title="ihp"><span class="ascii">IHP</span></a></li>
+</ul></li>
+<li><a href="#終わりに" title="終わりに">終わりに</a></li>
+</ul>
+</div>
+</div>
+<h1 id="動機"><span class="link-to-here-outer"><a href="#動機" title="動機"><span class="link-to-here">Link to<br />
+here</span></a></span>動機</h1>
+<p>そもそも、<span class="ascii">Haskell</span>には既に<span class="ascii">Servant</span>や<span class="ascii">Yesod</span>、<span class="ascii">Scotty</span>といった人気のフレームワークがあるにもかかわらず、なぜ新しいフレームワークを作ろうと思ったのでしょうか。第<span class="ascii">1</span>に、かつて私が<a href="https://wiki.haskell.jp/Hikers%20Guide%20to%20Haskell.html#web%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3">「<span class="ascii">Haskell</span>の歩き方」という記事の「<span class="ascii">Web</span>アプリケーション」の節</a>で述べた、次の問題を解決したかったから、という理由があります<span class="ascii">:</span></p>
+<blockquote>
+<p>ただし<span class="ascii">Servant, Yesod,</span> 共通した困った特徴があります。
+それぞれが<span class="ascii">Haskell</span>の高度な機能を利用した独特な<span class="ascii">DSL</span>を提供しているため、仕組みがわかりづらい、という点です。
+<span class="ascii">Servant</span>は、「型レベルプログラミング」と呼ばれる、<span class="ascii">GHC</span>の言語拡張を使った仕組みを駆使して、型宣言だけで<span class="ascii">REST API</span>の仕様を記述できるようにしています。
+<span class="ascii">Yesod</span>も<span class="ascii">GHC</span>の言語拡張をたくさん使っているのに加え、特に変わった特徴として、<span class="ascii">TemplateHaskell</span>や<span class="ascii">QuasiQuote</span>という仕組みを利用して、独自の<span class="ascii">DSL</span>を提供しています。
+それぞれ、見慣れた<span class="ascii">Haskell</span>と多かれ少なかれ異なる構文で書かなければいけない部分があるのです。
+つまり、これらのうちどちらかを使う以上、どちらかの魔法を覚えなければならないのです。</p>
+</blockquote>
+<p>この「どちらかの魔法を覚えなければならない」という問題は、初心者が<span class="ascii">Haskell</span>でウェブアプリケーションを作る上で大きな壁になりえます。入門書に書いてある<span class="ascii">Haskell</span>の機能だけでは、<span class="ascii">Servant</span>や<span class="ascii">Yesod</span>などのフレームワークで書くコードを理解できず、サンプルコードから雰囲気で書かなければならないのです。これが、新しいフレームワークを作ろうとした一番の動機です。</p>
+<p>その他、このフレームワークを開発し始めるより更に前から開発・執筆している、<a href="https://github.com/haskell-jp/makeMistakesToLearnHaskell/">「失敗しながら学ぶ<span class="ascii">Haskell</span>入門」</a>をウェブアプリケーションとして公開する際のフレームワークとしても使おうという考えもありました。「失敗しながら学ぶ<span class="ascii">Haskell</span>入門」はタイトルの通り<span class="ascii">Haskell</span>入門者のためのコンテンツです。そのため、<span class="ascii">Haskell</span>を学習したばかりの人でも簡単に修正できるフレームワークにしたかったのです。</p>
+<h1 id="できたもの"><span class="link-to-here-outer"><a href="#できたもの" title="できたもの"><span class="link-to-here">Link to<br />
+here</span></a></span>できたもの</h1>
+<p>ソースコードはこちら👇️にあります。名前は仮に「<span class="ascii">wai-sample</span>」としました。</p>
+<p><a href="https://github.com/igrep/wai-sample"><span class="ascii">igrep/wai-sample: Prototype of a new web application framework based on WAI.</span></a></p>
+<p><span class="ascii">YouTube</span>で配信する前から行っていた<small>（私の前職である）</small><span class="ascii">IIJ</span>の社内勉強会中の開発と、全<span class="ascii">128</span>回の<span class="ascii">YouTube</span>でのライブコーディングを経て<small>（一部配信終了後に手を入れたこともありましたが）</small>、次のような構文でウェブアプリケーションを記述できるようにしました<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE DataKinds         #-}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE OverloadedStrings #-}</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE TypeApplications  #-}</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">WaiSample</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ot">sampleRoutes ::</span> [<span class="dt">Handler</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sampleRoutes <span class="ot">=</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  [ <span class="co">-- ... 中略 ...</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- (1) 最も単純な例</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  , get <span class="op">@</span>(<span class="dt">PlainText</span>, <span class="dt">T.Text</span>) <span class="st">&quot;aboutUs&quot;</span> (path <span class="st">&quot;about/us&quot;</span>) (\_ <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="st">&quot;About IIJ&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- (2) ステータスコードを指定した例</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  , get <span class="op">@</span>(<span class="dt">WithStatus</span> <span class="dt">Status503</span> <span class="dt">PlainText</span>, <span class="dt">T.Text</span>) <span class="st">&quot;maintenance&quot;</span> (path <span class="st">&quot;maintenance&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      (\_ <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="st">&quot;Sorry, we are under maintenance&quot;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ... 中略 ...</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- (3) パスをパースして含まれる整数を取得する例</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  , get <span class="op">@</span>(<span class="dt">PlainText</span>, <span class="dt">T.Text</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;customerTransaction&quot;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      ( (,) <span class="op">&lt;$&gt;</span> (path <span class="st">&quot;customer/&quot;</span> <span class="op">*&gt;</span> decimalPiece)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;*&gt;</span> (path <span class="st">&quot;/transaction/&quot;</span> <span class="op">*&gt;</span> paramPiece)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>      (\(cId, transactionName) <span class="ot">-&gt;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span> <span class="op">$</span> <span class="st">&quot;Customer &quot;</span> <span class="op">&lt;&gt;</span> T.pack (<span class="fu">show</span> cId) <span class="op">&lt;&gt;</span> <span class="st">&quot; Transaction &quot;</span> <span class="op">&lt;&gt;</span> transactionName</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ... 中略 ...</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  ]</span></code></pre></div>
+<p>※完全なサンプルコードは<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs"><span class="ascii">WaiSample/Sample.hs</span></a>をご覧ください。上記はその一部に説明用のコメントを加えています。</p>
+<p>上記のサンプルコードにおける<code>sampleRoutes</code>が、<span class="ascii">Web API</span>の仕様を定めている部分です<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">sampleRoutes ::</span> [<span class="dt">Handler</span>]</span></code></pre></div>
+<p><code>Handler</code>という型のリストで、それぞれの<code>Handler</code>には、<span class="ascii">Web API</span>のエンドポイントを表すのに必要な情報が全て含まれています。<span class="ascii">wai-sample</span>では、この<code>Handler</code>のリストを解釈して<span class="ascii">WAI</span>ベースのサーバーアプリケーションを実行したり、<span class="ascii">Template Haskell</span>を通じてクライアントコードを生成したり、はたまたサーバーアプリケーションのドキュメントを生成したりすることができるようになっています。</p>
+<h2 id="最も単純な例"><span class="link-to-here-outer"><a href="#最も単純な例" title="最も単純な例"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">(1)</span> 最も単純な例</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>get <span class="op">@</span>(<span class="dt">PlainText</span>, <span class="dt">T.Text</span>) <span class="st">&quot;aboutUs&quot;</span> (path <span class="st">&quot;about/us&quot;</span>) (\_ <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="st">&quot;About IIJ&quot;</span>)</span></code></pre></div>
+<p>先程のサンプルコードから抜粋した最も単純な例↑では、<code>get</code>関数を使ってエンドポイントを定義しています。<code>get</code>関数は名前のとおり<span class="ascii">HTTP</span>の<span class="ascii">GET</span>メソッドに対応するエンドポイントを定義します。<code>TypeApplications</code>言語拡張を使って指定している<code>(PlainText, T.Text)</code>という型が、このエンドポイントが返すレスポンスの型を表しています。ここでは、<code>get</code>に渡す最後の引数に当たる関数（<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L104"><code>Responder</code></a>と呼びます。後述します）がレスポンスボディーとして返す型をお馴染みの<code>Text</code>型として指定しつつ、サーバーやクライアントが処理する際は<span class="ascii">MIME</span>タイプを<code>text/plain</code>として扱うように指定しています。</p>
+<p><code>get</code>関数の（値の）第<span class="ascii">1</span>引数では、エンドポイントの名前を指定しています。この名前は、後述するクライアントコードを生成する機能において、関数名の一部として使われます。</p>
+<p><code>get</code>関数の第<span class="ascii">2</span>引数は、エンドポイントのパスの仕様を表す<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L56-L65"><code>Route</code>型</a>の値です。この例では、<code>path</code>関数を使って<code>"about/us"</code>という単純な文字列を指定しています。結果、このエンドポイントのパスは<code>/about/us</code>となります<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>）。</p>
+<p><code>get</code>関数の最後の引数が、このエンドポイントが<span class="ascii">HTTP</span>リクエストを受け取った際に実行する関数、<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L104"><code>Responder</code></a>です。ここでは、単純にレスポンスボディーとして文字列を返すだけの関数を指定しています。</p>
+<h2 id="ステータスコードを指定した例"><span class="link-to-here-outer"><a href="#ステータスコードを指定した例" title="ステータスコードを指定した例"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">(2)</span> ステータスコードを指定した例</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>get <span class="op">@</span>(<span class="dt">WithStatus</span> <span class="dt">Status503</span> <span class="dt">PlainText</span>, <span class="dt">T.Text</span>) <span class="st">&quot;maintenance&quot;</span> (path <span class="st">&quot;maintenance&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  (\_ <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="st">&quot;Sorry, we are under maintenance&quot;</span>)</span></code></pre></div>
+<p>デフォルトでは、<code>get</code>関数で定義したエンドポイントはやっぱりステータスコード<span class="ascii">200</span>（<span class="ascii">OK</span>）を返します。この挙動を変えるには、先程指定したレスポンスの型のうち、<span class="ascii">MIME</span>タイプを指定していた箇所を<code>WithStatus</code>型でラップしましょう。型引数で指定しているタプルの<span class="ascii">1</span>つ目の要素は、このように<span class="ascii">HTTP</span>のレスポンスに関する仕様を<span class="ascii">Haskell</span>の型で指定するパラメーターとなっています。</p>
+<p>この例では、<code>Status503</code>という型を指定しているため、<span class="ascii">HTTP</span>ステータスコード<span class="ascii">503</span>（<span class="ascii">Service Unavailable</span>）を返すエンドポイントを定義しています。</p>
+<h2 id="パスの中に含まれる整数を処理する例"><span class="link-to-here-outer"><a href="#パスの中に含まれる整数を処理する例" title="パスの中に含まれる整数を処理する例"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">(3)</span> パスの中に含まれる整数を処理する例</h2>
+<p>よくある<span class="ascii">Web</span>アプリケーションフレームワークでは、パスの一部に含まれる整数など、文字列型以外の値を取得するための仕組みが用意されています。</p>
+<p><span class="ascii">Haskell</span>において、文字列から特定の型の値を取り出す…といえばそう、パーサーコンビネーターですね。<span class="ascii">wai-sample</span>では、サーバーが受け取ったパスをパーサーコンビネーターでパースするようになっています。従って下記の例では、<code>/customer/123/transaction/abc</code>というパスを受け取った場合、<code>123</code>と<code>"abc"</code>をタプルに詰め込んで<code>Responder</code>に渡すパスのパーサーを定義しています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>get <span class="op">@</span>(<span class="dt">PlainText</span>, <span class="dt">T.Text</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;customerTransaction&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  ( (,) <span class="op">&lt;$&gt;</span> (path <span class="st">&quot;customer/&quot;</span> <span class="op">*&gt;</span> decimalPiece)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">&lt;*&gt;</span> (path <span class="st">&quot;/transaction/&quot;</span> <span class="op">*&gt;</span> paramPiece)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  (\(cId, transactionName) <span class="ot">-&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> <span class="op">$</span> <span class="st">&quot;Customer &quot;</span> <span class="op">&lt;&gt;</span> T.pack (<span class="fu">show</span> cId) <span class="op">&lt;&gt;</span> <span class="st">&quot; Transaction &quot;</span> <span class="op">&lt;&gt;</span> transactionName</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
+<p>実際のところここまでの話は<code>Route</code>型の値をサーバーアプリケーションが解釈した場合の挙動です。<code>Route</code>型はパスの仕様を定義する<code>Applicative</code>な内部<span class="ascii">DSL</span>となっています。これによって、サーバーアプリケーションだけでなくクライアントのコード生成機能やドキュメントの生成など、様々な応用ができるようになっています。詳しくは後述しますが、例えばクライアントのコード生成機能が<code>Route</code>型の値を解釈すると、<code>decimalPiece</code>や<code>paramPiece</code>などの値は生成した関数の引数を<span class="ascii">1</span>つずつ追加します。</p>
+<h2 id="content-typeを複数指定する"><span class="link-to-here-outer"><a href="#content-typeを複数指定する" title="content-typeを複数指定する"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Content-Type</span>を複数指定する</h2>
+<p><span class="ascii">Ruby on Rails</span>の<code>respond_to</code>メソッドなどで実現できるように、<span class="ascii">1</span>つのエンドポイントで<span class="ascii">1</span>つの種類のレスポンスボディーを、複数の<span class="ascii">Content-Type</span>で返す、といった機能は昨今の<span class="ascii">Web</span>アプリケーションフレームワークではごく一般的な機能でしょう。<span class="ascii">wai-sample</span>の場合、例えば次のようにして、<code>Customer</code>という型の値を<span class="ascii">JSON</span>や<code>application/x-www-form-urlencoded</code>な文字列として返すエンドポイントを定義できます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sampleRoutes <span class="ot">=</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  [ <span class="co">-- ... 中略 ...</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  , get <span class="op">@</span>(<span class="dt">ContentTypes</span> &#39;[<span class="dt">Json</span>, <span class="dt">FormUrlEncoded</span>], <span class="dt">Customer</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ... 中略 ...</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  ]</span></code></pre></div>
+<p>これまでの例では<code>get</code>の型引数において<span class="ascii">MIME</span>タイプを表す箇所に<span class="ascii">1</span>つの型のみ（<code>PlainText</code>型）を指定していましたが、ここでは代わりに<code>ContentTypes</code>という型を使用しています。<code>ContentTypes</code>型コンストラクターに、<span class="ascii">MIME</span>タイプを表す型の型レベルリストを渡せば、レスポンスボディーを表す<span class="ascii">1</span>つの型に対して、複数の<span class="ascii">MIME</span>タイプを指定できるようになります。</p>
+<p>なお、<code>Json</code>や<code>FormUrlEncoded</code>と一緒に指定した<code>Customer</code>型は、当然<a href="https://hackage.haskell.org/package/aeson/docs/Data-Aeson-Types.html#t:ToJSON"><code>ToJSON</code></a>・<a href="https://hackage.haskell.org/package/aeson/docs/Data-Aeson-Types.html#t:FromJSON"><code>FromJSON</code></a>や<a href="https://hackage.haskell.org/package/http-api-data/docs/Web-FormUrlEncoded.html#t:ToForm"><code>ToForm</code></a>・<a href="https://hackage.haskell.org/package/http-api-data/docs/Web-FormUrlEncoded.html#t:FromForm"><code>FromForm</code></a>といった型クラスのインスタンスである必要があります<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>。レスポンスボディーとして指定した型が、同時に指定した<span class="ascii">MIME</span>タイプに対応する形式に変換できることを、保証できるようになっているのです。</p>
+<h2 id="サーバーアプリケーションとしての使い方"><span class="link-to-here-outer"><a href="#サーバーアプリケーションとしての使い方" title="サーバーアプリケーションとしての使い方"><span class="link-to-here">Link to<br />
+here</span></a></span>サーバーアプリケーションとしての使い方</h2>
+<p>ここまでで定義した<code>Handler</code>型の値、すなわち<span class="ascii">Web API</span>のエンドポイントの仕様に基づいてサーバーアプリケーションを実行するには、次のように書きます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.Wai</span>              (<span class="dt">Application</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.Wai.Handler.Warp</span> (runEnv)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">WaiSample.Sample</span>         (sampleRoutes)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">WaiSample.Server</span>         (handles)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ot">sampleApp ::</span> <span class="dt">Application</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>sampleApp <span class="ot">=</span> handles sampleRoutes</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ot">runSampleApp ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>runSampleApp <span class="ot">=</span> runEnv <span class="dv">8020</span> sampleApp</span></code></pre></div>
+<p>ℹ️<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Server/Sample.hs">こちら</a>にあるコードと同じ内容です。</p>
+<p><code>get</code>関数などで作った<code>Handler</code>型のリストを<code>handles</code>関数に渡すと、<span class="ascii">WAI</span>の<a href="https://hackage.haskell.org/package/wai-3.2.4/docs/Network-Wai.html#t:Application"><code>Application</code></a>型の値が出来上がります。<code>Application</code>型は<span class="ascii">WAI</span>におけるサーバーアプリケーションを表す型で、<span class="ascii">Servant</span>や<span class="ascii">Yesod</span>など他の多くの<span class="ascii">Haskell</span>製フレームワークでも、最終的にこの<code>Application</code>型の値を作るよう設計されています。上記の例は<code>Application</code>型の値を<span class="ascii">Warp</span>というウェブサーバーで動かす場合のコードです。<code>Application</code>型の値を<span class="ascii">Warp</span>の<code>runEnv</code>関数に渡すことで、指定したポート番号でアプリケーションを起動できます。</p>
+<p>ここで起動したサーバーアプリケーションが、実際にエンドポイントへのリクエストを受け取った際実行する関数は、<code>get</code>関数などの最後の引数にあたる関数です。その関数は<code>SimpleResponder</code>という型シノニム<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>が設定されており、次のような定義となっています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">SimpleResponder</span> p resObj <span class="ot">=</span> p <span class="ot">-&gt;</span> <span class="dt">IO</span> resObj</span></code></pre></div>
+<p>ℹ️<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs#L106">こちら</a>より</p>
+<p>型パラメーター<code>p</code>は、エンドポイントのパスに含まれるパラメーターを表す型です。これまでの例で<code>get</code>関数に渡した<code>(path "about/us")</code>や<code>((,) &lt;$&gt; (path "customer/" *&gt; decimalPiece) &lt;*&gt; (path "/transaction/" *&gt; paramPiece))</code>という式で作られる、<code>Route</code>型の値を解釈した結果の型<code>p</code>です。</p>
+<p>そして<code>resObj</code>は、エンドポイントが返すレスポンスボディーの型です。これまでの例でいうと、<code>get</code>関数の型引数で指定した<code>(PlainText, T.Text)</code>における<code>T.Text</code>型、<code>(ContentTypes '[Json, FormUrlEncoded], Customer)</code>における<code>Customer</code>型が該当します。</p>
+<p><code>runSampleApp</code>は各<code>Handler</code>型の値を解釈し、サーバーアプリケーションとして実行します。エンドポイントのパスの仕様（<code>(path "about/us")</code>など）をパーサーコンビネーターとして解釈し<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>、パースが成功した<code>Handler</code>が持つ<code>SimpleResponder</code>（<code>p -&gt; IO resObj</code>）を呼び出します。そして<code>SimpleResponder</code>が返した<code>resObj</code>を、クライアントが要求した<span class="ascii">MIME</span>タイプに応じたレスポンスボディーに変換し、クライアントに返す、という流れで動くようになっています。</p>
+<h2 id="template-haskellによるクライアントの生成"><span class="link-to-here-outer"><a href="#template-haskellによるクライアントの生成" title="template-haskellによるクライアントの生成"><span class="link-to-here">Link to<br />
+here</span></a></span><span class="ascii">Template Haskell</span>による、クライアントの生成</h2>
+<p>サーバーアプリケーションの定義だけであれば、<span class="ascii">Haskell</span>以外のものも含め、従来の多くのウェブアプリケーションフレームワークでも可能でしょう。しかし<span class="ascii">Servant</span>を始め、昨今における<span class="ascii">REST API</span>の開発を想定した<span class="ascii">Web</span>アプリケーションフレームワークは、クライアントコードを生成する機能まで備えていることが多いです。<span class="ascii">wai-sample</span>はそうしたフレームワークを目指しているため、当然クライアントコードの生成もできるようになっています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE DataKinds        #-}</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE TemplateHaskell  #-}</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE TypeApplications #-}</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">WaiSample.Client</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">WaiSample.Sample</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(declareClient <span class="st">&quot;sample&quot;</span> sampleRoutes)</span></code></pre></div>
+<p>ℹ️<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client/Sample.hs">こちら</a>からほぼそのままコピペしたコードです。</p>
+<p>上記の通り、クライアントコードの生成は<code>TemplateHaskell</code>を使って行います。「簡単な<span class="ascii">Haskell</span>のみで作る」という目標からは早くも外れてしまいますが、生成されるコードが十分に予測しやすいものであろうことや、考え得る限り何らかの形で「難しい<span class="ascii">Haskell</span>」を使わなければ実装できないだろうという推察から、<code>TemplateHaskell</code>を使うことにしました。</p>
+<p><code>declareClient</code>という関数に、生成する関数の名前の接頭辞（<span class="ascii">prefix</span>）とこれまで定義した<code>Handler</code>型のリスト（<code>sampleRoutes</code>）を渡すと、次のような型の関数の定義を生成します<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a><span class="ascii">:</span></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ot">sampleAboutUs ::</span> <span class="dt">Backend</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Text</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ot">sampleMaintenance ::</span> <span class="dt">Backend</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Text</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ot">sampleCustomerTransaction ::</span> <span class="dt">Backend</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Text</span></span></code></pre></div>
+<p>生成された関数は、<code>get</code>関数などの第<span class="ascii">1</span>引数として渡した関数の名前に、<code>declareClient</code>の第<span class="ascii">1</span>引数として渡した接頭辞が付いた名前で定義されます。</p>
+<p>生成された関数の第<span class="ascii">1</span>引数、<code>Backend</code>型は、クライアントがサーバーアプリケーションに実際に<span class="ascii">HTTP</span>リクエストを送るための関数です。次のように定義されています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span> <span class="kw">as</span> <span class="dt">BL</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Network.HTTP.Client</span>        <span class="kw">as</span> <span class="dt">HC</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Backend</span> <span class="ot">=</span> <span class="dt">Method</span> <span class="ot">-&gt;</span> <span class="dt">Url</span> <span class="ot">-&gt;</span> <span class="dt">RequestHeaders</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">HC.Response</span> <span class="dt">BL.ByteString</span>)</span></code></pre></div>
+<p>このバックエンドを、例えば<code>http-client</code>パッケージの関数を使って実装することで、生成された関数がサーバーアプリケーションにリクエストを送ることができます。以下は実際に<code>http-client</code>パッケージを使って実装したバックエンドの例です<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Network.HTTP.Client</span>        <span class="kw">as</span> <span class="dt">HC</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.UTF8</span>       <span class="kw">as</span> <span class="dt">BS</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ot">httpClientBackend ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Manager</span> <span class="ot">-&gt;</span> <span class="dt">Backend</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>httpClientBackend rootUrl manager method pathPieces rawReqHds <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  req0 <span class="ot">&lt;-</span> parseUrlThrow <span class="op">.</span> BS.toString <span class="op">$</span> method <span class="op">&lt;&gt;</span> B.pack <span class="st">&quot; &quot;</span> <span class="op">&lt;&gt;</span> BS.fromString rootUrl <span class="op">&lt;&gt;</span> pathPieces</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> req <span class="ot">=</span> req0 { HC.requestHeaders <span class="ot">=</span> rawReqHds }</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  httpLbs (setRequestIgnoreStatus req) manager</span></code></pre></div>
+<p>ℹ️<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Client.hs#L225-L230">こちら</a>からほぼそのままコピペしたコードです。</p>
+<p><code>Backend</code>型以外の引数は、パスパラメーターを始めとする、<span class="ascii">HTTP</span>リクエストを組み立てるのに必要な情報です。<code>get</code>関数などで<code>Handler</code>型の値を定義する際に指定した<code>decimalPiece</code>や<code>paramPiece</code>を<code>declareClient</code>関数が回収して、生成した関数の引数に追加します。実際に生成した関数が受け取った引数は、もちろんパスの一部として当てはめるのに用います。</p>
+<p>生成した関数の戻り値は、サーバーからのレスポンスを表す型です。<code>get</code>関数の型引数として渡した<code>(PlainText, T.Text)</code>や<code>(ContentTypes '[Json, FormUrlEncoded], Customer)</code>などにおける<code>T.Text</code>や<code>Customer</code>がそれに当たります。クライアントの関数はサーバーからのレスポンスを、<span class="ascii">MIME</span>タイプを表す型などに従って、この型に変換してから返すよう実装されているのです。</p>
+<h2 id="ドキュメントの生成"><span class="link-to-here-outer"><a href="#ドキュメントの生成" title="ドキュメントの生成"><span class="link-to-here">Link to<br />
+here</span></a></span>ドキュメントの生成</h2>
+<p><a href="https://hackage.haskell.org/package/servant-openapi3"><span class="ascii">Servant</span>では<span class="ascii">OpenAPI</span>に則ったドキュメントを生成するパッケージがある</a>ように、<span class="ascii">Haskell</span>の構文で定義した<span class="ascii">REST API</span>の仕様から、<span class="ascii">API</span>のドキュメントを生成する機能があると便利でしょう。<span class="ascii">wai-sample</span>でも、<code>Handler</code>型のリストから<span class="ascii">API</span>のドキュメントを生成する機能を実装しました — 残念ながら完成度が低く、とても実用に耐えるものではありませんが。</p>
+<p>ともあれ、試しに使ってみましょう。これまで例として紹介した<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs#L147"><code>sampleRoutes</code></a>の各<code>Handler</code>に<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample.hs#L47"><code>showHandlerSpec</code></a>という関数を適用すると、次のように各エンドポイントへのパスやリクエスト・レスポンスの情報を取得することが出来ます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="fu">mapM_</span> (TIO.putStrLn <span class="op">.</span> showHandlerSpec) sampleRoutes</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">index</span> <span class="st">&quot;GET&quot;</span> <span class="op">/</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Request</span><span class="op">:</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Query</span> <span class="dt">Params</span><span class="op">:</span> (none)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Headers</span><span class="op">:</span> (none)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Response</span><span class="op">:</span> (<span class="dt">PlainText</span>,<span class="dt">Text</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>maintenance <span class="st">&quot;GET&quot;</span> <span class="op">/</span>maintenance</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Request</span><span class="op">:</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Query</span> <span class="dt">Params</span><span class="op">:</span> (none)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Headers</span><span class="op">:</span> (none)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Response</span><span class="op">:</span> ((<span class="dt">WithStatus</span> <span class="dt">Status503</span> <span class="dt">PlainText</span>),<span class="dt">Text</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>aboutUs <span class="st">&quot;GET&quot;</span> <span class="op">/</span>about<span class="op">/</span>us</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Request</span><span class="op">:</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Query</span> <span class="dt">Params</span><span class="op">:</span> (none)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Headers</span><span class="op">:</span> (none)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Response</span><span class="op">:</span> (<span class="dt">PlainText</span>,<span class="dt">Text</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">-- ... 中略 ...</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>customerTransaction <span class="st">&quot;GET&quot;</span> <span class="op">/</span>customer<span class="op">/:</span>param<span class="op">/</span>transaction<span class="op">/:</span>param</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Request</span><span class="op">:</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Query</span> <span class="dt">Params</span><span class="op">:</span> (none)</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Headers</span><span class="op">:</span> (none)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Response</span><span class="op">:</span> (<span class="dt">PlainText</span>,<span class="dt">Text</span>)</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>createProduct <span class="st">&quot;POST&quot;</span> <span class="op">/</span>products</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Request</span><span class="op">:</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Query</span> <span class="dt">Params</span><span class="op">:</span> (none)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Headers</span><span class="op">:</span> (none)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Response</span><span class="op">:</span> (<span class="dt">PlainText</span>,<span class="dt">Text</span>)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co">-- ... 以下略 ...</span></span></code></pre></div>
+<p>…が、前述の通りあまりに完成度が低いので、詳しくは解説しません。実際に上記のコード実行すると、<code>Response</code>の型などがとても人間に読めるような出力になっていないことが分かります。今どきの<span class="ascii">Web API</span>フレームワークであれば<span class="ascii">OpenAPI</span>に則ったドキュメントを生成する機能が欲しいでしょうが、それもありません。この方向で拡張すれば実装できるとは思いますが、次の節で述べるとおり開発を止めることにしたので、ここまでとしておきます。</p>
+<h1 id="何故開発を止めるのか"><span class="link-to-here-outer"><a href="#何故開発を止めるのか" title="何故開発を止めるのか"><span class="link-to-here">Link to<br />
+here</span></a></span>何故開発を止めるのか</h1>
+<p>開発をやめる最も大きな理由は、冒頭でも触れたとおり、当初考えていたゴールを達成するのが難しいと判断したからです<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>。<span class="ascii">wai-sample</span>のゴールは、「<span class="ascii">Servant</span>のような型安全な<span class="ascii">API</span>定義を、<small>（<span class="ascii">Servant</span>のような）</small>高度な型レベルプログラミングも、<small>（<span class="ascii">Yesod</span>のような）</small><span class="ascii">TemplateHaskell</span>もなしに可能にするライブラリー」にすることでした。ところが、後述の通りいくつかの機能においてそれが無理ではないか（少なくとも難しい）ということが発覚したのです。</p>
+<h2 id="想定通りにできなかったもの-レスポンスに複数のパターンがあるとき"><span class="link-to-here-outer"><a href="#想定通りにできなかったもの-レスポンスに複数のパターンがあるとき" title="想定通りにできなかったもの-レスポンスに複数のパターンがあるとき"><span class="link-to-here">Link to<br />
+here</span></a></span>想定通りにできなかったもの<span class="ascii">:</span> レスポンスに複数のパターンがあるとき</h2>
+<p>「できたもの」の節では割愛しましたが、<span class="ascii">wai-sample</span>では、サーバーが返すレスポンスに複数のケースがあるエンドポイント — 例えば、一方ではステータスコード<span class="ascii">200 OK</span>と共に取得できたリソースの情報を返しつつ、一方では<span class="ascii">403 Forbidden</span>と共にエラーメッセージを返す — の実装もサポートしています。例えば次のように書けば、<code>/customer/:id.txt</code>というパスで複数の種類のレスポンスを返すエンドポイントを定義することが出来ます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>get <span class="op">@</span>(<span class="dt">Sum</span> &#39;[(<span class="dt">PlainText</span>, <span class="dt">T.Text</span>), <span class="dt">Response</span> (<span class="dt">WithStatus</span> <span class="dt">Status503</span> <span class="dt">PlainText</span>) <span class="dt">T.Text</span>])</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;customerIdTxt&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>      <span class="co">-- /customer/:id.txt</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>      (path <span class="st">&quot;customer/&quot;</span> <span class="op">*&gt;</span> decimalPiece <span class="op">&lt;*</span> path <span class="st">&quot;.txt&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      (\i <span class="ot">-&gt;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> i <span class="op">==</span> <span class="dv">503</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>          <span class="kw">then</span> <span class="fu">return</span> <span class="op">.</span> sumLift <span class="op">$</span> <span class="dt">Response</span> <span class="op">@</span>(<span class="dt">WithStatus</span> <span class="dt">Status503</span> <span class="dt">PlainText</span>) (<span class="st">&quot;error&quot;</span><span class="ot"> ::</span> <span class="dt">T.Text</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>          <span class="kw">else</span> <span class="fu">return</span> <span class="op">.</span> sumLift <span class="op">$</span> <span class="st">&quot;Customer &quot;</span> <span class="op">&lt;&gt;</span> T.pack (<span class="fu">show</span> i))</span></code></pre></div>
+<p>ℹ️<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Sample.hs#L175-L182">こちら</a>からほぼそのままコピペしたコードです。</p>
+<p><code>get</code>関数の型引数に、随分仰々しい型が現れました。<code>Sum</code>という型は、名前のとおり和型を作ります。型レベルリストの要素として<span class="ascii">Content-Type</span>やステータスコードを表す型と、実際のレスポンスボディーの型を組み合わせたタプル（あるいは後述する<code>Response</code>型）を渡すことで、複数のケースを持つレスポンスの型を定義しています。上記の例における<code>Sum '[(PlainText, T.Text), Response (WithStatus Status503 PlainText) T.Text]</code>は、次の<span class="ascii">2</span>つのケースを持つレスポンスの型を表しています<span class="ascii">:</span></p>
+<ul>
+<li>ステータスコードが（デフォルトの）<code>200 OK</code>で、<span class="ascii">Content-Type</span>が<code>text/plain</code>、レスポンスボディーを表す型が<code>Text</code>型</li>
+<li>ステータスコードが<code>503 Service Unavailable</code>で、<span class="ascii">Content-Type</span>が<code>text/plain</code>、レスポンスボディーを表す型が<code>Text</code>型</li>
+</ul>
+<p>以上のように書くことで実装できるようにはしたのですが、これによって当初の目的である「高度な型レベルプログラミングなしに実装する」という目標から外れてしまいました。型レベルリストは「高度な型レベルプログラミング」に該当すると言って差し支えないでしょう。</p>
+<p>なぜこのような<span class="ascii">API</span>になったのかというと、<span class="ascii">Web API</span>に対する「入力」に当たる、パスのパース<small>（や、今回は実装しませんでしたがリクエストボディーなどの処理も）</small>などと、<span class="ascii">Web API</span>からの「出力」に当たるレスポンスの処理では、実行時に使える情報が大きく異なっていたからです。「入力」は値レベルでも<small>（高度な型レベルプログラミングなしで）</small><span class="ascii">Free Applicative</span>を応用した<span class="ascii">DSL</span>を使えば<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>、サーバーアプリケーション・クライアントコード・ドキュメント、いずれにも実行時に解釈できるフレームワークにできた一方、レスポンスボディーなど「出力」の型は値レベルの<span class="ascii">DSL</span>を書いても、サーバーアプリケーションを実行しない限りそれに整合しているかどうかが分からない、という原理的な問題が判明したからです。</p>
+<p>例えば、レスポンスボディーの仕様を次のような内部<span class="ascii">DSL</span>で定義できるようにしたとします<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>get [(plainText, text), ((withStatus status503 plainText), text)]</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- ...</span></span></code></pre></div>
+<p>型レベルプログラミングバージョンでは型引数に渡していた情報を、ほぼそのまま値レベルに落とし込んだものです。しかしこのように書いたとしても、サーバーアプリケーションを起動して、実際にクライアントからリクエストを受け取り、それに対して<code>get</code>に渡した関数（<code>Responder</code>）がレスポンスの元となる値を返すまで、レスポンスボディーの型が正しいかどうか、検証できないのです。「レスポンスの元となる値」の型はライブラリーのユーザー自身が<code>Responder</code>で返す値の型ですし、実行時以前にコンパイル時に保証できていて欲しいものです。これが、値レベルの<span class="ascii">DSL</span>を採用した場合の限界です。</p>
+<p>それから、型レベルリストを使ったこと以外においても、複雑で分かりづらい要因があります。先程から少し触れているとおり、<span class="ascii">Content-Type</span>やステータスコードとレスポンスボディーの型を組み合わせを表すのに、タプル以外にも<code>Response</code>という型を用いています。<code>Response</code>型とタプル型はいずれも<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types/Response.hs#L47-L49"><code>ResponseSpec</code></a>（下記に転載）という型クラスのインスタンスとなることで、「<span class="ascii">Content-Type</span>やステータスコード」を表す型（<code>ResponseType</code>）と<code>Responder</code>がレスポンスボディーとして返す型（<code>ResponseObject</code>）を宣言することが出来ます<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode hs"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">ResponseSpec</span> resSpec <span class="kw">where</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> <span class="dt">ResponseType</span> resSpec</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> <span class="dt">ResponseObject</span> resSpec</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">ResponseSpec</span> (resTyp, resObj) <span class="kw">where</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> <span class="dt">ResponseType</span> (resTyp, resObj) <span class="ot">=</span> resTyp</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> <span class="dt">ResponseObject</span> (resTyp, resObj) <span class="ot">=</span> resObj</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">ResponseSpec</span> (<span class="dt">Response</span> resTyp resObj) <span class="kw">where</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> <span class="dt">ResponseType</span> (<span class="dt">Response</span> resTyp resObj) <span class="ot">=</span> resTyp</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> <span class="dt">ResponseObject</span> (<span class="dt">Response</span> resTyp resObj) <span class="ot">=</span> <span class="dt">Response</span> resTyp resObj</span></code></pre></div>
+<p><code>ResponseSpec (resTyp, resObj)</code>と<code>ResponseSpec (Response resTyp resObj)</code>の<span class="ascii">2</span>つのインスタンスの違い、分かるでしょうか？まるで間違い探しですよね…😥。タプル型も<code>Response</code>型も<code>get</code>などに渡す型レベルリストでの役割はほぼ同じで、最初はタプルだけをとることにしていたのですが、やむを得ない理由があって<code>Response</code>を別途設けることにしました<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>。こうした分かりづらい部分が出来てしまったのも、失敗の<span class="ascii">1</span>つです。</p>
+<h2 id="パスのパーサー-実はがすでに危ない"><span class="link-to-here-outer"><a href="#パスのパーサー-実はがすでに危ない" title="パスのパーサー-実はがすでに危ない"><span class="link-to-here">Link to<br />
+here</span></a></span>パスのパーサー<span class="ascii">:</span> 実は<code>&lt;$&gt;</code>がすでに危ない</h2>
+<p>パスのパーサーを値レベルの、<code>Applicative</code>な内部<span class="ascii">DSL</span>として実装した結果、<span class="ascii">Servant</span>と比べて型安全性を損なってしまうという問題があることも、作ってから気付きました。例えば、次のように<code>&lt;$&gt;</code>に渡す関数としてコンストラクターでない、普通の関数を渡した場合です<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>path <span class="st">&quot;integers/&quot;</span> <span class="op">*&gt;</span> (<span class="fu">show</span> <span class="op">&lt;$&gt;</span> decimalPiece)</span></code></pre></div>
+<p><a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Routes.hs#L22"><code>decimalPiece</code></a>は<code>Route Integer</code>という型で、それに<code>show &lt;$&gt;</code>を適用した結果は<code>Route String</code>となります。<code>Route String</code>は、パスの一部として文字列を受け取ることを表す型ですから、上記の式は<code>integers/&lt;任意の文字列&gt;</code>というパスを表すことになります。ところが！実際にサーバーアプリケーションがパスをパースするのに使っているのは<code>decimalPiece</code>なので、整数でなければなりません。このように<code>&lt;$&gt;</code>を使うだけで、<code>Route String</code>という型が表すパスのパーサーと、実際にパースできるパスの仕様が食い違ってしまうことがあります。<code>Applicative</code>（厳密に言えば<code>Functor</code>の機能ですが）を使った<span class="ascii">DSL</span>である以上、こうしたことが防げないのです。</p>
+<p>まあ、実は同じ問題が同じように<code>Applicative</code>ベースの内部<span class="ascii">DSL</span>を使った他のライブラリーにもあるでしょうから、敢えて気にしない、という手もあるのかも知れませんが。ちなみに、似たような問題を解決するため<a href="https://hackage.haskell.org/package/relational-record"><span class="ascii">relational-record</span></a>というパッケージでは<code>Functor</code>や<code>Applicative</code>は使わず、<a href="https://hackage.haskell.org/package/product-isomorphic"><span class="ascii">product-isomorphic</span></a>というパッケージで、言わば「コンストラクターだけが適用できる<code>Functor</code>・<code>Applicative</code>」とも言うべき専用の型クラスを作ることで解決していました。<span class="ascii">wai-sample</span>もこれを使えないかと企みましたが、どうもうまく適用できなかったため諦めました。</p>
+<h1 id="実装し切れなかったもの"><span class="link-to-here-outer"><a href="#実装し切れなかったもの" title="実装し切れなかったもの"><span class="link-to-here">Link to<br />
+here</span></a></span>実装し切れなかったもの</h1>
+<p>ウェブアプリケーションフレームワークとして実装すべき機能のうち、実装し切れなかったものは当然たくさんあります。例えば以下のような機能でしょう<span class="ascii">:</span></p>
+<ul>
+<li><span class="ascii">HTTP</span>リクエストに関わるもの<span class="ascii">:</span>
+<ul>
+<li>リクエストヘッダーの処理</li>
+<li>クエリーパラメーターの処理</li>
+<li>（この辺りは、リクエストボディーの処理と似たような要領で実装できるはず）</li>
+</ul></li>
+<li><span class="ascii">HTTP</span>レスポンスに関わるもの<span class="ascii">:</span>
+<ul>
+<li>動的な<span class="ascii">HTML</span>の配信</li>
+<li>ファイルシステムにあるファイルの配信</li>
+<li>（<span class="ascii">REST API</span>に特化したフレームワークであればこれらは不要でしょうが、拡張として簡単に追加できるようにはしたいですね）</li>
+</ul></li>
+<li>両方に関わるもの<span class="ascii">:</span>
+<ul>
+<li><span class="ascii">Cookie</span>の読み書き</li>
+</ul></li>
+<li>ドキュメント生成に関わるもの<span class="ascii">:</span>
+<ul>
+<li><span class="ascii">OpenAPI</span>に準拠したドキュメント生成</li>
+</ul></li>
+<li>などなど！</li>
+</ul>
+<h1 id="類似のライブラリー解決策"><span class="link-to-here-outer"><a href="#類似のライブラリー解決策" title="類似のライブラリー解決策"><span class="link-to-here">Link to<br />
+here</span></a></span>類似のライブラリー・解決策</h1>
+<p>手が遅いもので、私が最初に<span class="ascii">wai-sample</span>のリポジトリーに対して行った<a href="https://github.com/igrep/wai-sample/commit/37f49dfe86af7482b09ab82b2282c5b9bf1cd73d">最初のコミット</a>から、既に約<span class="ascii">5</span>年の歳月が過ぎました<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>。当時は私の前職、<span class="ascii">IIJ</span>における社内勉強会のネタとして始めたのが懐かしいです。私が知る限り、当時は<span class="ascii">wai-sample</span>のように「値レベルのプログラミングで」「<span class="ascii">Servant</span>のように<span class="ascii">1</span>つの定義からクライアントやドキュメントの生成も出来る」ことを目指したライブラリーはなかったように思います。しかし実際のところ、執筆時点で次のライブラリーが類似の機能を実装しているようです。これらのライブラリーがいつ開発を始めたのかは分かりませんが、やはり私が<span class="ascii">wai-sample</span>を作り始めた時点で同じような問題意識を持った人はいたのでしょう。</p>
+<h2 id="okapi"><span class="link-to-here-outer"><a href="#okapi" title="okapi"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://okapi.wiki/"><span class="ascii">Okapi</span></a></h2>
+<p><a href="https://okapi.wiki/"><span class="ascii">Okapi</span></a>にある<a href="https://okapi.wiki/#endpoint"><span class="ascii">Endpoint</span></a>という機能は「<span class="ascii">An Endpoint is an executable specification representing a single Operation that can be taken against your API.</span>」と謳っているとおり、<span class="ascii">API</span>の仕様を表現する内部<span class="ascii">DSL</span>を提供します。しかもこれから紹介するとおり、<span class="ascii">wai-sample</span>より幾分洗練されているように見えます。</p>
+<p><span class="ascii">Okapi</span>では下記の<code>Endpoint</code>という型 — <span class="ascii">wai-sample</span>でいう<code>Handler</code>に相当するようです — に、「<span class="ascii">Script</span>」と呼ばれる値レベル<span class="ascii">DSL</span>を設定して使うようです<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Endpoint</span> p q h b r <span class="ot">=</span> <span class="dt">Endpoint</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> method ::</span> <span class="dt">StdMethod</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> path ::</span> <span class="dt">Path.Script</span> p</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> query ::</span> <span class="dt">Query.Script</span> q</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> body ::</span> <span class="dt">Body.Script</span> b</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> headers ::</span> <span class="dt">Headers.Script</span> h</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> responder ::</span> <span class="dt">Responder.Script</span> r</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<p>詳細はもちろん公式ドキュメントにも書かれていますが、読んでわかる範囲でこちらでも解説しましょう。<code>Endpoint</code>型の各フィールドは、<span class="ascii">HTTP</span>リクエスト・レスポンスに関わる各要素の仕様を表しています。<code>method</code>フィールドを除くすべてのフィールドは、それぞれのフィールドのために作られた<code>Script</code>という型の<code>Applicative</code><a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>な<span class="ascii">DSL</span>を使って仕様を表現します。<code>Path.Script p</code>はパスの仕様、<code>Query.Script q</code>はクエリーパラメーターの仕様、<code>Body.Script b</code>はリクエストボディーの仕様、<code>Headers.Script h</code>はリクエストヘッダーの仕様、<code>Responder.Script r</code>はレスポンスの仕様、といったところです。</p>
+<p>各<code>Script</code>型のうち、特筆すべきは<code>Responder.Script</code>でしょう。<code>Responder.Script</code>では、レスポンスの種類毎にレスポンスボディーの型やステータスコード、レスポンスヘッダーの型を、<span class="ascii">case analysis</span>を表す型として定義できるようになっています。そして、<code>Handler</code>型は<code>Endpoint</code>型が各種<code>Script</code>を使って設定した値を使って、実際に<code>Response</code>型の値を組み立てます<span class="ascii">:</span></p>
+<p>（⚠️以下のコードは、<a href="https://okapi.wiki/#cb10"><span class="ascii">Okapi</span>のドキュメントにあったサンプルコード</a>を元に、私が推測してコメントを追加したものです。間違っていたらごめんなさい <span class="ascii">hask(_ _)eller</span>）</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Responseにヘッダーを設定する関数群</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">SecretHeaders</span> <span class="ot">=</span> <span class="dt">SecretHeaders</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> firstSecret ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Response</span> <span class="ot">-&gt;</span> <span class="dt">Response</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> secondSecret ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Response</span> <span class="ot">-&gt;</span> <span class="dt">Response</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Responseにヘッダーとボディーを設定する関数群</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">--   レスポンスの種類毎にフィールドラベルを1つ備えた、case analysisを表す型</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">MyResponders</span> <span class="ot">=</span> <span class="dt">MyResponders</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> allGood ::</span> (<span class="dt">SecretHeaders</span> <span class="op">%</span><span class="dv">1</span> <span class="ot">-&gt;</span> <span class="dt">Response</span> <span class="ot">-&gt;</span> <span class="dt">Response</span>) <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">Response</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> notGood ::</span> (() <span class="op">%</span><span class="dv">1</span> <span class="ot">-&gt;</span> <span class="dt">Response</span> <span class="ot">-&gt;</span> <span class="dt">Response</span>) <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">Response</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">-- | `Responder.Script`として定義する、レスポンスの仕様</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>myResponderScript <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- allGood の場合はレスポンスボディーは`Text`型で、ステータスコードは200。</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- レスポンスヘッダーとしては、`IntSecret`と`X-Another-Secret`という</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- `Int`型の2つのヘッダーを追加する。</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  allGood <span class="ot">&lt;-</span> Responder.json <span class="op">@</span><span class="dt">Text</span> status200 <span class="kw">do</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    addSecret <span class="ot">&lt;-</span> AddHeader.using <span class="op">@</span><span class="dt">Int</span> <span class="st">&quot;IntSecret&quot;</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    addAnotherSecret <span class="ot">&lt;-</span> AddHeader.using <span class="op">@</span><span class="dt">Int</span> <span class="st">&quot;X-Another-Secret&quot;</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> <span class="dt">SecretHeaders</span> {<span class="op">..</span>}</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- notGood の場合はレスポンスボディーは`Text`型で、ステータスコードは501。</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- レスポンスヘッダーはなし。</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  notGood <span class="ot">&lt;-</span> Responder.json <span class="op">@</span><span class="dt">Text</span> status501 <span class="op">$</span> <span class="fu">pure</span> ()</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="dt">MyResponders</span> {<span class="op">..</span>}</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Responder.Scriptで定義したcase analysisを表す型、`MyResponders`を使って、</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="co">--   レスポンスを組み立てる関数。</span></span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="co">--   `someNumber`が100未満なら`allGood`を、そうでなければ`notGood`を使う。</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">--   この関数が利用していない引数は、`Endpoint`型の他のフィールドに対応するもの。</span></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>myHandler someNumber _ _ _ _ (<span class="dt">MyResponders</span> allGood notGood) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span> someNumber <span class="op">&lt;</span> <span class="dv">100</span></span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">then</span> <span class="fu">return</span> <span class="op">$</span> allGood</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>      (\(<span class="dt">SecretHeaders</span> firstSecret secondSecret) response <span class="ot">-&gt;</span> secondSecret <span class="dv">0</span> <span class="op">$</span> firstSecret <span class="dv">7</span> response)</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;All Good!&quot;</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> <span class="fu">return</span> <span class="op">$</span> notGood</span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>      (\() response <span class="ot">-&gt;</span> response)</span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;Not Good!&quot;</span></span></code></pre></div>
+<p><span class="ascii">wai-sample</span>がうまく実装できなかった、レスポンスに複数のパターンがある場合の処理を、<span class="ascii">case analysis</span>を表す型で実装しているのが興味深いですね。前述した「原理的な問題」に対する解決策なのでしょう。</p>
+<h2 id="ihp"><span class="link-to-here-outer"><a href="#ihp" title="ihp"><span class="link-to-here">Link to<br />
+here</span></a></span><a href="https://ihp.digitallyinduced.com/"><span class="ascii">IHP</span></a></h2>
+<p><span class="ascii">IHP (Integrated Haskell Platform)</span>は、<span class="ascii">Haskell</span>で書かれたフルスタックな<span class="ascii">Web</span>アプリケーションフレームワークです。<span class="ascii">wai-sample</span>のような、与えられたパスに基づいて対応する関数を呼び出す機能（ルーティング機能）はもちろんのこと、<span class="ascii">PostgreSQL</span>と接続する<span class="ascii">ORM</span>やメールの送信、バックグラウンド処理に加えて<span class="ascii">GUI</span>から管理する機能など、様々な機能を備えています。<a href="https://ihp.digitallyinduced.com/Guide/architecture.html"><span class="ascii">Architecture</span></a>を読むと察せられるとおり、古き良き<span class="ascii">Ruby on Rails</span>のようなスタイルのフレームワークのようです。</p>
+<p>そんな<a href="https://ihp.digitallyinduced.com/Guide/routing.html"><span class="ascii">IHP</span>のルーティング機能</a>、とりわけ<span class="ascii">REST API</span>の慣習では表現しきれず、<a href="https://ihp.digitallyinduced.com/Guide/routing.html#custom-routing">カスタマイズしたパスを定義する際の機能</a>は、まさにパスのパーサーコンビネーターを書くことで実装できるようになっています。以下はドキュメントにあった例をそのまま貼り付けています<span class="ascii">:</span></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- /posts/an-example-blog-post というような記事の名前(slug)や</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- /posts/f85dc0bc-fc11-4341-a4e3-e047074a7982 というような記事のIDから</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- 記事を表示するアクションを呼び出すルーティング</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- パスにあるパラメーターを表す型</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">PostsController</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">=</span> <span class="dt">ShowPostAction</span> {<span class="ot"> postId ::</span> <span class="op">!</span>(<span class="dt">Maybe</span> (<span class="dt">Id</span> <span class="dt">Post</span>)),<span class="ot"> slug ::</span> <span class="op">!</span>(<span class="dt">Maybe</span> <span class="dt">Text</span>) }</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- CanRoute 型クラスのインスタンスで、</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co">-- パスのパーサーコンビネーターを定義する</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CanRoute</span> <span class="dt">PostsController</span> <span class="kw">where</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    parseRoute&#39; <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        string <span class="st">&quot;/posts/&quot;</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> postById <span class="ot">=</span> <span class="kw">do</span> <span class="fu">id</span> <span class="ot">&lt;-</span> parseId; endOfInput; <span class="fu">pure</span> <span class="dt">ShowPostAction</span> { postId <span class="ot">=</span> <span class="dt">Just</span> <span class="fu">id</span>, slug <span class="ot">=</span> <span class="dt">Nothing</span> }</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> postBySlug <span class="ot">=</span> <span class="kw">do</span> slug <span class="ot">&lt;-</span> remainingText; <span class="fu">pure</span> <span class="dt">ShowPostAction</span> { postId <span class="ot">=</span> <span class="dt">Nothing</span>, slug <span class="ot">=</span> <span class="dt">Just</span> slug }</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>        postById <span class="op">&lt;|&gt;</span> postBySlug</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="co">-- HasPath 型クラスのインスタンスで、</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co">-- パスに含めるパラメーターからパスを生成する関数を定義する</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">HasPath</span> <span class="dt">PostsController</span> <span class="kw">where</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    pathTo <span class="dt">ShowPostAction</span> { postId <span class="ot">=</span> <span class="dt">Just</span> <span class="fu">id</span>, slug <span class="ot">=</span> <span class="dt">Nothing</span> } <span class="ot">=</span> <span class="st">&quot;/posts/&quot;</span> <span class="op">&lt;&gt;</span> tshow <span class="fu">id</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    pathTo <span class="dt">ShowPostAction</span> { postId <span class="ot">=</span> <span class="dt">Nothing</span>, slug <span class="ot">=</span> <span class="dt">Just</span> slug } <span class="ot">=</span> <span class="st">&quot;/posts/&quot;</span> <span class="op">&lt;&gt;</span> slug</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>action <span class="dt">ShowPostAction</span> { postId, slug } <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    post <span class="ot">&lt;-</span> <span class="kw">case</span> slug <span class="kw">of</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Just</span> slug <span class="ot">-&gt;</span> query <span class="op">@</span><span class="dt">Post</span> <span class="op">|&gt;</span> filterWhere (<span class="op">#</span>slug, slug) <span class="op">|&gt;</span> fetchOne</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Nothing</span>   <span class="ot">-&gt;</span> fetchOne postId</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- ...</span></span></code></pre></div>
+<p><span class="ascii">wai-sample</span>や<span class="ascii">Okapi</span>のようにパスの定義を<span class="ascii">1</span>箇所で済ませられるわけではない（<code>CanRoute</code>と<code>HasPath</code>の<span class="ascii">2</span>つの型クラスのインスタンスを定義する必要がある）ようですが、パーサーコンビネーターを使って自由にパスを定義できるところは似ていますね。</p>
+<h1 id="終わりに"><span class="link-to-here-outer"><a href="#終わりに" title="終わりに"><span class="link-to-here">Link to<br />
+here</span></a></span>終わりに</h1>
+<p><span class="ascii">wai-sample</span>は、<span class="ascii">Haskell</span>で<span class="ascii">Web API</span>を実装するためのフレームワークとして、<span class="ascii">Servant</span>や<span class="ascii">Yesod</span>のような既存のフレームワークとは異なるアプローチを試みました。残念ながら目標の達成が技術的に困難であることが分かり、開発を止めることにしましたが、<span class="ascii">Haskell</span>で<span class="ascii">Web API</span>を実装するため新しいアプローチとして、何かしら参考になれば幸いです。</p>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>先頭のスラッシュにご注意ください。<span class="ascii">wai-sample</span>が<code>Route</code>型の値を処理する際は、先頭のスラッシュは付けない前提としています。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>諸般の事情で、<span class="ascii">wai-sample</span>では<a href="https://github.com/igrep/http-api-data/tree/151de32409960354de3a3f786f20bc4a496d2b65"><code>http-api-data</code>パッケージをフォーク</a>して使っています。そのため、<code>ToForm</code>型クラスなどの仕様が<span class="ascii">Hackage</span>にあるものと異なっています。最終的に<span class="ascii">wai-sample</span>を公開する際、フォークした<span class="ascii">http-api-data</span>を新しいパッケージとして同時に公開する予定でした。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>名前から察せられるとおり<code>Simple</code>じゃない普通の<code>Responder</code>型もありますが、ここでは割愛します。<code>Responder</code>型はクエリーパラメーターやリクエストヘッダーなど、パスに含めるパラメーター以外の情報を受け取るためのものです。<code>SimpleResponder</code>型のすぐ近くで定義されているので、興味があったらご覧ください。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>パーサーコンビネーター以外のアプローチ、例えば基数木を使ってより多くのエンドポイントを高速に処理できるようにするのも可能でしょう。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p><code>ghc</code>コマンドの<code>-ddump-splices</code>オプションを使って、<code>declareClient</code>関数が生成したコードを貼り付けました。みなさんの手元で試す場合は<code>stack build --ghc-options=-ddump-splices</code>などと実行するのが簡単でしょう。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>もう<span class="ascii">1</span>つは、大変申し訳ないですが、私自身の<span class="ascii">Haskell</span>に対する情熱が落ち込んでしまった、という理由もあります😞。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>今回は詳細を省きましたが<code>Free Applicative</code>を使った<span class="ascii">DSL</span>の実装は、<a href="https://github.com/igrep/wai-sample/blob/b4ddb75a28b927b76ac7c4c182bad6812769ed01/src/WaiSample/Types.hs"><span class="ascii">WaiSample.Types</span>モジュール</a>をご覧ください。<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p>詳しい理由は面倒なので解説しません！これまでに出てきたコードだけで推測できるはずですし考えてみてください！<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p><a href="https://github.com/igrep/wai-sample/commit/b2647de2a1a4c7ec8c799ec07972c3d9df6fcb55">実装に対する最後の修正</a>からも既に<span class="ascii">1</span>年以上が過ぎました。記録を作るのも遅い…😥<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10"><p>個人的には、なぜ<code>Alternative</code>にしなかったのかが気になります。<code>Body.optional</code>や<code>Headers.optional</code>などは文字通り<a href="https://hackage.haskell.org/package/base-4.21.0.0/docs/Control-Applicative.html#v:optional"><code>Alternative</code>の<code>optional</code></a>で実現できそうに見えるからです。<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+            </div>
+        </div>
+        <div id="post-navigation" class="row" style="margin-top: 20px;">
+            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
+                <a href="/" lang="ja">トップに戻る</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-4">
+                
+                <a href="/posts/2022/disband_admins.html" style="margin-left: auto;" lang="ja">一般社団法人としてのHaskell-jp Admins解散のお知らせ</a>
+                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+]]></summary>
+</entry>
+<entry>
     <title>一般社団法人としてのHaskell-jp Admins解散のお知らせ</title>
     <link href="https://haskell.jp/blog/posts/2022/disband_admins.html" />
     <id>https://haskell.jp/blog/posts/2022/disband_admins.html</id>
@@ -84,6 +545,9 @@ here</span></a></span>今後の連絡先</h1>
         </div>
         <div id="post-navigation" class="row" style="margin-top: 20px;">
             <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
+                
+                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
+                <a href="/posts/2025/wai-sample.html" lang="ja">簡単なHaskellのみでServant並に高機能なライブラリーを作ろうとした振り返り</a>
                 
             </div>
             <div class="col-lg-2 col-md-2 col-xs-4 text-center">
@@ -208,7 +672,7 @@ here</span></a></span><span class="ascii">mono-traversable</span>パッケージ
 <col style="width: 37%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th><code>Text</code></th>
 <th><code>ByteString</code></th>
 <th><code>String</code> <span class="ascii">(</span><code>[Char]</code><span class="ascii">)</span></th>
@@ -216,661 +680,661 @@ here</span></a></span><span class="ascii">mono-traversable</span>パッケージ
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>all</code></td>
 <td><code>all</code></td>
 <td><code>all</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oall</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>any</code></td>
 <td><code>any</code></td>
 <td><code>any</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oany</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>append</code></td>
 <td><code>append</code></td>
 <td><code>++</code></td>
 <td><code>Semigroup</code> <span class="ascii">/</span> <code>&lt;&gt;</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>breakByte</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>breakEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>breakOnAll</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>breakOnEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>breakOn</code></td>
 <td><code>breakSubstring</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>break</code></td>
 <td><code>break</code></td>
 <td><code>break</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>break</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>center</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>chunksOf</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>commonPrefixes</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>compareLength</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>concatMap</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>concatMap</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldMap</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>concat</code></td>
 <td><code>concat</code></td>
 <td><code>concat</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofold</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>cons</code></td>
 <td><code>cons</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>cons</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>copy</code></td>
 <td><code>copy</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>count</code></td>
 <td><code>count</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>dropAround</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>dropEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>dropEnd</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>dropWhileEnd</code></td>
 <td><code>dropWhileEnd</code></td>
 <td><code>dropWhileEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>dropWhile</code></td>
 <td><code>dropWhile</code></td>
 <td><code>dropWhile</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>dropWhile</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>drop</code></td>
 <td><code>drop</code></td>
 <td><code>drop</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>drop</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>elemIndexEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>elemIndex</code></td>
 <td><code>elemIndex</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>elemIndices</code></td>
 <td><code>elemIndices</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>elem</code></td>
 <td><code>elem</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>oelem</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>empty</code></td>
 <td><code>empty</code></td>
 <td><code>""</code></td>
 <td><code>Monoid</code> <span class="ascii">/</span> <code>mempty</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>filter</code></td>
 <td><code>filter</code></td>
 <td><code>filter</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>filter</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>findIndexEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>findIndex</code></td>
 <td><code>findIndex</code></td>
 <td><code>findIndex</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>findIndices</code></td>
 <td><code>findIndices</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>findSubstring</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>findSubstrings</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>find</code></td>
 <td><code>find</code></td>
 <td><code>find</code></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>find</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>foldl'</code></td>
 <td><code>foldl'</code></td>
 <td><code>foldl'</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldl'</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>foldl1'</code></td>
 <td><code>foldl1'</code></td>
 <td><code>foldl1'</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldl1Ex'</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>foldl1</code></td>
 <td><code>foldl1</code></td>
 <td><code>foldl1</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>foldl</code></td>
 <td><code>foldl</code></td>
 <td><code>foldl</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>foldr'</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>foldr1'</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>foldr1</code></td>
 <td><code>foldr1</code></td>
 <td><code>foldr1</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldr1Ex</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>foldr</code></td>
 <td><code>foldr</code></td>
 <td><code>foldr</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ofoldr</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>groupBy</code></td>
 <td><code>groupBy</code></td>
 <td><code>groupBy</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>groupBy</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>group</code></td>
 <td><code>group</code></td>
 <td><code>group</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>group</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>head</code></td>
 <td><code>head</code></td>
 <td><code>head</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>headEx</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>index</code></td>
 <td><code>index</code></td>
 <td><code>index</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>indexEx</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>init</code></td>
 <td><code>init</code></td>
 <td><code>init</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>initEx</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>inits</code></td>
 <td><code>inits</code></td>
 <td><code>inits</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>intercalate</code></td>
 <td><code>intercalate</code></td>
 <td><code>intercalate</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>ointercalate</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>intersperse</code></td>
 <td><code>intersperse</code></td>
 <td><code>intersperse</code></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>intersperse</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>isInfixOf</code></td>
 <td><code>isInfixOf</code></td>
 <td><code>isInfixOf</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>isInfixOf</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>isPrefixOf</code></td>
 <td><code>isPrefixOf</code></td>
 <td><code>isPrefixOf</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>isPrefixOf</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>isSuffixOf</code></td>
 <td><code>isSuffixOf</code></td>
 <td><code>isSuffixOf</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>isSuffixOf</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>justifyLeft</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>justifyRight</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>last</code></td>
 <td><code>last</code></td>
 <td><code>last</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>lastEx</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>length</code></td>
 <td><code>length</code></td>
 <td><code>length</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>olength</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>lines</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>lines</code></td>
 <td><code>Textual</code> <span class="ascii">/</span> <code>lines</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>mapAccumL</code></td>
 <td><code>mapAccumL</code></td>
 <td><code>mapAccumL</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>mapAccumR</code></td>
 <td><code>mapAccumR</code></td>
 <td><code>mapAccumR</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>map</code></td>
 <td><code>map</code></td>
 <td><code>map</code></td>
 <td><code>MonoFunctor</code> <span class="ascii">/</span> <code>omap</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>maximum</code></td>
 <td><code>maximum</code></td>
 <td><code>maximum</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>maximumEx</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>minimum</code></td>
 <td><code>minimum</code></td>
 <td><code>minimum</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>minimumEx</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>notElem</code></td>
 <td><code>notElem</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>onotElem</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>null</code></td>
 <td><code>null</code></td>
 <td><code>null</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>onull</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>pack</code></td>
 <td><code>pack</code></td>
 <td><code>id</code></td>
 <td><code>IsString</code> <span class="ascii">/</span> <code>fromString</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>partition</code></td>
 <td><code>partition</code></td>
 <td><code>partition</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>partition</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>replace</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>replaceSeq</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>replicate</code></td>
 <td><code>replicate</code></td>
 <td><code>replicate</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>replicate</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>reverse</code></td>
 <td><code>reverse</code></td>
 <td><code>reverse</code></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>reverse</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>scanl1</code></td>
 <td><code>scanl1</code></td>
 <td><code>scanl1</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>scanl</code></td>
 <td><code>scanl</code></td>
 <td><code>scanl</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>scanr1</code></td>
 <td><code>scanr1</code></td>
 <td><code>scanr1</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>scanr</code></td>
 <td><code>scanr</code></td>
 <td><code>scanr</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>singleton</code></td>
 <td><code>singleton</code></td>
 <td><code>singleton</code></td>
 <td><code>MonoPointed</code> <span class="ascii">/</span> <code>opoint</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>snoc</code></td>
 <td><code>snoc</code></td>
 <td><code>snoc</code></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>snoc</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>sort</code></td>
 <td><code>sort</code></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>sort</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>spanEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>span</code></td>
 <td><code>span</code></td>
 <td><code>span</code></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>span</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>splitAt</code></td>
 <td><code>splitAt</code></td>
 <td><code>splitAt</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>splitAt</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>splitOn</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>splitOn</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>splitSeq</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><span class="ascii">N/A</span></td>
 <td><code>splitWith</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>splitElem</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>split</code></td>
 <td><code>splitWith</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>splitWhen</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>stripEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>N/A</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>stripPrefix</code></td>
 <td><code>stripPrefix</code></td>
 <td><code>stripPrefix</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>stripPrefix</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>stripStart</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>stripSuffix</code></td>
 <td><code>stripSuffix</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>stripSuffix</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>strip</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>tail</code></td>
 <td><code>tail</code></td>
 <td><code>tail</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>tail</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>tails</code></td>
 <td><code>tails</code></td>
 <td><code>tails</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>takeEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>takeWhileEnd</code></td>
 <td><code>takeWhileEnd</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>takeWhile</code></td>
 <td><code>takeWhile</code></td>
 <td><code>takeWhile</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>takeWhile</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>take</code></td>
 <td><code>take</code></td>
 <td><code>take</code></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>take</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>toCaseFold</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>Textual</code> <span class="ascii">/</span> <code>toCaseFold</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>toLower</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>Textual</code> <span class="ascii">/</span> <code>toLower</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>toTitle</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>toUpper</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>Textual</code> <span class="ascii">/</span> <code>toUpper</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>transpose</code></td>
 <td><code>transpose</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>uncons</code></td>
 <td><code>uncons</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>IsSequence</code> <span class="ascii">/</span> <code>uncons</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>unfoldrN</code></td>
 <td><code>unfoldrN</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>unfoldr</code></td>
 <td><code>unfoldr</code></td>
 <td><code>unfoldr</code></td>
 <td><span class="ascii">N/A</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>unlines</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>unlines</code></td>
 <td><code>Textual</code> <span class="ascii">/</span> <code>unlines</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>unpack</code></td>
 <td><code>unpack</code></td>
 <td><code>id</code></td>
 <td><code>MonoFoldable</code> <span class="ascii">/</span> <code>otoList</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>unsnoc</code></td>
 <td><code>unsnoc</code></td>
 <td><code>N/A</code></td>
 <td><code>SemiSequence</code> <span class="ascii">/</span> <code>unsnoc</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>unwords</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>unwords</code></td>
 <td><code>Textual</code> <span class="ascii">/</span> <code>unwords</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>words</code></td>
 <td><span class="ascii">N/A</span></td>
 <td><code>words</code></td>
 <td><code>Textual</code> <span class="ascii">/</span> <code>words</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>zipWith</code></td>
 <td><code>zipWith</code></td>
 <td><code>zipWith</code></td>
 <td><code>MonoZip</code> <span class="ascii">/</span> <code>ozipWith</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>zip</code></td>
 <td><code>zip</code></td>
 <td><code>zip</code></td>
@@ -1319,12 +1783,12 @@ here</span></a></span>まとめ</h1>
 </ul></li>
 </ul>
 <p>🎁それでは<span class="ascii">2022</span>年も<span class="ascii">Happy Haskell Hacking!!</span>🎅</p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>余談<span class="ascii">:</span> <a href="https://github.com/ghc-proposals/ghc-proposals"><span class="ascii">ghc-proposals</span></a>に送られた<span class="ascii">Pull request</span>を見ると、今どのような提案が議論されているか分かります。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>他のプログラミング言語では「プロパティー」と呼ばれることも多いですが、ここでは<span class="ascii">Haskell</span>のレコード型における用語に合わせました。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>個人的にはゲッターが関数になるのはとても直感的な気がして割と好きでしたが、確かにデメリットもとても多い仕様でした。セッターは単純な関数になってないですしね。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>余談<span class="ascii">:</span> <a href="https://github.com/ghc-proposals/ghc-proposals"><span class="ascii">ghc-proposals</span></a>に送られた<span class="ascii">Pull request</span>を見ると、今どのような提案が議論されているか分かります。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>他のプログラミング言語では「プロパティー」と呼ばれることも多いですが、ここでは<span class="ascii">Haskell</span>のレコード型における用語に合わせました。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>個人的にはゲッターが関数になるのはとても直感的な気がして割と好きでしたが、確かにデメリットもとても多い仕様でした。セッターは単純な関数になってないですしね。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>
@@ -2105,12 +2569,12 @@ here</span></a></span>まとめ</h1>
 <li><code>Monad</code>則を守らない型を<code>do</code>記法で使うと、<code>do</code>記法の結合を気にして書かなければならなくなる</li>
 </ul>
 <p>それでは、<span class="ascii">2021</span>年も🎁<span class="ascii">Happy Haskell Hacking with Monad</span>🎁<span class="ascii">!</span></p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>一応、<code>Monad</code>についてはそのスーパークラスである<code>Applicative</code>の則、<code>Functor</code>の則がありますが、<code>Monad</code>則を満たしていればそれらは自動的に満たせるので、ここでは省略します。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>残念ながら実際のところ、<code>Float</code>型・<code>Double</code>型などの浮動小数点数に対する<code>Sum</code>や<code>Product</code>は結合則を満たさない場合があります。これは他の多くのプログラミング言語にもある、浮動小数点数の悩ましい問題です。詳しくは「情報落ち」で検索してみてください。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>ここでの定義は、実際に使われている<a href="http://hackage.haskell.org/package/transformers"><span class="ascii">transformers</span>パッケージ</a>の<code>Writer</code>の定義とは大きく異なっているのでご注意ください。実際の<code>Writer</code>はパフォーマンス上の都合や<span class="ascii">Monad Transformer</span>との兼ね合いで、幾分工夫された定義となっています。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>一応、<code>Monad</code>についてはそのスーパークラスである<code>Applicative</code>の則、<code>Functor</code>の則がありますが、<code>Monad</code>則を満たしていればそれらは自動的に満たせるので、ここでは省略します。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>残念ながら実際のところ、<code>Float</code>型・<code>Double</code>型などの浮動小数点数に対する<code>Sum</code>や<code>Product</code>は結合則を満たさない場合があります。これは他の多くのプログラミング言語にもある、浮動小数点数の悩ましい問題です。詳しくは「情報落ち」で検索してみてください。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>ここでの定義は、実際に使われている<a href="http://hackage.haskell.org/package/transformers"><span class="ascii">transformers</span>パッケージ</a>の<code>Writer</code>の定義とは大きく異なっているのでご注意ください。実際の<code>Writer</code>はパフォーマンス上の都合や<span class="ascii">Monad Transformer</span>との兼ね合いで、幾分工夫された定義となっています。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>
@@ -2671,16 +3135,16 @@ here</span></a></span>まとめ</h2>
 <p>代数的データ型は複数の型の積和によって全く新しいデータ型を定義するものだった．型シノニムであった制約を回避でき，新たな構造を導入できるが，関数の流用が困難な場合があり型シノニムとの使い分けが必要だった．</p>
 <p><code>newtype</code> によるデータ型は，型システム上は代数的データ型と，実行時の動作は型シノニムと同様といった，それぞれの中間をとったようなものだった．型シノニムのような関数の流用ができない場合はあるものの，その代わり型シノニムの制約を回避でき，型システム上は全く異なる振る舞いを行うことも可能だった．</p>
 <p>これらは，それぞれが一長一短を持ち，目的にあった使い分けをする必要がある．この記事が，そのような場合の助けになればいいと思う．では，今回はこれで．</p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>型シノニムに対して部分適用を許容する一般的な方法は，型上にもラムダ抽象にあたる表現を導入することである．ただ，この場合型上の演算が停止しない場合があり，型システムが決定不能になる．このため，<span class="ascii">Haskell</span> では型シノニムに対しての部分適用は許容していない．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>等価再帰データ型 <span class="ascii">(equirecursive types)</span> と呼ばれる特別な型を型システムに導入することで，このような型を許容する理論は存在するが，この理論はとても複雑で型検査のアルゴリズムも難しくなりがちである．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>ただ，このような混乱が起こるかもしれないことを許容し，利便性のため型シノニムをインスタンス定義で使いたい場合，<code>TypeSynonymInstances</code> という <span class="ascii">GHC</span> 拡張を有効にすることで許容されるようになる．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>型上の計算によって，実際の型が特定される型シノニムとは異なり，代数的データ型の型コンストラクタはそれ自体がもう計算できないものになる．それは部分適用されても同様であり，部分適用を許容することで型シノニムと同様の問題は起こらない．これが，代数的データ型で部分適用が許容されている理由になる．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>実際にはパラメータ <code>a</code> の部分に具体的な型を当てはめないといけないが，当てはめればそれは完全に具体的な型になる．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p>なお，代数的データ型でも型シノニムと同様の利点を手に入れるための研究は，<span class="ascii">Haskell</span> では盛んに行われている．例えば，<code>Generic</code> <span class="ascii">/</span> <code>Data</code> 型クラス，<code>lens</code> パッケージなどを使うことで，構造が同じだが異なるデータ型で関数が流用できない問題を回避できる場合がある．<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7" role="doc-endnote"><p><span class="ascii">GHC</span> 拡張では，<code>deriving</code> 構文の拡張として強力な機能がいくつか搭載されている．特に <code>newtype</code> によるデータ型の場合は，<code>GeneralizedNewtypeDeriving</code> や <code>DerivingVia</code> 拡張を使えば，インスタンスの自動導出の範囲を大幅に拡大できる．<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>型シノニムに対して部分適用を許容する一般的な方法は，型上にもラムダ抽象にあたる表現を導入することである．ただ，この場合型上の演算が停止しない場合があり，型システムが決定不能になる．このため，<span class="ascii">Haskell</span> では型シノニムに対しての部分適用は許容していない．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>等価再帰データ型 <span class="ascii">(equirecursive types)</span> と呼ばれる特別な型を型システムに導入することで，このような型を許容する理論は存在するが，この理論はとても複雑で型検査のアルゴリズムも難しくなりがちである．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>ただ，このような混乱が起こるかもしれないことを許容し，利便性のため型シノニムをインスタンス定義で使いたい場合，<code>TypeSynonymInstances</code> という <span class="ascii">GHC</span> 拡張を有効にすることで許容されるようになる．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>型上の計算によって，実際の型が特定される型シノニムとは異なり，代数的データ型の型コンストラクタはそれ自体がもう計算できないものになる．それは部分適用されても同様であり，部分適用を許容することで型シノニムと同様の問題は起こらない．これが，代数的データ型で部分適用が許容されている理由になる．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>実際にはパラメータ <code>a</code> の部分に具体的な型を当てはめないといけないが，当てはめればそれは完全に具体的な型になる．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>なお，代数的データ型でも型シノニムと同様の利点を手に入れるための研究は，<span class="ascii">Haskell</span> では盛んに行われている．例えば，<code>Generic</code> <span class="ascii">/</span> <code>Data</code> 型クラス，<code>lens</code> パッケージなどを使うことで，構造が同じだが異なるデータ型で関数が流用できない問題を回避できる場合がある．<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p><span class="ascii">GHC</span> 拡張では，<code>deriving</code> 構文の拡張として強力な機能がいくつか搭載されている．特に <code>newtype</code> によるデータ型の場合は，<code>GeneralizedNewtypeDeriving</code> や <code>DerivingVia</code> 拡張を使えば，インスタンスの自動導出の範囲を大幅に拡大できる．<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>
@@ -2698,301 +3162,6 @@ here</span></a></span>まとめ</h2>
             <div class="col-lg-3 col-md-4 col-xs-4">
                 
                 <a href="/posts/2020/strict-gotchas.html" style="margin-left: auto;" lang="ja">Strict拡張を使用する際の注意点</a>
-                <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
-                
-            </div>
-        </div>
-    </div>
-</article>
-
-]]></summary>
-</entry>
-<entry>
-    <title>Strict拡張を使用する際の注意点</title>
-    <link href="https://haskell.jp/blog/posts/2020/strict-gotchas.html" />
-    <id>https://haskell.jp/blog/posts/2020/strict-gotchas.html</id>
-    <published>2020-06-11T00:00:00Z</published>
-    <updated>2020-06-11T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-<article lang="ja">
-
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-offset-2 col-lg-8 col-md-offset-1 col-md-10">
-                <ul class="social-buttons">
-                    <li><div>
-                        <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                    </div></li>
-                    <li><div>
-                        <script type="text/javascript">
-                            reddit_target = "haskell_jp";
-                            reddit_title  = document.title;
-                        </script>
-                        <script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script>
-                    </div></li>
-                    <li><div>
-                        <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
-                        <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
-                    </div></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div id="md-post-content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-              <hr />
-<p><span class="ascii">Haskell</span>は他の多くのプログラミング言語と異なった特徴を備えており、しばしばそれらが議論を呼ぶことがあります。その中でも特によく俎上に上がるのが、遅延評価です。遅延評価は、適切に扱えば不要な計算を行わず、計算資源を節約してくれるステキな仕組みですが、一歩使い方を間違うと「サンク」という「これから実行する<small>（かも知れない）</small>計算」を表すオブジェクトが無駄に作られてしまい、却ってメモリー消費量が増えてしまう、などといった問題を抱えています。この現象は「スペースリーク」と呼ばれ、かつて<a href="https://qiita.com/advent-calendar/2015/haskell-space-leaks">専門の<span class="ascii">Advent Calendar</span></a>が作られたことがあるほど、<span class="ascii">Haskeller</span>達の関心を集めてきました。</p>
-<p>そんな<span class="ascii">Haskeller</span>達の悩みの種を軽減しようと、<span class="ascii">GHC 8.0</span>以降、<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings"><code>Strict</code></a>と<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-data"><code>StrictData</code></a>という言語拡張が搭載されました。これらの拡張は、大雑把に言うと、</p>
-<ul>
-<li><code>StrictData</code><span class="ascii">:</span> 値コンストラクターにおいて、引数の値が弱頭正規形（<span class="ascii">Weak Head Normal Form</span>。以降慣習に従い「<span class="ascii">WHNF</span>」と呼びます）まで評価されるようになる</li>
-<li><code>Strict</code><span class="ascii">:</span> <code>StrictData</code>の効果に加え、あらゆる関数の引数やローカル変数の定義において、パターンマッチで代入した変数の値が<span class="ascii">WHNF</span>まで評価されるようになる</li>
-</ul>
-<p>というものです。</p>
-<p>このうち、<code>StrictData</code>は比較的リスクが少なく大変有用<small>（もはや標準であって欲しいぐらい）</small>という声をよく聞きますが<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>、<code>Strict</code>については様々な問題点があることが知られています。今回はその各種問題点をまとめて共有することで、思い切って<code>Strict</code>を有効にするときに参考になる情報を提供したいと思います！</p>
-<div id="table-of-contents-outer">
-<div id="table-of-contents">
-<div class="table-of-contents-title">
-Contents
-</div>
-<ul>
-<li><a href="#前提知識とその参考資料" title="前提知識とその参考資料">前提知識とその参考資料</a></li>
-<li><a href="#サンプルコードの試し方" title="サンプルコードの試し方">サンプルコードの試し方</a></li>
-<li><a href="#case-1-where句だろうとなんだろうと評価" title="case-1-where句だろうとなんだろうと評価"><span class="ascii">Case 1:</span> <code>where</code>句だろうとなんだろうと評価</a></li>
-<li><a href="#case-2-ポイントフリースタイルかどうかで変わる" title="case-2-ポイントフリースタイルかどうかで変わる"><span class="ascii">Case 2:</span> ポイントフリースタイルかどうかで変わる！</a></li>
-<li><a href="#case-3-内側のパターンはやっぱりダメ" title="case-3-内側のパターンはやっぱりダメ"><span class="ascii">Case 3:</span> 内側のパターンはやっぱりダメ</a></li>
-<li><a href="#case-4-foldrに渡す関数" title="case-4-foldrに渡す関数"><span class="ascii">Case 4:</span> <code>foldr</code>に渡す関数</a></li>
-<li><a href="#case-5-undefinedを受け取るメソッド" title="case-5-undefinedを受け取るメソッド"><span class="ascii">Case 5:</span> <code>undefined</code>を受け取るメソッド</a></li>
-<li><a href="#おわりに-やっぱりstrictは使う使わない" title="おわりに-やっぱりstrictは使う使わない">おわりに<span class="ascii">:</span> やっぱり<code>Strict</code>は使う？使わない？</a></li>
-</ul>
-</div>
-</div>
-<h1 id="前提知識とその参考資料"><span class="link-to-here-outer"><a href="#前提知識とその参考資料" title="前提知識とその参考資料"><span class="link-to-here">Link to<br />
-here</span></a></span>前提知識とその参考資料</h1>
-<p>以下の知識について、ざっくり理解しているものとして進めます。参考になりそうな日本語のページも付記したので、ご覧ください。</p>
-<ul>
-<li><span class="ascii">Haskell</span>の遅延評価について
-<ul>
-<li><a href="https://itchyny.hatenablog.com/entry/20130209/1360417348">実装して理解する遅延評価の仕組み 〜 <span class="ascii">thunk</span>を絵に描いて理解しよう・<span class="ascii">JavaScript</span>で<span class="ascii">Haskell</span>を実装！？ <span class="ascii">-</span> プログラムモグモグ</a>が詳しくて分かりやすいでしょう</li>
-</ul></li>
-<li><span class="ascii">Haskell</span>の正格評価、および<code>BangPatterns</code>について
-<ul>
-<li><a href="https://haskell.e-bigmoon.com/posts/2018/06-25-all-about-strictness">正格性のすべて <span class="ascii">(</span>翻訳<span class="ascii">)</span></a></li>
-</ul></li>
-<li><code>Strict</code>と<code>StrictData</code>について
-<ul>
-<li><a href="https://kazu-yamamoto.hatenablog.jp/entry/20151117/1447726679"><span class="ascii">Strict Haskell -</span> あどけない話</a></li>
-</ul></li>
-<li>その他、<a href="https://qiita.com/advent-calendar/2015/haskell-space-leaks"><span class="ascii">Haskell</span>スペースリーク <span class="ascii">Advent Calendar 2015 - Qiita</span></a>の記事にも有用なものがたくさんあります。</li>
-</ul>
-<h1 id="サンプルコードの試し方"><span class="link-to-here-outer"><a href="#サンプルコードの試し方" title="サンプルコードの試し方"><span class="link-to-here">Link to<br />
-here</span></a></span>サンプルコードの試し方</h1>
-<p>これから紹介するコードは、すべて<a href="https://github.com/haskell-jp/blog/tree/master/examples/2020/strict-gotchas">このブログのリポジトリーの、<code>examples</code>ディレクトリー</a>に置いておきました。下記のコマンドを実行すれば実際に試すことができます<small>（一部実行する際のコマンドが異なりますので、適宜例示します）</small>。</p>
-<pre><code>git clone https://github.com/haskell-jp/blog.git
-cd blog/examples/2020/strict-gotchas
-stack exec runghc -- &lt;これから紹介するコードのファイル&gt;.hs</code></pre>
-<p>実際に試すときは<code>--ghc-arg=-XStrict</code>というオプションを<code>runghc</code>に付けた場合と付けなかった場合両方で実行して、違いを確かめてみてください。</p>
-<p>なお、使用した<span class="ascii">GHC</span>のバージョンは<span class="ascii">8.10.1</span>で、<span class="ascii">OS</span>は<span class="ascii">Windows 10 ver. 1909</span>です。</p>
-<h1 id="case-1-where句だろうとなんだろうと評価"><span class="link-to-here-outer"><a href="#case-1-where句だろうとなんだろうと評価" title="case-1-where句だろうとなんだろうと評価"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Case 1:</span> <code>where</code>句だろうとなんだろうと評価</h1>
-<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/where.hs"><span class="ascii">where.hs</span></a></p>
-<p>最初のケースは、遅延評価で当たり前に享受できていたメリットが、<code>Strict</code>を有効にしている状態では得られなくなってしまう、というものです。<a href="https://qiita.com/pxfnc/items/a26bda6d11402daba675"><span class="ascii">pxfnc</span>さんの<span class="ascii">Strict</span>拡張でハマったお話</a>という記事でも紹介されてはいますが、まとめ記事なのでここでも改めて取り上げます。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="fu">print</span> <span class="op">$</span> div10 <span class="dv">0</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ot">div10 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>div10 n</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> n <span class="op">==</span> <span class="dv">0</span>    <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> result</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a> <span class="kw">where</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">=</span> <span class="dv">10</span> <span class="ot">`div`</span> n</span></code></pre></div>
-<p>ご覧のとおり、本当にほとんど<span class="ascii">pxfnc</span>さんの記事のサンプルそのままで恐縮ですが、このプログラム、👇のように<code>Strict</code>拡張を有効にして実行するとエラーが起こります。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> <span class="at">--</span> runghc <span class="at">--ghc-arg</span><span class="op">=</span>-XStrict where.hs</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">where.hs:</span> divide by zero</span></code></pre></div>
-<p>一方、<code>Strict</code>拡張を有効にしなかった場合、エラーは起こりません。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> <span class="at">--</span> runghc where.hs</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">0</span></span></code></pre></div>
-<p>なぜこんなことが起こるのでしょう？</p>
-<p>これは、<code>Strict</code>拡張がパターンマッチで代入したあらゆる変数の値を<span class="ascii">WHNF</span>まで評価するようになった結果、<code>where</code>句で代入した変数まで必ず<span class="ascii">WHNF</span>まで評価してしまうために発生したエラーです。すなわち、<code>where</code>における、</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">=</span> <span class="dv">10</span> <span class="ot">`div`</span> n</span></code></pre></div>
-<p>までもが、</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>  <span class="op">!</span>result <span class="ot">=</span> <span class="dv">10</span> <span class="ot">`div`</span> n</span></code></pre></div>
-<p>と<span class="ascii">Bang</span>パターンを付けた代入であるかのように解釈されたのです<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>。</p>
-<p>こうなると、<code>result</code>を使用しないケース、すなわち<code>n == 0</code>の場合であっても<code>result</code>に <small>（<span class="ascii">WHNF</span>まで評価した）</small>値を代入するのに必要な計算は実行され、結果<code>10 `div` 0</code>が計算されようとして<code>divide by zero</code>が発生するのです。</p>
-<p>⚠️<code>where</code>句は関数定義の後ろの方に書くという性格上、見落としがちかも知れません。注意しましょう。</p>
-<h1 id="case-2-ポイントフリースタイルかどうかで変わる"><span class="link-to-here-outer"><a href="#case-2-ポイントフリースタイルかどうかで変わる" title="case-2-ポイントフリースタイルかどうかで変わる"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Case 2:</span> ポイントフリースタイルかどうかで変わる！</h1>
-<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/const.hs"><span class="ascii">const.hs</span></a></p>
-<p>続いて、<span class="ascii">Haskell</span>に慣れた方なら誰もが一度は試したくなる、ポイントフリースタイルに関する落とし穴です。まずは次の二つの関数をご覧ください。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">dontReferArgs ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>dontReferArgs <span class="ot">=</span> <span class="fu">const</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ot">referArgs ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>referArgs x _ <span class="ot">=</span> x</span></code></pre></div>
-<p>この関数、どちらもやっていることは<code>const</code>と変わりません。<code>dontReferArgs</code>は<code>const</code>をそのまま使うことでポイントフリースタイルにしていますが、<code>referArgs</code>は自前で引数に言及することで<code>const</code>と同等の定義となっています。ポイントフリースタイルに変えると言うことは原則として元の関数の挙動を変えないワケですから、<code>dontReferArgs</code>と<code>referArgs</code>の意味は変わらないはず、ですよね<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>？</p>
-<p>ところがこれらの関数を<code>Strict</code>拡張を有効にした上で定義すると、なんと挙動が異なってしまいます！</p>
-<p>使用例<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span> <span class="op">$</span> dontReferArgs <span class="st">&quot;dontReferArgs&quot;</span> (<span class="fu">undefined</span><span class="ot"> ::</span> <span class="dt">Int</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span> <span class="op">$</span> referArgs <span class="st">&quot;referArgs&quot;</span> (<span class="fu">undefined</span><span class="ot"> ::</span> <span class="dt">Int</span>)</span></code></pre></div>
-<p>実行結果（<span class="ascii">Strict</span>拡張を有効にしなかった場合）<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> runghc const.hs</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;dontReferArgs&quot;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;referArgs&quot;</span></span></code></pre></div>
-<p>実行結果（<span class="ascii">Strict</span>拡張を有効にした場合）<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> <span class="at">--</span> runghc <span class="at">--ghc-arg</span><span class="op">=</span>-XStrict const.hs</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;dontReferArgs&quot;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">const.hs:</span> Prelude.undefined</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">CallStack</span> <span class="er">(</span><span class="ex">from</span> HasCallStack<span class="kw">)</span><span class="bu">:</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">error,</span> called at libraries<span class="dt">\b</span>ase<span class="dt">\G</span>HC<span class="dt">\E</span>rr.hs:79:14 in base:GHC.Err</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">undefined,</span> called at const.hs:10:34 in main:Main</span></code></pre></div>
-<p>はい、<code>where</code>句のケースと同様、<code>Strict</code>拡張を有効にした場合、例外が発生してしまいました❗️<code>Strict</code>拡張を有効にした結果、意図せず例外を発生させる値<small>（今回の場合<code>undefined</code>）</small>が評価されてしまったのです。</p>
-<p>例外を発生させた関数はそう、ポイントフリースタイルでない、<code>referArgs</code>関数の方です！なぜ<code>referArgs</code>でのみ例外が発生してしまったのかというと、<code>referArgs</code>が<code>Strict</code>拡張を有効にしたモジュールで、引数に言及<small>（パターンマッチ）</small>しているからです。<code>Strict</code>拡張を有効にした結果「あらゆる関数やローカル変数の定義において、パターンマッチで代入した変数の値」が評価されるとおり、<code>referArgs</code>の引数<code>x</code>・<code>_</code>も必ず評価されるようになり、このような例外が発生したのです。たとえ使用しない変数<code>_</code>でも関係ありません！</p>
-<p>そのため、原因の本質は引数に言及<small>（パターンマッチ）</small>しているか否かであり、<code>Prelude</code>の<code>const</code>を使用しているか否かではありません。こちら👇のように引数に言及した上で<code>const</code>を使っても、結果は同じなのです。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">referArgsByConst ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>referArgsByConst x y <span class="ot">=</span> <span class="fu">const</span> x y</span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span> <span class="op">$</span> referArgsByConst <span class="st">&quot;referArgsByConst&quot;</span> (<span class="fu">undefined</span><span class="ot"> ::</span> <span class="dt">Int</span>)</span></code></pre></div>
-<p>一方、<code>dontReferArgs</code>については、引数に言及せず、<code>Prelude</code>にある<code>const</code>をそのまま使っています。<code>Strict</code>拡張はあくまでも「パターンマッチした変数」のみを<span class="ascii">WHNF</span>まで評価するものであり、あらゆる関数が正格に呼び出されるわけではありません。なので通常の<code>Prelude</code>における<code>const</code>と同様、<code>dontReferArgs</code>も第<span class="ascii">2</span>引数は評価しないため、<code>undefined</code>を渡しても例外は起こらなかったのです。</p>
-<p>このことは、「<strong><code>Strict</code>拡張を有効にしているモジュールの中でも、<code>Strict</code>を有効にしていないモジュール<small>（この場合は<code>Prelude</code>）</small>から<code>import</code>した関数は、引数を正格に評価しない</strong>」という忘れてはならないポイントも示しています。例えば<code>const</code>よりももっと頻繁に使われるであろう、言及する引数を一つ削除する演算子の代表、関数合成<code>.</code>を使ったケースを考えてみてください。</p>
-<p>ポイントフリースタイルに慣れた方なら、関数適用<code>$</code>を次👇のように使って定義した<code>f</code>を見ると、</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>f xs <span class="ot">=</span> <span class="fu">map</span> (<span class="op">+</span> <span class="dv">3</span>) <span class="op">$</span> <span class="fu">filter</span> (<span class="op">&gt;</span> <span class="dv">2</span>) xs</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- あるいは、`$`を使わないでこのように書いた場合も:</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>f xs <span class="ot">=</span> <span class="fu">map</span> (<span class="op">+</span> <span class="dv">3</span>) (<span class="fu">filter</span> (<span class="op">&gt;</span> <span class="dv">2</span>) xs)</span></code></pre></div>
-<p>こちら👇のように書き換えたくなってうずうずするでしょう。</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">=</span> <span class="fu">map</span> (<span class="op">+</span> <span class="dv">3</span>) <span class="op">.</span> <span class="fu">filter</span> (<span class="op">&gt;</span> <span class="dv">2</span>)</span></code></pre></div>
-<p>しかし、<code>Strict</code>を有効にしたモジュールでこのような書き換えを行うと、<code>f</code>の挙動が変わってしまいます。引数<code>.</code>を使って書き換える前は、引数<code>xs</code>に言及していたところ<code>.</code>を使って引数<code>xs</code>に言及しなくなったからです。<code>filter</code>も<code>map</code>も<code>Strict</code>拡張を有効にしたモジュールで定義されているわけではないので、引数を正格に評価しないんですね。結果、こうした書き換えによって、<strong><code>Strict</code>拡張を有効にしていても意図せず遅延評価してしまう</strong>、というリスクがあるので、リファクタリングの際はくれぐれも気をつけてください<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>。ざっくりまとめると、<code>Strict</code>拡張を有効にしているモジュールでは、「引数や変数を宣言することすなわち<span class="ascii">WHNF</span>まで評価すること」、あるいは「引数や変数を宣言しなければ、評価されない」と意識しましょう。</p>
-<p>ちなみに、<code>referArgs</code>における<code>_</code>のように「<code>Strict</code>拡張を有効にした場合さえ、使用していない引数が評価されてしまうのは困る！」という場合は、引数名の前にチルダ<code>~</code>を付けてください。</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">referArgs ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>referArgs x <span class="op">~</span>_ <span class="ot">=</span> x</span></code></pre></div>
-<h1 id="case-3-内側のパターンはやっぱりダメ"><span class="link-to-here-outer"><a href="#case-3-内側のパターンはやっぱりダメ" title="case-3-内側のパターンはやっぱりダメ"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Case 3:</span> 内側のパターンはやっぱりダメ</h1>
-<p>サンプル<span class="ascii">:</span> 今回は<span class="ascii">GHCi</span>ですべて紹介するのでサンプルはありません。</p>
-<p>続いては、<code>Strict</code>拡張のドキュメントでも触れられている、入れ子になったパターンマッチにおける問題を紹介します。一言で言うと、<code>let (a, b) = ...</code>のような、データ構造<small>（この場合タプルですね）</small>の「内側」に対するパターンマッチは、<code>Strict</code>拡張を有効にしていても正格に評価しないよ、という話です。</p>
-<p>例えば、下記のコードを<code>Strict</code>拡張付きで実行しても、パターンマッチしている<code>a</code>・<code>b</code>ともに代入した時点では正格評価されず、<code>error "a"</code>・<code>error "b"</code>による例外はいずれも発生しません。次のコードを<span class="ascii">GHCi</span>で試してみてください。</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XStrict</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> (a, b) <span class="ot">=</span> (<span class="fu">error</span> <span class="st">&quot;a&quot;</span>, <span class="fu">error</span> <span class="st">&quot;b&quot;</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- 何も起きない</span></span></code></pre></div>
-<p>先ほどの節における「<code>Strict</code>拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわち<span class="ascii">WHNF</span>まで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』と意識しましょう」という主張を真に受けてしまうと、意図せず遅延評価させてしまい、ハマりそうです😰。⚠️繰り返しますが「<strong>内側のパターンにおける変数は正格評価されない</strong>」ということも意識してください。</p>
-<p>一方、<code>StrictData</code>や正格性フラグを用いるなどして、各要素を正格評価するよう定義した値コンストラクターでは、ちゃんと評価して例外を発生させます。</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XStrict</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> a b <span class="kw">deriving</span> <span class="dt">Show</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">let</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> (<span class="fu">error</span> <span class="st">&quot;a&quot;</span>) (<span class="fu">error</span> <span class="st">&quot;b&quot;</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="op">***</span> <span class="dt">Exception</span><span class="op">:</span> b</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="dt">CallStack</span> (from <span class="dt">HasCallStack</span>)<span class="op">:</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">error</span>, called at <span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">10</span><span class="op">:</span><span class="dv">40</span> <span class="kw">in</span> interactive<span class="op">:</span><span class="dt">Ghci7</span></span></code></pre></div>
-<p><code>Strict</code>拡張を有効にすると<code>StrictData</code>も自動的に有効になるので、👆における<code>MyTuple</code>値コンストラクターは各要素を正格評価するようになったわけです。なので<code>Strict</code>拡張を有効にしたモジュールにおいて、なおかつそこで定義した型で完結している限りは平和でしょう。</p>
-<p>ただし、<span class="ascii">GHCi</span>で試す場合に特に注意していただきたいのですが、<span class="ascii">GHCi</span>で<strong><code>let</code>をつけないでパターンマッチした場合は正格評価されない</strong>、という点に注意してください。<code>let</code>をつけないとトップレベルでの定義と見なされるからです。<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#strict-by-default-pattern-bindings"><span class="ascii">Strict</span>拡張のドキュメント</a>にも、「<span class="ascii">Top level bindings are unaffected by</span> <code>Strict</code>」とありますとおり、トップレベルでの定義は例外扱いされているのです。</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XStrict</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">data</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> a b <span class="kw">deriving</span> <span class="dt">Show</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="dt">MyTuple</span> a b <span class="ot">=</span> <span class="dt">MyTuple</span> (<span class="fu">error</span> <span class="st">&quot;a&quot;</span>) (<span class="fu">error</span> <span class="st">&quot;b&quot;</span>)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- 何も起きない</span></span></code></pre></div>
-<h1 id="case-4-foldrに渡す関数"><span class="link-to-here-outer"><a href="#case-4-foldrに渡す関数" title="case-4-foldrに渡す関数"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Case 4:</span> <code>foldr</code>に渡す関数</h1>
-<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/stackoverflow-foldr.hs"><span class="ascii">stackoverflow-foldr.hs</span></a></p>
-<p>ここの話はちょっと難しいので、先に守るべきルールを述べておきます。</p>
-<p>「遅延評価する関数を受け取る前提の高階関数に、（<code>Strict</code>拡張などで）引数を正格に評価するよう定義された関数を渡すのは止めましょう。」</p>
-<p>なんだかこう書くと半ばトートロジーのようにも聞こえますが、より具体的には、例えば<code>foldr</code>に引数を正格に評価するよう定義された関数を渡すのは止めましょう、という話です。<code>Strict</code>拡張を有効にした状態では、ラムダ式にも注意しないといけないもポイントです。</p>
-<p>※あらかじめおことわり<span class="ascii">:</span> この節のお話は、あくまでもリストに対する<code>foldr</code>の場合のお話です。他の<code>Foldable</code>な型では必ずしも当てはまらないのでご注意ください。</p>
-<p>論より証拠で、サンプルコードの中身（抜粋）とその実行結果を見てみましょう。</p>
-<pre class="main"><code>-- ...
-evaluate . length $ foldr (:) [] [1 .. size]
-putStrLn &quot;DONE: foldr 1&quot;
-
-evaluate . length $ foldr (\x z -&gt; x : z) [] [1 .. size]
-putStrLn &quot;DONE: foldr 2&quot;</code></pre>
-<p>今回のサンプルコードを実行する際は、<span class="ascii">GHC</span>のランタイムオプションを設定して、スタック領域のサイズを減らしてください。そうでなければ、処理するリストがあまり大きくないので<code>Strict</code>拡張を有効にしても問題の現象は再現されないでしょう<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>。<a href="https://stackoverflow.com/questions/29339643/how-can-i-pass-rts-options-to-runghc">こちらの<span class="ascii">Stackoverflow</span>の質問</a>曰く、<code>runghc</code>で実行する際にランタイムオプションを設定する場合は、<code>GHCRTS</code>環境変数を使用するしかないそうです。</p>
-<p>実行結果（<span class="ascii">Strict</span>拡張を有効にしなかった場合）<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> GHCRTS=-K100k <span class="ex">stack</span> exec runghc <span class="at">--</span> ./stackoverflow-foldr.hs</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">DONE:</span> foldr 1</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="ex">DONE:</span> foldr 2</span></code></pre></div>
-<p>実行結果（<span class="ascii">Strict</span>拡張を有効にした場合）<span class="ascii">:</span></p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> GHCRTS=-K100k <span class="ex">stack</span> exec runghc <span class="at">--</span> <span class="at">--ghc-arg</span><span class="op">=</span>-XStrict ./stackoverflow-foldr.hs</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">DONE:</span> foldr 1</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="ex">stackoverflow-foldr.hs:</span> stack overflow</span></code></pre></div>
-<p>サンプルコードは整数のリストに対して特に何も変換せず<code>foldr</code>する<small>（そして、<code>length</code>関数でリスト全体を評価してから捨てる）</small>だけのことを<span class="ascii">2</span>回繰り返したコードです。最初の<code>foldr</code>は<code>Strict</code>拡張があろうとなかろうと無事実行できたにもかかわらず、<code>Strict</code>拡張を有効にした二つめの<code>foldr</code>は、<code>stack overflow</code>というエラーを起こしてしまいました💥！</p>
-<p>なぜこんなエラーが発生したのかを知るために、<code>foldr</code>の定義を見直しましょう。こちら👇は<a href="http://hackage.haskell.org/package/base-4.14.0.0/docs/src/GHC.Base.html#foldr"><span class="ascii">GHC 8.10.1</span>における、リストに対する<code>foldr</code>の定義</a>です<small>（コメントは省略しています）</small>。</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foldr</span><span class="ot">            ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> b</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">foldr</span> k z <span class="ot">=</span> go</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">where</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>            go []     <span class="ot">=</span> z</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>            go (y<span class="op">:</span>ys) <span class="ot">=</span> y <span class="ot">`k`</span> go ys</span></code></pre></div>
-<p><code>go</code>という補助関数を再帰的に呼び出すことで、第一引数として渡した関数<code>k</code>を用いてリストの要素<span class="ascii">(</span><code>y</code><span class="ascii">)</span>を一つずつ変換しています。呼び出す度にリストの残りの要素をチェックして、最終的に空のリストを受け取ったときは<code>foldr</code>の第二引数<code>z</code>を返していますね。</p>
-<p>このとき<code>k</code>が第二引数を遅延評価する関数であった場合、 — サンプルコードで言えば<code>(:)</code>の場合 — 受け取った<code>go ys</code>という式は直ちには評価されません。サンプルコードの<code>(:)</code>に置き換えると、<code>(:)</code>の第二引数、つまりリストの残りの要素を取り出す度に<code>go ys</code>を一回計算して、一個ずつ要素を作り出すイメージです。</p>
-<p>一方、<code>k</code>が第二引数を正格評価する関数であった場合、 — サンプルコードで言うところの、<code>Strict</code>拡張を有効にした<code>(\x z -&gt; x : z)</code>の場合 — <code>k</code>は受け取った<code>go ys</code>をすぐに評価しようとします。このとき、<span class="ascii">GHC</span>は<code>k</code>や<code>go</code>に渡されている引数をスタック領域に積みます<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>。そうして<code>go</code>と、<code>go</code>に呼ばれた<code>k</code>が次々と引数をスタック領域に積んだ結果、スタックサイズの上限に達し、スタックオーバーフローが発生してしまうのです。</p>
-<p>これは他の多くのプログラミング言語で<small>（末尾再帰じゃない、普通の）</small>再帰呼び出しを行った場合とよく似た振る舞いです。間違って無限再帰呼び出しをしてしまってスタック領域があふれる、なんて経験は多くのプログラマーがお持ちでしょう。つまり単純に、<code>Strict</code>拡張を有効にした場合の<code>foldr (\x z -&gt; x : z) []</code>は、再帰呼び出しをしすぎてしまう関数となるのです。</p>
-<p>なお、今回は<code>length</code>関数を使ってリスト全体を使用するコードにしましたが、遅延リストらしく<code>foldr</code>の結果を一部しか使わない、という場合、<code>foldr</code>に渡した関数がリストを都度正格評価してしまうので、無駄な評価が占める割合はもっと増えることになります。やはり<code>foldr</code>は遅延評価を前提とした高階関数と言えるでしょう。</p>
-<p>以上のとおり、<span class="ascii">Haskell</span>には<code>foldr</code>のような、遅延評価を前提とした関数が<code>Strict</code>拡張より遥か昔から存在しています。それらを<code>Strict</code>拡張を有効にした状態で使うと、思わぬ衝突が起きてしまうので、くれぐれも気をつけましょう。</p>
-<p>こういう「使ってはいけない関数」を引いてしまわないための方法についても一点補足します。<span class="ascii">HLint</span>を細かく設定したり、カスタム<code>Prelude</code>を設定したりしてみるのは、一つの作戦です。なんとプロジェクト全体で、<code>foldr</code>を禁止することができます<small>（一部のモジュールでは例外的に許可する、なんてこともできます）</small>。詳しくは<a href="https://haskell.e-bigmoon.com/posts/2018/01-29-awesome-hlint.html">「素晴らしき <span class="ascii">HLint</span> を使いこなす」</a>や<a href="https://haskell.e-bigmoon.com/posts/2018/05-23-extended-prelude.html">「<span class="ascii">Prelude</span> を カスタム<span class="ascii">Prelude</span> で置き換える」</a>をご覧ください。</p>
-<h1 id="case-5-undefinedを受け取るメソッド"><span class="link-to-here-outer"><a href="#case-5-undefinedを受け取るメソッド" title="case-5-undefinedを受け取るメソッド"><span class="link-to-here">Link to<br />
-here</span></a></span><span class="ascii">Case 5:</span> <code>undefined</code>を受け取るメソッド</h1>
-<p>サンプル<span class="ascii">:</span> <a href="https://github.com/haskell-jp/blog/blob/master/examples/2020/strict-gotchas/storable.hs"><span class="ascii">storable.hs</span></a></p>
-<p>最後はちょっとレアケースではありますが、こちら👇の<span class="ascii">Issue</span>で発覚した問題を解説しましょう。</p>
-<p><a href="https://gitlab.haskell.org/ghc/ghc/issues/16810"><span class="ascii">#16810: Use explicit lazy binding around undefined in inlinable functions · Issues · Glasgow Haskell Compiler / GHC · GitLab</span></a></p>
-<p>問題を簡単に再現するために、次のサンプルコードを用意しました。</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- importなどは当然省略！</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Test</span> <span class="ot">=</span> <span class="dt">Test</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="kw">deriving</span> <span class="dt">Show</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Storable</span> <span class="dt">Test</span> <span class="kw">where</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  sizeOf _ <span class="ot">=</span> sizeOf (<span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>) <span class="op">*</span> <span class="dv">2</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  alignment _ <span class="ot">=</span> <span class="dv">8</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  peek <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;This should not be called in this program&quot;</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  poke <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;This should not be called in this program&quot;</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> alloca <span class="op">$</span> \(<span class="ot">_ ::</span> <span class="dt">Ptr</span> <span class="dt">Test</span>) <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;This won&#39;t be printed when Strict is enabled&quot;</span></span></code></pre></div>
-<p>はい、適当な型を定義して<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#t:Storable"><code>Storable</code></a>のインスタンスにして、それに対して<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Marshal-Alloc.html#v:alloca"><code>alloca</code></a>を呼ぶだけのコードです。インスタンス定義をはじめかなり手抜きな感じになっちゃってますが、まぁ今回の問題を再現するのにはこれで十分なので、ご了承ください🙏。</p>
-<p>このコード、残念ながら<code>Strict</code>拡張を有効にした状態で実行すると、<code>undefined</code>による例外が発生してしまいます💥。</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> <span class="at">--</span> runghc <span class="at">--ghc-arg</span><span class="op">=</span>-XStrict storable.hs</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">storable.hs:</span> Prelude.undefined</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">CallStack</span> <span class="er">(</span><span class="ex">from</span> HasCallStack<span class="kw">)</span><span class="bu">:</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">error,</span> called at libraries<span class="dt">\b</span>ase<span class="dt">\G</span>HC<span class="dt">\E</span>rr.hs:79:14 in base:GHC.Err</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">undefined,</span> called at libraries<span class="dt">\b</span>ase<span class="dt">\F</span>oreign<span class="dt">\M</span>arshal<span class="dt">\A</span>lloc.hs:117:31 in base:Foreign.Marshal.Alloc</span></code></pre></div>
-<p>こちらは<code>Strict</code>を有効にしなかった場合。やはり例外は起きてませんね😌。</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack <span class="bu">exec</span> <span class="at">--</span> runghc storable.hs</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">This</span> won<span class="st">&#39;t be printed when Strict is enabled</span></span></code></pre></div>
-<p>さてこの、<code>Strict</code>拡張を有効にした場合に発生した、<code>undefined</code>による例外はどこからやってきたのでしょう？上記のコードにはいくつか<code>error</code>関数を使用している箇所がありますが、発生した例外はあくまでも<code>undefined</code>です。見た限り上記のコードそのものから発生した例外ではなさそうですね…🤔。</p>
-<p>その答えはなんと、<code>main</code>関数で呼んでいる<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/src/Foreign-Marshal-Alloc.html#alloca"><code>alloca</code>の定義</a>にありました！</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ot">alloca ::</span> <span class="kw">forall</span> a b <span class="op">.</span> <span class="dt">Storable</span> a <span class="ot">=&gt;</span> (<span class="dt">Ptr</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> b</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>alloca  <span class="ot">=</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  allocaBytesAligned (sizeOf (<span class="fu">undefined</span><span class="ot"> ::</span> a)) (alignment (<span class="fu">undefined</span><span class="ot"> ::</span> a))</span></code></pre></div>
-<p>確かに、<code>sizeOf</code>メソッドや<code>alignment</code>メソッドに<code>undefined</code>を渡しています。これらはいずれも<code>Storable</code>型クラスのメソッドなので、上記の<code>Test</code>型でももちろん実装しています。そう、実はこの<code>sizeOf</code>メソッドと<code>alignment</code>メソッドの実装で、下👇のように引数<code>_</code>を宣言しているのが問題なのです！</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Storable</span> <span class="dt">Test</span> <span class="kw">where</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  sizeOf _ <span class="ot">=</span> sizeOf (<span class="dv">1</span><span class="ot"> ::</span> <span class="dt">Int</span>) <span class="op">*</span> <span class="dv">2</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  alignment _ <span class="ot">=</span> <span class="dv">8</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ...</span></span></code></pre></div>
-<p><a href="#case-2-ポイントフリースタイルかどうかで変わる">「<span class="ascii">Case 2:</span> ポイントフリースタイルかどうかで変わる！」の節</a>で、「<code>Strict</code>拡張を有効にしているモジュールでは、『引数や変数を宣言することすなわち<span class="ascii">WHNF</span>まで評価すること」』、あるいは『引数や変数を宣言しなければ、評価されない』」と述べたことを再び思い出してください。こちらの<code>sizeOf</code>・<code>alignment</code>の定義でも同様に、引数<code>_</code>を宣言しているため、引数を必ず<span class="ascii">WHNF</span>まで評価することになっています。結果、<code>alloca</code>関数がそれぞれを呼ぶ際<code>undefined</code>を渡しているため、<code>undefined</code>を評価してしまい、<code>undefined</code>による例外が発生してしまうのです💥。</p>
-<p>なぜこのように、<code>alloca</code>関数では<code>sizeOf</code>や<code>alignment</code>に<code>undefined</code>をわざわざ渡しているのでしょう？それは、これらのメソッドがそもそも<code>undefined</code>を渡して使うことを前提に設計されているからです。<code>sizeOf</code>・<code>alignment</code>はともに<code>Storable a =&gt; a -&gt; Int</code>という型の関数なので、第一引数に<code>Storable</code>のインスタンスである型<code>a</code>の値を受け取るのですが、このとき<strong>渡される<code>a</code>型の値は、使わない</strong>こととなっています。<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Foreign-Storable.html#v:sizeOf">それぞれのメソッドの説明</a>にも「<span class="ascii">The value of the argument is not used.</span>」と書かれていますね。これは、<code>sizeOf</code>も<code>alignment</code>も、型毎に一意な値として定まる<small>（引数の値によって<code>sizeOf</code>や<code>alignment</code>の結果が変わることがない）</small>ので、第一引数の<code>a</code>は、単に「この型の<code>sizeOf</code>を呼んでくださいね」という<strong>型の</strong>情報を渡すためのものでしかないからです。だから値には関心がないので<code>undefined</code>を渡しているわけです。そもそも、<code>alloca</code>関数のように引数として<code>Storable a =&gt; a</code>型の値をとらない関数では、<code>a</code>型の値を用意することができませんし。</p>
-<p>現代では通常、このように「値に関心がなく、何の型であるかという情報だけを受け取りたい」という場合は、<a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/libraries/base-4.14.0.0/Data-Proxy.html#t:Proxy"><code>Proxy</code></a>型を使うのが一般的です。<code>Storable</code>は恐らく<code>Proxy</code>が発明される前に生まれたため、<code>undefined</code>を渡すことになってしまっているのでしょう。なので、<code>Storable</code>型クラスのインスタンスを自前で定義したりしない限り、こうしたケースに出遭うことはまれだと思います。ただ、それでも<code>Proxy</code>を<code>import</code>するのを面倒くさがって<code>undefined</code>を代わりに渡す、なんてケースはありえるので、<code>Proxy</code>を使って定義した型クラスでも同じ問題にハマることはあるかも知れません…。</p>
-<p>⚠️結論として、<code>Storable</code>型クラスや、<code>Proxy</code>を受け取るメソッドを持つ型クラスのインスタンスを、<code>Strict</code>拡張を有効にした状態で定義する場合は、<code>Proxy</code>にあたる引数を評価しないよう、<code>~_</code>などを使って定義しましょう。</p>
-<h1 id="おわりに-やっぱりstrictは使う使わない"><span class="link-to-here-outer"><a href="#おわりに-やっぱりstrictは使う使わない" title="おわりに-やっぱりstrictは使う使わない"><span class="link-to-here">Link to<br />
-here</span></a></span>おわりに<span class="ascii">:</span> やっぱり<code>Strict</code>は使う？使わない？</h1>
-<p>さて、ここまで<code>Strict</code>拡張を有効にすることによって犯しうる、数々のミスを紹介してきました。ここまで書いた個人的な印象としては、「敢えて有効にする必要はないんじゃないか」といったところです<small>（まぁ、悪いところばかり調べた結果のため、とてもフェアな視点での判断とは言えないのですが…）</small>。<code>foldr</code>の例でも触れたとおり、<span class="ascii">Haskell</span>には遅延評価を前提とした、遅延評価を存分に活かした機能が溢れています。当然それらは<code>Strict</code>拡張ができるよりはるか昔からあり、<code>Strict</code>拡張のことなど一切考えないで作られたものです。動的型付け言語に後から静的型検査を導入するのが大変なように、相対する機能を後付けすると衝突が起こるのは仕方のないことですが、こと<code>Strict</code>拡張については想像以上に大きな衝突のようです😞。</p>
-<p>それでも使いたいという方に、今回の記事が助けになれば幸いです💪それでは<code>Strict</code>な方も<code>NoStrict</code>な方も<span class="ascii">Happy Haskell Hacking!!</span></p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
-<hr />
-<ol>
-<li id="fn1" role="doc-endnote"><p>例えば<span class="ascii">fumieval</span>さんによる<a href="http://fumieval.hatenablog.com/entry/2015/12/10/200630">この記事</a>より<span class="ascii">:</span> 「もっとも、日常ではここまで気にしなければいけない場面は少ないので、ほとんどの場合は気にせず感嘆符をつけて大丈夫だろう。<span class="ascii">GHC 8.0</span>からは、全フィールドをデフォルトで正格にする<code>StrictData</code>という拡張が入るため、こちらを使おう」<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p><code>BangPatterns</code>言語拡張を有効にした上で上記のように書き換えてみると、<code>Strict</code>拡張の有無に関わらずエラーが発生します。試してみましょう。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>実際のところ今回紹介するケース以外にも、ポイントフリースタイルにするかしないかで実行効率などが変わる場合があります。例えば、<a href="https://treszkai.github.io/2019/07/13/haskell-eval"><span class="ascii">Evaluation of function calls in Haskell</span></a>をご覧ください。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>もっとも、この例では引数はリストでしょうから、<span class="ascii">WHNF</span>までのみ正格評価するメリットは少なそうですが。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>大きなリストにすると、今度はエラーが発生するまでに時間がかかってしまうので…。ちなみに、このようにスタック領域を小さくすることでスペースリークを検出する手法は、<a href="https://github.com/ndmitchell/spaceleak"><span class="ascii">ndmitchell/spaceleak: Notes on space leaks</span></a>でも紹介されています。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p><span class="ascii">GHC</span>がどのように評価し、スタック領域を消費するかは<a href="https://takenobu-hs.github.io/downloads/haskell_ghc_illustrated.pdf"><span class="ascii">GHC illustrated</span></a>や、その参考文献をご覧ください。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section>
-            </div>
-        </div>
-        <div id="post-navigation" class="row" style="margin-top: 20px;">
-            <div class="col-lg-offset-2 col-lg-3 col-md-offset-1 col-md-4 col-xs-4">
-                
-                <i class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="margin-right: 5px;"></i>
-                <a href="/posts/2020/how-to-use-type-newtype-data.html" lang="ja">data / newtype / type の使い方</a>
-                
-            </div>
-            <div class="col-lg-2 col-md-2 col-xs-4 text-center">
-                <a href="/" lang="ja">トップに戻る</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-xs-4">
-                
-                <a href="/posts/2020/haskell-casually-at-work.html" style="margin-left: auto;" lang="ja">Haskellを業務で使う、カジュアルに</a>
                 <i class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="margin-left: 5px;"></i>
                 
             </div>

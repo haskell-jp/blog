@@ -253,10 +253,10 @@ here</span></a></span>😕なぜ使える？</h1>
 <li><span class="ascii">orphan instance</span>わかりづらい😥</li>
 <li><span class="ascii">GHCi</span>の<code>:i</code>は<span class="ascii">orphan instance</span>であろうとインスタンスを定義した箇所を見つけてくれるから便利！</li>
 </ul>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>この節の冒頭で「型シノニムのたらい回し」と呼んだものを追いかけてみましょう。<br />
+<li id="fn1"><p>この節の冒頭で「型シノニムのたらい回し」と呼んだものを追いかけてみましょう。<br />
 おなじみ<a href="http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#v:shouldBe"><code>shouldBe</code></a>は<a href="http://hackage.haskell.org/package/hspec-expectations-0.8.2/docs/Test-Hspec-Expectations.html#t:Expectation"><code>Expectation</code></a>という型の値を返します。<br />
 そして<code>Expectation</code>は<code>Assertion</code>の型シノニムであり、クリックすると<a href="http://hackage.haskell.org/package/HUnit-1.6.0.0/docs/Test-HUnit-Lang.html#t:Assertion"><code>Test.HUnit.Lang.Assertion</code></a>であることがわかります。<br />
 そして<code>Assertion</code>はそう、<code>type Assertion = IO ()</code>とあるとおり<code>IO ()</code>なのです。やっと知ってる型にたどり着きました😌。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>

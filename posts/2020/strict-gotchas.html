@@ -373,15 +373,15 @@ here</span></a></span><span class="ascii">Case 5:</span> <code>undefined</code>�
 here</span></a></span>おわりに<span class="ascii">:</span> やっぱり<code>Strict</code>は使う？使わない？</h1>
 <p>さて、ここまで<code>Strict</code>拡張を有効にすることによって犯しうる、数々のミスを紹介してきました。ここまで書いた個人的な印象としては、「敢えて有効にする必要はないんじゃないか」といったところです<small>（まぁ、悪いところばかり調べた結果のため、とてもフェアな視点での判断とは言えないのですが…）</small>。<code>foldr</code>の例でも触れたとおり、<span class="ascii">Haskell</span>には遅延評価を前提とした、遅延評価を存分に活かした機能が溢れています。当然それらは<code>Strict</code>拡張ができるよりはるか昔からあり、<code>Strict</code>拡張のことなど一切考えないで作られたものです。動的型付け言語に後から静的型検査を導入するのが大変なように、相対する機能を後付けすると衝突が起こるのは仕方のないことですが、こと<code>Strict</code>拡張については想像以上に大きな衝突のようです😞。</p>
 <p>それでも使いたいという方に、今回の記事が助けになれば幸いです💪それでは<code>Strict</code>な方も<code>NoStrict</code>な方も<span class="ascii">Happy Haskell Hacking!!</span></p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>例えば<span class="ascii">fumieval</span>さんによる<a href="http://fumieval.hatenablog.com/entry/2015/12/10/200630">この記事</a>より<span class="ascii">:</span> 「もっとも、日常ではここまで気にしなければいけない場面は少ないので、ほとんどの場合は気にせず感嘆符をつけて大丈夫だろう。<span class="ascii">GHC 8.0</span>からは、全フィールドをデフォルトで正格にする<code>StrictData</code>という拡張が入るため、こちらを使おう」<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p><code>BangPatterns</code>言語拡張を有効にした上で上記のように書き換えてみると、<code>Strict</code>拡張の有無に関わらずエラーが発生します。試してみましょう。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>実際のところ今回紹介するケース以外にも、ポイントフリースタイルにするかしないかで実行効率などが変わる場合があります。例えば、<a href="https://treszkai.github.io/2019/07/13/haskell-eval"><span class="ascii">Evaluation of function calls in Haskell</span></a>をご覧ください。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>もっとも、この例では引数はリストでしょうから、<span class="ascii">WHNF</span>までのみ正格評価するメリットは少なそうですが。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>大きなリストにすると、今度はエラーが発生するまでに時間がかかってしまうので…。ちなみに、このようにスタック領域を小さくすることでスペースリークを検出する手法は、<a href="https://github.com/ndmitchell/spaceleak"><span class="ascii">ndmitchell/spaceleak: Notes on space leaks</span></a>でも紹介されています。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p><span class="ascii">GHC</span>がどのように評価し、スタック領域を消費するかは<a href="https://takenobu-hs.github.io/downloads/haskell_ghc_illustrated.pdf"><span class="ascii">GHC illustrated</span></a>や、その参考文献をご覧ください。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>例えば<span class="ascii">fumieval</span>さんによる<a href="http://fumieval.hatenablog.com/entry/2015/12/10/200630">この記事</a>より<span class="ascii">:</span> 「もっとも、日常ではここまで気にしなければいけない場面は少ないので、ほとんどの場合は気にせず感嘆符をつけて大丈夫だろう。<span class="ascii">GHC 8.0</span>からは、全フィールドをデフォルトで正格にする<code>StrictData</code>という拡張が入るため、こちらを使おう」<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p><code>BangPatterns</code>言語拡張を有効にした上で上記のように書き換えてみると、<code>Strict</code>拡張の有無に関わらずエラーが発生します。試してみましょう。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>実際のところ今回紹介するケース以外にも、ポイントフリースタイルにするかしないかで実行効率などが変わる場合があります。例えば、<a href="https://treszkai.github.io/2019/07/13/haskell-eval"><span class="ascii">Evaluation of function calls in Haskell</span></a>をご覧ください。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>もっとも、この例では引数はリストでしょうから、<span class="ascii">WHNF</span>までのみ正格評価するメリットは少なそうですが。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>大きなリストにすると、今度はエラーが発生するまでに時間がかかってしまうので…。ちなみに、このようにスタック領域を小さくすることでスペースリークを検出する手法は、<a href="https://github.com/ndmitchell/spaceleak"><span class="ascii">ndmitchell/spaceleak: Notes on space leaks</span></a>でも紹介されています。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p><span class="ascii">GHC</span>がどのように評価し、スタック領域を消費するかは<a href="https://takenobu-hs.github.io/downloads/haskell_ghc_illustrated.pdf"><span class="ascii">GHC illustrated</span></a>や、その参考文献をご覧ください。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

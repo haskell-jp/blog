@@ -268,10 +268,10 @@ here</span></a></span>✅おわりに</h1>
 とは言え、バグが多かったり依存関係から<span class="ascii">IO</span>や<span class="ascii">Template Haskell</span>を抜き出さなければならなかったりで、まだまだ実用的とは言い難いでしょう。<br />
 しかし、今回報告したバグが直れば、ブラウザーによる処理のコアに当たる部分を<span class="ascii">Haskell</span>で書く、という応用が利きそうです。<br />
 例えば<span class="ascii">Pandoc</span>など<span class="ascii">Haskell</span>製アプリケーションをブラウザーから操作する、なんてアプリケーション作りが捗りそうですね！</p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p><a href="https://caniuse.com/#feat=bigint"><span class="ascii">Can I use</span></a>曰く安定版でも<code>about:config</code>を書き換えればすでに使えるとのことなんですが、なぜか手元の<span class="ascii">Firefox</span> 安定版ではうまくいきませんでした。確かに<code>about:config</code>にそれらしき設定はあるものの、<code>true</code>にしても何も変わらず…😰。<br />
+<li id="fn1"><p><a href="https://caniuse.com/#feat=bigint"><span class="ascii">Can I use</span></a>曰く安定版でも<code>about:config</code>を書き換えればすでに使えるとのことなんですが、なぜか手元の<span class="ascii">Firefox</span> 安定版ではうまくいきませんでした。確かに<code>about:config</code>にそれらしき設定はあるものの、<code>true</code>にしても何も変わらず…😰。<br />
 ついでに細かいことを言うと、<span class="ascii">Firefox Nightly</span>は<code>about:config</code>を書き換えなくても使え、<span class="ascii">Beta</span>版では<code>about:config</code>を書き換えると使えました。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>

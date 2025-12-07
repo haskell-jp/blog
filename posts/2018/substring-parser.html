@@ -446,7 +446,7 @@ here</span></a></span>結果、できたもの</h2>
 👇のコマンドを実行すれば、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/app/migrate2cure-index.hs#L101-L118">こちらのコミット時点のパーサー</a>で、<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Textbook/Dokidoki/Types.hs#L19-L23">同時点の<span class="ascii">Types.hs</span></a>から、<span class="ascii">cure-index.json</span>で使用する<a href="https://github.com/igrep/typesafe-precure/blob/73948fb4a82baaf4e33900d77326791c7703f786/src/ACME/PreCure/Index/Types.hs#L44-L46"><code>Girl</code></a>という型の値を取り出すことができます！</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> git clone https<span class="op">://</span>github<span class="op">.</span>com<span class="op">/</span>igrep<span class="op">/</span>typesafe<span class="op">-</span>precure</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> cd typesafe<span class="op">-</span>precure</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> git checkout 73948fb4a82baaf4e33900d77326791c7703f786</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> git checkout <span class="dv">73948</span>fb4a82baaf4e33900d77326791c7703f786</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack build <span class="op">:</span>migrate2cure<span class="op">-</span><span class="fu">index</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> stack exec migrate2cure<span class="op">-</span><span class="fu">index</span></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -502,14 +502,14 @@ here</span></a></span>まとめ</h1>
 <li>パーサーコンビネーター最高！ ✌️😆✌️</li>
 </ul>
 <p>それではこの秋もパーサーコンビネーターで<span class="ascii">Happy Haskell Hacking!!</span>✌️✌️✌️</p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>プリキュアハッカソンは「ハッカソン」の名を冠してはいるものの、実態としてはプリキュアの映画を観ながら好き勝手に開発するというゆるい会です。<br />
+<li id="fn1"><p>プリキュアハッカソンは「ハッカソン」の名を冠してはいるものの、実態としてはプリキュアの映画を観ながら好き勝手に開発するというゆるい会です。<br />
 また、そもそもそれほど時間もないので、私は当日の<span class="ascii">3</span>～<span class="ascii">4</span>週間ほど前から今回の対応を始めておりました。「今回のプリキュアハッカソンに<strong>向けて</strong>行ったこと」なる見出しなのは、そのためです。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>当時は各<code>Textbook</code>モジュールの<code>Types.hs</code>というファイルで<code>ANN</code>や<code>declareTransformees</code>などを使っていましたが、現在は「ルートに当たるモジュール」で行うことにしました。ファイル数を減らすのと、<span class="ascii">export</span>する識別子を型に絞ることで、<code>transformeesHugtto</code>のような、あまりかっこよくない識別子を隠す、というのがその目的です。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>実際には、前職時代に同様の問題に遭遇した際作成しました。今後も必要になったときにちょっとずつ開発していく予定です。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>一応<a href="http://hackage.haskell.org/package/parsers"><code>parsers</code></a>パッケージを使って様々なパーサーコンビネーターのライブラリーをサポートするように作りましたが、現状<a href="http://hackage.haskell.org/package/attoparsec"><code>attoparsec</code></a>でのみテストしています。用途を考えれば多分十分じゃないかと思っています。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>当時は各<code>Textbook</code>モジュールの<code>Types.hs</code>というファイルで<code>ANN</code>や<code>declareTransformees</code>などを使っていましたが、現在は「ルートに当たるモジュール」で行うことにしました。ファイル数を減らすのと、<span class="ascii">export</span>する識別子を型に絞ることで、<code>transformeesHugtto</code>のような、あまりかっこよくない識別子を隠す、というのがその目的です。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>実際には、前職時代に同様の問題に遭遇した際作成しました。今後も必要になったときにちょっとずつ開発していく予定です。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>一応<a href="http://hackage.haskell.org/package/parsers"><code>parsers</code></a>パッケージを使って様々なパーサーコンビネーターのライブラリーをサポートするように作りましたが、現状<a href="http://hackage.haskell.org/package/attoparsec"><code>attoparsec</code></a>でのみテストしています。用途を考えれば多分十分じゃないかと思っています。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

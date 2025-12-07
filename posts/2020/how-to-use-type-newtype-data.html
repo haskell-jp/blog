@@ -405,16 +405,16 @@ here</span></a></span>まとめ</h2>
 <p>代数的データ型は複数の型の積和によって全く新しいデータ型を定義するものだった．型シノニムであった制約を回避でき，新たな構造を導入できるが，関数の流用が困難な場合があり型シノニムとの使い分けが必要だった．</p>
 <p><code>newtype</code> によるデータ型は，型システム上は代数的データ型と，実行時の動作は型シノニムと同様といった，それぞれの中間をとったようなものだった．型シノニムのような関数の流用ができない場合はあるものの，その代わり型シノニムの制約を回避でき，型システム上は全く異なる振る舞いを行うことも可能だった．</p>
 <p>これらは，それぞれが一長一短を持ち，目的にあった使い分けをする必要がある．この記事が，そのような場合の助けになればいいと思う．では，今回はこれで．</p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>型シノニムに対して部分適用を許容する一般的な方法は，型上にもラムダ抽象にあたる表現を導入することである．ただ，この場合型上の演算が停止しない場合があり，型システムが決定不能になる．このため，<span class="ascii">Haskell</span> では型シノニムに対しての部分適用は許容していない．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>等価再帰データ型 <span class="ascii">(equirecursive types)</span> と呼ばれる特別な型を型システムに導入することで，このような型を許容する理論は存在するが，この理論はとても複雑で型検査のアルゴリズムも難しくなりがちである．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>ただ，このような混乱が起こるかもしれないことを許容し，利便性のため型シノニムをインスタンス定義で使いたい場合，<code>TypeSynonymInstances</code> という <span class="ascii">GHC</span> 拡張を有効にすることで許容されるようになる．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>型上の計算によって，実際の型が特定される型シノニムとは異なり，代数的データ型の型コンストラクタはそれ自体がもう計算できないものになる．それは部分適用されても同様であり，部分適用を許容することで型シノニムと同様の問題は起こらない．これが，代数的データ型で部分適用が許容されている理由になる．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>実際にはパラメータ <code>a</code> の部分に具体的な型を当てはめないといけないが，当てはめればそれは完全に具体的な型になる．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p>なお，代数的データ型でも型シノニムと同様の利点を手に入れるための研究は，<span class="ascii">Haskell</span> では盛んに行われている．例えば，<code>Generic</code> <span class="ascii">/</span> <code>Data</code> 型クラス，<code>lens</code> パッケージなどを使うことで，構造が同じだが異なるデータ型で関数が流用できない問題を回避できる場合がある．<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7" role="doc-endnote"><p><span class="ascii">GHC</span> 拡張では，<code>deriving</code> 構文の拡張として強力な機能がいくつか搭載されている．特に <code>newtype</code> によるデータ型の場合は，<code>GeneralizedNewtypeDeriving</code> や <code>DerivingVia</code> 拡張を使えば，インスタンスの自動導出の範囲を大幅に拡大できる．<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>型シノニムに対して部分適用を許容する一般的な方法は，型上にもラムダ抽象にあたる表現を導入することである．ただ，この場合型上の演算が停止しない場合があり，型システムが決定不能になる．このため，<span class="ascii">Haskell</span> では型シノニムに対しての部分適用は許容していない．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>等価再帰データ型 <span class="ascii">(equirecursive types)</span> と呼ばれる特別な型を型システムに導入することで，このような型を許容する理論は存在するが，この理論はとても複雑で型検査のアルゴリズムも難しくなりがちである．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>ただ，このような混乱が起こるかもしれないことを許容し，利便性のため型シノニムをインスタンス定義で使いたい場合，<code>TypeSynonymInstances</code> という <span class="ascii">GHC</span> 拡張を有効にすることで許容されるようになる．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>型上の計算によって，実際の型が特定される型シノニムとは異なり，代数的データ型の型コンストラクタはそれ自体がもう計算できないものになる．それは部分適用されても同様であり，部分適用を許容することで型シノニムと同様の問題は起こらない．これが，代数的データ型で部分適用が許容されている理由になる．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>実際にはパラメータ <code>a</code> の部分に具体的な型を当てはめないといけないが，当てはめればそれは完全に具体的な型になる．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>なお，代数的データ型でも型シノニムと同様の利点を手に入れるための研究は，<span class="ascii">Haskell</span> では盛んに行われている．例えば，<code>Generic</code> <span class="ascii">/</span> <code>Data</code> 型クラス，<code>lens</code> パッケージなどを使うことで，構造が同じだが異なるデータ型で関数が流用できない問題を回避できる場合がある．<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p><span class="ascii">GHC</span> 拡張では，<code>deriving</code> 構文の拡張として強力な機能がいくつか搭載されている．特に <code>newtype</code> によるデータ型の場合は，<code>GeneralizedNewtypeDeriving</code> や <code>DerivingVia</code> 拡張を使えば，インスタンスの自動導出の範囲を大幅に拡大できる．<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

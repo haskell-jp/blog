@@ -591,12 +591,12 @@ here</span></a></span>まとめ</h1>
 <li><code>Monad</code>則を守らない型を<code>do</code>記法で使うと、<code>do</code>記法の結合を気にして書かなければならなくなる</li>
 </ul>
 <p>それでは、<span class="ascii">2021</span>年も🎁<span class="ascii">Happy Haskell Hacking with Monad</span>🎁<span class="ascii">!</span></p>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>一応、<code>Monad</code>についてはそのスーパークラスである<code>Applicative</code>の則、<code>Functor</code>の則がありますが、<code>Monad</code>則を満たしていればそれらは自動的に満たせるので、ここでは省略します。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>残念ながら実際のところ、<code>Float</code>型・<code>Double</code>型などの浮動小数点数に対する<code>Sum</code>や<code>Product</code>は結合則を満たさない場合があります。これは他の多くのプログラミング言語にもある、浮動小数点数の悩ましい問題です。詳しくは「情報落ち」で検索してみてください。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>ここでの定義は、実際に使われている<a href="http://hackage.haskell.org/package/transformers"><span class="ascii">transformers</span>パッケージ</a>の<code>Writer</code>の定義とは大きく異なっているのでご注意ください。実際の<code>Writer</code>はパフォーマンス上の都合や<span class="ascii">Monad Transformer</span>との兼ね合いで、幾分工夫された定義となっています。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>一応、<code>Monad</code>についてはそのスーパークラスである<code>Applicative</code>の則、<code>Functor</code>の則がありますが、<code>Monad</code>則を満たしていればそれらは自動的に満たせるので、ここでは省略します。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>残念ながら実際のところ、<code>Float</code>型・<code>Double</code>型などの浮動小数点数に対する<code>Sum</code>や<code>Product</code>は結合則を満たさない場合があります。これは他の多くのプログラミング言語にもある、浮動小数点数の悩ましい問題です。詳しくは「情報落ち」で検索してみてください。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>ここでの定義は、実際に使われている<a href="http://hackage.haskell.org/package/transformers"><span class="ascii">transformers</span>パッケージ</a>の<code>Writer</code>の定義とは大きく異なっているのでご注意ください。実際の<code>Writer</code>はパフォーマンス上の都合や<span class="ascii">Monad Transformer</span>との兼ね合いで、幾分工夫された定義となっています。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

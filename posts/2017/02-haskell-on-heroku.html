@@ -463,12 +463,12 @@ here</span></a></span>アプリケーションを<span class="ascii">Heroku</spa
 here</span></a></span><span class="ascii">Heroku</span>上で動いているアプリのエラーを見てみる</h3>
 <p><span class="ascii">Heroku</span>には、とってもすばらしいログ機能があり、アプリの標準エラーや標準出力を簡単にチェックできます。</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> heroku logs</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:49</span> heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app[web.1]: servant-on-heroku-api: libpq: failed <span class="er">(</span><span class="ex">could</span> not connect to server: Connection refused</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app[web.1]:    Is the server running on host <span class="st">&quot;localhost&quot;</span> <span class="er">(</span><span class="ex">127.0.0.1</span><span class="kw">)</span> <span class="ex">and</span> accepting</span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app[web.1]:    TCP/IP connections on port 5432<span class="pp">?</span></span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app[web.1]: <span class="kw">)</span></span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> heroku[web.1]: State changed from starting to crashed</span></code></pre></div>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:49</span> heroku<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: servant-on-heroku-api: libpq: failed <span class="er">(</span><span class="ex">could</span> not connect to server: Connection refused</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>:    Is the server running on host <span class="st">&quot;localhost&quot;</span> <span class="er">(</span><span class="ex">127.0.0.1</span><span class="kw">)</span> <span class="ex">and</span> accepting</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>:    TCP/IP connections on port 5432<span class="pp">?</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> app<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: <span class="kw">)</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:05:52</span> heroku<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: State changed from starting to crashed</span></code></pre></div>
 <p>とても便利ですね！
 どうやらこれまで何度も見てきた例のエラーがまた出ているようです…</p>
 <p>今回は、<span class="ascii">Heroku</span>上で動いている<span class="ascii">PostgreSQL</span>データベースをちゃんとセットアップしていないのが理由です。</p>
@@ -507,10 +507,10 @@ here</span></a></span>アプリケーションを再起動する</h3>
 <div class="sourceCode" id="cb43"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> heroku ps:restart</span></code></pre></div>
 <p>もう一度ログを見て、本当にこれでエラーが出なくなったか確かめてみます。</p>
 <div class="sourceCode" id="cb44"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> heroku logs</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:15</span> heroku[web.1]: State changed from crashed to starting</span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:54</span> heroku[web.1]: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:56</span> app[web.1]: Migrating: CREATe TABLE <span class="st">&quot;comment&quot;</span><span class="er">(</span><span class="st">&quot;id&quot;</span> SERIAL8  PRIMARY KEY UNIQUE,<span class="st">&quot;author&quot;</span> VARCHAR NOT NULL,<span class="st">&quot;text&quot;</span> VARCHAR NOT NULL<span class="kw">)</span></span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:57</span> heroku[web.1]: State changed from starting to up</span></code></pre></div>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:15</span> heroku<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: State changed from crashed to starting</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:54</span> heroku<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: proc start <span class="kw">`</span><span class="ex">/opt/servant-on-heroku/bin/servant-on-heroku-api</span><span class="kw">`</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:56</span> app<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: Migrating: CREATe TABLE <span class="st">&quot;comment&quot;</span><span class="er">(</span><span class="st">&quot;id&quot;</span> SERIAL8  PRIMARY KEY UNIQUE,<span class="st">&quot;author&quot;</span> VARCHAR NOT NULL,<span class="st">&quot;text&quot;</span> VARCHAR NOT NULL<span class="kw">)</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="ex">2017-03-22T10:22:57</span> heroku<span class="pp">[</span><span class="ss">web.1</span><span class="pp">]</span>: State changed from starting to up</span></code></pre></div>
 <p>すごーい！ついに、ついにちゃんと動いたみたいです！！</p>
 <p>もう一度<code>curl</code>コマンドを使って<span class="ascii">API</span>がちゃんと動いているか確認してみます。</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">--request</span> POST <span class="dt">\</span></span>
@@ -580,11 +580,11 @@ here</span></a></span>まとめ</h2>
 もっと負荷にたえられる有料利用枠でアプリを動かすようにするのだって簡単です。</p>
 <h2 id="脚注"><span class="link-to-here-outer"><a href="#脚注" title="脚注"><span class="link-to-here">Link to<br />
 here</span></a></span>脚注</h2>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>僕が自分で許可して、原著者に日本語の内容をチェックしてもらいました。また、翻訳ではなくローカライズなので、原文の逐語訳ではなく、日本語話者にとって理解しやすいように一部加筆修正してあります。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>ここで挙げた<span class="ascii">7</span>ステップはちょっと複雑です。
+<li id="fn1"><p>僕が自分で許可して、原著者に日本語の内容をチェックしてもらいました。また、翻訳ではなくローカライズなので、原文の逐語訳ではなく、日本語話者にとって理解しやすいように一部加筆修正してあります。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>ここで挙げた<span class="ascii">7</span>ステップはちょっと複雑です。
 もちろん、<span class="ascii">1</span>コマンドだけで<span class="ascii">GHC</span>のインストールから依存ライブラリのインストール、
 アプリ自体のビルドまで完了することもできますが、ここでは<span class="ascii">Docker</span>のキャッシュ機構を活用するために
 いくつものコマンドに分けて記述してあります。
@@ -597,10 +597,10 @@ here</span></a></span>脚注</h2>
 <span class="ascii">GHC</span>や依存ライブラリをわざわざ再インストールする必要はないからです。</p>
 <p>このように、ステップをいくつかに分割することで、ビルド時間を大きく節約することができ、
 <span class="ascii">2</span>回目以降のビルドが数分で終わるようになります。最初のビルドは<span class="ascii">1</span>時間もかかっていたのに、ちょろいですね。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p><span class="ascii">dyno</span>には<a href="https://devcenter.heroku.com/articles/dynos#dyno-configurations">いろいろな種類のもの</a>がありますが、
+<li id="fn3"><p><span class="ascii">dyno</span>には<a href="https://devcenter.heroku.com/articles/dynos#dyno-configurations">いろいろな種類のもの</a>がありますが、
 今回のような単純な<span class="ascii">Web API</span>であれば別にこだわる必要はないです。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>元ネタは同氏の<a href="https://www.reddit.com/r/haskell/comments/39qx15/is_this_the_right_way_to_understand_haskells/">“<span class="ascii">Avoid success at all costs</span>”</a>という言葉で、「目先の便利さにとらわれて、<span class="ascii">Haskell</span>に余計な機能をいれるのは、ダメ。ゼッタイ。」みたいな意味。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p><span class="ascii">Heroku</span>は、他にも<code>PORT</code>という環境変数も使っていて、アプリケーションにどのポートでリクエストを待ち受けるかを指定できます。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>元ネタは同氏の<a href="https://www.reddit.com/r/haskell/comments/39qx15/is_this_the_right_way_to_understand_haskells/">“<span class="ascii">Avoid success at all costs</span>”</a>という言葉で、「目先の便利さにとらわれて、<span class="ascii">Haskell</span>に余計な機能をいれるのは、ダメ。ゼッタイ。」みたいな意味。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p><span class="ascii">Heroku</span>は、他にも<code>PORT</code>という環境変数も使っていて、アプリケーションにどのポートでリクエストを待ち受けるかを指定できます。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

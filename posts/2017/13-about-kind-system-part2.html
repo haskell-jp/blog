@@ -248,19 +248,19 @@ here</span></a></span>型制約の種</h3>
 <p>作られるものがそれぞれ違いますが、両方型の世界に一つの型関数、値の世界に関数を作るわけです。型クラスの方をデータ宣言に合わせるとしたら、型クラスは型制約コンストラクタとメソッドを作るものと言えるかもしれません。型の世界だけでの話なら、データ宣言は型コンストラクタを、型クラスは型制約コンストラクタを単に作るだけの構文ということになります。ではここで、データ型と型制約の対比を表にしてみましょう。</p>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>種</th>
 <th>表現される型</th>
 <th>定義方法</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>*</code></td>
 <td>データ型</td>
 <td>データ宣言<span class="ascii">(</span><code>data C a = ...</code><span class="ascii">)</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>Constraint</code></td>
 <td>型制約</td>
 <td>型クラス宣言<span class="ascii">(</span><code>class C a where ...</code><span class="ascii">)</span></td>
@@ -623,7 +623,7 @@ here</span></a></span>型の分類</h3>
 <col style="width: 20%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>プリミティブ型</th>
 <th>非ボックス型か？</th>
 <th>紐づいている種</th>
@@ -632,63 +632,63 @@ here</span></a></span>型の分類</h3>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>Char#</code></td>
 <td><span class="ascii">o</span></td>
 <td><code>TYPE 'WordRep</code></td>
 <td>文字と<code>#</code><span class="ascii">(</span><code>'x'#</code><span class="ascii">)</span></td>
 <td><code>int32_t</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>Int#</code></td>
 <td><span class="ascii">o</span></td>
 <td><code>TYPE 'IntRep</code></td>
 <td>整数と<code>#</code><span class="ascii">(</span><code>3#</code><span class="ascii">)</span></td>
 <td><code>int</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>Word#</code></td>
 <td><span class="ascii">o</span></td>
 <td><code>TYPE 'WordRep</code></td>
 <td>整数と<code>##</code><span class="ascii">(</span><code>3##</code><span class="ascii">)</span></td>
 <td><code>unsigned int</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>Float#</code></td>
 <td><span class="ascii">o</span></td>
 <td><code>TYPE 'FloatRep</code></td>
 <td>実数と<code>#</code><span class="ascii">(</span><code>3.2#</code><span class="ascii">)</span></td>
 <td><code>float</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>Double#</code></td>
 <td><span class="ascii">o</span></td>
 <td><code>TYPE 'DoubleRep</code></td>
 <td>実数と<code>##</code><span class="ascii">(</span><code>3.2##</code><span class="ascii">)</span></td>
 <td><code>double</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>Addr#</code></td>
 <td><span class="ascii">o</span></td>
 <td><code>TYPE 'AddrRep</code></td>
 <td>文字列と<code>#</code><span class="ascii">(</span><code>"foo"#</code><span class="ascii">)</span></td>
 <td><code>void *</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>Array# a</code></td>
 <td><span class="ascii">x</span></td>
 <td><code>TYPE 'UnliftedRep</code></td>
 <td><span class="ascii">-</span></td>
 <td><span class="ascii">-</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>MutableArray# s a</code></td>
 <td><span class="ascii">x</span></td>
 <td><code>TYPE 'UnliftedRep</code></td>
 <td><span class="ascii">-</span></td>
 <td><span class="ascii">-</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>MVar# s a</code></td>
 <td><span class="ascii">x</span></td>
 <td><code>TYPE 'UnliftedRep</code></td>
@@ -768,7 +768,7 @@ here</span></a></span>型の分類</h3>
 <p>なお、非ボックス型は<span class="ascii">unlifted</span>であり、<span class="ascii">lifted</span>な型はボックス型になります<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>。では、幾つかの型の種別を見て、今回は終わりにしましょう<span class="ascii">(</span><code>type * = TYPE 'LiftedRep</code>であることに注意してください！<span class="ascii">):</span></p>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>型名</th>
 <th>種</th>
 <th>プリミティブ型か</th>
@@ -777,21 +777,21 @@ here</span></a></span>型の分類</h3>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>Bool</code></td>
 <td><code>TYPE 'LiftedRep</code></td>
 <td><span class="ascii">x</span></td>
 <td><span class="ascii">o</span></td>
 <td><span class="ascii">o</span></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>Int#</code></td>
 <td><code>TYPE 'IntRep</code></td>
 <td><span class="ascii">o</span></td>
 <td><span class="ascii">x</span></td>
 <td><span class="ascii">x</span></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>Array# a</code></td>
 <td><code>TYPE 'UnliftedRep</code></td>
 <td><span class="ascii">o</span></td>
@@ -1003,15 +1003,15 @@ here</span></a></span>参考文献</h2>
 <li><a href="https://link.springer.com/content/pdf/10.1007%2F3540543961_30.pdf"><span class="ascii">Unboxed values a non-strict as first class citizens in functional language</span></a><span class="ascii">:</span> 非ボックス型の提唱論文です。<span class="ascii">unlifted</span>な型の意味を紹介する場合に、参考にしました。</li>
 </ul></li>
 </ul>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>型コンストラクタは値を持てないことに注意してください！ 何らかの値を持つ型は全て<code>*</code>という種を持つものになっており、例えば<code>Maybe :: * -&gt; *</code>という型コンストラクタはそれだけでは値を持たず、<code>Maybe Int</code>など型を一つ渡して初めて値を持つような型になるのでした。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>ここでの<code>Bool</code>は、<code>Bool</code>型が種に昇格したものという点にも注意してくださいね！<code>DataKinds</code>拡張によって、データ型は種に昇格できるのでした。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p><code>VecRep</code>を持つプリミティブ型は紹介しませんでしたが、この型は<span class="ascii">SIMD</span>ベクトル演算を利用するために用意されています。<code>VecCount</code>はレーン数、<code>VecElem</code>は<span class="ascii">SIMD API</span>のどのデータ型を使用するかを表します。これらのプリミティブ型は<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Prim.html#g:29"><span class="ascii">SIMD Vectors</span></a>の章にまとまっているので、興味があれば見てみると良いでしょう。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>この種の定義は、<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Types.html#t:-42-"><span class="ascii">GHC.Types</span>モジュール</a>で確認することができます。他にも、エイリアスとして<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Types.html#t:Type"><code>Type</code></a>や<span class="ascii">Unicode</span>版の<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Types.html#t:-9733-"><code>★</code></a>が用意されています。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>あなたがもし領域理論について興味があるならば、<a href="http://www.cs.bham.ac.uk/~axj/pub/papers/handy1.pdf"><span class="ascii">Domain Theory</span></a>を読んでみるのがよいでしょう。この文献は、領域理論に必要な順序理論の知識から、領域理論の基本的な概念を解説してくれている文献です。もし、理論自体に興味がなく、この理論がどのような問題解決を目指しているかだけを知りたいなら、<span class="ascii">Origins</span>だけでも読むと良いでしょう。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p>非ボックス型は実データなので、サンクはどうやったって持てないんでしたね！ 逆に<span class="ascii">lifted</span>ならば必ずポインタで表されているはずなので、ボックス型になります。ただし、<span class="ascii">unlifted</span>だからといって非ボックス型とは限りません<span class="ascii">(</span>例<span class="ascii">:</span> <code>Array# a</code><span class="ascii">)</span>。また、ボックス型だからといって<span class="ascii">lifted</span>であるとは限りません。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>型コンストラクタは値を持てないことに注意してください！ 何らかの値を持つ型は全て<code>*</code>という種を持つものになっており、例えば<code>Maybe :: * -&gt; *</code>という型コンストラクタはそれだけでは値を持たず、<code>Maybe Int</code>など型を一つ渡して初めて値を持つような型になるのでした。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>ここでの<code>Bool</code>は、<code>Bool</code>型が種に昇格したものという点にも注意してくださいね！<code>DataKinds</code>拡張によって、データ型は種に昇格できるのでした。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p><code>VecRep</code>を持つプリミティブ型は紹介しませんでしたが、この型は<span class="ascii">SIMD</span>ベクトル演算を利用するために用意されています。<code>VecCount</code>はレーン数、<code>VecElem</code>は<span class="ascii">SIMD API</span>のどのデータ型を使用するかを表します。これらのプリミティブ型は<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Prim.html#g:29"><span class="ascii">SIMD Vectors</span></a>の章にまとまっているので、興味があれば見てみると良いでしょう。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>この種の定義は、<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Types.html#t:-42-"><span class="ascii">GHC.Types</span>モジュール</a>で確認することができます。他にも、エイリアスとして<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Types.html#t:Type"><code>Type</code></a>や<span class="ascii">Unicode</span>版の<a href="https://hackage.haskell.org/package/ghc-prim-0.5.1.0/docs/GHC-Types.html#t:-9733-"><code>★</code></a>が用意されています。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>あなたがもし領域理論について興味があるならば、<a href="http://www.cs.bham.ac.uk/~axj/pub/papers/handy1.pdf"><span class="ascii">Domain Theory</span></a>を読んでみるのがよいでしょう。この文献は、領域理論に必要な順序理論の知識から、領域理論の基本的な概念を解説してくれている文献です。もし、理論自体に興味がなく、この理論がどのような問題解決を目指しているかだけを知りたいなら、<span class="ascii">Origins</span>だけでも読むと良いでしょう。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>非ボックス型は実データなので、サンクはどうやったって持てないんでしたね！ 逆に<span class="ascii">lifted</span>ならば必ずポインタで表されているはずなので、ボックス型になります。ただし、<span class="ascii">unlifted</span>だからといって非ボックス型とは限りません<span class="ascii">(</span>例<span class="ascii">:</span> <code>Array# a</code><span class="ascii">)</span>。また、ボックス型だからといって<span class="ascii">lifted</span>であるとは限りません。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>

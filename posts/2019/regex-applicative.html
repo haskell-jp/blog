@@ -577,17 +577,17 @@ here</span></a></span>まとめ</h1>
 <li>パーサーコンビネーターっぽく使えて、かつ正規表現の良さを持ち合わせている</li>
 <li>内部は「文字を受け取って続きの状態のリストを返す関数」として表現された<span class="ascii">NFA</span>で実装されている</li>
 </ul>
-<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p><code>Alternative</code>は、<code>Applicative</code>より強力な（できることが多い）型クラスです。そういう意味で、<span class="ascii">regex-applicative</span>は本当は「<span class="ascii">regex-alternative</span>」と呼んだ方が適切なのかも知れません。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>正確には、キャプチャーした文字列を正規表現の中で再利用することができないので、他の正規表現ライブラリーのキャプチャー機能と完全に同等のことができるわけではありません。これは現状の<span class="ascii">regex-applicative</span>の制限です。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>もちろん、実際のところ<span class="ascii">https</span>の場合デフォルトのポート番号は<span class="ascii">443</span>であるべきですが、ちゃんと実装しようとすると結構複雑になるのでご容赦を！<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>この記事の最後の方を書いていて思い出しました。<span class="ascii">regex-applicative</span>は<span class="ascii">DFA</span>ベースの正規表現エンジンでは不可能な「控えめな繰り返し」をサポートしているから、という理由もあるようです。なぜ<span class="ascii">DFA</span>ベースでは「控えめな繰り返し」ができないかは私もうまく説明できません…。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>『正規表現技術入門』の<span class="ascii">p. 132</span>における実装例では、これを状態と文字による二次元配列として実装しています。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p>並行並列プログラミングで出てくるあの「スレッド」とは違うのでご注意ください。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7" role="doc-endnote"><p>ただし、一般に、正規表現ライブラリーであってもこのような書き方をした方が効率よくマッチさせやすいでしょう。<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn8" role="doc-endnote"><p><a href="https://haskell.jp/blog/posts/2018/substring-parser.html">こちらの記事</a>でも触れているとおり、かつて私も同じ目的のパッケージを作成しました。しかし、これらのパッケージの方が明らかにドキュメントが充実していて、機能も豊富なので今回はこれらを紹介します。将来的には<span class="ascii">substring-parser</span>は<span class="ascii">deprecated</span>にするかも知れません。<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p><code>Alternative</code>は、<code>Applicative</code>より強力な（できることが多い）型クラスです。そういう意味で、<span class="ascii">regex-applicative</span>は本当は「<span class="ascii">regex-alternative</span>」と呼んだ方が適切なのかも知れません。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>正確には、キャプチャーした文字列を正規表現の中で再利用することができないので、他の正規表現ライブラリーのキャプチャー機能と完全に同等のことができるわけではありません。これは現状の<span class="ascii">regex-applicative</span>の制限です。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>もちろん、実際のところ<span class="ascii">https</span>の場合デフォルトのポート番号は<span class="ascii">443</span>であるべきですが、ちゃんと実装しようとすると結構複雑になるのでご容赦を！<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>この記事の最後の方を書いていて思い出しました。<span class="ascii">regex-applicative</span>は<span class="ascii">DFA</span>ベースの正規表現エンジンでは不可能な「控えめな繰り返し」をサポートしているから、という理由もあるようです。なぜ<span class="ascii">DFA</span>ベースでは「控えめな繰り返し」ができないかは私もうまく説明できません…。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>『正規表現技術入門』の<span class="ascii">p. 132</span>における実装例では、これを状態と文字による二次元配列として実装しています。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>並行並列プログラミングで出てくるあの「スレッド」とは違うのでご注意ください。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>ただし、一般に、正規表現ライブラリーであってもこのような書き方をした方が効率よくマッチさせやすいでしょう。<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p><a href="https://haskell.jp/blog/posts/2018/substring-parser.html">こちらの記事</a>でも触れているとおり、かつて私も同じ目的のパッケージを作成しました。しかし、これらのパッケージの方が明らかにドキュメントが充実していて、機能も豊富なので今回はこれらを紹介します。将来的には<span class="ascii">substring-parser</span>は<span class="ascii">deprecated</span>にするかも知れません。<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
             </div>
