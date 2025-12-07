@@ -10,7 +10,9 @@ tags:
 ...
 ---
 
-この記事では、「[Haskell製ウェブアプリケーションフレームワークを作る配信](https://www.youtube.com/playlist?list=PLRVf2pXOpAzJMFN810EWwGrH_qii7DKyn)」で配信していた、Haskell製ウェブアプリケーションフレームワークを作るプロジェクトについて振り返ります。Servantのような型安全なAPI定義を、<small>（Servantのような）</small>高度な型レベルプログラミングも、<small>（Yesodのような）</small>TemplateHaskellもなしに可能にするライブラリーを目指していましたが、開発を途中で止めることにしました。その振り返り --- とりわけ、そのゴールに基づいて実装するのが困難だと分かった機能などを中心にまとめます。
+この記事は[Haskell Advent Calendar 2025](https://qiita.com/advent-calendar/2025/haskell)の7日目の記事です。
+
+本日は、「[Haskell製ウェブアプリケーションフレームワークを作る配信](https://www.youtube.com/playlist?list=PLRVf2pXOpAzJMFN810EWwGrH_qii7DKyn)」で配信していた、Haskell製ウェブアプリケーションフレームワークを作るプロジェクトについて振り返ります。Servantのような型安全なAPI定義を、<small>（Servantのような）</small>高度な型レベルプログラミングも、<small>（Yesodのような）</small>TemplateHaskellもなしに可能にするライブラリーを目指していましたが、開発を途中で止めることにしました。その振り返り --- とりわけ、そのゴールに基づいて実装するのが困難だと分かった機能などを中心にまとめます。
 
 # 動機
 
