@@ -61,7 +61,7 @@ jobs:
         path: ~/project
     - add-ssh-keys:
         fingerprints:
-          - "9f:97:4e:99:72:c0:62:1d:db:9e:8e:ce:62:3f:0a:52"
+          - "SHA256:6rsQuG02N30vbKg5qfiPGSFfquDmJVOgdTdlGcKaifg"
     - run: apt update
     - run: apt install -y make ssh-client
     - attach_workspace:
